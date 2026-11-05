@@ -10,8 +10,8 @@
 B1 — Scaffold the Next.js app around the engine (see BACKLOG.md).
 
 ## NEEDS ITU
-1. Create an empty private GitHub repo named `sojourner-library` (no README) at https://github.com/new — then tell Claude.
-2. Later: Supabase project + Vercel project (Claude can create both once the repo exists).
+- (done) GitHub repo created.
+1. Later: Supabase project + Vercel project (Claude can create both once the repo exists).
 
 ## DECISIONS (reversible)
 - Default speed 230 wpm; personal speed half-life 14 days.
