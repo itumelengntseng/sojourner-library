@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AUTHOR, SITE_NAME } from "@/lib/site";
 import { DEFAULT_WPM, formatDuration, minutesFor } from "@/lib/engine/readingTime";
 
@@ -16,6 +17,9 @@ export default function FrontHall() {
       <p className="mt-6 font-sans text-sm text-sandstone/80">
         A 90,000-word book takes about {formatDuration(sample)} at a steady {DEFAULT_WPM} words per minute.
       </p>
+      <Link href="/card" className="mt-10 rounded border border-lamplight/60 px-5 py-2 font-sans text-sm text-lamplight hover:bg-lamplight hover:text-ink">
+        Go to the front desk
+      </Link>
     </main>
   );
 }
