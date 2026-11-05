@@ -55,3 +55,32 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Scene covers: Harlem streets dissolving into Free State plains ───────── */
+.scene-cover .scene { filter: hue-rotate(calc(var(--cover-hue, 0deg) / 12)); }
+.scene-cover .scene-plains { animation: scene-plains 18s ease-in-out infinite; animation-delay: var(--cover-delay, 0s); }
+.scene-cover .scene-harlem { animation: scene-harlem 18s ease-in-out infinite; animation-delay: var(--cover-delay, 0s); }
+.scene-cover .cover-far { animation: drift-far 18s ease-in-out infinite; animation-delay: var(--cover-delay, 0s); }
+.scene-cover .cover-near { animation: drift-near 18s ease-in-out infinite; animation-delay: var(--cover-delay, 0s); }
+.scene-cover .cover-lamp { animation: lamp-flicker 5s steps(1) infinite; }
+.scene-cover:hover .scene, .scene-cover:focus-within .scene { animation-play-state: paused; }
+
+@keyframes scene-harlem {
+  0%, 38% { opacity: 1; transform: scale(1); }
+  50%, 88% { opacity: 0; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes scene-plains {
+  0%, 38% { opacity: 0; transform: scale(1.06); }
+  50%, 88% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.06); }
+}
+@keyframes drift-far { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-4px); } }
+@keyframes drift-near { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-10px); } }
+@keyframes lamp-flicker { 0%, 100% { opacity: 1; } 47% { opacity: 0.82; } 49% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-cover .scene-plains { opacity: 0; }
+  .scene-cover .scene-harlem { opacity: 1; }
+  .scene-cover .scene, .scene-cover g { animation: none !important; }
+}
