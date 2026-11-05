@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/* The Sojourner Library — a place, not a dashboard.
+   Stone walls, timber shelves, lamplight, a Sotho threshold opening onto a courtyard. */
+@theme {
+  --color-stone-wall: #2b2724;
+  --color-stone-floor: #3a342f;
+  --color-sandstone: #c9a77c;
+  --color-timber: #6b4428;
+  --color-timber-dark: #3f2615;
+  --color-lamplight: #f2c57c;
+  --color-ember: #d9822b;
+  --color-paper: #f4ead7;
+  --color-ink: #1d1a17;
+  --color-ochre: #b5651d;
+
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --font-sans: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--color-stone-wall);
+  color: var(--color-paper);
+  font-family: var(--font-serif);
+}
+
+/* Warm pool of light falling from above, like a reading lamp in a stone hall. */
+.lamplit {
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 0%, rgb(242 197 124 / 0.22), transparent 70%),
+    linear-gradient(180deg, var(--color-stone-wall), var(--color-stone-floor));
+}
+
+/* Litema-inspired threshold band: simple incised chevrons, as on a Sotho courtyard wall. */
+.threshold {
+  height: 14px;
+  background:
+    linear-gradient(135deg, transparent 50%, rgb(201 167 124 / 0.35) 50%) 0 0 / 14px 14px,
+    linear-gradient(225deg, transparent 50%, rgb(201 167 124 / 0.35) 50%) 0 0 / 14px 14px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-lamplight);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

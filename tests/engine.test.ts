@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   activeMs, canFinishBy, countWords, DEFAULT_WPM, formatDuration, minutesFor, personalWpm, planFinish,
-} from "../src/engine/readingTime";
-import { borrow, canRead, LOAN_PERIOD_MS, loanStatus, MAX_RENEWALS, renew, returnLoan, updateBookmark } from "../src/engine/checkout";
-import { ask, parseDeadline } from "../src/engine/ask";
+} from "../lib/engine/readingTime";
+import { borrow, canRead, LOAN_PERIOD_MS, loanStatus, MAX_RENEWALS, renew, returnLoan, updateBookmark } from "../lib/engine/checkout";
+import { ask, parseDeadline } from "../lib/engine/ask";
 
 const MIN = 60_000;
 const DAY = 86_400_000;
