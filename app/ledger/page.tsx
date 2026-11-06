@@ -57,7 +57,7 @@ export default async function Ledger() {
             <tbody className="divide-y divide-timber-dark/70 border-y border-timber-dark/70">
               {l.hours.map((h) => (
                 <tr key={h.workKey}>
-                  <td className="py-3 pr-2">{link(h.workKey) ? <Link href={link(h.workKey)!} className="hover:text-lamplight">{title(h.workKey)}</Link> : title(h.workKey)}</td>
+                  <td className="py-3 pr-2">{link(h.workKey) ? <Link href={link(h.workKey)!} className="hover:text-lamplight">{title(h.workKey)}</Link> : title(h.workKey)}{h.finishedAt !== undefined && <span className="ml-2 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">Finished {new Date(h.finishedAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" })}</span>}</td>
                   <td className="py-3 pr-2 font-sans text-sm">{formatHours(h.activeMs)}</td>
                   <td className="hidden py-3 pr-2 font-sans text-sm sm:table-cell">{h.wordsRead.toLocaleString("en-ZA")}</td>
                   <td className="py-3 text-right font-mono text-xs text-ochre">{stampDate(h.lastRead)}</td>

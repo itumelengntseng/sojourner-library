@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-06 (scheduled build run)._
+_Last updated: 2026-11-06 (scheduled build run 2 — C1–C13 + QA2)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -37,10 +37,11 @@ _Last updated: 2026-11-06 (scheduled build run)._
 - C10 — Set aside / restore (`archiveAction`, `ArchiveButton`, "Set aside" list in the Writer's Room): "Set aside" on any work (with a confirm) sets `archived_at` — it leaves every shelf, the catalogue, lineage/timeline titles, fresh list and readers' reach; nothing is deleted. Set-aside works are listed with the date and "Restore to the shelves". Verified against PGlite: guests lose sight, the row stays, guests can't restore, owner restores.
 - C11 — "On loan now" at the front desk (`onLoanNow()` in `lib/loanDesk.ts`, `myOpenLoans()` in `lib/loanStore.ts`, `components/OnLoanNow.tsx`, `/card`): the reader's open loans, soonest due first, each with its stamped due time, time left (ember when due soon) and Open/Resume into the reading room; nothing out → a link to the halls. Works in preview (cookie desk) and library mode (own loans only; set-aside works left out). Smoke-tested at 375px: borrow → card shows it.
 - C12 — Contents drawer in the reading room (`components/ReaderView.tsx`): "Contents" in the toolbar opens a list of every chapter with minutes at the reader's pace, the current chapter marked (`aria-current`) and the bookmarked one labelled; works in the proof copy too. Fits the screen at 375px (checked) and sits by the button on wide screens.
-- Tests: 251 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks).
+- C13 — "Finished" stamp in the ledger (`finishedAt()` / `withFinished()` in `lib/ledger.ts`, `lib/ledgerStore.ts`, `/ledger`): a book is stamped "Finished <date>" in Hours per book once the words read in its last (non-archived) chapter reach 90% of it, dated by the session that crossed the line. Library mode uses `sessions.chapter_id`; preview session summaries now remember the chapter position (older summaries without it simply never count). Smoke-tested in preview: borrow → read the last chapter through → ledger shows the stamp. The work-page stamp is split out as C14.
+- Tests: 255 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks).
 
 ## Next task
-Backlog B1–B11, NEXT ITERATION a–e and FOLLOW-UPS C1–C5 are all complete. All backlog and follow-up items through C12 are complete. Next task: C13 (BACKLOG.md → FOLLOW-UPS).
+Backlog B1–B11, NEXT ITERATION a–e and FOLLOW-UPS C1–C5 are all complete. All backlog and follow-up items through C13 are complete. Next task: C14 — show the "Finished" stamp on the work page too (BACKLOG.md → FOLLOW-UPS).
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -86,4 +87,5 @@ Backlog B1–B11, NEXT ITERATION a–e and FOLLOW-UPS C1–C5 are all complete. 
 - The Keeper's proof copy is read-only and unrecorded, so it never skews readership counts or the Keeper's own pace.
 - "Fresh on the shelves" uses a work's `updated_at`, so sharing a work or editing its description also brings it forward (60-day window, 3 works).
 - Setting a work aside also closes access for readers who have it on loan (their loan rows and notes are kept); restoring reopens it.
+- A book counts as finished at 90% of its last chapter's words (readers skim endings and the tracker is conservative); rereads keep the first finish date.
 - System serif font stack (no web-font download) to keep builds offline-safe.

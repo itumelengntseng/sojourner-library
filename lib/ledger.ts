@@ -10,6 +10,7 @@ export const dayKey = (ms: number) => Math.floor((ms + SAST_OFFSET_MS) / DAY);
 
 export interface WorkSession extends SessionStats {
   workKey: string; // slug (preview) or work id (library)
+  chapterKey?: string; // chapter position (preview) or chapter id (library)
 }
 
 export interface WorkHours {
@@ -18,6 +19,8 @@ export interface WorkHours {
   wordsRead: number;
   sessions: number;
   lastRead: number;
+  /** When the reader reached the end of the last chapter, if they have. */
+  finishedAt?: number;
 }
 
 export function hoursByWork(sessions: WorkSession[]): WorkHours[] {
@@ -31,6 +34,28 @@ export function hoursByWork(sessions: WorkSession[]): WorkHours[] {
     map.set(s.workKey, h);
   }
   return [...map.values()].sort((a, b) => b.lastRead - a.lastRead);
+}
+
+/** A book counts as finished once the words read in its last chapter reach this share of it. */
+export const FINISH_SHARE = 0.9;
+
+/** When the reader finished: the session in which their reading of the last chapter reached FINISH_SHARE. */
+export function finishedAt(sessions: WorkSession[], last: { key: string; words: number } | undefined): number | undefined {
+  if (!last || last.words <= 0) return undefined;
+  let read = 0;
+  for (const s of sessions.filter((x) => x.chapterKey === last.key).sort((a, b) => a.endedAt - b.endedAt)) {
+    read += s.wordsRead;
+    if (read >= last.words * FINISH_SHARE) return s.endedAt;
+  }
+  return undefined;
+}
+
+/** Adds the finished stamp to each book's hours. `lastChapters` maps workKey → its last chapter. */
+export function withFinished(hours: WorkHours[], sessions: WorkSession[], lastChapters: Record<string, { key: string; words: number }>): WorkHours[] {
+  return hours.map((h) => {
+    const at = finishedAt(sessions.filter((s) => s.workKey === h.workKey), lastChapters[h.workKey]);
+    return at === undefined ? h : { ...h, finishedAt: at };
+  });
 }
 
 /** "3 h 20 min", "12 min", "under a minute". */

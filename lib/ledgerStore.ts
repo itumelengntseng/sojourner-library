@@ -1,8 +1,8 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { getWorks } from "./catalogue";
-import { activeMs } from "./engine/readingTime";
-import { hoursByWork, loanHistory, notesMarkdown, streaks, type ExportWork, type HistoryRow, type Streaks, type WorkHours, type WorkSession } from "./ledger";
+import { activeMs, countWords } from "./engine/readingTime";
+import { hoursByWork, loanHistory, notesMarkdown, streaks, withFinished, type ExportWork, type HistoryRow, type Streaks, type WorkHours, type WorkSession } from "./ledger";
 import { parsePreviewLoans, PREVIEW_COOKIE, rowToLoan, type LoanRow } from "./loanDesk";
 import { splitParagraphs } from "./reader";
 import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
@@ -28,12 +28,16 @@ export async function loadLedger(): Promise<LedgerView> {
     const store = await cookies();
     const loans = parsePreviewLoans(store.get(PREVIEW_COOKIE)?.value);
     const stats = parseStoredStats(store.get(PREVIEW_SESSIONS_COOKIE)?.value);
-    const sessions: WorkSession[] = stats.map((s) => ({ ...s, workKey: s.slug ?? "unknown" }));
+    const sessions: WorkSession[] = stats.map((s) => ({ ...s, workKey: s.slug ?? "unknown", ...(s.position ? { chapterKey: String(s.position) } : {}) }));
+    const lastChapters = Object.fromEntries(getWorks().flatMap((w) => {
+      const last = w.chapters.at(-1);
+      return last ? [[w.slug, { key: String(last.position), words: countWords(last.body) }]] : [];
+    }));
     const titles = Object.fromEntries(getWorks().map((w) => [w.slug, w.title]));
     const slugs = Object.fromEntries(getWorks().map((w) => [w.slug, w.slug]));
     return {
       mode: "preview", readerName: "", titles, slugs,
-      history: loanHistory(loans, now), hours: hoursByWork(sessions.filter((s) => s.workKey !== "unknown")),
+      history: loanHistory(loans, now), hours: withFinished(hoursByWork(sessions.filter((s) => s.workKey !== "unknown")), sessions, lastChapters),
       streaks: streaks(stats, now), totalMs: stats.reduce((a, s) => a + s.activeMs, 0),
     };
   }
@@ -44,22 +48,31 @@ export async function loadLedger(): Promise<LedgerView> {
   const [{ data: me }, { data: loans }, { data: rows }, { data: works }] = await Promise.all([
     supabase.from("readers").select("display_name").eq("id", uid).maybeSingle(),
     supabase.from("loans").select("*").eq("reader_id", uid).order("borrowed_at", { ascending: false }).limit(200),
-    supabase.from("sessions").select("work_id, words_read, activity, started_at, ended_at").eq("reader_id", uid).gte("started_at", since).limit(2000),
+    supabase.from("sessions").select("work_id, chapter_id, words_read, activity, started_at, ended_at").eq("reader_id", uid).gte("started_at", since).limit(2000),
     supabase.from("works").select("id, slug, title"),
   ]);
   const sessions: WorkSession[] = (rows ?? []).map((r) => ({
     workKey: r.work_id as string,
+    ...(r.chapter_id ? { chapterKey: r.chapter_id as string } : {}),
     wordsRead: r.words_read as number,
     activeMs: activeMs(((r.activity as string[]) ?? []).map((t) => Date.parse(t))),
     endedAt: Date.parse((r.ended_at ?? r.started_at) as string),
   }));
+  const workIds = [...new Set(sessions.map((s) => s.workKey))];
+  const { data: chs } = workIds.length
+    ? await supabase.from("chapters").select("id, work_id, position, word_count").in("work_id", workIds).is("archived_at", null)
+    : { data: [] };
+  const lastChapters: Record<string, { key: string; words: number; position: number }> = {};
+  for (const c of (chs ?? []) as { id: string; work_id: string; position: number; word_count: number }[]) {
+    if (!lastChapters[c.work_id] || c.position > lastChapters[c.work_id].position) lastChapters[c.work_id] = { key: c.id, words: c.word_count, position: c.position };
+  }
   return {
     mode: "library",
     readerName: (me?.display_name as string | undefined) ?? "",
     titles: Object.fromEntries((works ?? []).map((w) => [w.id as string, w.title as string])),
     slugs: Object.fromEntries((works ?? []).map((w) => [w.id as string, w.slug as string])),
     history: loanHistory(((loans ?? []) as LoanRow[]).map(rowToLoan), now),
-    hours: hoursByWork(sessions),
+    hours: withFinished(hoursByWork(sessions), sessions, lastChapters),
     streaks: streaks(sessions, now),
     totalMs: sessions.reduce((a, s) => a + s.activeMs, 0),
   };

@@ -89,3 +89,31 @@ describe("notes export", () => {
     expect(md).not.toContain("## Placeholder Work One");
   });
 });
+
+import { finishedAt, withFinished, FINISH_SHARE } from "@/lib/ledger";
+import { parseStoredStats as parseStats } from "@/lib/sessions";
+
+describe("finished stamp", () => {
+  const s = (chapterKey: string | undefined, wordsRead: number, endedAt: number) => ({ workKey: "w", chapterKey, wordsRead, activeMs: 60_000, endedAt });
+  it("stamps the session in which the last chapter is (nearly) all read", () => {
+    const sessions = [s("1", 900, 1), s("3", 400, 3), s("3", 300, 2), s("3", 300, 4)];
+    expect(finishedAt(sessions, { key: "3", words: 1000 })).toBe(4); // 300 + 400 + 300 = 1000 at t=4
+    expect(finishedAt([s("3", 899, 9)], { key: "3", words: 1000 })).toBeUndefined();
+    expect(finishedAt([s("3", 900, 9)], { key: "3", words: 1000 })).toBe(9);
+    expect(FINISH_SHARE).toBe(0.9);
+  });
+  it("needs the last chapter, not just lots of words elsewhere", () => {
+    expect(finishedAt([s("1", 5000, 1), s(undefined, 5000, 2)], { key: "3", words: 1000 })).toBeUndefined();
+    expect(finishedAt([s("3", 10, 1)], undefined)).toBeUndefined();
+    expect(finishedAt([s("3", 10, 1)], { key: "3", words: 0 })).toBeUndefined();
+  });
+  it("adds the stamp only to finished books", () => {
+    const hours = [{ workKey: "w", activeMs: 1, wordsRead: 1, sessions: 1, lastRead: 5 }, { workKey: "x", activeMs: 1, wordsRead: 1, sessions: 1, lastRead: 5 }];
+    const out = withFinished(hours, [s("3", 1000, 5)], { w: { key: "3", words: 1000 }, x: { key: "9", words: 10 } });
+    expect(out.map((h) => h.finishedAt)).toEqual([5, undefined]);
+  });
+  it("keeps the chapter in preview session summaries, and drops bad ones", () => {
+    const raw = JSON.stringify([{ id: "a", slug: "p", position: 2, wordsRead: 1, activeMs: 1, endedAt: 1 }, { id: "b", position: 0, wordsRead: 1, activeMs: 1, endedAt: 1 }]);
+    expect(parseStats(raw).map((x) => [x.id, x.position])).toEqual([["a", 2]]);
+  });
+});
