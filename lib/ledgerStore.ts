@@ -81,16 +81,25 @@ export async function loadLedger(): Promise<LedgerView> {
 }
 
 /** Library mode: the reader's own notes and highlights as Markdown (null when not signed in). */
-export async function exportNotes(): Promise<string | null> {
+/** The reader's own notes and highlights as Markdown — all books, or one (`slug`, C29). */
+export async function exportNotes(slug?: string): Promise<string | null> {
   const supabase = await supabaseServer();
   if (!supabase) return null;
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return null;
   const uid = auth.user.id;
+  let only: string | null = null;
+  if (slug) {
+    const { data: w } = await supabase.from("works").select("id").eq("slug", slug).maybeSingle();
+    if (!w) return notesMarkdown([], Date.now());
+    only = w.id as string;
+  }
+  const notesQ = supabase.from("notes").select("work_id, chapter_id, anchor_offset, body, created_at").eq("reader_id", uid);
+  const hlsQ = supabase.from("highlights").select("work_id, chapter_id, start_offset, end_offset, colour, created_at").eq("reader_id", uid);
   const [{ data: me }, { data: notes }, { data: hls }] = await Promise.all([
     supabase.from("readers").select("display_name").eq("id", uid).maybeSingle(),
-    supabase.from("notes").select("work_id, chapter_id, anchor_offset, body, created_at").eq("reader_id", uid),
-    supabase.from("highlights").select("work_id, chapter_id, start_offset, end_offset, colour, created_at").eq("reader_id", uid),
+    only ? notesQ.eq("work_id", only) : notesQ,
+    only ? hlsQ.eq("work_id", only) : hlsQ,
   ]);
   const chapterIds = [...new Set([...(notes ?? []), ...(hls ?? [])].map((x) => x.chapter_id as string))];
   const workIds = [...new Set([...(notes ?? []), ...(hls ?? [])].map((x) => x.work_id as string))];

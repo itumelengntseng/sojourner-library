@@ -1,12 +1,12 @@
 "use client";
 
 import { getWorks } from "@/lib/catalogue";
-import { notesMarkdown, type ExportWork } from "@/lib/ledger";
+import { notesFilename, notesMarkdown, type ExportWork } from "@/lib/ledger";
 import { splitParagraphs, type Highlight, type MarginNote } from "@/lib/reader";
 
 /** Preview mode: notes live in this browser, so the export is built here too. */
-export function buildPreviewExport(read: (key: string) => string | null, now: number): string {
-  const works: ExportWork[] = getWorks().map((w) => ({
+export function buildPreviewExport(read: (key: string) => string | null, now: number, slug?: string): string {
+  const works: ExportWork[] = getWorks().filter((w) => !slug || w.slug === slug).map((w) => ({
     title: w.title,
     author: w.author,
     chapters: w.chapters.map((c) => {
@@ -29,14 +29,21 @@ export function buildPreviewExport(read: (key: string) => string | null, now: nu
   return notesMarkdown(works, now);
 }
 
-export function PreviewNotesExport() {
+export function PreviewNotesExport({ slug, title }: { slug?: string; title?: string } = {}) {
   const download = () => {
-    const md = buildPreviewExport((k) => { try { return localStorage.getItem(k); } catch { return null; } }, Date.now());
+    const md = buildPreviewExport((k) => { try { return localStorage.getItem(k); } catch { return null; } }, Date.now(), slug);
     const url = URL.createObjectURL(new Blob([md], { type: "text/markdown" }));
-    const a = Object.assign(document.createElement("a"), { href: url, download: "sojourner-notes.md" });
+    const a = Object.assign(document.createElement("a"), { href: url, download: notesFilename(slug) });
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
+  if (slug) {
+    return (
+      <button type="button" onClick={download} className="font-sans text-xs text-lamplight underline underline-offset-2">
+        Notes for this book<span className="sr-only">: {title}</span>
+      </button>
+    );
+  }
   return (
     <button type="button" onClick={download}
       className="rounded bg-lamplight px-4 py-2 font-sans text-sm font-semibold text-ink hover:bg-ember">

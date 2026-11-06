@@ -60,7 +60,14 @@ export default async function Ledger() {
             <tbody className="divide-y divide-timber-dark/70 border-y border-timber-dark/70">
               {l.hours.map((h) => (
                 <tr key={h.workKey}>
-                  <td className="py-3 pr-2">{link(h.workKey) ? <Link href={link(h.workKey)!} className="hover:text-lamplight">{title(h.workKey)}</Link> : title(h.workKey)}{h.finishedAt !== undefined && <span className="ml-2 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">Finished {new Date(h.finishedAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" })}</span>}</td>
+                  <td className="py-3 pr-2">{link(h.workKey) ? <Link href={link(h.workKey)!} className="hover:text-lamplight">{title(h.workKey)}</Link> : title(h.workKey)}{h.finishedAt !== undefined && <span className="ml-2 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">Finished {new Date(h.finishedAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" })}</span>}
+                    {l.slugs[h.workKey] && (
+                      <div className="mt-0.5">
+                        {l.mode === "preview" ? <PreviewNotesExport slug={l.slugs[h.workKey]} title={title(h.workKey)} /> : (
+                          <a href={`/ledger/notes?work=${encodeURIComponent(l.slugs[h.workKey])}`} className="font-sans text-xs text-lamplight underline underline-offset-2">Notes for this book<span className="sr-only">: {title(h.workKey)}</span></a>
+                        )}
+                      </div>
+                    )}</td>
                   <td className="py-3 pr-2 font-sans text-sm">{formatHours(h.activeMs)}</td>
                   <td className="hidden py-3 pr-2 font-sans text-sm sm:table-cell">{h.wordsRead.toLocaleString("en-ZA")}</td>
                   <td className="py-3 text-right font-mono text-xs text-ochre">{stampDate(h.lastRead)}</td>

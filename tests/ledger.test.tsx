@@ -117,3 +117,31 @@ describe("finished stamp", () => {
     expect(parseStats(raw).map((x) => [x.id, x.position])).toEqual([["a", 2]]);
   });
 });
+
+import { notesFilename } from "@/lib/ledger";
+import { renderToStaticMarkup as render29 } from "react-dom/server";
+import { PreviewNotesExport } from "@/components/PreviewNotesExport";
+
+describe("notes for one book (C29)", () => {
+  const ch = (slug: string) => getWork(slug)!.chapters[0];
+  const store: Record<string, string> = {
+    "soj:ann:placeholder-work-two:1": JSON.stringify({ notes: [{ id: "a", anchor: splitParagraphs(ch("placeholder-work-two").body)[0].start, body: "Two's note", createdAt: 1 }] }),
+    "soj:ann:placeholder-work-one:1": JSON.stringify({ notes: [{ id: "b", anchor: splitParagraphs(ch("placeholder-work-one").body)[0].start, body: "One's note", createdAt: 1 }] }),
+  };
+  it("filters the export to the one book", () => {
+    const md = buildPreviewExport((k) => store[k] ?? null, NOW, "placeholder-work-one");
+    expect(md).toContain("One's note");
+    expect(md).not.toContain("Two's note");
+    expect(buildPreviewExport((k) => store[k] ?? null, NOW)).toContain("Two's note");
+  });
+  it("names the file after the book, safely", () => {
+    expect(notesFilename()).toBe("sojourner-notes.md");
+    expect(notesFilename("placeholder-work-one")).toBe("sojourner-notes-placeholder-work-one.md");
+    expect(notesFilename('x"; rm')).toBe("sojourner-notes-xrm.md");
+  });
+  it("renders a small per-book button with the title for screen readers", () => {
+    const html = render29(<PreviewNotesExport slug="placeholder-work-one" title="Placeholder Work One" />);
+    expect(html).toContain("Notes for this book");
+    expect(html).toContain("Placeholder Work One");
+  });
+});

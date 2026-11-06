@@ -191,3 +191,9 @@ export function notesMarkdown(works: ExportWork[], exportedAt: number, readerNam
   }
   return out.join("\n").trimEnd() + "\n";
 }
+
+/** "sojourner-notes.md", or "sojourner-notes-<slug>.md" for one book (C29). */
+export function notesFilename(slug?: string): string {
+  const clean = (slug ?? "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 80);
+  return clean ? `sojourner-notes-${clean}.md` : "sojourner-notes.md";
+}
