@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-06 (scheduled build run 3 — C16–C20, QA3, QA4)._
+_Last updated: 2026-11-06 (scheduled build run 3 — C16–C23, QA3, QA4)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -49,10 +49,11 @@ _Last updated: 2026-11-06 (scheduled build run 3 — C16–C20, QA3, QA4)._
 - QA4 (2026-11-06, after C17–C20): `npm run qa` all clear — now also checks the search results, the reading room with the keys card open, and the ledger with months of reading (axe WCAG 2.1 AA, sideways scroll, console errors), plus the pitch sheet in print. Preview e2e 6/6. Performance (local prod build, curl): every page < 25 ms.
 - C21 — Re-import preview (`importPlan()` / `planSummary()` in `lib/manuscript.ts`, Writer's Room import form, `shelf` in `loadRoom()`): when the title matches a work already shelved (set-aside works included), the import preview says what saving will do — "Updates the work already on the shelves: 2 changed, 1 set aside" — and marks each chapter new / changed (with the old word count struck through and "was “old title”") / unchanged / back on the shelf / will be set aside. Matches by position exactly as `import_manuscript()` does; never shows a deletion because there isn't one. A set-aside work gets "stays off the shelves until you restore it". New titles say "A new work — it will be shelved as Only me". Works in preview against the placeholder shelf. Smoke-tested at 375px.
 - C22 — "The library at a glance" (`lib/glance.ts`, top of the Writer's Room; `cardHolders` count in `loadRoom()`): four tiles — works on the shelves (shared · only me · set aside), words shelved, card holders (guest readers, counted with a head-only query), and loans out now. Counts only, with a line saying notes, highlights and who read what stay private. Preview shows the placeholder shelf and "—" for card holders. Smoke-tested at 375px.
-- Tests: 292 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks, re-run after C16).
+- C23 — "Due back soon" on the front hall (`dueBackSoon()` in `lib/loanDesk.ts`, `components/DueSoonSlip.tsx`): when one of the reader's loans is due within 24 hours, a paper slip under the title lists it with the stamped due time and time left, links back into the reading room, and points to the front desk to renew or return. Nothing due → nothing shown. Works in preview (cookie desk) and library mode (own open loans; set-aside works left out). Smoke-tested at 375px: none → borrow for an hour → slip shows "59 min left". Final QA sweep after C21–C23: all clear; preview e2e 6/6.
+- Tests: 295 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks, re-run after C16).
 
 ## Next task
-Backlog B1–B11, NEXT ITERATION a–e, QA2 and FOLLOW-UPS C1–C16 and QA3 are complete. Next task: C23 — due-soon notice on the front hall (BACKLOG.md → FOLLOW-UPS) (BACKLOG.md → FOLLOW-UPS).
+Backlog B1–B11, NEXT ITERATION a–e, QA2 and FOLLOW-UPS C1–C16 and QA3 are complete. Next task: C24 — apply migration 0013 to the live Supabase project (BACKLOG.md → FOLLOW-UPS), then C25. (BACKLOG.md → FOLLOW-UPS).
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

@@ -203,3 +203,8 @@ export function onLoanNow(loans: Loan[], readerId: string, works: Record<string,
       return { workKey: l.workId, slug: works[l.workId].slug, title: works[l.workId].title, due: s.due, timeLeft: s.timeLeft ?? "", dueSoon: s.status === "due_soon", resume: l.bookmark.wordOffset > 0, dueAt: l.dueAt };
     });
 }
+
+/** Loans due back within `windowMs` (default a day), soonest first — for the front-hall reminder. */
+export function dueBackSoon(loans: OnLoan[], now: number, windowMs = 24 * 3600_000): OnLoan[] {
+  return loans.filter((l) => l.dueAt > now && l.dueAt - now <= windowMs).sort((a, b) => a.dueAt - b.dueAt);
+}
