@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { getWorks } from "./catalogue";
 import { activeMs, countWords } from "./engine/readingTime";
-import { finishedAt, hoursByWork, loanHistory, notesMarkdown, streaks, withFinished, type ExportWork, type HistoryRow, type Streaks, type WorkHours, type WorkSession } from "./ledger";
+import { byMonth, finishedAt, hoursByWork, loanHistory, notesMarkdown, streaks, withFinished, type ExportWork, type HistoryRow, type MonthRow, type Streaks, type WorkHours, type WorkSession } from "./ledger";
 import { parsePreviewLoans, PREVIEW_COOKIE, rowToLoan, type LoanRow } from "./loanDesk";
 import { splitParagraphs } from "./reader";
 import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
@@ -17,6 +17,7 @@ export interface LedgerView {
   hours: WorkHours[];
   streaks: Streaks;
   totalMs: number;
+  months: MonthRow[];
 }
 
 const EMPTY: Streaks = { current: 0, longest: 0, readToday: false, days: 0 };
@@ -38,11 +39,11 @@ export async function loadLedger(): Promise<LedgerView> {
     return {
       mode: "preview", readerName: "", titles, slugs,
       history: loanHistory(loans, now), hours: withFinished(hoursByWork(sessions.filter((s) => s.workKey !== "unknown")), sessions, lastChapters),
-      streaks: streaks(stats, now), totalMs: stats.reduce((a, s) => a + s.activeMs, 0),
+      streaks: streaks(stats, now), totalMs: stats.reduce((a, s) => a + s.activeMs, 0), months: byMonth(stats, now),
     };
   }
   const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) return { mode: "signed-out", readerName: "", titles: {}, slugs: {}, history: [], hours: [], streaks: EMPTY, totalMs: 0 };
+  if (!auth.user) return { mode: "signed-out", readerName: "", titles: {}, slugs: {}, history: [], hours: [], streaks: EMPTY, totalMs: 0, months: [] };
   const uid = auth.user.id;
   const since = new Date(now - 400 * 86_400_000).toISOString();
   const [{ data: me }, { data: loans }, { data: rows }, { data: works }] = await Promise.all([
@@ -75,6 +76,7 @@ export async function loadLedger(): Promise<LedgerView> {
     hours: withFinished(hoursByWork(sessions), sessions, lastChapters),
     streaks: streaks(sessions, now),
     totalMs: sessions.reduce((a, s) => a + s.activeMs, 0),
+    months: byMonth(sessions, now),
   };
 }
 

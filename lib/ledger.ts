@@ -67,6 +67,42 @@ export function formatHours(ms: number): string {
   return h === 0 ? `${m} min` : m === 0 ? `${h} h` : `${h} h ${m} min`;
 }
 
+export interface MonthRow {
+  key: string; // "2026-11"
+  short: string; // "Nov"
+  long: string; // "November 2026"
+  activeMs: number;
+}
+
+/** Minutes read per calendar month (SA time) for the last `count` months, oldest first, empty months included. */
+export function byMonth(sessions: SessionStats[], now: number, count = 12): MonthRow[] {
+  const ym = (ms: number) => {
+    const d = new Date(ms + SAST_OFFSET_MS);
+    return { y: d.getUTCFullYear(), m: d.getUTCMonth() };
+  };
+  const end = ym(now);
+  const rows: MonthRow[] = [];
+  for (let i = count - 1; i >= 0; i--) {
+    const t = end.y * 12 + end.m - i;
+    const y = Math.floor(t / 12);
+    const m = t % 12;
+    const mid = Date.UTC(y, m, 15);
+    rows.push({
+      key: `${y}-${String(m + 1).padStart(2, "0")}`,
+      short: new Date(mid).toLocaleDateString("en-ZA", { month: "short", timeZone: "UTC" }).replace(".", ""),
+      long: new Date(mid).toLocaleDateString("en-ZA", { month: "long", year: "numeric", timeZone: "UTC" }),
+      activeMs: 0,
+    });
+  }
+  const index = new Map(rows.map((r, i) => [r.key, i]));
+  for (const s of sessions) {
+    const { y, m } = ym(s.endedAt);
+    const i = index.get(`${y}-${String(m + 1).padStart(2, "0")}`);
+    if (i !== undefined) rows[i].activeMs += s.activeMs;
+  }
+  return rows;
+}
+
 export const STREAK_MIN_MS = 60_000; // a day counts once you've read for a minute
 
 export interface Streaks {
