@@ -3,7 +3,7 @@ import Link from "next/link";
 import { TIMELINE } from "@/content/timeline";
 import { CanonToggle } from "@/components/CanonToggle";
 import { HarlemMap } from "@/components/HarlemMap";
-import { getWorks } from "@/lib/catalogue";
+import { loadCatalogue } from "@/lib/catalogueServer";
 import { canonView } from "@/lib/canonServer";
 import { AUTHOR } from "@/lib/site";
 import { timelineForWorks } from "@/lib/timeline";
@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: "Harlem timeline" };
 
 export default async function TimelinePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const view = await canonView((await searchParams).canon);
-  const works = getWorks();
+  const works = (await loadCatalogue()).works;
   const timeline = timelineForWorks(TIMELINE, new Set(filterByCanon(works, view).map((w) => w.slug)));
   return (
     <main id="main" className="mx-auto max-w-6xl px-4 pt-16">

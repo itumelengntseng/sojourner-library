@@ -7,7 +7,10 @@ export type CanonStatus = "canon" | "draft" | "apocrypha";
 export interface PlaceholderChapter {
   position: number;
   title: string;
+  /** Chapter text. Empty for library works on the shelf — words need a loan. */
   body: string;
+  /** Stored word count (library works); when absent it is counted from `body`. */
+  words?: number;
 }
 
 export interface Work {
@@ -34,9 +37,25 @@ function placeholderChapters(n: number, paragraphs: number): PlaceholderChapter[
   }));
 }
 
-export const HALLS = [
+export interface Hall { id: string; name: string; note: string }
+
+export const HALLS: readonly Hall[] = [
   { id: "main", name: "The Main Hall", note: "Placeholder hall — Itu will name the halls." },
-] as const;
+];
+
+/** The named halls, plus any hall a shelved work names that isn't listed yet (so no work goes missing). */
+export function hallsFor(works: Pick<Work, "hall">[]): Hall[] {
+  const known = new Set(HALLS.map((h) => h.id));
+  const extra = [...new Set(works.map((w) => w.hall))].filter((id) => !known.has(id)).sort();
+  return [
+    ...HALLS,
+    ...extra.map((id) => ({
+      id,
+      name: id.split(/[-_\s]+/).filter(Boolean).map((p) => p[0].toUpperCase() + p.slice(1)).join(" ") || "Unnamed hall",
+      note: "A hall not yet named in the catalogue.",
+    })),
+  ];
+}
 
 export const PLACEHOLDER_WORKS: Work[] = [
   { slug: "placeholder-work-one", title: "Placeholder Work One", canonStatus: "canon" as CanonStatus, chapters: placeholderChapters(6, 12) },

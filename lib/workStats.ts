@@ -18,7 +18,7 @@ export interface WorkStats {
 
 export function workStats(work: Work, wpm = DEFAULT_WPM): WorkStats {
   const chapters = work.chapters.map((c) => {
-    const words = countWords(c.body);
+    const words = c.words ?? countWords(c.body);
     return { position: c.position, title: c.title, words, minutes: minutesFor(words, wpm) };
   });
   const words = chapters.reduce((s, c) => s + c.words, 0);

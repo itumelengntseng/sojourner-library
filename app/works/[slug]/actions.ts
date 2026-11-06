@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getWork } from "@/lib/catalogue";
+import { findWork } from "@/lib/catalogueServer";
 import { isLoanPeriod } from "@/lib/loanDesk";
 import { runDesk } from "@/lib/loanStore";
 
@@ -12,7 +12,7 @@ export interface DeskState {
 
 export async function deskAction(_: DeskState, form: FormData): Promise<DeskState> {
   const slug = String(form.get("slug") ?? "");
-  if (!getWork(slug)) return { ok: false, message: "That work isn't in the catalogue." };
+  if (!(await findWork(slug))) return { ok: false, message: "That work isn't in the catalogue." };
   const intent = String(form.get("intent") ?? "");
   const loanId = String(form.get("loanId") ?? "");
   let result: DeskState;

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { LINEAGE } from "@/content/lineage";
 import { CanonToggle } from "@/components/CanonToggle";
 import { LineageWall } from "@/components/LineageWall";
-import { getWorks } from "@/lib/catalogue";
+import { loadCatalogue } from "@/lib/catalogueServer";
 import { AUTHOR } from "@/lib/site";
 import { canonView } from "@/lib/canonServer";
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Lineage" };
 
 export default async function LineagePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const view = await canonView((await searchParams).canon);
-  const works = getWorks();
+  const works = (await loadCatalogue()).works;
   const canonSlugs = new Set(works.filter((w) => w.canonStatus === "canon").map((w) => w.slug));
   // Canon only: keep people who appear in at least one canon work, and only their canon appearances.
   const people = view === "all" ? LINEAGE.people : LINEAGE.people

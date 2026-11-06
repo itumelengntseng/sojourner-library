@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CanonToggle } from "@/components/CanonToggle";
-import { getWorks, HALLS, seedOf } from "@/lib/catalogue";
+import { hallsFor, seedOf } from "@/lib/catalogue";
+import { loadCatalogue } from "@/lib/catalogueServer";
+import { ShelfEmpty } from "@/components/ShelfEmpty";
 import { canonView } from "@/lib/canonServer";
 import { CANON_LABEL, filterByCanon, workStats } from "@/lib/workStats";
 
@@ -10,7 +12,8 @@ export const metadata: Metadata = { title: "The halls" };
 // Timber shelves; each book stands as a spine you can pull out.
 export default async function Halls({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const view = await canonView((await searchParams).canon);
-  const works = filterByCanon(getWorks(), view);
+  const catalogue = await loadCatalogue();
+  const works = filterByCanon(catalogue.works, view);
 
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16">
@@ -20,7 +23,8 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
         <CanonToggle view={view} basePath="/halls" />
       </div>
 
-      {HALLS.map((hall) => {
+      {catalogue.works.length === 0 && <ShelfEmpty catalogue={catalogue} />}
+      {hallsFor(catalogue.works).map((hall) => {
         const shelf = works.filter((w) => w.hall === hall.id);
         return (
           <section key={hall.id} aria-labelledby={`hall-${hall.id}`} className="mt-10">

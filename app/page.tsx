@@ -3,13 +3,15 @@ import { CanonToggle } from "@/components/CanonToggle";
 import { SceneCover } from "@/components/SceneCover";
 import { canonView } from "@/lib/canonServer";
 import { filterByCanon } from "@/lib/workStats";
-import { getWorks } from "@/lib/catalogue";
+import { loadCatalogue } from "@/lib/catalogueServer";
 import { AUTHOR, SITE_NAME } from "@/lib/site";
+import { ShelfEmpty } from "@/components/ShelfEmpty";
 
 // The front hall: you step over the threshold and the covers are lit along the wall.
 export default async function FrontHall({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const view = await canonView((await searchParams).canon);
-  const works = filterByCanon(getWorks(), view);
+  const catalogue = await loadCatalogue();
+  const works = filterByCanon(catalogue.works, view);
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16 sm:pt-24">
       <header className="flex flex-col items-center text-center">
@@ -31,9 +33,12 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
             </li>
           ))}
         </ul>
-        <p className="mt-8 text-center font-sans text-xs text-sandstone/80">
-          Every work shown is a placeholder until the manuscripts arrive.
-        </p>
+        {works.length === 0 && <ShelfEmpty catalogue={catalogue} />}
+        {works.some((w) => w.isPlaceholder) && (
+          <p className="mt-8 text-center font-sans text-xs text-sandstone/80">
+            Works marked as placeholders hold their place until the manuscripts arrive.
+          </p>
+        )}
       </section>
 
       <div className="mt-12 flex flex-wrap justify-center gap-4">

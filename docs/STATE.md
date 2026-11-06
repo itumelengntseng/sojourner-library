@@ -24,15 +24,17 @@ _Last updated: 2026-11-06 (scheduled build run)._
 - NEXT ITERATION c — Harlem Timeline Map (`app/timeline`, `components/HarlemMap.tsx`, `lib/timeline.ts`, data in `content/timeline.ts`): a lamplit schematic street plan of Harlem (110th–155th, Morningside Ave → First Ave; real geography, drawn in SVG, no external map service), year-range sliders, an event list, place chips (incl. places "elsewhere", off the map), and a detail card linking to the works. Follows the canon switch. Data is placeholder only; `npm test` validates the file (dates, off-map streets, unknown places/works, duplicates). In the axe sweep; all clear.
 - NEXT ITERATION d — Writer's Room (`app/writers-room`, `components/WritersRoomForms.tsx`, `lib/manuscript.ts`, `lib/writersRoom.ts`, `supabase/migrations/0006_writers_room.sql`): owner-only. Shelve a manuscript from a Markdown file or paste — live preview splits it into chapters with word counts and reading time, warns about headless text/empty chapters; the server re-parses and calls `import_manuscript()` (owner-only RPC; authorship enforced; re-import updates; chapters are never deleted — extras are archived and hidden from readers). Per-work "Only me / Card holders" and canon/draft/apocrypha settings. Issue invites (code shown once) and revoke unused ones. Readership counts per work via `readership()` (counts only — never notes/highlights). New imports default to Draft and Only me. Linked from the footer. In preview mode the import preview works but saving is disabled.
 - NEXT ITERATION e — Pitch Room (`app/pitch-room`, `app/p/[token]`, `components/PitchSheet.tsx`, `lib/pitch.ts`, `lib/pitchStore.ts`, kits in `content/pitches.ts`, `supabase/migrations/0007_pitch_links.sql`): owner-only room listing a pitch kit per work (logline, synopsis, themes, comparables, audience, formats, sample excerpt chosen by the author, author's note, contact) with readiness status and a long-logline warning; a paper "sheet" preview; Markdown one-pager download; private share links for agents/producers — token shown once, stored hashed, 1–60 days, revocable, view-counted; `/p/<token>` shows only the sheet (no library data), callable without a card via `open_pitch_link()`. All kits are placeholders; contact empty. Linked from the Writer's Room.
-- Tests: 193 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (now 33 page checks).
+- C1 — Catalogue from Supabase (`lib/catalogueServer.ts`, `lib/catalogueRows.ts`, `components/ShelfEmpty.tsx`): in library mode the front hall, halls, work page, loan-desk check, family wall and timeline read `works`/`chapters` (RLS decides what each reader sees; archived works/chapters left out; stored word counts used, chapter text never read for the shelf), so Writer's Room imports appear on the shelves. Preview mode keeps the static placeholder catalogue. Signed-out visitors see "Show your card at the front desk"; halls named by a work but not yet in `HALLS` appear automatically; authorship forced to Itumeleng Ntseng; real works without a description say so (nothing invented). Also fixed: the reading-room chapter list now hides archived chapters from the owner too. Verified against PGlite: import → re-import (archived chapter hidden) → guest sees nothing until shared → anon denied.
+- Tests: 205 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (33 page checks).
 
 ## Next task
-C1 — Catalogue from Supabase (see BACKLOG.md → FOLLOW-UPS). Backlog B1–B11 and NEXT ITERATION a–e are complete.
+C2 — Pitch kits editable in the Writer's Room (see BACKLOG.md → FOLLOW-UPS). Backlog B1–B11, NEXT ITERATION a–e and C1 are complete.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
 - Library-mode (Supabase) code paths are verified against PGlite (schema, RLS, RPCs) and by typecheck, but not yet end-to-end against a real Supabase project — do a smoke run after NEEDS ITU 1 (sign in, redeem, borrow, read, note, ledger export, import, pitch link).
-- Work page, halls and the librarian read chapter word counts from the static placeholder catalogue (`lib/catalogue.ts`), while library-mode loans/reading use Supabase. When real manuscripts are loaded into Supabase, switch the catalogue to read from the `works`/`chapters` tables (slugs must match).
+- Pitch kits still come from `content/pitches.ts` (C2 moves them into Supabase).
+- Works have no description column yet; real works show "The author hasn't written a description…" until one is added (could become a Writer's Room field).
 - Minor: the final session beacon can arrive just after you navigate straight to the ledger, so the newest few seconds of reading may appear only on the next load.
 
 ## NEEDS ITU
@@ -66,4 +68,5 @@ C1 — Catalogue from Supabase (see BACKLOG.md → FOLLOW-UPS). Backlog B1–B11
 - The front hall is now rendered per request (it reads the canon cookie).
 - Writer's Room imports default to Draft + Only me.
 - Pitch share links last 14 days by default (max 60); the sample excerpt is chosen by the author, never pulled from a manuscript automatically.
+- Library-mode shelves sort by series, series order, then title; an unknown canon status is treated as Draft (never shown as canon by mistake).
 - System serif font stack (no web-font download) to keep builds offline-safe.

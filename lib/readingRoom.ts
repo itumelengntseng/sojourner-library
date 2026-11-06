@@ -81,7 +81,7 @@ export async function loadReading(slug: string, position: number): Promise<Loade
   if (!found) return { ok: false, gate: "missing" };
   if (!found.loan) return { ok: false, gate: "no-loan" };
   const { supabase } = lib;
-  const { data: rows } = await supabase.from("chapters").select("id, position, title, word_count").eq("work_id", found.work.id).order("position");
+  const { data: rows } = await supabase.from("chapters").select("id, position, title, word_count").eq("work_id", found.work.id).is("archived_at", null).order("position");
   const list = (rows ?? []) as { id: string; position: number; title: string; word_count: number }[];
   if (list.length === 0) return { ok: false, gate: "missing" };
   const ch = list.find((c) => c.position === position) ?? list[0];

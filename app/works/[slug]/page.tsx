@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { AskLibrarian } from "@/components/AskLibrarian";
 import { LoanDesk } from "@/components/LoanDesk";
 import { SceneCover } from "@/components/SceneCover";
-import { getWork } from "@/lib/catalogue";
+import { findWork } from "@/lib/catalogueServer";
 import { formatDuration } from "@/lib/engine/readingTime";
 import { librarianFacts } from "@/lib/librarian";
 import { latestLoan } from "@/lib/loanDesk";
@@ -15,12 +15,12 @@ import { paceNote } from "@/lib/sessions";
 import { CANON_LABEL, formatWords, workStats } from "@/lib/workStats";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const work = getWork((await params).slug);
+  const work = await findWork((await params).slug);
   return { title: work ? `${work.title} — ${work.author}` : "Not on the shelves" };
 }
 
 export default async function WorkPage({ params }: { params: Promise<{ slug: string }> }) {
-  const work = getWork((await params).slug);
+  const work = await findWork((await params).slug);
   if (!work) notFound();
   const [desk, pace] = await Promise.all([loadDesk(work.slug), myPace()]);
   const stats = workStats(work, pace.wpm);
