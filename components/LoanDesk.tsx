@@ -25,7 +25,13 @@ export function LoanDesk({ desk, slug, title, now }: { desk: DeskView; slug: str
       {slip && <DueDateSlip slip={slip} title={title} />}
       <div className="flex flex-1 flex-col gap-3">
         {open && slip ? (
-          <LoanActions slug={slug} loanId={open.id} canRenew={slip.canRenew} canReturn={slip.canReturn} />
+          <>
+            <Link href={`/works/${slug}/read`}
+              className="w-fit rounded bg-timber px-4 py-2 font-sans text-sm font-semibold text-paper hover:bg-ochre">
+              {open.bookmark.wordOffset > 0 ? "Resume at your bookmark" : "Open the reading room"}
+            </Link>
+            <LoanActions slug={slug} loanId={open.id} canRenew={slip.canRenew} canReturn={slip.canReturn} />
+          </>
         ) : (
           <BorrowForm slug={slug} periods={PERIODS} />
         )}

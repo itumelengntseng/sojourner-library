@@ -10,10 +10,11 @@ _Last updated: 2026-11-06 (scheduled build run)._
 - B4 Front hall living covers (`components/SceneCover.tsx`): layered Harlem street → Free State plains scenes, pauses on hover/focus, static under reduced motion.
 - B5 Halls with timber shelves (`app/halls`), canon toggle (`?canon=all`), work detail page (`app/works/[slug]`) with word count and reading time per chapter. Catalogue is placeholder-only (`lib/catalogue.ts`).
 - B6 Loan desk (`supabase/migrations/0003_loan_desk.sql`, `lib/loanDesk.ts`, `lib/loanStore.ts`, `components/LoanDesk.tsx`, `components/DueDateSlip.tsx`): borrow for an hour / evening / three days / two weeks; date-due slip stamped in SA time; renew (max 3, never once expired); return to shelf. DB triggers stamp dates server-side (readers can't forge due dates), auto-return expired loans on re-borrow and via `return_expired_loans()`, and carry the bookmark forward. Without Supabase the page runs a "preview desk" kept in a browser cookie. Smoke-tested in Chromium at 375px: borrow → renew → reload → return.
-- Tests: 103 passing (`npm test`). Typecheck clean; `npm run build` passes.
+- B7 Reading room (`app/works/[slug]/read`, `components/ReaderView.tsx`, `lib/reader.ts`, `lib/readingRoom.ts`): gated by an open loan; scroll or paged (CSS columns, arrow keys, page buttons); dark / sepia / light; text size A−/A+; "Bookmark here" saves to the loan and the reading room resumes there; select text → highlight in lamplight / ochre / sky; margin notes beside paragraphs (in the margin on wide screens, under the paragraph on phones); remove either. Library mode writes notes/highlights to Supabase (RLS: private to the reader); preview mode keeps them in the browser. Smoke-tested in Chromium at 375px: gate → borrow → highlight → note → bookmark → sepia → reload persists → paged turn, no sideways page scroll, no console errors.
+- Tests: 115 passing (`npm test`). Typecheck clean; `npm run build` passes.
 
 ## Next task
-B7 — Reader view: paged/scroll, dark/sepia/light, bookmarks, margin notes, highlights.
+B8 — Session tracking feeding personal speed.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -33,4 +34,6 @@ B7 — Reader view: paged/scroll, dark/sepia/light, bookmarks, margin notes, hig
 - Loan slips are stamped in Africa/Johannesburg time.
 - Expired loans cannot be renewed; they return to the shelf and the reader borrows again (bookmark carried).
 - Until Supabase is connected, the loan desk works as a per-browser preview (cookie), clearly labelled.
+- Highlight and note offsets are character offsets into the chapter text; bookmarks are word offsets into the whole work.
+- Reader settings (theme, layout, size) are per-browser (localStorage), not per-account.
 - System serif font stack (no web-font download) to keep builds offline-safe.
