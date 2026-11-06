@@ -31,7 +31,7 @@ export interface RoomInvite {
 export type Room =
   | { mode: "preview"; works: RoomWork[]; halls: Hall[]; shelf: Record<string, ShelvedWork> }
   | { mode: "closed"; reason: "signed-out" | "not-owner" }
-  | { mode: "library"; works: RoomWork[]; invites: RoomInvite[]; halls: Hall[]; hallsNamed: boolean; setAside: { id: string; title: string; archivedAt: string }[]; shelf: Record<string, ShelvedWork>; cardHolders: number };
+  | { mode: "library"; works: RoomWork[]; invites: RoomInvite[]; halls: Hall[]; hallsNamed: boolean; setAside: { id: string; slug: string; title: string; archivedAt: string }[]; shelf: Record<string, ShelvedWork>; cardHolders: number };
 
 /** The owner's client, or null (with why) — every Writer's Room action goes through this. */
 export async function ownerClient() {
@@ -88,7 +88,7 @@ export async function loadRoom(): Promise<Room> {
     hallsNamed: (hallRows ?? []).length > 0,
     shelf,
     cardHolders: cardHolders ?? 0,
-    setAside: (archived ?? []).map((w) => ({ id: w.id as string, title: w.title as string, archivedAt: w.archived_at as string })),
+    setAside: (archived ?? []).map((w) => ({ id: w.id as string, slug: w.slug as string, title: w.title as string, archivedAt: w.archived_at as string })),
     works: (works ?? []).map((w) => ({
       id: w.id as string, slug: w.slug as string, title: w.title as string,
       canonStatus: w.canon_status as RoomWork["canonStatus"], visibility: w.visibility as RoomWork["visibility"],

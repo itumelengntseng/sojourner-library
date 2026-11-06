@@ -49,3 +49,8 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C25 Reading room "end of chapter" card: at the foot of each chapter, the next chapter's title and minutes at the reader's pace, with a Continue link (last chapter: "The end of <title>" + link to the ledger). No invented text.
 - [x] C26 Card page: "Recently returned" — the reader's last 5 returned loans with stamped dates and a Borrow again link (own loans only).
 - [x] QA5 QA pass after C21–C26 (axe/mobile incl. the Writer's Room tiles and re-import preview with a matching title; RLS audit if any migration lands; preview e2e).
+- [x] C27 Manuscript backup: "Download Markdown" per work in the Writer's Room (owner-only route `/writers-room/export/<slug>`), in the import's own shape so it re-imports unchanged; set-aside chapters in a separate file; set-aside works included. Read-only.
+- [ ] C28 Work page chapter list: a small "read" tick on chapters the reader has finished (≥ 90% of its words, from their own sessions — same rule as C13), and "you're here" on the bookmarked one.
+- [ ] C29 Ledger notes export per book: a "Notes for this book" download on each row of Hours per book (same Markdown as the full export, filtered to one work; own notes only).
+- [ ] C30 Reading room "Skip to the text" link (first focusable item, visible on focus) and a visible focus ring check on the toolbar buttons in all three themes.
+- [ ] QA6 QA pass after C27–C30 (axe/mobile incl. the work page with ticks and the Writer's Room backup links; preview e2e; performance; RLS unchanged unless a migration lands).

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BackupLinks } from "@/components/BackupLinks";
 import { ArchiveButton, DescriptionForm, HallForm, InviteForm, ManuscriptImport, RevokeInvite, WorkSettings } from "@/components/WritersRoomForms";
 import { CANON_LABEL, formatWords } from "@/lib/workStats";
 import { AUTHOR } from "@/lib/site";
@@ -59,6 +60,7 @@ export default async function WritersRoom() {
               <div>
                 <Link href={`/works/${w.slug}`} className="hover:text-lamplight">{w.title}</Link>
                 <Link href={`/works/${w.slug}/proof`} className="ml-3 font-sans text-xs text-lamplight underline underline-offset-2">Read the proof</Link>
+                <span className="ml-3"><BackupLinks slug={w.slug} title={w.title} shelf={room.shelf[w.slug]} /></span>
                 <p className="font-sans text-xs text-sandstone">
                   {CANON_LABEL[w.canonStatus]}{w.isPlaceholder ? " · placeholder" : ""}{live ? ` · ${formatWords(w.words)} · ${w.readers} reader${w.readers === 1 ? "" : "s"}, ${w.openLoans} on loan now, ${w.minutes} min read` : ""}
                 </p>
@@ -81,7 +83,7 @@ export default async function WritersRoom() {
             {room.setAside.map((w) => (
               <li key={w.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
                 <span>{w.title} <span className="font-sans text-xs text-sandstone">· set aside {new Date(w.archivedAt).toLocaleDateString("en-ZA", { timeZone: "Africa/Johannesburg" })}</span></span>
-                <ArchiveButton id={w.id} title={w.title} intent="restore" />
+                <span className="flex flex-wrap items-center gap-3"><BackupLinks slug={w.slug} title={w.title} shelf={room.shelf[w.slug]} /><ArchiveButton id={w.id} title={w.title} intent="restore" /></span>
               </li>
             ))}
           </ul>
