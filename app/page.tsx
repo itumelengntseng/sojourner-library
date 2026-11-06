@@ -10,6 +10,8 @@ import { freshOnShelves } from "@/lib/catalogueRows";
 import { DESK_TIME_ZONE, dueBackSoon } from "@/lib/loanDesk";
 import { myOpenLoans } from "@/lib/loanStore";
 import { DueSoonSlip } from "@/components/DueSoonSlip";
+import { ContinueReading } from "@/components/ContinueReading";
+import { myContinueReading } from "@/lib/continueStore";
 
 // The front hall: you step over the threshold and the covers are lit along the wall.
 export default async function FrontHall({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -18,7 +20,8 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
   const works = filterByCanon(catalogue.works, view);
   const now = Date.now();
   const fresh = freshOnShelves(works, now);
-  const dueSoon = dueBackSoon(await myOpenLoans(), now);
+  const [open, cont] = await Promise.all([myOpenLoans(), myContinueReading()]);
+  const dueSoon = dueBackSoon(open, now);
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16 sm:pt-24">
       <header className="flex flex-col items-center text-center">
@@ -27,6 +30,7 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
         <p className="mt-3 text-paper/85">The writing of {AUTHOR}</p>
         <div className="threshold mt-8 w-48" aria-hidden="true" />
       </header>
+      <ContinueReading card={cont} />
       <DueSoonSlip loans={dueSoon} />
 
       <section aria-labelledby="on-the-wall" className="mt-12">

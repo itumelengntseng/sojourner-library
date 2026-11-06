@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-06 (scheduled build run 4 — C25–C33, QA5–QA7; C24 blocked → NEEDS ITU 1)._
+_Last updated: 2026-11-06 (scheduled build run 5 — C34 onward; C24 still blocked → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -62,10 +62,11 @@ _Last updated: 2026-11-06 (scheduled build run 4 — C25–C33, QA5–QA7; C24 b
 - C32 — Chapter progress line (`components/ChapterProgress.tsx`, under the "min left" line in `ReaderView`): a thin ochre rule filling as the reader moves past paragraphs (same count as the minutes left), exposed as a labelled progress bar ("N% of this chapter read"); no animation under reduced motion; not shown in the proof copy. Smoke-tested at 375px: 0 → 100 by scrolling to the end, no sideways scroll, proof copy has none; `npm run qa` all clear (all three themes).
 - C33 — Order the shelves (`lib/shelfSort.ts`, `/halls?sort=`): "Order: Shelf order · Recently changed · Title" links under the search box (plain links — work without JavaScript; keep the search and canon choice). Title ignores case, accents and a leading The/A/An; Recently changed uses the work's last change (library mode) with undated works after, in shelf order; ties keep shelf order. Search keeps the chosen order. Checked in a preview build: links mark the current order (`aria-current`), title order right.
 - QA7 (2026-11-06, after C31–C33): `npm run qa` all clear — now also sweeps `/halls?sort=title` and a sorted search at both widths; the Writer's Room with the backup button and the reading room with the progress line stay in the sweep. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms; the placeholder backup zip is 170 KB and builds in ~10 ms. No migration this run → RLS audit unchanged.
-- Tests: 328 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (re-run after C33).
+- C34 — "Continue reading" on the front hall (`lib/continueReading.ts`, `lib/continueStore.ts`, `components/ContinueReading.tsx`): a single lamplit card under the title — the open loan the reader read most recently (from their own sessions), "by Itumeleng Ntseng", the chapter they were in and "about N min left in this chapter" at their pace, with Resume (to the bookmark when it sits in that chapter, else `?ch=N`). Words already read = the bookmark in that chapter, else the reader's own session words there; a chapter read through (the 90% rule) points on to the next one; the last chapter says "read through". No open loan, or loans never opened → nothing shown. Library mode reads only the reader's own loans/sessions (set-aside works and chapters left out); preview from the cookie desk + summaries. Titles and word counts only. Smoke-tested at 375px in preview: nothing → borrowed but unread nothing → card after a session → Resume opens chapter 1, no sideways scroll, no errors; `npm run qa` all clear (now also sweeps the front hall with the card at both widths).
+- Tests: 336 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (re-run after C33).
 
 ## Next task
-Backlog through C33 and QA7 is complete (C24 waits on Itu — NEEDS ITU 1). Next task: C34 — "Continue reading" on the front hall (BACKLOG.md → FOLLOW-UPS), then C35, C36, QA8. Whenever a run can apply migrations, apply 0013 (and 0004/0006/0008 if still missing) and tick C24.
+C35 — "Last backed up" line in the Writer's Room (BACKLOG.md → FOLLOW-UPS), then C36, QA8. Whenever a run can apply migrations, apply 0013 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

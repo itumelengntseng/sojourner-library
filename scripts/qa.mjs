@@ -116,6 +116,16 @@ async function axeCheck(label) {
   await page.goto(`${BASE}/ledger`);
   await page.locator("#by-month").waitFor();
   await axeCheck("ledger with reading by month");
+
+  // C34: with a book on loan and sessions recorded, the front hall shows "Continue reading".
+  for (const width of WIDTHS) {
+    await page.setViewportSize({ width, height: 900 });
+    errors.length = 0;
+    await page.goto(`${BASE}/`);
+    await page.getByRole("region", { name: "Continue reading" }).waitFor();
+    await axeCheck(`${width}px front hall with continue reading`);
+  }
+  await page.setViewportSize({ width: 375, height: 900 });
 }
 
 // QA5: the re-import preview with a title already on the shelves, the glance tiles, the
