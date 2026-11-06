@@ -23,7 +23,7 @@ await page.getByRole("button", { name: "Borrow this work" }).click();
 await page.getByRole("link", { name: "Open the reading room" }).waitFor();
 
 const routes = ["/", "/halls", "/halls?canon=all", "/card", "/works/placeholder-work-one", "/works/placeholder-work-one/read",
-  "/works/placeholder-work-three/read", "/ledger", "/lineage", "/lineage?canon=all", "/timeline", "/timeline?canon=all", "/works/no-such-book"];
+  "/works/placeholder-work-three/read", "/ledger", "/lineage", "/lineage?canon=all", "/timeline", "/timeline?canon=all", "/writers-room", "/works/no-such-book"];
 let failures = 0;
 for (const width of WIDTHS) {
   await page.setViewportSize({ width, height: 900 });

@@ -16,4 +16,4 @@
 - [x] B11 QA pass: accessibility, 375px mobile, performance, RLS security check
 
 ## NEXT ITERATION (after backlog)
-a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11-06) · ~~c. Harlem Timeline Map~~ (done 2026-11-06) · d. Writer's Room · e. Pitch Room
+a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11-06) · ~~c. Harlem Timeline Map~~ (done 2026-11-06) · ~~d. Writer's Room~~ (done 2026-11-06) · e. Pitch Room

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Link from "next/link";
 import { AUTHOR, SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 import "./globals.css";
 
@@ -20,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         {children}
         <footer className="mt-16 border-t border-timber-dark/60 px-4 py-6 text-center font-sans text-xs text-sandstone/80">
-          {SITE_NAME} · All works by {AUTHOR}
+          {SITE_NAME} · All works by {AUTHOR} · <Link href="/writers-room" className="underline-offset-2 hover:underline">Writer&apos;s Room</Link>
         </footer>
       </body>
     </html>
