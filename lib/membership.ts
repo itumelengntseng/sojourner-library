@@ -54,3 +54,18 @@ export function friendlyRedeemError(message: string): string {
 export function issuedOn(iso: string): string {
   return new Date(iso).toLocaleDateString("en-ZA", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 }
+
+export const WPM_MIN = 50;
+export const WPM_MAX = 1500;
+
+export type Prefs = { ok: true; displayName: string; wpmOverride: number | null } | { ok: false; message: string };
+
+/** Checks the card's preferences form: a name (up to 60 characters) and an optional fixed pace. */
+export function checkPrefs(name: unknown, pace: unknown, learn: unknown): Prefs {
+  const displayName = String(name ?? "").replace(/\s+/g, " ").trim();
+  if (displayName.length > 60) return { ok: false, message: "Keep your name under 60 characters." };
+  if (learn === "on" || String(pace ?? "").trim() === "") return { ok: true, displayName, wpmOverride: null };
+  const wpm = Number(String(pace).trim());
+  if (!Number.isInteger(wpm) || wpm < WPM_MIN || wpm > WPM_MAX) return { ok: false, message: `A pace is a whole number of words a minute, ${WPM_MIN}–${WPM_MAX}.` };
+  return { ok: true, displayName, wpmOverride: wpm };
+}

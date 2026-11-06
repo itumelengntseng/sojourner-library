@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { supabaseServer } from "@/lib/supabase/server";
-import { friendlyRedeemError, isPlausibleEmail, isPlausibleInviteCode } from "@/lib/membership";
+import { revalidatePath } from "next/cache";
+import { checkPrefs, friendlyRedeemError, isPlausibleEmail, isPlausibleInviteCode } from "@/lib/membership";
 
 export interface FormState {
   ok: boolean;
@@ -46,4 +47,18 @@ export async function signOut() {
   const supabase = await supabaseServer();
   await supabase?.auth.signOut();
   redirect("/card");
+}
+
+/** The reader's own name and (optional) fixed reading pace. RLS limits this to their own row. */
+export async function savePrefs(_: FormState, form: FormData): Promise<FormState> {
+  const checked = checkPrefs(form.get("name"), form.get("wpm"), form.get("learn"));
+  if (!checked.ok) return { ok: false, message: checked.message };
+  const supabase = await supabaseServer();
+  if (!supabase) return { ok: false, message: "The library isn't connected yet." };
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return { ok: false, message: "Sign in first." };
+  const { error } = await supabase.from("readers").update({ display_name: checked.displayName, wpm_override: checked.wpmOverride }).eq("id", auth.user.id);
+  if (error) return { ok: false, message: "Couldn't save that just now." };
+  revalidatePath("/", "layout");
+  return { ok: true, message: checked.wpmOverride ? `Saved. The library will time your reading at ${checked.wpmOverride} words a minute.` : "Saved. The library will learn your pace as you read." };
 }

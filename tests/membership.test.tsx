@@ -66,3 +66,32 @@ describe("MembershipCard", () => {
     expect(html).toContain("Itumeleng Ntseng");
   });
 });
+
+import { checkPrefs } from "@/lib/membership";
+import { addUser, asUser, freshDb } from "./helpers/db";
+
+describe("card preferences", () => {
+  it("keeps a tidy name and a fixed pace in range", () => {
+    expect(checkPrefs("  Placeholder   Reader ", "260", null)).toEqual({ ok: true, displayName: "Placeholder Reader", wpmOverride: 260 });
+    expect(checkPrefs("P", "", null)).toEqual({ ok: true, displayName: "P", wpmOverride: null });
+    expect(checkPrefs("P", "260", "on")).toEqual({ ok: true, displayName: "P", wpmOverride: null });
+  });
+  it("refuses odd paces and long names", () => {
+    expect(checkPrefs("P", "20", null).ok).toBe(false);
+    expect(checkPrefs("P", "2000", null).ok).toBe(false);
+    expect(checkPrefs("P", "250.5", null).ok).toBe(false);
+    expect(checkPrefs("x".repeat(61), "", null).ok).toBe(false);
+  });
+  it("a reader can change only their own name and pace", async () => {
+    const db = await freshDb();
+    const A = "00000000-0000-0000-0000-0000000000f7";
+    const B = "00000000-0000-0000-0000-0000000000f8";
+    await addUser(db, A, "guest", "A");
+    await addUser(db, B, "guest", "B");
+    await asUser(db, A, (tx) => tx.query(`update readers set display_name = 'Placeholder A', wpm_override = 300 where id = $1`, [A]));
+    const n = await asUser(db, A, async (tx) => (await tx.query(`update readers set wpm_override = 999 where id = $1 returning id`, [B])).rows.length);
+    expect(n).toBe(0);
+    const rows = (await db.query<{ id: string; display_name: string; wpm_override: number | null }>(`select id, display_name, wpm_override from readers order by id`)).rows;
+    expect(rows).toEqual([{ id: A, display_name: "Placeholder A", wpm_override: 300 }, { id: B, display_name: "B", wpm_override: null }]);
+  }, 30_000);
+});

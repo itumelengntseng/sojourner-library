@@ -5,7 +5,7 @@ import { myOpenLoans } from "@/lib/loanStore";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { ReaderCard } from "@/lib/membership";
 import { signOut } from "./actions";
-import { RedeemForm, SignInForm } from "./forms";
+import { PrefsForm, RedeemForm, SignInForm } from "./forms";
 
 export const metadata: Metadata = { title: "Front desk" };
 export const dynamic = "force-dynamic";
@@ -62,6 +62,7 @@ export default async function CardPage() {
     <Desk eyebrow="Front desk" title="Welcome back">
       <MembershipCard card={card} />
       <OnLoanNow loans={await myOpenLoans()} />
+      <PrefsForm name={card.display_name ?? ""} wpm={(card as ReaderCard & { wpm_override?: number | null }).wpm_override ?? null} />
       <form action={signOut}>
         <button className="font-sans text-sm text-sandstone underline underline-offset-4 hover:text-lamplight">Sign out</button>
       </form>
