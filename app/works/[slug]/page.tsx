@@ -4,8 +4,10 @@ import { notFound } from "next/navigation";
 import { LoanDesk } from "@/components/LoanDesk";
 import { SceneCover } from "@/components/SceneCover";
 import { getWork } from "@/lib/catalogue";
-import { DEFAULT_WPM, formatDuration } from "@/lib/engine/readingTime";
+import { formatDuration } from "@/lib/engine/readingTime";
 import { loadDesk } from "@/lib/loanStore";
+import { myPace } from "@/lib/sessionStore";
+import { paceNote } from "@/lib/sessions";
 import { CANON_LABEL, formatWords, workStats } from "@/lib/workStats";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -16,8 +18,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function WorkPage({ params }: { params: Promise<{ slug: string }> }) {
   const work = getWork((await params).slug);
   if (!work) notFound();
-  const stats = workStats(work);
-  const desk = await loadDesk(work.slug);
+  const [desk, pace] = await Promise.all([loadDesk(work.slug), myPace()]);
+  const stats = workStats(work, pace.wpm);
   const now = Date.now();
 
   return (
@@ -44,7 +46,7 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
             <div>
               <dt className="font-sans text-xs uppercase tracking-wider text-sandstone">Reading time</dt>
               <dd className="mt-1 text-lg">{stats.readingTime}</dd>
-              <dd className="font-sans text-[0.65rem] text-sandstone/80">at {DEFAULT_WPM} wpm until we learn your pace</dd>
+              <dd className="font-sans text-[0.65rem] text-sandstone/80">{paceNote(pace)}</dd>
             </div>
           </dl>
           {work.isPlaceholder && (

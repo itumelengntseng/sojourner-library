@@ -9,6 +9,8 @@ import {
   THEME_CLASSES, type Highlight, type HighlightColour, type MarginNote, type ReaderSettings,
 } from "@/lib/reader";
 import type { ReadingData } from "@/lib/readingRoom";
+import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
+import { useSessionTracker } from "./useSessionTracker";
 
 const SETTINGS_KEY = "soj:reader-settings";
 const annKey = (slug: string, pos: number) => `soj:ann:${slug}:${pos}`;
@@ -22,7 +24,7 @@ function writeLocal(key: string, value: string) {
 
 const btn = "rounded px-2.5 py-1.5 font-sans text-xs uppercase tracking-wider";
 
-export function ReaderView({ slug, data }: { slug: string; data: ReadingData }) {
+export function ReaderView({ slug, data, wpm }: { slug: string; data: ReadingData; wpm: number }) {
   const { chapter, chapters } = data;
   const paras = useMemo(() => splitParagraphs(chapter.body), [chapter.body]);
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
@@ -33,6 +35,9 @@ export function ReaderView({ slug, data }: { slug: string; data: ReadingData }) 
   const [status, setStatus] = useState("");
   const textRef = useRef<HTMLDivElement>(null);
   const preview = data.mode === "preview";
+  const behind = useSessionTracker({ slug, position: chapter.position, paras, textRef });
+  const chapterWords = chapters.find((c) => c.position === chapter.position)?.words ?? 0;
+  const left = minutesFor(Math.max(0, chapterWords - behind), wpm);
 
   // Settings and (in preview) annotations live in this browser.
   useEffect(() => {
@@ -203,6 +208,9 @@ export function ReaderView({ slug, data }: { slug: string; data: ReadingData }) 
       <main id="main" className="mx-auto max-w-3xl px-5 pb-24 pt-8">
         <p className="font-sans text-xs uppercase tracking-[0.25em] opacity-70">{data.author}</p>
         <h1 className="mt-1 text-2xl">{chapter.title}</h1>
+        <p className="mt-1 font-sans text-xs opacity-70">
+          {left > 0 ? `About ${formatDuration(left)} left in this chapter` : "End of the chapter"} · at {wpm} wpm
+        </p>
         {preview && <p className="mt-2 font-sans text-[0.7rem] opacity-60">Placeholder text · notes and highlights are kept in this browser until the library is connected.</p>}
 
         <div

@@ -44,11 +44,23 @@ export function activeMs(activity: number[]): number {
  * With no usable sessions it falls back to the default.
  */
 export function personalWpm(sessions: ReadingSession[], halfLifeDays = 14): number {
-  const usable = sessions
-    .map((s) => {
-      const ms = activeMs(s.activity);
-      return { s, wpm: ms > 0 ? s.wordsRead / (ms / 60000) : 0 };
-    })
+  return personalWpmFromStats(
+    sessions.map((s) => ({ wordsRead: s.wordsRead, activeMs: activeMs(s.activity), endedAt: s.endedAt })),
+    halfLifeDays,
+  );
+}
+
+/** A session boiled down to what the speed calculation needs. */
+export interface SessionStats {
+  wordsRead: number;
+  activeMs: number;
+  endedAt: number;
+}
+
+/** Same as personalWpm, for sessions already summarised (e.g. stored compactly). */
+export function personalWpmFromStats(stats: SessionStats[], halfLifeDays = 14): number {
+  const usable = stats
+    .map((s) => ({ s, wpm: s.activeMs > 0 ? s.wordsRead / (s.activeMs / 60000) : 0 }))
     .filter(({ s, wpm }) => s.wordsRead >= MIN_SESSION_WORDS && wpm >= MIN_WPM && wpm <= MAX_WPM);
   if (usable.length === 0) return DEFAULT_WPM;
 
