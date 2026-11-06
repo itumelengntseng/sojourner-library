@@ -1,15 +1,18 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-05 (scheduled build run)._
+_Last updated: 2026-11-06 (scheduled build run)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
 - B1 Next.js 16 App Router + Tailwind 4 scaffold. `npm run build` passes; front hall placeholder page with stone/lamplight theme tokens in `app/globals.css`; authorship footer on every page; `noindex` (private library).
 - B2 Supabase schema + RLS (`supabase/migrations/0001_init.sql`). Verified against in-memory Postgres (PGlite) with stubbed Supabase auth: anon sees nothing, guests see only shared works, chapter text needs an active loan, notes/highlights private to their reader, no manuscript deletes, guests can't self-promote.
-- Tests: 42 passing (`npm test`). Typecheck clean (`npm run typecheck`).
+- B3 Invite-only membership cards (`supabase/migrations/0002_invites.sql`, `app/card/`): hashed invite codes, owner-only `create_invite`, `mint_owner_invite()` callable only from the SQL editor, `redeem_invite` issues a guest card; magic-link sign-in; card rendered as a stamped library card.
+- B4 Front hall living covers (`components/SceneCover.tsx`): layered Harlem street → Free State plains scenes, pauses on hover/focus, static under reduced motion.
+- B5 Halls with timber shelves (`app/halls`), canon toggle (`?canon=all`), work detail page (`app/works/[slug]`) with word count and reading time per chapter. Catalogue is placeholder-only (`lib/catalogue.ts`).
+- Tests: 79 passing (`npm test`). Typecheck clean (`npm run typecheck`).
 
 ## Next task
-B3 — Sign-in as a membership card (invite-only; owner + guest roles).
+B6 — Checkout flow UI: due-date slip, renew, return-to-shelf on expiry.
 
 ## Known issues
 - An expired loan that was never returned still blocks a new loan of the same book (unique open-loan index). B6 must auto-return expired loans ("return to shelf").
