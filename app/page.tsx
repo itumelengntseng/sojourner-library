@@ -49,6 +49,9 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
         <Link href="/lineage" className="rounded border border-sandstone/50 px-5 py-2 font-sans text-sm text-paper hover:border-lamplight">
           The family wall
         </Link>
+        <Link href="/timeline" className="rounded border border-sandstone/50 px-5 py-2 font-sans text-sm text-paper hover:border-lamplight">
+          Harlem timeline
+        </Link>
       </div>
     </main>
   );

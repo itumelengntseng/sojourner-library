@@ -21,10 +21,11 @@ _Last updated: 2026-11-06 (scheduled build run)._
   - RLS security: new standing audit `tests/security.test.ts` — RLS on every public table, anon has no grants, only notes/highlights deletable by readers, all security-definer functions pin search_path, bootstrap functions not callable from the API, signed-in strangers see nothing, authorship check holds. Found and fixed: readers could rewrite their own card number / issue date → `0005_reader_columns.sql` limits updates to name, pace and (owner-guarded) role.
 - NEXT ITERATION a — Lineage Explorer (`app/lineage`, `components/LineageWall.tsx`, `lib/lineage.ts`, data in `content/lineage.ts`): "The family wall" — stone plaques in generation rows; select a person to see parents, partners, siblings, children and the works they appear in; "How are they connected?" traces the shortest family tie between any two people; respects the canon toggle. Data is 7 clearly-labelled placeholder people only. `npm test` validates the lineage file (unknown ids, duplicates, >2 parents, self-reference, ancestry loops, unknown works) so Itu's real file is checked on entry. In the axe sweep; all clear.
 - NEXT ITERATION b — Canon Switcher (`lib/canon.ts`, `lib/canonServer.ts`, `proxy.ts`): one "Canon only / Include drafts" choice that follows the reader through the front hall, halls and family wall — following a `?canon=` link stores it in a cookie for a year. Drafts and apocrypha carry a plain-language note on the work page and in the reading room. Smoke-tested: switch on halls → front hall and lineage follow; switch back works.
-- Tests: 165 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear.
+- NEXT ITERATION c — Harlem Timeline Map (`app/timeline`, `components/HarlemMap.tsx`, `lib/timeline.ts`, data in `content/timeline.ts`): a lamplit schematic street plan of Harlem (110th–155th, Morningside Ave → First Ave; real geography, drawn in SVG, no external map service), year-range sliders, an event list, place chips (incl. places "elsewhere", off the map), and a detail card linking to the works. Follows the canon switch. Data is placeholder only; `npm test` validates the file (dates, off-map streets, unknown places/works, duplicates). In the axe sweep; all clear.
+- Tests: 173 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear.
 
 ## Next task
-NEXT ITERATION c — Harlem Timeline Map (structure only; placeholder events/places until Itu supplies them).
+NEXT ITERATION d — Writer's Room.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -34,7 +35,7 @@ NEXT ITERATION c — Harlem Timeline Map (structure only; placeholder events/pla
 
 ## NEEDS ITU
 1. **Supabase project** (not created — may involve billing). Steps: supabase.com → New project (name `sojourner-library`, region nearest Johannesburg/your readers) → Project Settings → API: copy the URL and anon key into Vercel env vars `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (never into the repo). Then `supabase link` + `supabase db push` (see `supabase/README.md`), or ask the build team to apply migrations via the Supabase connector once it exists.
-3. **Real lineage (when ready, no rush)**: replace the placeholder people in `content/lineage.ts` (instructions at the top of the file), or send the family tree in any form and the build team will enter it. Nothing about the real families has been invented.
+3. **Real lineage and timeline (when ready, no rush)**: replace the placeholders in `content/lineage.ts` and `content/timeline.ts` (instructions at the top of each file), or send the family tree / places and dates in any form and the build team will enter them. Nothing about the real families, places or events has been invented.
 2. **Vercel project** for preview deploys: vercel.com → Add New → Project → import `itumelengntseng/sojourner-library`. Production domain/DNS stays with Itu.
 
 ## DECISIONS (reversible)
