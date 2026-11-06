@@ -25,3 +25,13 @@ describe("due back soon", () => {
     expect(html).toContain('href="/card"');
   });
 });
+
+describe("loans by slug (C38)", () => {
+  it("keys the reader's open loans by work slug for the halls", async () => {
+    const { loansBySlug } = await import("@/lib/loanDesk");
+    const m = loansBySlug([loan("work-one", 2 * H), loan("work-two", 30 * H)]);
+    expect(Object.keys(m).sort()).toEqual(["work-one", "work-two"]);
+    expect(m["work-one"].due).toBe("Fri 6 Nov, 14:00");
+    expect(loansBySlug([])).toEqual({});
+  });
+});

@@ -204,6 +204,11 @@ export function onLoanNow(loans: Loan[], readerId: string, works: Record<string,
     });
 }
 
+/** The reader's open loans keyed by work slug — for marking the spines on the halls (C38). */
+export function loansBySlug(loans: OnLoan[]): Record<string, OnLoan> {
+  return Object.fromEntries(loans.map((l) => [l.slug, l]));
+}
+
 /** Loans due back within `windowMs` (default a day), soonest first — for the front-hall reminder. */
 export function dueBackSoon(loans: OnLoan[], now: number, windowMs = 24 * 3600_000): OnLoan[] {
   return loans.filter((l) => l.dueAt > now && l.dueAt - now <= windowMs).sort((a, b) => a.dueAt - b.dueAt);

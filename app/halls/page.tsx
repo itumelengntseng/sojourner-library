@@ -8,6 +8,8 @@ import { canonView } from "@/lib/canonServer";
 import { CANON_LABEL, filterByCanon, workStats } from "@/lib/workStats";
 import { cleanQuery, resultLine, searchShelves } from "@/lib/shelfSearch";
 import { parseSort, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
+import { myOpenLoans } from "@/lib/loanStore";
+import { loansBySlug } from "@/lib/loanDesk";
 
 export const metadata: Metadata = { title: "The halls" };
 
@@ -21,6 +23,7 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
   const sort = parseSort(params.sort);
   const works = sortShelf(searchShelves(filterByCanon(catalogue.works, view), halls, query), sort);
   const canonParam = typeof params.canon === "string" ? params.canon : undefined;
+  const out = loansBySlug(await myOpenLoans());
 
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16">
@@ -54,6 +57,12 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
         </nav>
       )}
       {query && <p role="status" className="mt-3 font-sans text-sm text-sandstone">{resultLine(works.length, query)}</p>}
+      {works.some((w) => out[w.slug]) && (
+        <p className="mt-3 font-sans text-xs text-sandstone">
+          <span aria-hidden="true" className="mr-1 rounded-[1px] bg-paper px-1 font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-ink">out</span>
+          marks the books you have on loan — renew or return them at the <Link href="/card" className="underline underline-offset-2 hover:text-lamplight">front desk</Link>.
+        </p>
+      )}
       {halls.map((hall) => {
         const shelf = works.filter((w) => w.hall === hall.id);
         if (query && shelf.length === 0) return null;
@@ -69,6 +78,7 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
                   {shelf.map((w) => {
                     const s = workStats(w);
                     const height = 230 + Math.min(60, Math.round(s.words / 500));
+                    const loan = out[w.slug];
                     return (
                       <li key={w.slug} className="shrink-0">
                         <Link
@@ -76,11 +86,12 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
                           style={{ height, filter: `hue-rotate(${seedOf(w.slug) / 8}deg)` }}
                           className="flex w-16 flex-col items-center justify-between rounded-t-sm border border-b-0 border-timber-dark bg-gradient-to-r from-timber via-[#7d5233] to-timber px-1 py-3 text-paper transition-transform hover:-translate-y-2 focus-visible:-translate-y-2"
                         >
+                          {loan && <span aria-hidden="true" title={`On loan to you · due ${loan.due}`} className="-mt-1 mb-1 w-full rounded-[1px] bg-paper py-0.5 text-center font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-ink">out</span>}
                           <span className="line-clamp-2 text-[0.75rem] leading-tight [writing-mode:vertical-rl] rotate-180">{w.title}</span>
                           <span className="font-sans text-[0.55rem] uppercase tracking-wider text-lamplight [writing-mode:vertical-rl] rotate-180">{w.author}</span>
                           {w.canonStatus !== "canon" && <span aria-hidden="true" title="Not canon" className="mt-1 h-2 w-2 rounded-full bg-ember" />}
                           <span className="sr-only">
-                            by {w.author}. {CANON_LABEL[w.canonStatus]}. {s.readingTime} to read.
+                            by {w.author}. {CANON_LABEL[w.canonStatus]}. {s.readingTime} to read.{loan ? ` On loan to you, due ${loan.due}.` : ""}
                           </span>
                         </Link>
                       </li>
