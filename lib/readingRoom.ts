@@ -10,11 +10,14 @@ import { updateBookmark } from "./engine/checkout";
 import { openLoan, parsePreviewLoans, PREVIEW_COOKIE, PREVIEW_READER, serializePreviewLoans, settleExpired } from "./loanDesk";
 import { cleanNote, locateBookmark, normaliseSelection, HIGHLIGHT_COLOURS, type Highlight, type HighlightColour, type MarginNote } from "./reader";
 import { supabaseServer } from "./supabase/server";
+import { ownerClient } from "./writersRoom";
+import { withAuthor } from "./catalogueRows";
 
 export interface ChapterInfo { position: number; title: string; words: number }
 
 export interface ReadingData {
-  mode: "preview" | "library";
+  /** proof = the Keeper reading without a loan; nothing is recorded. */
+  mode: "preview" | "library" | "proof";
   loanId: string;
   dueAt: number;
   title: string;
@@ -167,4 +170,39 @@ export async function removeAnnotation(kind: "notes" | "highlights", id: string)
   if (!lib?.user || !/^[0-9a-f-]{36}$/i.test(id)) return false;
   const { error } = await lib.supabase.from(kind).delete().eq("id", id); // RLS: only your own
   return !error;
+}
+
+export type ProofGate = "missing" | "not-owner";
+
+/**
+ * The Keeper's proof copy: read any work (shared or not) without a loan. Nothing is
+ * written — no loan, bookmark, session or annotations. Preview mode uses the placeholders.
+ */
+export async function loadProof(slug: string, position: number): Promise<{ ok: true; data: ReadingData } | { ok: false; gate: ProofGate }> {
+  const { supabase, reason } = await ownerClient();
+  const base = { loanId: "", dueAt: 0, bookmark: null, notes: [], highlights: [] };
+  if (reason === "preview") {
+    const work = getWork(slug);
+    if (!work) return { ok: false, gate: "missing" };
+    const chapters = work.chapters.map((c) => ({ position: c.position, title: c.title, words: countWords(c.body) }));
+    const ch = work.chapters.find((c) => c.position === position) ?? work.chapters[0];
+    return { ok: true, data: { ...base, mode: "proof", title: work.title, author: work.author, canonStatus: work.canonStatus, chapter: { position: ch.position, title: ch.title, body: ch.body }, chapters } };
+  }
+  if (!supabase) return { ok: false, gate: "not-owner" };
+  const { data: work } = await supabase.from("works").select("id, title, author, canon_status").eq("slug", slug).is("archived_at", null).maybeSingle();
+  if (!work) return { ok: false, gate: "missing" };
+  const { data: rows } = await supabase.from("chapters").select("id, position, title, word_count").eq("work_id", work.id).is("archived_at", null).order("position");
+  const list = (rows ?? []) as { id: string; position: number; title: string; word_count: number }[];
+  if (list.length === 0) return { ok: false, gate: "missing" };
+  const ch = list.find((c) => c.position === position) ?? list[0];
+  const { data: text } = await supabase.from("chapter_texts").select("body_md").eq("chapter_id", ch.id).maybeSingle();
+  return {
+    ok: true,
+    data: {
+      ...base, mode: "proof", title: work.title as string, author: withAuthor(work.author as string),
+      canonStatus: work.canon_status as ReadingData["canonStatus"],
+      chapter: { position: ch.position, title: ch.title, body: (text?.body_md as string | undefined) ?? "" },
+      chapters: list.map((c) => ({ position: c.position, title: c.title, words: c.word_count })),
+    },
+  };
 }

@@ -84,6 +84,13 @@ describe("row-level security", () => {
     });
   });
 
+  it("lets the Keeper read a proof copy without a loan, unshared works included", async () => {
+    await asUser(db, OWNER, async (tx) => {
+      expect(await count(tx, `select * from loans where reader_id = $1`, [OWNER])).toBe(0);
+      expect(await count(tx, `select * from chapter_texts`)).toBe(1);
+    });
+  });
+
   it("closes the text again once the loan expires", async () => {
     // Back-dated loans can only be written from the SQL editor (the desk stamps API loans with now()).
     await db.query(

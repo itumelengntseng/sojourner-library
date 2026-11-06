@@ -39,21 +39,23 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
   const [status, setStatus] = useState("");
   const textRef = useRef<HTMLDivElement>(null);
   const preview = data.mode === "preview";
-  const behind = useSessionTracker({ slug, position: chapter.position, paras, textRef });
+  const proof = data.mode === "proof";
+  const base = proof ? `/works/${slug}/proof` : `/works/${slug}/read`;
+  const behind = useSessionTracker({ slug, position: chapter.position, paras, textRef, record: !proof });
   const chapterWords = chapters.find((c) => c.position === chapter.position)?.words ?? 0;
   const left = minutesFor(Math.max(0, chapterWords - behind), wpm);
 
   // Settings and (in preview) annotations live in this browser.
   useEffect(() => {
     setSettings(parseSettings(readLocal(SETTINGS_KEY)));
-    if (preview) {
+    if (preview && !proof) {
       try {
         const saved = JSON.parse(readLocal(annKey(slug, chapter.position)) ?? "{}") as { notes?: MarginNote[]; highlights?: Highlight[] };
         if (Array.isArray(saved.notes)) setNotes(saved.notes);
         if (Array.isArray(saved.highlights)) setHighlights(saved.highlights);
       } catch { /* ignore a damaged entry */ }
     }
-  }, [preview, slug, chapter.position]);
+  }, [preview, proof, slug, chapter.position]);
 
   const updateSettings = (patch: Partial<ReaderSettings>) =>
     setSettings((s) => {
@@ -203,8 +205,8 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
             <button type="button" className={`${btn} text-paper`} aria-label="Larger text" disabled={settings.fontSize >= FONT_MAX}
               onClick={() => updateSettings({ fontSize: settings.fontSize + 1 })}>A+</button>
           </div>
-          <button type="button" onClick={placeBookmark} className={`${btn} bg-timber text-paper hover:bg-ochre`}>Bookmark here</button>
-          <button type="button" onClick={startNote} className={`${btn} border border-sandstone/40 text-paper`}>Note</button>
+          {!proof && <button type="button" onClick={placeBookmark} className={`${btn} bg-timber text-paper hover:bg-ochre`}>Bookmark here</button>}
+          {!proof && <button type="button" onClick={startNote} className={`${btn} border border-sandstone/40 text-paper`}>Note</button>}
         </div>
         <p role="status" aria-live="polite" className="mx-auto max-w-5xl font-sans text-[0.7rem] text-lamplight empty:hidden">{status}</p>
       </header>
@@ -216,7 +218,8 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
           {left > 0 ? `About ${formatDuration(left)} left in this chapter` : "End of the chapter"} · at {wpm} wpm
         </p>
         {outsideCanonNote(data.canonStatus) && <p className="mt-2 font-sans text-xs font-semibold">{outsideCanonNote(data.canonStatus)}</p>}
-        {preview && <p className="mt-2 font-sans text-[0.7rem] opacity-80">Placeholder text · notes and highlights are kept in this browser until the library is connected.</p>}
+        {proof && <p className="mt-2 rounded-sm border border-current/40 px-2 py-1 font-sans text-[0.7rem]">Proof copy — only the Keeper sees this. No loan, bookmark, notes or reading time are recorded.</p>}
+        {preview && !proof && <p className="mt-2 font-sans text-[0.7rem] opacity-80">Placeholder text · notes and highlights are kept in this browser until the library is connected.</p>}
 
         <div
           ref={textRef}
@@ -282,12 +285,12 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
         </div>
 
         <nav aria-label="Chapters" className="mt-10 flex justify-between gap-4 border-t border-current/20 pt-4 font-sans text-sm">
-          {prev ? <Link href={`/works/${slug}/read?ch=${prev.position}`}>← {prev.title}</Link> : <span />}
-          {next ? <Link href={`/works/${slug}/read?ch=${next.position}`}>{next.title} →</Link> : <Link href={`/works/${slug}`}>Back to the desk</Link>}
+          {prev ? <Link href={`${base}?ch=${prev.position}`}>← {prev.title}</Link> : <span />}
+          {next ? <Link href={`${base}?ch=${next.position}`}>{next.title} →</Link> : <Link href={`/works/${slug}`}>Back to the desk</Link>}
         </nav>
       </main>
 
-      {selection && (
+      {selection && !proof && (
         <div role="toolbar" aria-label="Selection" className="fixed inset-x-0 bottom-4 z-30 mx-auto flex w-fit items-center gap-2 rounded-full border border-timber-dark bg-stone-wall px-3 py-2 font-sans text-xs text-paper shadow-lg">
           <span className="opacity-80">Highlight</span>
           {HIGHLIGHT_COLOURS.map((c) => (

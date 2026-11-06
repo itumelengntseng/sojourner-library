@@ -43,6 +43,7 @@ export default async function WritersRoom() {
             <li key={w.id} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <Link href={`/works/${w.slug}`} className="hover:text-lamplight">{w.title}</Link>
+                <Link href={`/works/${w.slug}/proof`} className="ml-3 font-sans text-xs text-lamplight underline underline-offset-2">Read the proof</Link>
                 <p className="font-sans text-xs text-sandstone">
                   {CANON_LABEL[w.canonStatus]}{w.isPlaceholder ? " · placeholder" : ""}{live ? ` · ${formatWords(w.words)} · ${w.readers} reader${w.readers === 1 ? "" : "s"}, ${w.openLoans} on loan now, ${w.minutes} min read` : ""}
                 </p>

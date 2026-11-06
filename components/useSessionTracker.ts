@@ -17,8 +17,10 @@ export function useSessionTracker(opts: {
   position: number;
   paras: Paragraph[];
   textRef: RefObject<HTMLDivElement | null>;
+  /** false = proof copy: measure progress but never report a session. */
+  record?: boolean;
 }): number {
-  const { slug, position, paras, textRef } = opts;
+  const { slug, position, paras, textRef, record = true } = opts;
   const [behind, setBehind] = useState(0);
   const state = useRef({ id: "", startedAt: 0, activity: [] as number[], startWords: -1, furthest: 0, dirty: false });
 
@@ -64,6 +66,7 @@ export function useSessionTracker(opts: {
         sessionId: s.id, slug, position, startedAt: s.startedAt,
         activity: s.activity.slice(-MAX_ACTIVITY), wordsRead: Math.max(0, s.furthest - Math.max(0, s.startWords)),
       });
+      if (!record) return;
       if (final && navigator.sendBeacon) navigator.sendBeacon("/api/sessions", new Blob([body], { type: "application/json" }));
       else fetch("/api/sessions", { method: "POST", body, headers: { "content-type": "application/json" }, keepalive: true }).catch(() => {});
     };
@@ -92,7 +95,7 @@ export function useSessionTracker(opts: {
       document.removeEventListener("visibilitychange", onHide);
       send(true);
     };
-  }, [slug, position, paras, textRef]);
+  }, [slug, position, paras, textRef, record]);
 
   return behind;
 }
