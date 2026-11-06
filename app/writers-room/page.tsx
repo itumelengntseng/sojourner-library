@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DescriptionForm, HallForm, InviteForm, ManuscriptImport, RevokeInvite, WorkSettings } from "@/components/WritersRoomForms";
+import { ArchiveButton, DescriptionForm, HallForm, InviteForm, ManuscriptImport, RevokeInvite, WorkSettings } from "@/components/WritersRoomForms";
 import { CANON_LABEL, formatWords } from "@/lib/workStats";
 import { AUTHOR } from "@/lib/site";
 import { loadRoom } from "@/lib/writersRoom";
@@ -47,7 +47,7 @@ export default async function WritersRoom() {
                 <p className="font-sans text-xs text-sandstone">
                   {CANON_LABEL[w.canonStatus]}{w.isPlaceholder ? " · placeholder" : ""}{live ? ` · ${formatWords(w.words)} · ${w.readers} reader${w.readers === 1 ? "" : "s"}, ${w.openLoans} on loan now, ${w.minutes} min read` : ""}
                 </p>
-                {live && <div className="mt-1"><DescriptionForm id={w.id} title={w.title} description={w.description} /></div>}
+                {live && <div className="mt-1 flex flex-wrap items-start gap-4"><DescriptionForm id={w.id} title={w.title} description={w.description} /><ArchiveButton id={w.id} title={w.title} intent="archive" /></div>}
               </div>
               {live ? <WorkSettings id={w.id} visibility={w.visibility} canon={w.canonStatus} hall={w.hall} halls={room.halls} /> : <span className="font-sans text-xs text-sandstone">Settings open once connected</span>}
             </li>
@@ -57,6 +57,21 @@ export default async function WritersRoom() {
 
       <p className="mt-10 font-sans text-sm"><Link href="/pitch-room" className="text-lamplight underline underline-offset-2">The Pitch Room →</Link> <span className="text-sandstone">one-sheet pitches and private links for agents and producers.</span></p>
       <p className="mt-2 font-sans text-sm"><Link href="/writers-room/atlas" className="text-lamplight underline underline-offset-2">The family wall &amp; timeline →</Link> <span className="text-sandstone">edit the people, places and dates behind the explorers.</span></p>
+
+      {live && room.setAside.length > 0 && (
+        <section aria-labelledby="set-aside" className="mt-8">
+          <h2 id="set-aside" className="text-lg text-paper">Set aside</h2>
+          <p className="font-sans text-xs text-sandstone">Off the shelves and out of the readers&apos; sight, kept whole.</p>
+          <ul className="mt-2 divide-y divide-timber-dark/70 border-y border-timber-dark/70">
+            {room.setAside.map((w) => (
+              <li key={w.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                <span>{w.title} <span className="font-sans text-xs text-sandstone">· set aside {new Date(w.archivedAt).toLocaleDateString("en-ZA", { timeZone: "Africa/Johannesburg" })}</span></span>
+                <ArchiveButton id={w.id} title={w.title} intent="restore" />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section aria-labelledby="halls" className="mt-10 rounded-sm border border-timber-dark bg-stone-floor/60 p-5">
         <h2 id="halls" className="text-xl text-paper">The halls</h2>

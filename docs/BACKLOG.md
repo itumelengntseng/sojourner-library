@@ -29,4 +29,5 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C7 Hall names editable in the Writer's Room (owner-only `halls` table: id, name, note, order) and a "Hall" choice per work; `lib/catalogue.ts` HALLS stays as the preview fallback.
 - [x] C8 Library-mode end-to-end smoke script (Playwright) ready to run against a real Supabase project once NEEDS ITU 1 is done: sign in → redeem → borrow → read → note → ledger export → import → pitch link → proof.
 - [x] C9 "Newly shelved" on the front hall: the few works most recently shared or updated, with a stamped date (library mode; preview shows none).
-- [ ] C10 Archive a work from the Writer's Room (sets `archived_at`; hidden from shelves, never deleted; can be restored).
+- [x] C10 Archive a work from the Writer's Room (sets `archived_at`; hidden from shelves, never deleted; can be restored).
+- [ ] C11 Reader card page shows "On loan now" (title, due-date stamp, link to the reading room) so readers can resume from the front desk.

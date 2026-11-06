@@ -29,7 +29,7 @@ export interface RoomInvite {
 export type Room =
   | { mode: "preview"; works: RoomWork[]; halls: Hall[] }
   | { mode: "closed"; reason: "signed-out" | "not-owner" }
-  | { mode: "library"; works: RoomWork[]; invites: RoomInvite[]; halls: Hall[]; hallsNamed: boolean };
+  | { mode: "library"; works: RoomWork[]; invites: RoomInvite[]; halls: Hall[]; hallsNamed: boolean; setAside: { id: string; title: string; archivedAt: string }[] };
 
 /** The owner's client, or null (with why) — every Writer's Room action goes through this. */
 export async function ownerClient() {
@@ -55,17 +55,19 @@ export async function loadRoom(): Promise<Room> {
     };
   }
   if (!supabase) return { mode: "closed", reason: reason as "signed-out" | "not-owner" };
-  const [{ data: works }, { data: stats }, { data: invites }, { data: hallRows }] = await Promise.all([
+  const [{ data: works }, { data: stats }, { data: invites }, { data: hallRows }, { data: archived }] = await Promise.all([
     supabase.from("works").select("id, slug, title, canon_status, visibility, is_placeholder, description, hall, word_count").is("archived_at", null).order("title"),
     supabase.rpc("readership"),
     supabase.from("invites").select("id, note, expires_at, redeemed_at, revoked_at").eq("role", "guest").order("created_at", { ascending: false }).limit(50),
     supabase.from("halls").select("id, name, note, position"),
+    supabase.from("works").select("id, title, archived_at").not("archived_at", "is", null).order("archived_at", { ascending: false }).limit(100),
   ]);
   const by = new Map(((stats ?? []) as { work_id: string; readers: number; open_loans: number; minutes: number }[]).map((s) => [s.work_id, s]));
   return {
     mode: "library",
     halls: hallsFromRows((hallRows ?? []) as HallRow[]),
     hallsNamed: (hallRows ?? []).length > 0,
+    setAside: (archived ?? []).map((w) => ({ id: w.id as string, title: w.title as string, archivedAt: w.archived_at as string })),
     works: (works ?? []).map((w) => ({
       id: w.id as string, slug: w.slug as string, title: w.title as string,
       canonStatus: w.canon_status as RoomWork["canonStatus"], visibility: w.visibility as RoomWork["visibility"],

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
-import { descriptionAction, hallAction, importAction, inviteAction, revokeAction, workSettingsAction, type RoomState } from "@/app/writers-room/actions";
+import { archiveAction, descriptionAction, hallAction, importAction, inviteAction, revokeAction, workSettingsAction, type RoomState } from "@/app/writers-room/actions";
 import { formatDuration, minutesFor, DEFAULT_WPM } from "@/lib/engine/readingTime";
 import { parseManuscript, slugify } from "@/lib/manuscript";
 
@@ -148,6 +148,22 @@ export function HallForm({ hall, canSave }: { hall?: { id: string; name: string;
       </label>
       <button type="submit" disabled={!canSave || pending} className="rounded border border-lamplight/60 px-3 py-2 text-xs text-lamplight hover:bg-lamplight hover:text-ink disabled:cursor-not-allowed disabled:opacity-50">{hall ? "Save" : "Open the hall"}</button>
       {state.message && <span role="status" key={key} className={`sm:col-span-4 text-xs ${state.ok ? "text-lamplight" : "text-ember"}`}>{state.message}</span>}
+    </form>
+  );
+}
+
+/** Set a work aside (with a confirm) or restore it. Works are never deleted. */
+export function ArchiveButton({ id, title, intent }: { id: string; title: string; intent: "archive" | "restore" }) {
+  const [state, action, pending] = useActionState(archiveAction, initial);
+  return (
+    <form action={action} className="inline font-sans text-xs"
+      onSubmit={(e) => { if (intent === "archive" && !window.confirm(`Set "${title}" aside? It leaves every shelf (readers on loan lose access) but nothing is deleted — you can restore it.`)) e.preventDefault(); }}>
+      <input type="hidden" name="id" value={id} />
+      <input type="hidden" name="intent" value={intent} />
+      <button type="submit" disabled={pending} className={intent === "archive" ? "text-ember underline underline-offset-2" : "text-lamplight underline underline-offset-2"}>
+        {intent === "archive" ? "Set aside" : "Restore to the shelves"}
+      </button>
+      {state.message && <span role="status" className={`ml-2 ${state.ok ? "text-lamplight" : "text-ember"}`}>{state.message}</span>}
     </form>
   );
 }

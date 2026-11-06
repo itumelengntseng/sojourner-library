@@ -105,3 +105,18 @@ export async function hallAction(_: RoomState, form: FormData): Promise<RoomStat
   revalidatePath("/halls");
   return { ok: true, message: existing ? `Saved "${checked.name}".` : `"${checked.name}" is open.` };
 }
+
+/** Set a work aside (hidden from every shelf, kept whole) or bring it back. Nothing is deleted. */
+export async function archiveAction(_: RoomState, form: FormData): Promise<RoomState> {
+  const { supabase, reason } = await ownerClient();
+  if (!supabase) return closed(reason);
+  const id = String(form.get("id") ?? "");
+  const intent = String(form.get("intent") ?? "");
+  if (!/^[0-9a-f-]{36}$/i.test(id) || !["archive", "restore"].includes(intent)) return { ok: false, message: "Unknown request." };
+  const now = new Date().toISOString();
+  const { error } = await supabase.from("works").update({ archived_at: intent === "archive" ? now : null, updated_at: now }).eq("id", id);
+  if (error) return { ok: false, message: "Couldn't do that just now." };
+  revalidatePath("/writers-room");
+  revalidatePath("/", "layout");
+  return { ok: true, message: intent === "archive" ? "Set aside — off the shelves, kept safe. Restore it below any time." : "Back on the shelves." };
+}

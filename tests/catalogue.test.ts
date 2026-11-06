@@ -152,3 +152,26 @@ describe("work descriptions (schema)", () => {
     await expect(db.query(`update works set description = repeat('x', 2001)`)).rejects.toThrow(/check/);
   });
 });
+
+describe("setting a work aside (schema)", () => {
+  const OWNER = "00000000-0000-0000-0000-0000000000c7";
+  const GUEST = "00000000-0000-0000-0000-0000000000c8";
+  let db: Db;
+  const visible = (who: string) => asUser(db, who, async (tx) => (await tx.query<{ slug: string }>(`select slug from works where archived_at is null`)).rows.map((r) => r.slug));
+  beforeAll(async () => {
+    db = await freshDb();
+    await addUser(db, OWNER, "owner");
+    await addUser(db, GUEST, "guest");
+    await db.query(`insert into works (slug, title, visibility) values ('placeholder-aside', 'P', 'members')`);
+  }, 30_000);
+  it("hides it from every shelf, keeps it whole, and restores it", async () => {
+    expect(await visible(GUEST)).toEqual(["placeholder-aside"]);
+    await asUser(db, OWNER, (tx) => tx.query(`update works set archived_at = now() where slug = 'placeholder-aside'`));
+    expect(await visible(GUEST)).toEqual([]);
+    expect(await asUser(db, GUEST, async (tx) => (await tx.query(`select * from works`)).rows.length)).toBe(0);
+    expect((await db.query(`select * from works`)).rows).toHaveLength(1);
+    expect(await asUser(db, GUEST, async (tx) => (await tx.query(`update works set archived_at = null returning id`)).rows.length)).toBe(0);
+    await asUser(db, OWNER, (tx) => tx.query(`update works set archived_at = null where slug = 'placeholder-aside'`));
+    expect(await visible(GUEST)).toEqual(["placeholder-aside"]);
+  });
+});
