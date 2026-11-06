@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { InviteForm, ManuscriptImport, RevokeInvite, WorkSettings } from "@/components/WritersRoomForms";
+import { DescriptionForm, InviteForm, ManuscriptImport, RevokeInvite, WorkSettings } from "@/components/WritersRoomForms";
 import { CANON_LABEL, formatWords } from "@/lib/workStats";
 import { AUTHOR } from "@/lib/site";
 import { loadRoom } from "@/lib/writersRoom";
@@ -47,6 +47,7 @@ export default async function WritersRoom() {
                 <p className="font-sans text-xs text-sandstone">
                   {CANON_LABEL[w.canonStatus]}{w.isPlaceholder ? " · placeholder" : ""}{live ? ` · ${formatWords(w.words)} · ${w.readers} reader${w.readers === 1 ? "" : "s"}, ${w.openLoans} on loan now, ${w.minutes} min read` : ""}
                 </p>
+                {live && <div className="mt-1"><DescriptionForm id={w.id} title={w.title} description={w.description} /></div>}
               </div>
               {live ? <WorkSettings id={w.id} visibility={w.visibility} canon={w.canonStatus} /> : <span className="font-sans text-xs text-sandstone">Settings open once connected</span>}
             </li>

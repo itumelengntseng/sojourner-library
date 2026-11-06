@@ -14,6 +14,7 @@ export interface WorkRow {
   series_order?: number | null;
   canon_status: string;
   is_placeholder: boolean;
+  description?: string | null;
   archived_at?: string | null;
 }
 
@@ -53,7 +54,7 @@ export function worksFromRows(works: WorkRow[], chapters: ChapterRow[]): Work[] 
       series: w.series,
       canonStatus: (STATUSES.includes(w.canon_status as CanonStatus) ? w.canon_status : "draft") as CanonStatus,
       isPlaceholder: w.is_placeholder,
-      blurb: w.is_placeholder ? "Placeholder description. The real description will come from the author." : NO_BLURB,
+      blurb: w.description?.trim() || (w.is_placeholder ? "Placeholder description. The real description will come from the author." : NO_BLURB),
       chapters: (byWork.get(w.id) ?? [])
         .sort((a, b) => a.position - b.position)
         .map((c) => ({ position: c.position, title: c.title, body: "", words: Math.max(0, c.word_count ?? 0) })),

@@ -52,6 +52,11 @@ describe("catalogue from rows", () => {
     expect(real.blurb).toBe(NO_BLURB);
     expect(ph.blurb).toMatch(/^Placeholder/);
   });
+  it("shows the author's own description when there is one", () => {
+    const [w] = worksFromRows([row({ id: "a", slug: "a", is_placeholder: false, description: "  Placeholder description typed in the Writer's Room.  " })], []);
+    expect(w.blurb).toBe("Placeholder description typed in the Writer's Room.");
+    expect(worksFromRows([row({ id: "b", slug: "b", is_placeholder: false, description: "   " })], [])[0].blurb).toBe(NO_BLURB);
+  });
   it("orders by series, then series order, then title", () => {
     const works = worksFromRows([
       row({ id: "1", slug: "z", title: "Z" }),
@@ -81,7 +86,7 @@ describe("catalogue queries against the schema (RLS)", () => {
   const chapters = (n: number) => JSON.stringify(Array.from({ length: n }, (_, i) => ({ title: `Chapter ${i + 1}`, body: `Placeholder text ${i + 1}.`, words: 3 })));
   // The same two queries lib/catalogueServer.ts makes.
   const shelf = (who: string | null) => asUser(db, who, async (tx) => {
-    const works = (await tx.query<WorkRow>(`select id, slug, title, author, hall, series, series_order, canon_status, is_placeholder, archived_at from works where archived_at is null`)).rows;
+    const works = (await tx.query<WorkRow>(`select id, slug, title, author, hall, series, series_order, canon_status, is_placeholder, description, archived_at from works where archived_at is null`)).rows;
     const ids = works.map((w) => w.id);
     const chs = ids.length ? (await tx.query<ChapterRow>(`select work_id, position, title, word_count, archived_at from chapters where work_id = any($1::uuid[]) and archived_at is null`, [ids])).rows : [];
     return worksFromRows(works, chs);
@@ -109,5 +114,28 @@ describe("catalogue queries against the schema (RLS)", () => {
     const works = await shelf(GUEST);
     expect(works.map((w) => [w.slug, w.chapters.length])).toEqual([["placeholder-shelved", 2]]);
     await expect(shelf(null)).rejects.toThrow(/permission denied/);
+  });
+});
+
+describe("work descriptions (schema)", () => {
+  const OWNER = "00000000-0000-0000-0000-0000000000c5";
+  const GUEST = "00000000-0000-0000-0000-0000000000c6";
+  let db: Db;
+  beforeAll(async () => {
+    db = await freshDb();
+    await addUser(db, OWNER, "owner");
+    await addUser(db, GUEST, "guest");
+    await db.query(`insert into works (slug, title, visibility) values ('placeholder-desc', 'P', 'members')`);
+  }, 30_000);
+  it("starts empty; the owner writes it; guests read it but can't change it", async () => {
+    expect((await db.query<{ description: string }>(`select description from works`)).rows[0].description).toBe("");
+    await asUser(db, OWNER, (tx) => tx.query(`update works set description = 'Placeholder description.' where slug = 'placeholder-desc'`));
+    const seen = await asUser(db, GUEST, async (tx) => (await tx.query<{ description: string }>(`select description from works`)).rows);
+    expect(seen).toEqual([{ description: "Placeholder description." }]);
+    const changed = await asUser(db, GUEST, async (tx) => (await tx.query(`update works set description = 'x' returning id`)).rows.length);
+    expect(changed).toBe(0);
+  });
+  it("caps the length", async () => {
+    await expect(db.query(`update works set description = repeat('x', 2001)`)).rejects.toThrow(/check/);
   });
 });

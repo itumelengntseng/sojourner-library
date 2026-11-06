@@ -20,7 +20,7 @@ export const loadCatalogue = cache(async (): Promise<Catalogue> => {
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return { mode: "library", signedIn: false, works: [] };
   const { data: works } = await supabase.from("works")
-    .select("id, slug, title, author, hall, series, series_order, canon_status, is_placeholder, archived_at")
+    .select("id, slug, title, author, hall, series, series_order, canon_status, is_placeholder, description, archived_at")
     .is("archived_at", null);
   const rows = (works ?? []) as WorkRow[];
   if (rows.length === 0) return { mode: "library", signedIn: true, works: [] };

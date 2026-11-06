@@ -9,6 +9,7 @@ export interface RoomWork {
   canonStatus: "canon" | "draft" | "apocrypha";
   visibility: "owner" | "members";
   isPlaceholder: boolean;
+  description: string;
   words: number;
   readers: number;
   openLoans: number;
@@ -45,14 +46,14 @@ export async function loadRoom(): Promise<Room> {
     return {
       mode: "preview",
       works: getWorks().map((w) => ({
-        id: w.slug, slug: w.slug, title: w.title, canonStatus: w.canonStatus, visibility: "owner", isPlaceholder: true,
+        id: w.slug, slug: w.slug, title: w.title, canonStatus: w.canonStatus, visibility: "owner", isPlaceholder: true, description: "",
         words: 0, readers: 0, openLoans: 0, minutes: 0,
       })),
     };
   }
   if (!supabase) return { mode: "closed", reason: reason as "signed-out" | "not-owner" };
   const [{ data: works }, { data: stats }, { data: invites }] = await Promise.all([
-    supabase.from("works").select("id, slug, title, canon_status, visibility, is_placeholder, word_count").is("archived_at", null).order("title"),
+    supabase.from("works").select("id, slug, title, canon_status, visibility, is_placeholder, description, word_count").is("archived_at", null).order("title"),
     supabase.rpc("readership"),
     supabase.from("invites").select("id, note, expires_at, redeemed_at, revoked_at").eq("role", "guest").order("created_at", { ascending: false }).limit(50),
   ]);
@@ -62,7 +63,7 @@ export async function loadRoom(): Promise<Room> {
     works: (works ?? []).map((w) => ({
       id: w.id as string, slug: w.slug as string, title: w.title as string,
       canonStatus: w.canon_status as RoomWork["canonStatus"], visibility: w.visibility as RoomWork["visibility"],
-      isPlaceholder: w.is_placeholder as boolean, words: w.word_count as number,
+      isPlaceholder: w.is_placeholder as boolean, description: (w.description as string | null) ?? "", words: w.word_count as number,
       readers: Number(by.get(w.id as string)?.readers ?? 0), openLoans: Number(by.get(w.id as string)?.open_loans ?? 0),
       minutes: Number(by.get(w.id as string)?.minutes ?? 0),
     })),

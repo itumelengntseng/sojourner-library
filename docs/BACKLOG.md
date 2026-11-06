@@ -25,4 +25,6 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C4 Owner preview of the reading room for unshared works without taking out a loan.
 - [x] C5 Form-based editor for the family wall and timeline (add/edit one person, place or event at a time), on top of the C3 JSON store.
 - [x] QA2 Second QA pass over C1–C5: axe/mobile sweep incl. owner pages, RLS audit of 0008–0010 added to `tests/security.test.ts`, performance check.
-- [ ] C6 Work descriptions: an owner-only "description" field per work in the Writer's Room (replaces "The author hasn't written a description…"), stored on `works`.
+- [x] C6 Work descriptions: an owner-only "description" field per work in the Writer's Room (replaces "The author hasn't written a description…"), stored on `works`.
+- [ ] C7 Hall names editable in the Writer's Room (owner-only `halls` table: id, name, note, order) and a "Hall" choice per work; `lib/catalogue.ts` HALLS stays as the preview fallback.
+- [ ] C8 Library-mode end-to-end smoke script (Playwright) ready to run against a real Supabase project once NEEDS ITU 1 is done: sign in → redeem → borrow → read → note → ledger export → import → pitch link → proof.

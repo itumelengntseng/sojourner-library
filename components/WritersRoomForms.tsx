@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
-import { importAction, inviteAction, revokeAction, workSettingsAction, type RoomState } from "@/app/writers-room/actions";
+import { descriptionAction, importAction, inviteAction, revokeAction, workSettingsAction, type RoomState } from "@/app/writers-room/actions";
 import { formatDuration, minutesFor, DEFAULT_WPM } from "@/lib/engine/readingTime";
 import { parseManuscript, slugify } from "@/lib/manuscript";
 
@@ -101,6 +101,27 @@ export function WorkSettings({ id, visibility, canon }: { id: string; visibility
       <button type="submit" disabled={pending} className="rounded border border-lamplight/60 px-2 py-1 text-lamplight hover:bg-lamplight hover:text-ink">Save</button>
       {state.message && <span role="status" className={state.ok ? "text-lamplight" : "text-ember"}>{state.message}</span>}
     </form>
+  );
+}
+
+/** The author's own description of a work, shown on its page. */
+export function DescriptionForm({ id, title, description }: { id: string; title: string; description: string }) {
+  const [state, action, pending] = useActionState(descriptionAction, initial);
+  const [text, setText] = useState(description);
+  return (
+    <details className="font-sans text-xs">
+      <summary className="cursor-pointer text-lamplight underline underline-offset-2">{description ? "Edit description" : "Add a description"}</summary>
+      <form action={action} className="mt-2 flex flex-col gap-2">
+        <input type="hidden" name="id" value={id} />
+        <label htmlFor={`d-${id}`} className="sr-only">Description of {title}</label>
+        <textarea id={`d-${id}`} name="description" rows={4} maxLength={2000} value={text} onChange={(e) => setText(e.target.value)} className={field} />
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="submit" disabled={pending || text.trim() === description.trim()} className="rounded border border-lamplight/60 px-2 py-1 text-lamplight hover:bg-lamplight hover:text-ink disabled:opacity-50">Save description</button>
+          <span className="text-sandstone">{text.length}/2000</span>
+          {state.message && <span role="status" className={state.ok ? "text-lamplight" : "text-ember"}>{state.message}</span>}
+        </div>
+      </form>
+    </details>
   );
 }
 

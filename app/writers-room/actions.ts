@@ -48,6 +48,21 @@ export async function workSettingsAction(_: RoomState, form: FormData): Promise<
   return { ok: true, message: visibility === "members" ? "Saved — on the shelves for card holders." : "Saved — visible only to you." };
 }
 
+const DESCRIPTION_MAX = 2000;
+
+export async function descriptionAction(_: RoomState, form: FormData): Promise<RoomState> {
+  const { supabase, reason } = await ownerClient();
+  if (!supabase) return closed(reason);
+  const id = String(form.get("id") ?? "");
+  const description = String(form.get("description") ?? "").replace(/\r\n?/g, "\n").trim();
+  if (description.length > DESCRIPTION_MAX) return { ok: false, message: `Keep it under ${DESCRIPTION_MAX} characters (it's ${description.length}).` };
+  const { error } = await supabase.from("works").update({ description, updated_at: new Date().toISOString() }).eq("id", id);
+  if (error) return { ok: false, message: "Couldn't save that." };
+  revalidatePath("/writers-room");
+  revalidatePath("/", "layout");
+  return { ok: true, message: description ? "Description saved." : "Description cleared." };
+}
+
 export async function inviteAction(_: RoomState, form: FormData): Promise<RoomState> {
   const { supabase, reason } = await ownerClient();
   if (!supabase) return closed(reason);
