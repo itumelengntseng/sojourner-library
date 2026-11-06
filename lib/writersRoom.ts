@@ -31,7 +31,7 @@ export interface RoomInvite {
 export type Room =
   | { mode: "preview"; works: RoomWork[]; halls: Hall[]; shelf: Record<string, ShelvedWork> }
   | { mode: "closed"; reason: "signed-out" | "not-owner" }
-  | { mode: "library"; works: RoomWork[]; invites: RoomInvite[]; halls: Hall[]; hallsNamed: boolean; setAside: { id: string; title: string; archivedAt: string }[]; shelf: Record<string, ShelvedWork> };
+  | { mode: "library"; works: RoomWork[]; invites: RoomInvite[]; halls: Hall[]; hallsNamed: boolean; setAside: { id: string; title: string; archivedAt: string }[]; shelf: Record<string, ShelvedWork>; cardHolders: number };
 
 /** The owner's client, or null (with why) — every Writer's Room action goes through this. */
 export async function ownerClient() {
@@ -61,13 +61,14 @@ export async function loadRoom(): Promise<Room> {
     };
   }
   if (!supabase) return { mode: "closed", reason: reason as "signed-out" | "not-owner" };
-  const [{ data: works }, { data: stats }, { data: invites }, { data: hallRows }, { data: archived }, { data: chapterRows }] = await Promise.all([
+  const [{ data: works }, { data: stats }, { data: invites }, { data: hallRows }, { data: archived }, { data: chapterRows }, { count: cardHolders }] = await Promise.all([
     supabase.from("works").select("id, slug, title, canon_status, visibility, is_placeholder, description, hall, word_count").is("archived_at", null).order("title"),
     supabase.rpc("readership"),
     supabase.from("invites").select("id, note, expires_at, redeemed_at, revoked_at").eq("role", "guest").order("created_at", { ascending: false }).limit(50),
     supabase.from("halls").select("id, name, note, position"),
     supabase.from("works").select("id, slug, title, archived_at").not("archived_at", "is", null).order("archived_at", { ascending: false }).limit(100),
     supabase.from("chapters").select("work_id, position, title, word_count, archived_at").order("position").limit(10000),
+    supabase.from("readers").select("id", { count: "exact", head: true }).eq("role", "guest"),
   ]);
   // What a re-import would touch: every shelved work (set-aside ones too) with its chapter list.
   const shelf: Record<string, ShelvedWork> = {};
@@ -86,6 +87,7 @@ export async function loadRoom(): Promise<Room> {
     halls: hallsFromRows((hallRows ?? []) as HallRow[]),
     hallsNamed: (hallRows ?? []).length > 0,
     shelf,
+    cardHolders: cardHolders ?? 0,
     setAside: (archived ?? []).map((w) => ({ id: w.id as string, title: w.title as string, archivedAt: w.archived_at as string })),
     works: (works ?? []).map((w) => ({
       id: w.id as string, slug: w.slug as string, title: w.title as string,
@@ -100,3 +102,4 @@ export async function loadRoom(): Promise<Room> {
     })),
   };
 }
+

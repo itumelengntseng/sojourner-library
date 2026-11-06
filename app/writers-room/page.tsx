@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArchiveButton, DescriptionForm, HallForm, InviteForm, ManuscriptImport, RevokeInvite, WorkSettings } from "@/components/WritersRoomForms";
 import { CANON_LABEL, formatWords } from "@/lib/workStats";
 import { AUTHOR } from "@/lib/site";
+import { glance } from "@/lib/glance";
 import { loadRoom } from "@/lib/writersRoom";
 
 // Owner-only: always render per request (reads the session).
@@ -28,6 +29,20 @@ export default async function WritersRoom() {
       <h1 className="mt-6 text-3xl text-lamplight sm:text-4xl">The Writer&apos;s Room</h1>
       <p className="mt-1 font-sans text-sm text-sandstone">For {AUTHOR}: shelve manuscripts, decide who reads them, and issue reader cards.</p>
       {!live && <p className="mt-4 rounded-sm border border-ember/50 px-3 py-2 font-sans text-xs text-ember">Preview: the library isn&apos;t connected yet, so nothing here is saved. You can still try an import to see how a manuscript splits into chapters.</p>}
+
+      <section aria-labelledby="glance" className="mt-8">
+        <h2 id="glance" className="sr-only">The library at a glance</h2>
+        <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {glance(room.works, live ? room.setAside.length : 0, live ? room.cardHolders : null).map((t) => (
+            <div key={t.label} className="rounded-sm border border-timber-dark bg-ink/40 p-4">
+              <dt className="font-sans text-[0.65rem] uppercase tracking-wider text-sandstone">{t.label}</dt>
+              <dd className="mt-1 text-2xl text-paper">{t.value}</dd>
+              {t.note && <dd className="font-sans text-[0.65rem] text-sandstone/80">{t.note}</dd>}
+            </div>
+          ))}
+        </dl>
+        <p className="mt-2 font-sans text-[0.65rem] text-sandstone/70">Counts only. Readers&apos; notes, highlights and who read what stay private.</p>
+      </section>
 
       <section aria-labelledby="import" className="mt-10 rounded-sm border border-timber-dark bg-stone-floor/60 p-5">
         <h2 id="import" className="text-xl text-paper">Shelve a manuscript</h2>
