@@ -31,7 +31,7 @@ C1 — Catalogue from Supabase (see BACKLOG.md → FOLLOW-UPS). Backlog B1–B11
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
-
+- Library-mode (Supabase) code paths are verified against PGlite (schema, RLS, RPCs) and by typecheck, but not yet end-to-end against a real Supabase project — do a smoke run after NEEDS ITU 1 (sign in, redeem, borrow, read, note, ledger export, import, pitch link).
 - Work page, halls and the librarian read chapter word counts from the static placeholder catalogue (`lib/catalogue.ts`), while library-mode loans/reading use Supabase. When real manuscripts are loaded into Supabase, switch the catalogue to read from the `works`/`chapters` tables (slugs must match).
 - Minor: the final session beacon can arrive just after you navigate straight to the ledger, so the newest few seconds of reading may appear only on the next load.
 
