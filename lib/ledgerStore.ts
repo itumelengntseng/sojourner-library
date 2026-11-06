@@ -17,6 +17,7 @@ export interface LedgerView {
   hours: WorkHours[];
   streaks: Streaks;
   totalMs: number;
+  totalWords: number;
   months: MonthRow[];
 }
 
@@ -39,11 +40,11 @@ export async function loadLedger(): Promise<LedgerView> {
     return {
       mode: "preview", readerName: "", titles, slugs,
       history: loanHistory(loans, now), hours: withFinished(hoursByWork(sessions.filter((s) => s.workKey !== "unknown")), sessions, lastChapters),
-      streaks: streaks(stats, now), totalMs: stats.reduce((a, s) => a + s.activeMs, 0), months: byMonth(stats, now),
+      streaks: streaks(stats, now), totalMs: stats.reduce((a, s) => a + s.activeMs, 0), totalWords: stats.reduce((a, s) => a + s.wordsRead, 0), months: byMonth(stats, now),
     };
   }
   const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) return { mode: "signed-out", readerName: "", titles: {}, slugs: {}, history: [], hours: [], streaks: EMPTY, totalMs: 0, months: [] };
+  if (!auth.user) return { mode: "signed-out", readerName: "", titles: {}, slugs: {}, history: [], hours: [], streaks: EMPTY, totalMs: 0, totalWords: 0, months: [] };
   const uid = auth.user.id;
   const since = new Date(now - 400 * 86_400_000).toISOString();
   const [{ data: me }, { data: loans }, { data: rows }, { data: works }] = await Promise.all([
@@ -76,6 +77,7 @@ export async function loadLedger(): Promise<LedgerView> {
     hours: withFinished(hoursByWork(sessions), sessions, lastChapters),
     streaks: streaks(sessions, now),
     totalMs: sessions.reduce((a, s) => a + s.activeMs, 0),
+    totalWords: sessions.reduce((a, s) => a + s.wordsRead, 0),
     months: byMonth(sessions, now),
   };
 }

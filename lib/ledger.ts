@@ -77,6 +77,7 @@ export interface MonthRow {
   short: string; // "Nov"
   long: string; // "November 2026"
   activeMs: number;
+  wordsRead: number;
 }
 
 /** Minutes read per calendar month (SA time) for the last `count` months, oldest first, empty months included. */
@@ -97,15 +98,26 @@ export function byMonth(sessions: SessionStats[], now: number, count = 12): Mont
       short: new Date(mid).toLocaleDateString("en-ZA", { month: "short", timeZone: "UTC" }).replace(".", ""),
       long: new Date(mid).toLocaleDateString("en-ZA", { month: "long", year: "numeric", timeZone: "UTC" }),
       activeMs: 0,
+      wordsRead: 0,
     });
   }
   const index = new Map(rows.map((r, i) => [r.key, i]));
   for (const s of sessions) {
     const { y, m } = ym(s.endedAt);
     const i = index.get(`${y}-${String(m + 1).padStart(2, "0")}`);
-    if (i !== undefined) rows[i].activeMs += s.activeMs;
+    if (i !== undefined) {
+      rows[i].activeMs += s.activeMs;
+      rows[i].wordsRead += s.wordsRead;
+    }
   }
   return rows;
+}
+
+/** What a month's bar says aloud: "June 2026: 1 h 5 min · 12 400 words" or "June 2026: no reading". */
+export function monthLabel(m: MonthRow): string {
+  if (m.activeMs <= 0 && m.wordsRead <= 0) return `${m.long}: no reading`;
+  const words = `${m.wordsRead.toLocaleString("en-ZA").replace(/\s/g, "\u00a0")} word${m.wordsRead === 1 ? "" : "s"}`;
+  return `${m.long}: ${formatHours(m.activeMs)} · ${words}`;
 }
 
 export const STREAK_MIN_MS = 60_000; // a day counts once you've read for a minute

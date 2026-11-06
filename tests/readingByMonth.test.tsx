@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
-import { byMonth } from "@/lib/ledger";
+import { byMonth, monthLabel } from "@/lib/ledger";
 
 const at = (iso: string) => Date.parse(iso);
 const s = (iso: string, mins: number) => ({ endedAt: at(iso), activeMs: mins * 60_000, wordsRead: 0 });
@@ -35,5 +35,16 @@ describe("reading by month", () => {
     expect(html).toContain("August 2026: no reading");
     expect(html).toContain("height:100%");
     expect(html).toContain("height:50%");
+  });
+  it("C36: counts words per month and says them aloud with the time", () => {
+    const w = (iso: string, mins: number, words: number) => ({ endedAt: at(iso), activeMs: mins * 60_000, wordsRead: words });
+    const rows = byMonth([w("2026-11-01T08:00:00Z", 30, 6000), w("2026-11-03T08:00:00Z", 35, 6400), w("2026-10-31T22:30:00Z", 10, 1)], NOW);
+    const nov = rows.find((r) => r.key === "2026-11")!;
+    expect(nov.wordsRead).toBe(12401); // 22:30 UTC on 31 Oct is 00:30 SAST on 1 Nov
+    expect(monthLabel(nov)).toBe("November 2026: 1 h 15 min · 12\u00a0401 words");
+    expect(monthLabel({ ...nov, activeMs: 60_000, wordsRead: 1 })).toBe("November 2026: 1 min · 1 word");
+    expect(monthLabel({ ...nov, activeMs: 0, wordsRead: 0 })).toBe("November 2026: no reading");
+    const html = renderToStaticMarkup(<ReadingByMonth months={rows} />);
+    expect(html).toContain("12\u00a0401 words");
   });
 });

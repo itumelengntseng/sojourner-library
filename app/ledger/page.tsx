@@ -27,6 +27,7 @@ export default async function Ledger() {
     { label: "Longest run", value: `${l.streaks.longest} day${l.streaks.longest === 1 ? "" : "s"}` },
     { label: "Days read", value: String(l.streaks.days) },
     { label: "Time reading", value: formatHours(l.totalMs) },
+    { label: "Words read", value: l.totalWords.toLocaleString("en-ZA").replace(/\s/g, "\u00a0"), note: "counted as you move past each paragraph" },
   ];
 
   return (
@@ -36,7 +37,7 @@ export default async function Ledger() {
       <p className="mt-1 font-sans text-sm text-sandstone">{l.readerName ? `${l.readerName} · ` : ""}Private to you. The works of {AUTHOR}.</p>
       {l.mode === "preview" && <p className="mt-1 font-sans text-[0.7rem] text-sandstone/70">Preview ledger: kept in this browser until the library is connected.</p>}
 
-      <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {tiles.map((t) => (
           <div key={t.label} className="rounded-sm border border-timber-dark bg-ink/40 p-4">
             <dt className="font-sans text-[0.65rem] uppercase tracking-wider text-sandstone">{t.label}</dt>

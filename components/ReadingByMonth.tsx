@@ -1,4 +1,4 @@
-import { formatHours, type MonthRow } from "@/lib/ledger";
+import { monthLabel, type MonthRow } from "@/lib/ledger";
 
 // Twelve timber posts along the ledger page: how long you read each month.
 export function ReadingByMonth({ months }: { months: MonthRow[] }) {
@@ -11,8 +11,8 @@ export function ReadingByMonth({ months }: { months: MonthRow[] }) {
         {months.map((m) => {
           const pct = m.activeMs > 0 ? Math.max(4, Math.round((m.activeMs / max) * 100)) : 0;
           return (
-            <li key={m.key} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end" title={`${m.long}: ${m.activeMs > 0 ? formatHours(m.activeMs) : "no reading"}`}>
-              <span className="sr-only">{m.long}: {m.activeMs > 0 ? formatHours(m.activeMs) : "no reading"}</span>
+            <li key={m.key} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end" title={monthLabel(m)}>
+              <span className="sr-only">{monthLabel(m)}</span>
               <span aria-hidden="true" style={{ height: `${pct}%` }} className="w-full max-w-8 rounded-t-sm bg-gradient-to-t from-timber to-ochre" />
             </li>
           );
