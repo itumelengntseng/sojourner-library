@@ -3,7 +3,7 @@
 import { useActionState, useMemo, useState } from "react";
 import { archiveAction, descriptionAction, hallAction, importAction, inviteAction, revokeAction, workSettingsAction, type RoomState } from "@/app/writers-room/actions";
 import { formatDuration, minutesFor, DEFAULT_WPM } from "@/lib/engine/readingTime";
-import { parseManuscript, slugify } from "@/lib/manuscript";
+import { importPlan, parseManuscript, PLAN_LABEL, planSummary, slugify, type PlanStatus, type ShelvedWork } from "@/lib/manuscript";
 
 const initial: RoomState = { ok: false, message: "" };
 const field = "w-full rounded border border-sandstone/40 bg-ink/60 px-3 py-2 font-sans text-sm text-paper";
@@ -19,12 +19,17 @@ function Status({ s }: { s: RoomState }) {
   );
 }
 
-export function ManuscriptImport({ canSave }: { canSave: boolean }) {
+const PLAN_TONE: Record<PlanStatus, string> = {
+  new: "text-lamplight", changed: "text-ember", same: "text-sandstone", restored: "text-lamplight", archive: "text-ember",
+};
+
+export function ManuscriptImport({ canSave, shelf = {} }: { canSave: boolean; shelf?: Record<string, ShelvedWork> }) {
   const [state, action, pending] = useActionState(importAction, initial);
   const [md, setMd] = useState("");
   const [title, setTitle] = useState("");
   const parsed = useMemo(() => parseManuscript(md), [md]);
   const shownTitle = title || parsed.title || "";
+  const plan = useMemo(() => importPlan(parsed, shownTitle ? shelf[slugify(shownTitle)] : undefined), [parsed, shownTitle, shelf]);
 
   const loadFile = async (f: File | undefined) => {
     if (!f) return;
@@ -59,13 +64,18 @@ export function ManuscriptImport({ canSave }: { canSave: boolean }) {
 
       {parsed.chapters.length > 0 && (
         <section aria-label="Import preview" className="rounded-sm border border-timber-dark bg-ink/40 p-3 font-sans text-sm">
-          <p className="text-paper">{parsed.chapters.length} chapter{parsed.chapters.length === 1 ? "" : "s"} · {parsed.words.toLocaleString("en-ZA")} words · about {parsed.readingTime}</p>
+          <p className="text-paper">{parsed.chapters.length} chapter{parsed.chapters.length === 1 ? "" : "s"} · {parsed.words.toLocaleString("en-ZA")} word{parsed.words === 1 ? "" : "s"} · about {parsed.readingTime}</p>
           {parsed.warnings.map((w) => <p key={w} className="text-ember">{w}</p>)}
-          <ol className="mt-2 max-h-48 overflow-y-auto">
-            {parsed.chapters.map((c) => (
-              <li key={c.position} className="flex justify-between gap-3 border-t border-timber-dark/60 py-1">
-                <span>{c.position}. {c.title}</span>
-                <span className="shrink-0 text-sandstone">{c.words.toLocaleString("en-ZA")} words · {formatDuration(minutesFor(c.words, DEFAULT_WPM))}</span>
+          {shownTitle && <p className={plan.update ? "mt-1 text-lamplight" : "mt-1 text-sandstone"}>{planSummary(plan)}</p>}
+          <ol className="mt-2 max-h-56 overflow-y-auto">
+            {plan.rows.map((r) => (
+              <li key={`${r.status}-${r.position}`} className={`flex flex-wrap justify-between gap-x-3 border-t border-timber-dark/60 py-1 ${r.status === "archive" ? "opacity-80" : ""}`}>
+                <span>{r.position}. {r.title}{plan.update && <span className={`ml-2 text-xs ${PLAN_TONE[r.status]}`}>· {PLAN_LABEL[r.status]}</span>}</span>
+                <span className="shrink-0 text-sandstone">
+                  {r.was && r.was.words !== r.words && <s className="mr-1 opacity-70"><span className="sr-only">was </span>{r.was.words.toLocaleString("en-ZA")}</s>}
+                  {r.words.toLocaleString("en-ZA")} words · {formatDuration(minutesFor(r.words, DEFAULT_WPM))}
+                </span>
+                {r.was && r.was.title !== r.title && <span className="w-full text-xs text-sandstone">was “{r.was.title}”</span>}
               </li>
             ))}
           </ol>

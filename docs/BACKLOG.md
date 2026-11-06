@@ -42,6 +42,6 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C19 Ledger "Reading by month": minutes read per month for the last 12 months as timber bars (SA time), from the reader's own sessions; preview mode from the cookie summaries.
 - [x] C20 Pitch links "last opened": stamp the time a share link was last opened and show it in the Pitch Room list (owner-only; no visitor data beyond the time).
 - [x] QA4 QA pass after C17–C20: axe/mobile sweep incl. search results, the keys card open and the monthly chart; preview e2e; performance.
-- [ ] C21 Re-import preview in the Writer's Room: before saving a manuscript that's already on the shelves, show which chapters are new, changed (word count differs), unchanged, or will be archived — so Itu sees what a re-import will do.
+- [x] C21 Re-import preview in the Writer's Room: before saving a manuscript that's already on the shelves, show which chapters are new, changed (word count differs), unchanged, or will be archived — so Itu sees what a re-import will do.
 - [ ] C22 "The library at a glance" in the Writer's Room: works (shared / only me / set aside), total words, card holders, loans open now — counts only, never who read what.
 - [ ] C23 Due-soon notice on the front hall: if one of the reader's loans is due within 24 hours, a small slip "Due back soon: <title> · <time>" linking to the card.

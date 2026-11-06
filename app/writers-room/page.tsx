@@ -33,7 +33,7 @@ export default async function WritersRoom() {
         <h2 id="import" className="text-xl text-paper">Shelve a manuscript</h2>
         <p className="mt-1 font-sans text-xs text-sandstone">Markdown, with each chapter starting &quot;## Chapter title&quot; (or &quot;# &quot; if there&apos;s no book title line). Re-importing the same title updates it; chapters are never deleted, only set aside.</p>
         <div className="threshold my-4 opacity-60" aria-hidden="true" />
-        <ManuscriptImport canSave={live} />
+        <ManuscriptImport canSave={live} shelf={room.shelf} />
       </section>
 
       <section aria-labelledby="shelves" className="mt-10">
