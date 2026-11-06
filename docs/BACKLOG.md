@@ -45,7 +45,7 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C21 Re-import preview in the Writer's Room: before saving a manuscript that's already on the shelves, show which chapters are new, changed (word count differs), unchanged, or will be archived — so Itu sees what a re-import will do.
 - [x] C22 "The library at a glance" in the Writer's Room: works (shared / only me / set aside), total words, card holders, loans open now — counts only, never who read what.
 - [x] C23 Due-soon notice on the front hall: if one of the reader's loans is due within 24 hours, a small slip "Due back soon: <title> · <time>" linking to the card.
-- [~] C24 (blocked → NEEDS ITU 1: the live-database change was refused by this session's safety check as a production change; Itu applies it) Apply `0013_reader_name_length.sql` to the live Supabase project (with the Supabase connector, as earlier runs did) and record it in STATE → NEEDS ITU 1; if the connector asks for approval, leave it listed for Itu.
+- [~] C24 (also 0014 now; blocked → NEEDS ITU 1: the live-database change was refused by this session's safety check as a production change; Itu applies it) Apply `0013_reader_name_length.sql` to the live Supabase project (with the Supabase connector, as earlier runs did) and record it in STATE → NEEDS ITU 1; if the connector asks for approval, leave it listed for Itu.
 - [x] C25 Reading room "end of chapter" card: at the foot of each chapter, the next chapter's title and minutes at the reader's pace, with a Continue link (last chapter: "The end of <title>" + link to the ledger). No invented text.
 - [x] C26 Card page: "Recently returned" — the reader's last 5 returned loans with stamped dates and a Borrow again link (own loans only).
 - [x] QA5 QA pass after C21–C26 (axe/mobile incl. the Writer's Room tiles and re-import preview with a matching title; RLS audit if any migration lands; preview e2e).
@@ -73,5 +73,8 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C43 Work page: "Your notes in this book" count (notes + highlights, own only) with a link to "Notes for this book" (C29), shown only when there are some.
 - [x] C44 Reading room: remember the last-used loan period on the work page's borrow form (per browser), so "Borrow again" defaults to what the reader chose last time.
 - [x] C45 Writer's Room glance: "Finished by readers" tile — how many loans' readers reached the end of each shared work (counts only, never who), via an owner-only SQL function; needs a migration → if the live database can't take it this run, write it and log it under NEEDS ITU like 0013.
-- [ ] QA11 QA pass after C43–C45.
+- [x] QA11 QA pass after C43–C45.
+- [ ] C46 Ledger: "Borrowing history" gets a "Show all / Last 10" toggle (GET param, no JavaScript needed) once it's longer than 10 rows.
+- [ ] C47 Reading room: the Contents drawer shows the reader's own "✓ read" ticks (C28 data) beside chapters, matching the work page.
+- [ ] QA12 QA pass after C46–C47.
 
