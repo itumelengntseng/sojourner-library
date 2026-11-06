@@ -24,12 +24,12 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
       </div>
 
       {catalogue.works.length === 0 && <ShelfEmpty catalogue={catalogue} />}
-      {hallsFor(catalogue.works).map((hall) => {
+      {hallsFor(catalogue.works, catalogue.halls).map((hall) => {
         const shelf = works.filter((w) => w.hall === hall.id);
         return (
           <section key={hall.id} aria-labelledby={`hall-${hall.id}`} className="mt-10">
             <h2 id={`hall-${hall.id}`} className="text-xl text-paper">{hall.name}</h2>
-            <p className="font-sans text-xs text-sandstone/80">{hall.note}</p>
+            {hall.note && <p className="font-sans text-xs text-sandstone/80">{hall.note}</p>}
             <div className="mt-4 rounded-sm bg-timber-dark/60 px-3 pt-6 shadow-inner">
               {shelf.length === 0 ? (
                 <p className="pb-6 font-sans text-sm text-sandstone">This shelf is empty for now.</p>

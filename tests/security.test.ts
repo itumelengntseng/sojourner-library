@@ -46,7 +46,7 @@ describe("security audit", () => {
   });
 
   it("refuses anonymous visitors everywhere", async () => {
-    for (const t of ["readers", "works", "chapters", "chapter_texts", "loans", "sessions", "notes", "highlights", "invites", "pitch_links", "pitch_kits", "atlas_documents"]) {
+    for (const t of ["readers", "works", "chapters", "chapter_texts", "loans", "sessions", "notes", "highlights", "invites", "pitch_links", "pitch_kits", "atlas_documents", "halls"]) {
       expect(await attempt(db, null, `select * from ${t}`)).toMatch(/permission denied/);
     }
   });
@@ -68,7 +68,7 @@ describe("security audit", () => {
   });
 
   it("lets only the owner write the library's own content (QA2)", async () => {
-    const owned = ["works", "chapters", "chapter_texts", "pitch_kits", "pitch_links", "atlas_documents"];
+    const owned = ["works", "chapters", "chapter_texts", "pitch_kits", "pitch_links", "atlas_documents", "halls"];
     const pols = await rows<{ tablename: string; policyname: string; cmd: string; qual: string | null; with_check: string | null }>(
       `select tablename, policyname, cmd, qual, with_check from pg_policies where schemaname = 'public' and cmd in ('INSERT', 'UPDATE', 'ALL', 'DELETE')`);
     const loose = pols.filter((p) => owned.includes(p.tablename) && ![p.qual, p.with_check].filter(Boolean).every((x) => x!.includes("is_owner()")));

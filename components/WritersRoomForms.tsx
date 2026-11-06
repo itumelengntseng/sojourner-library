@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
-import { descriptionAction, importAction, inviteAction, revokeAction, workSettingsAction, type RoomState } from "@/app/writers-room/actions";
+import { descriptionAction, hallAction, importAction, inviteAction, revokeAction, workSettingsAction, type RoomState } from "@/app/writers-room/actions";
 import { formatDuration, minutesFor, DEFAULT_WPM } from "@/lib/engine/readingTime";
 import { parseManuscript, slugify } from "@/lib/manuscript";
 
@@ -82,7 +82,7 @@ export function ManuscriptImport({ canSave }: { canSave: boolean }) {
   );
 }
 
-export function WorkSettings({ id, visibility, canon }: { id: string; visibility: string; canon: string }) {
+export function WorkSettings({ id, visibility, canon, hall, halls }: { id: string; visibility: string; canon: string; hall: string; halls: { id: string; name: string }[] }) {
   const [state, action, pending] = useActionState(workSettingsAction, initial);
   return (
     <form action={action} className="flex flex-wrap items-center gap-2 font-sans text-xs">
@@ -97,6 +97,11 @@ export function WorkSettings({ id, visibility, canon }: { id: string; visibility
         <option value="canon">Canon</option>
         <option value="draft">Draft</option>
         <option value="apocrypha">Apocrypha</option>
+      </select>
+      <label className="sr-only" htmlFor={`h-${id}`}>Hall</label>
+      <select id={`h-${id}`} name="hall" defaultValue={hall} className="max-w-[10rem] rounded border border-sandstone/40 bg-ink px-2 py-1 text-paper">
+        {halls.some((h) => h.id === hall) ? null : <option value={hall}>{hall}</option>}
+        {halls.map((h) => <option key={h.id} value={h.id}>{h.name}</option>)}
       </select>
       <button type="submit" disabled={pending} className="rounded border border-lamplight/60 px-2 py-1 text-lamplight hover:bg-lamplight hover:text-ink">Save</button>
       {state.message && <span role="status" className={state.ok ? "text-lamplight" : "text-ember"}>{state.message}</span>}
@@ -122,6 +127,28 @@ export function DescriptionForm({ id, title, description }: { id: string; title:
         </div>
       </form>
     </details>
+  );
+}
+
+/** Rename a hall, change its note or its place in the order; or (no id) open a new one. */
+export function HallForm({ hall, canSave }: { hall?: { id: string; name: string; note: string; position: number }; canSave: boolean }) {
+  const [state, action, pending] = useActionState(hallAction, initial);
+  const key = hall?.id ?? "new";
+  return (
+    <form action={action} className="grid gap-2 font-sans text-sm sm:grid-cols-[1fr_1.5fr_5rem_auto] sm:items-end">
+      {hall && <input type="hidden" name="id" value={hall.id} />}
+      <label className="flex flex-col gap-1 text-xs uppercase tracking-wider text-sandstone">{hall ? "Name" : "New hall"}
+        <input name="name" required maxLength={80} defaultValue={hall?.name ?? ""} className={field} placeholder={hall ? undefined : "A name you choose"} />
+      </label>
+      <label className="flex flex-col gap-1 text-xs uppercase tracking-wider text-sandstone">Note
+        <input name="note" maxLength={300} defaultValue={hall?.note ?? ""} className={field} />
+      </label>
+      <label className="flex flex-col gap-1 text-xs uppercase tracking-wider text-sandstone">Order
+        <input name="position" type="number" min={0} max={999} defaultValue={hall?.position ?? 0} className={field} />
+      </label>
+      <button type="submit" disabled={!canSave || pending} className="rounded border border-lamplight/60 px-3 py-2 text-xs text-lamplight hover:bg-lamplight hover:text-ink disabled:cursor-not-allowed disabled:opacity-50">{hall ? "Save" : "Open the hall"}</button>
+      {state.message && <span role="status" key={key} className={`sm:col-span-4 text-xs ${state.ok ? "text-lamplight" : "text-ember"}`}>{state.message}</span>}
+    </form>
   );
 }
 

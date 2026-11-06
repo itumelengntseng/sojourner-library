@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { parseManuscript, slugify } from "@/lib/manuscript";
 import { ownerClient } from "@/lib/writersRoom";
+import { checkHall } from "@/lib/catalogueRows";
 
 export interface RoomState {
   ok: boolean;
@@ -41,10 +42,12 @@ export async function workSettingsAction(_: RoomState, form: FormData): Promise<
   const id = String(form.get("id") ?? "");
   const visibility = String(form.get("visibility") ?? "");
   const canon = String(form.get("canon") ?? "");
-  if (!["owner", "members"].includes(visibility) || !CANON.includes(canon)) return { ok: false, message: "Unknown setting." };
-  const { error } = await supabase.from("works").update({ visibility, canon_status: canon, updated_at: new Date().toISOString() }).eq("id", id);
+  const hall = String(form.get("hall") ?? "main");
+  if (!["owner", "members"].includes(visibility) || !CANON.includes(canon) || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(hall)) return { ok: false, message: "Unknown setting." };
+  const { error } = await supabase.from("works").update({ visibility, canon_status: canon, hall, updated_at: new Date().toISOString() }).eq("id", id);
   if (error) return { ok: false, message: "Couldn't save that." };
   revalidatePath("/writers-room");
+  revalidatePath("/halls");
   return { ok: true, message: visibility === "members" ? "Saved — on the shelves for card holders." : "Saved — visible only to you." };
 }
 
@@ -81,4 +84,24 @@ export async function revokeAction(_: RoomState, form: FormData): Promise<RoomSt
   if (error) return { ok: false, message: "Couldn't revoke that invite." };
   revalidatePath("/writers-room");
   return { ok: true, message: "Invite revoked." };
+}
+
+/** Name a new hall, or rename / re-note / reorder one. Halls are never deleted. */
+export async function hallAction(_: RoomState, form: FormData): Promise<RoomState> {
+  const { supabase, reason } = await ownerClient();
+  if (!supabase) return closed(reason);
+  const checked = checkHall(form.get("name"), form.get("note"), form.get("position"));
+  if (!checked.ok) return { ok: false, message: checked.message };
+  const existing = String(form.get("id") ?? "");
+  const id = existing || slugify(checked.name);
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id) || id.length > 60) return { ok: false, message: "That name doesn't make a usable hall address." };
+  if (!existing) {
+    const { data: clash } = await supabase.from("halls").select("id").eq("id", id).maybeSingle();
+    if (clash) return { ok: false, message: "There's already a hall with that name." };
+  }
+  const { error } = await supabase.from("halls").upsert({ id, name: checked.name, note: checked.note, position: checked.position }, { onConflict: "id" });
+  if (error) return { ok: false, message: "Couldn't save the hall." };
+  revalidatePath("/writers-room");
+  revalidatePath("/halls");
+  return { ok: true, message: existing ? `Saved "${checked.name}".` : `"${checked.name}" is open.` };
 }

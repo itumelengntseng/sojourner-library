@@ -44,11 +44,11 @@ export const HALLS: readonly Hall[] = [
 ];
 
 /** The named halls, plus any hall a shelved work names that isn't listed yet (so no work goes missing). */
-export function hallsFor(works: Pick<Work, "hall">[]): Hall[] {
-  const known = new Set(HALLS.map((h) => h.id));
+export function hallsFor(works: Pick<Work, "hall">[], named: readonly Hall[] = HALLS): Hall[] {
+  const known = new Set(named.map((h) => h.id));
   const extra = [...new Set(works.map((w) => w.hall))].filter((id) => !known.has(id)).sort();
   return [
-    ...HALLS,
+    ...named,
     ...extra.map((id) => ({
       id,
       name: id.split(/[-_\s]+/).filter(Boolean).map((p) => p[0].toUpperCase() + p.slice(1)).join(" ") || "Unnamed hall",

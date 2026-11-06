@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DescriptionForm, InviteForm, ManuscriptImport, RevokeInvite, WorkSettings } from "@/components/WritersRoomForms";
+import { DescriptionForm, HallForm, InviteForm, ManuscriptImport, RevokeInvite, WorkSettings } from "@/components/WritersRoomForms";
 import { CANON_LABEL, formatWords } from "@/lib/workStats";
 import { AUTHOR } from "@/lib/site";
 import { loadRoom } from "@/lib/writersRoom";
@@ -49,7 +49,7 @@ export default async function WritersRoom() {
                 </p>
                 {live && <div className="mt-1"><DescriptionForm id={w.id} title={w.title} description={w.description} /></div>}
               </div>
-              {live ? <WorkSettings id={w.id} visibility={w.visibility} canon={w.canonStatus} /> : <span className="font-sans text-xs text-sandstone">Settings open once connected</span>}
+              {live ? <WorkSettings id={w.id} visibility={w.visibility} canon={w.canonStatus} hall={w.hall} halls={room.halls} /> : <span className="font-sans text-xs text-sandstone">Settings open once connected</span>}
             </li>
           ))}
         </ul>
@@ -57,6 +57,18 @@ export default async function WritersRoom() {
 
       <p className="mt-10 font-sans text-sm"><Link href="/pitch-room" className="text-lamplight underline underline-offset-2">The Pitch Room →</Link> <span className="text-sandstone">one-sheet pitches and private links for agents and producers.</span></p>
       <p className="mt-2 font-sans text-sm"><Link href="/writers-room/atlas" className="text-lamplight underline underline-offset-2">The family wall &amp; timeline →</Link> <span className="text-sandstone">edit the people, places and dates behind the explorers.</span></p>
+
+      <section aria-labelledby="halls" className="mt-10 rounded-sm border border-timber-dark bg-stone-floor/60 p-5">
+        <h2 id="halls" className="text-xl text-paper">The halls</h2>
+        <p className="mt-1 font-sans text-xs text-sandstone">
+          {live && room.hallsNamed ? "Name, describe and order the halls; choose each work's hall on the shelf list above." : "The halls carry placeholder names until you name them. Halls are never removed — works keep their place."}
+        </p>
+        <ul className="mt-4 flex flex-col gap-4">
+          {room.halls.map((h, i) => <li key={h.id}><HallForm hall={{ ...h, position: i }} canSave={live} /></li>)}
+          <li className="border-t border-timber-dark/70 pt-4"><HallForm canSave={live} /></li>
+        </ul>
+        {!live && <p className="mt-2 font-sans text-xs text-sandstone">Saving opens once the library is connected.</p>}
+      </section>
 
       <section aria-labelledby="invites" className="mt-10 rounded-sm border border-timber-dark bg-ink/40 p-5">
         <h2 id="invites" className="text-xl text-paper">Reader cards</h2>

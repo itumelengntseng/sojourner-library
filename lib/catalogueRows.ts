@@ -1,7 +1,7 @@
 // Turns Supabase `works` + `chapters` rows into shelf entries. Pure, so it is tested
 // without a database. Chapter text is never read here — the shelf only needs titles
 // and stored word counts; the words themselves stay behind the loan desk (RLS).
-import type { CanonStatus, Work } from "./catalogue";
+import { HALLS, type CanonStatus, type Hall, type Work } from "./catalogue";
 import { AUTHOR } from "./site";
 
 export interface WorkRow {
@@ -62,4 +62,26 @@ export function worksFromRows(works: WorkRow[], chapters: ChapterRow[]): Work[] 
     }))
     .sort((a, b) => a._order[0].localeCompare(b._order[0]) || a._order[1] - b._order[1] || a._order[2].localeCompare(b._order[2]))
     .map(({ _order, ...w }) => w);
+}
+
+export interface HallRow { id: string; name: string; note: string | null; position: number | null }
+
+/** The library's halls in order; the placeholder list until the author names any. */
+export function hallsFromRows(rows: HallRow[]): Hall[] {
+  if (rows.length === 0) return [...HALLS];
+  return [...rows]
+    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0) || a.name.localeCompare(b.name))
+    .map((r) => ({ id: r.id, name: r.name.trim(), note: (r.note ?? "").trim() }));
+}
+
+export type HallCheck = { ok: true; name: string; note: string; position: number } | { ok: false; message: string };
+
+export function checkHall(name: unknown, note: unknown, position: unknown = 0): HallCheck {
+  const n = String(name ?? "").replace(/\s+/g, " ").trim();
+  const t = String(note ?? "").replace(/\s+/g, " ").trim();
+  const p = Number.parseInt(String(position ?? "0"), 10);
+  if (!n) return { ok: false, message: "Give the hall a name." };
+  if (n.length > 80) return { ok: false, message: "Keep the hall's name under 80 characters." };
+  if (t.length > 300) return { ok: false, message: "Keep the note under 300 characters." };
+  return { ok: true, name: n, note: t, position: Number.isFinite(p) ? Math.max(0, Math.min(999, p)) : 0 };
 }
