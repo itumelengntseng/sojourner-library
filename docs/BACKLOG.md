@@ -31,4 +31,5 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C9 "Newly shelved" on the front hall: the few works most recently shared or updated, with a stamped date (library mode; preview shows none).
 - [x] C10 Archive a work from the Writer's Room (sets `archived_at`; hidden from shelves, never deleted; can be restored).
 - [x] C11 Reader card page shows "On loan now" (title, due-date stamp, link to the reading room) so readers can resume from the front desk.
-- [ ] C12 Reading-room "Contents" drawer: jump to any chapter, with words / minutes per chapter and a mark on the bookmarked one.
+- [x] C12 Reading-room "Contents" drawer: jump to any chapter, with words / minutes per chapter and a mark on the bookmarked one.
+- [ ] C13 Ledger: per-book "finished" stamp when a reader reaches the end of the last chapter (from sessions), shown in the ledger and on the work page.

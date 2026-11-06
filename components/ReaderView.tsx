@@ -196,6 +196,26 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
       <header className="sticky top-0 z-20 border-b border-timber-dark/60 bg-stone-wall/95 px-3 py-2 text-paper backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 gap-y-2">
           <Link href={`/works/${slug}`} className="font-sans text-xs text-sandstone hover:text-lamplight">← {data.title}</Link>
+          <details className="font-sans text-xs">
+            <summary className={`${btn} cursor-pointer list-none border border-sandstone/40 text-paper`}>Contents</summary>
+            <nav aria-label="Contents" className="absolute inset-x-3 top-full z-30 mt-1 max-h-[60dvh] overflow-auto sm:inset-x-auto sm:w-80 rounded-sm border border-timber-dark bg-stone-wall p-2 shadow-lg">
+              <ol>
+                {chapters.map((c) => {
+                  const here = c.position === chapter.position;
+                  const marked = data.bookmark?.position === c.position;
+                  return (
+                    <li key={c.position}>
+                      <Link href={`${base}?ch=${c.position}`} aria-current={here ? "page" : undefined}
+                        className={`flex items-baseline justify-between gap-3 rounded px-2 py-1.5 ${here ? "bg-timber/60 text-lamplight" : "text-paper hover:text-lamplight"}`}>
+                        <span>{c.title}{marked && <span className="ml-1.5 text-lamplight" title="Your bookmark">· bookmark</span>}</span>
+                        <span className="shrink-0 text-sandstone">{formatDuration(minutesFor(c.words, wpm))}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ol>
+            </nav>
+          </details>
           <div role="group" aria-label="Page colour" className="flex gap-0.5">{themeBtn("dark", "Dark")}{themeBtn("sepia", "Sepia")}{themeBtn("light", "Light")}</div>
           <button type="button" className={`${btn} border border-sandstone/40 text-paper`} aria-pressed={paged}
             onClick={() => updateSettings({ layout: paged ? "scroll" : "paged" })}>{paged ? "Paged" : "Scroll"}</button>
