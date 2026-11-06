@@ -208,3 +208,30 @@ export function onLoanNow(loans: Loan[], readerId: string, works: Record<string,
 export function dueBackSoon(loans: OnLoan[], now: number, windowMs = 24 * 3600_000): OnLoan[] {
   return loans.filter((l) => l.dueAt > now && l.dueAt - now <= windowMs).sort((a, b) => a.dueAt - b.dueAt);
 }
+
+// ── "Recently returned" at the front desk ───────────────────────────────────
+
+export interface Returned { workKey: string; slug: string; title: string; borrowed: string; returned: string; returnedAt: number; onTime: boolean }
+
+/**
+ * The reader's most recently returned works, newest return first — one line per work (its latest
+ * return), leaving out works out on loan again right now. Loans that ran out count as returned at
+ * their due time, exactly as the desk settles them. `works` maps workId → slug/title (set-aside works
+ * are simply absent and so left out).
+ */
+export function recentlyReturned(loans: Loan[], readerId: string, works: Record<string, { slug: string; title: string }>, now: number, limit = 5): Returned[] {
+  const settled = settleExpired(loans, now).filter((l) => l.readerId === readerId && works[l.workId]);
+  const outNow = new Set(settled.filter((l) => l.returnedAt === null).map((l) => l.workId));
+  const seen = new Set<string>();
+  const out: Returned[] = [];
+  for (const l of settled.filter((x) => x.returnedAt !== null).sort((a, b) => b.returnedAt! - a.returnedAt!)) {
+    if (outNow.has(l.workId) || seen.has(l.workId)) continue;
+    seen.add(l.workId);
+    out.push({
+      workKey: l.workId, slug: works[l.workId].slug, title: works[l.workId].title,
+      borrowed: stampDate(l.borrowedAt), returned: stampDate(l.returnedAt!), returnedAt: l.returnedAt!, onTime: l.returnedAt! < l.dueAt,
+    });
+    if (out.length >= limit) break;
+  }
+  return out;
+}

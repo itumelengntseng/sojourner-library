@@ -47,5 +47,5 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C23 Due-soon notice on the front hall: if one of the reader's loans is due within 24 hours, a small slip "Due back soon: <title> · <time>" linking to the card.
 - [~] C24 (blocked → NEEDS ITU 1: the live-database change was refused by this session's safety check as a production change; Itu applies it) Apply `0013_reader_name_length.sql` to the live Supabase project (with the Supabase connector, as earlier runs did) and record it in STATE → NEEDS ITU 1; if the connector asks for approval, leave it listed for Itu.
 - [x] C25 Reading room "end of chapter" card: at the foot of each chapter, the next chapter's title and minutes at the reader's pace, with a Continue link (last chapter: "The end of <title>" + link to the ledger). No invented text.
-- [ ] C26 Card page: "Recently returned" — the reader's last 5 returned loans with stamped dates and a Borrow again link (own loans only).
+- [x] C26 Card page: "Recently returned" — the reader's last 5 returned loans with stamped dates and a Borrow again link (own loans only).
 - [ ] QA5 QA pass after C21–C26 (axe/mobile incl. the Writer's Room tiles and re-import preview with a matching title; RLS audit if any migration lands; preview e2e).

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { MembershipCard } from "@/components/MembershipCard";
 import { OnLoanNow } from "@/components/OnLoanNow";
-import { myOpenLoans } from "@/lib/loanStore";
+import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
+import { RecentlyReturned } from "@/components/RecentlyReturned";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { ReaderCard } from "@/lib/membership";
 import { signOut } from "./actions";
@@ -30,6 +31,7 @@ export default async function CardPage() {
           Reader cards will be issued here once the library&apos;s records room is connected.
         </p>
         <OnLoanNow loans={await myOpenLoans()} />
+        <RecentlyReturned items={await myRecentlyReturned()} />
       </Desk>
     );
   }
@@ -62,6 +64,7 @@ export default async function CardPage() {
     <Desk eyebrow="Front desk" title="Welcome back">
       <MembershipCard card={card} />
       <OnLoanNow loans={await myOpenLoans()} />
+        <RecentlyReturned items={await myRecentlyReturned()} />
       <PrefsForm name={card.display_name ?? ""} wpm={(card as ReaderCard & { wpm_override?: number | null }).wpm_override ?? null} />
       <form action={signOut}>
         <button className="font-sans text-sm text-sandstone underline underline-offset-4 hover:text-lamplight">Sign out</button>

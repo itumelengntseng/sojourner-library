@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import type { Loan, LoanPeriod } from "./engine/checkout";
 import {
   deskBorrow, deskRenew, deskReturn, parsePreviewLoans, PREVIEW_COOKIE, PREVIEW_READER,
-  onLoanNow, rowToLoan, serializePreviewLoans, settleExpired, type DeskResult, type LoanRow, type OnLoan,
+  onLoanNow, rowToLoan, serializePreviewLoans, settleExpired, type DeskResult, type LoanRow, type OnLoan, recentlyReturned, type Returned,
 } from "./loanDesk";
 import { getWorks } from "./catalogue";
 import { supabaseServer } from "./supabase/server";
@@ -106,4 +106,23 @@ export async function myOpenLoans(): Promise<OnLoan[]> {
   const { data: works } = await supabase.from("works").select("id, slug, title").in("id", loans.map((l) => l.workId)).is("archived_at", null);
   const byId = Object.fromEntries(((works ?? []) as { id: string; slug: string; title: string }[]).map((w) => [w.id, { slug: w.slug, title: w.title }]));
   return onLoanNow(loans, auth.user.id, byId, now);
+}
+
+/** The reader's own recently returned works (C26). Library mode reads only the reader's own loans (RLS agrees). */
+export async function myRecentlyReturned(): Promise<Returned[]> {
+  const now = Date.now();
+  const supabase = await supabaseServer();
+  if (!supabase) {
+    const works = Object.fromEntries(getWorks().map((w) => [w.slug, { slug: w.slug, title: w.title }]));
+    return recentlyReturned(await previewLoans(), PREVIEW_READER, works, now);
+  }
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return [];
+  const { data: rows } = await supabase.from("loans").select("*")
+    .eq("reader_id", auth.user.id).order("borrowed_at", { ascending: false }).limit(60);
+  const loans = ((rows ?? []) as LoanRow[]).map(rowToLoan);
+  if (loans.length === 0) return [];
+  const { data: works } = await supabase.from("works").select("id, slug, title").in("id", [...new Set(loans.map((l) => l.workId))]).is("archived_at", null);
+  const byId = Object.fromEntries(((works ?? []) as { id: string; slug: string; title: string }[]).map((w) => [w.id, { slug: w.slug, title: w.title }]));
+  return recentlyReturned(loans, auth.user.id, byId, now);
 }
