@@ -14,10 +14,15 @@ _Last updated: 2026-11-06 (scheduled build run)._
 - B8 Reading sessions → personal pace (`components/useSessionTracker.ts`, `app/api/sessions`, `lib/sessions.ts`, `lib/sessionStore.ts`, `supabase/migrations/0004_sessions.sql`): the reading room logs activity (throttled to one mark per 5 s) and the paragraphs read past, heartbeats every 60 s and sends a final beacon on leaving. Server validates everything (recent timestamps only, words capped at chapter length, same-site only, open loan required — also enforced by RLS). Pace = engine's recency-weighted wpm (idle gaps > 2 min ignored, < 150-word or outside 60–900 wpm sessions ignored); `readers.wpm_override` wins if set. Work page and reading room ("About N min left in this chapter") use it. Smoke-tested: session recorded, cross-site POST → 403, junk → 400.
 - B9 Ask the librarian (`components/AskLibrarian.tsx`, `lib/librarian.ts`): on every work page and at the foot of the reading room. Plain-language questions answered by the engine from the reader's pace, bookmark (or live position in the reading room) and usual minutes a day (learned from sessions; 30 min default). Suggested-question chips; last 3 replies kept as paper slips (aria-live). Smoke-tested at 375px.
 - B10 Reading ledger (`app/ledger`, `lib/ledger.ts`, `lib/ledgerStore.ts`, `components/PreviewNotesExport.tsx`): current and longest run of reading days (a day counts after 1 min of reading; days roll over at midnight SAST), days read, total time, hours and words per book, borrowing history with stamped dates and renewals, and a Markdown export of notes and highlights (`/ledger/notes` in library mode — highlight text included only for books currently on loan, per RLS; built in the browser in preview mode). Linked from the front hall. Smoke-tested at 375px incl. the download.
-- Tests: 144 passing (`npm test`). Typecheck clean; `npm run build` passes.
+- B11 QA pass (2026-11-06):
+  - Accessibility: `npm run qa` (scripts/qa.mjs) runs axe-core (WCAG 2.1 AA + best practice) on every route at 375px and 1280px, plus the reading room in sepia, light and paged modes with highlights and notes present; also fails on sideways page scroll or console errors. Fixed: slip author line contrast; reading-room meta text and the librarian box on sepia/light pages. Result: all clear.
+  - Mobile 375px: no route scrolls sideways (checked by the sweep).
+  - Performance (local prod build): every page loads < 200 ms; ~135–143 KB gzipped JS per page (framework baseline), HTML ≤ 9 KB.
+  - RLS security: new standing audit `tests/security.test.ts` — RLS on every public table, anon has no grants, only notes/highlights deletable by readers, all security-definer functions pin search_path, bootstrap functions not callable from the API, signed-in strangers see nothing, authorship check holds. Found and fixed: readers could rewrite their own card number / issue date → `0005_reader_columns.sql` limits updates to name, pace and (owner-guarded) role.
+- Tests: 153 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear.
 
 ## Next task
-B11 — QA pass: accessibility, 375px mobile, performance, RLS security check.
+NEXT ITERATION a — Lineage Explorer (structure only; placeholder entries until Itu supplies the real lineage).
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

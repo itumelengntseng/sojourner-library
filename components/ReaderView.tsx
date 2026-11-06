@@ -209,12 +209,12 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
       </header>
 
       <main id="main" className="mx-auto max-w-3xl px-5 pb-24 pt-8">
-        <p className="font-sans text-xs uppercase tracking-[0.25em] opacity-70">{data.author}</p>
+        <p className="font-sans text-xs uppercase tracking-[0.25em] opacity-80">{data.author}</p>
         <h1 className="mt-1 text-2xl">{chapter.title}</h1>
-        <p className="mt-1 font-sans text-xs opacity-70">
+        <p className="mt-1 font-sans text-xs opacity-80">
           {left > 0 ? `About ${formatDuration(left)} left in this chapter` : "End of the chapter"} · at {wpm} wpm
         </p>
-        {preview && <p className="mt-2 font-sans text-[0.7rem] opacity-60">Placeholder text · notes and highlights are kept in this browser until the library is connected.</p>}
+        {preview && <p className="mt-2 font-sans text-[0.7rem] opacity-80">Placeholder text · notes and highlights are kept in this browser until the library is connected.</p>}
 
         <div
           ref={textRef}
@@ -246,12 +246,12 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
                 <aside key={n.id} aria-label="Margin note"
                   className="mt-2 border-l-2 border-ochre/70 pl-3 font-sans text-sm italic opacity-90 lg:absolute lg:left-full lg:top-0 lg:ml-6 lg:mt-0 lg:w-56">
                   <p className="whitespace-pre-wrap">{n.body}</p>
-                  <button type="button" onClick={() => removeNote(n.id)} className="mt-1 text-[0.7rem] not-italic underline opacity-70 hover:opacity-100">Remove note</button>
+                  <button type="button" onClick={() => removeNote(n.id)} className="mt-1 text-[0.7rem] not-italic underline">Remove note</button>
                 </aside>
               ))}
               {drafting?.anchor === p.start && (
                 <div className="mt-2 flex flex-col gap-2 font-sans text-sm">
-                  <label htmlFor="note-draft" className="text-xs uppercase tracking-wider opacity-70">Note in the margin</label>
+                  <label htmlFor="note-draft" className="text-xs uppercase tracking-wider opacity-80">Note in the margin</label>
                   <textarea id="note-draft" autoFocus rows={3} maxLength={10_000} value={drafting.text}
                     onChange={(e) => setDrafting({ ...drafting, text: e.target.value })}
                     className="rounded border border-sandstone/50 bg-transparent p-2" />
@@ -272,7 +272,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
           </div>
         )}
 
-        <div className="mt-10 text-paper">
+        <div className="mt-10 rounded-sm bg-stone-wall text-paper">
           <AskLibrarian
             title={data.title}
             facts={librarianFacts({ chapters, bookmarkOffset: wordsBeforeChapter(chapters, chapter.position) + behind, wpm, usualMinutesPerDay: minutesPerDay })}
@@ -287,7 +287,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
 
       {selection && (
         <div role="toolbar" aria-label="Selection" className="fixed inset-x-0 bottom-4 z-30 mx-auto flex w-fit items-center gap-2 rounded-full border border-timber-dark bg-stone-wall px-3 py-2 font-sans text-xs text-paper shadow-lg">
-          <span className="opacity-70">Highlight</span>
+          <span className="opacity-80">Highlight</span>
           {HIGHLIGHT_COLOURS.map((c) => (
             <button key={c} type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => highlight(c)} aria-label={`Highlight in ${c}`}
               className={`h-6 w-6 rounded-full border border-paper/40 ${HIGHLIGHT_CLASSES[c]}`} />

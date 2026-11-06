@@ -13,7 +13,7 @@
 - [x] B8 Session tracking feeding personal speed
 - [x] B9 "Ask the librarian" box on every book
 - [x] B10 Reading ledger: history, hours per book, streaks, notes export
-- [ ] B11 QA pass: accessibility, 375px mobile, performance, RLS security check
+- [x] B11 QA pass: accessibility, 375px mobile, performance, RLS security check
 
 ## NEXT ITERATION (after backlog)
 a. Lineage Explorer · b. Canon Switcher · c. Harlem Timeline Map · d. Writer's Room · e. Pitch Room

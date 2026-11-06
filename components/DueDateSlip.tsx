@@ -19,7 +19,7 @@ export function DueDateSlip({ slip, title }: { slip: Slip; title: string }) {
     >
       <p className="text-center font-sans text-[0.6rem] uppercase tracking-[0.35em] text-timber">Date due</p>
       <p className="mt-1 truncate text-center text-sm">{title}</p>
-      <p className="text-center font-sans text-[0.6rem] uppercase tracking-wider text-timber/80">{AUTHOR}</p>
+      <p className="text-center font-sans text-[0.6rem] uppercase tracking-wider text-timber">{AUTHOR}</p>
       <dl className="mt-3 border-t border-timber/30 bg-[repeating-linear-gradient(180deg,transparent_0_27px,rgb(107_68_40/0.18)_27px_28px)]">
         {stamps.map((s) => (
           <div key={s.label} className="flex h-7 items-center justify-between gap-3">
