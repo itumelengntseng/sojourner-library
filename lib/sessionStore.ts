@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { getWork } from "./catalogue";
 import { activeMs, countWords } from "./engine/readingTime";
 import { openLoan, parsePreviewLoans, PREVIEW_COOKIE, PREVIEW_READER, settleExpired } from "./loanDesk";
-import { capWords, paceFrom, parseStoredStats, PREVIEW_SESSIONS_COOKIE, toStats, upsertStats, type Pace, type SessionPayload } from "./sessions";
+import { capWords, paceFrom, parseStoredStats, PREVIEW_SESSIONS_COOKIE, serializeStoredStats, toStats, upsertStats, type Pace, type SessionPayload } from "./sessions";
 import { supabaseServer } from "./supabase/server";
 
 const COOKIE_OPTS = { httpOnly: true, sameSite: "lax" as const, path: "/", maxAge: 60 * 60 * 24 * 180 };
@@ -20,7 +20,7 @@ export async function recordSession(p: SessionPayload): Promise<boolean> {
     if (!work || !ch || !openLoan(loans, p.slug, PREVIEW_READER, now)) return false;
     const stats = toStats(capWords(p, countWords(ch.body)));
     const list = upsertStats(parseStoredStats(store.get(PREVIEW_SESSIONS_COOKIE)?.value), { id: p.sessionId, slug: p.slug, position: p.position, ...stats });
-    store.set(PREVIEW_SESSIONS_COOKIE, JSON.stringify(list), COOKIE_OPTS);
+    store.set(PREVIEW_SESSIONS_COOKIE, serializeStoredStats(list), COOKIE_OPTS);
     return true;
   }
   const { data: auth } = await supabase.auth.getUser();

@@ -1,4 +1,5 @@
 // Reading sessions: what the reading room reports, checked before it is trusted.
+import { fitJson } from "./cookieBudget";
 import { activeMs, DEFAULT_WPM, personalWpmFromStats, type SessionStats } from "./engine/readingTime";
 
 export const MAX_ACTIVITY = 2000;
@@ -69,6 +70,16 @@ export function parseStoredStats(raw: string | undefined): StoredStats[] {
   } catch {
     return [];
   }
+}
+
+/** The preview sessions cookie, kept under the browser's size limit by dropping the oldest summaries. */
+export function serializeStoredStats(list: StoredStats[]): string {
+  return fitJson(list, (l) => {
+    if (l.length === 0) return -1;
+    let oldest = 0;
+    l.forEach((s, i) => { if (s.endedAt < l[oldest].endedAt) oldest = i; });
+    return oldest;
+  });
 }
 
 /** Replaces the session with the same id (heartbeats re-send it), newest first. */

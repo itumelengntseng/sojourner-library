@@ -1,5 +1,6 @@
 // The loan desk: pure helpers shared by the work page, the server actions and tests.
 // Built on the checkout engine; the database enforces the same rules (0003_loan_desk.sql).
+import { fitJson } from "./cookieBudget";
 import {
   borrow,
   loanStatus,
@@ -169,8 +170,13 @@ export function parsePreviewLoans(raw: string | undefined): Loan[] {
   }
 }
 
+/** Keeps every open loan; when the cookie would pass its budget, the oldest ended loans go first. */
 export function serializePreviewLoans(loans: Loan[]): string {
-  return JSON.stringify(loans.slice(0, HISTORY_LIMIT));
+  return fitJson(loans.slice(0, HISTORY_LIMIT), (list) => {
+    let oldest = -1;
+    list.forEach((l, i) => { if (l.returnedAt !== null && (oldest < 0 || l.borrowedAt < list[oldest].borrowedAt)) oldest = i; });
+    return oldest;
+  });
 }
 
 // ── Database rows ───────────────────────────────────────────────────────────
