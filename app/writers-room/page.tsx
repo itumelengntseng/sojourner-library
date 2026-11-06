@@ -5,7 +5,7 @@ import { BackupLinks } from "@/components/BackupLinks";
 import { ArchiveButton, DescriptionForm, HallForm, InviteForm, ManuscriptImport, RevokeInvite, WorkSettings } from "@/components/WritersRoomForms";
 import { CANON_LABEL, formatWords } from "@/lib/workStats";
 import { AUTHOR } from "@/lib/site";
-import { glance } from "@/lib/glance";
+import { changedLabel, glance } from "@/lib/glance";
 import { loadRoom } from "@/lib/writersRoom";
 
 // Owner-only: always render per request (reads the session).
@@ -15,6 +15,7 @@ export const metadata: Metadata = { title: "Writer's Room" };
 // Behind the stacks: a timber table under one lamp, where the Keeper shelves new work.
 export default async function WritersRoom() {
   const room = await loadRoom();
+  const now = Date.now();
   if (room.mode === "closed") {
     return (
       <main id="main" className="mx-auto max-w-xl px-4 pt-24 text-center">
@@ -65,7 +66,7 @@ export default async function WritersRoom() {
                 <Link href={`/works/${w.slug}/proof`} className="ml-3 font-sans text-xs text-lamplight underline underline-offset-2">Read the proof</Link>
                 <span className="ml-3"><BackupLinks slug={w.slug} title={w.title} shelf={room.shelf[w.slug]} /></span>
                 <p className="font-sans text-xs text-sandstone">
-                  {CANON_LABEL[w.canonStatus]}{w.isPlaceholder ? " · placeholder" : ""}{live ? ` · ${formatWords(w.words)} · ${w.readers} reader${w.readers === 1 ? "" : "s"}, ${w.openLoans} on loan now, ${w.minutes} min read` : ""}
+                  {CANON_LABEL[w.canonStatus]}{w.isPlaceholder ? " · placeholder" : ""}{live ? ` · ${formatWords(w.words)} · ${w.readers} reader${w.readers === 1 ? "" : "s"}, ${w.openLoans} on loan now, ${w.minutes} min read` : ""}{live && changedLabel(w.updatedAt, now) ? ` · ${changedLabel(w.updatedAt, now)}` : ""}
                 </p>
                 {live && <div className="mt-1 flex flex-wrap items-start gap-4"><DescriptionForm id={w.id} title={w.title} description={w.description} /><ArchiveButton id={w.id} title={w.title} intent="archive" /></div>}
               </div>

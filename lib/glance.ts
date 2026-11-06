@@ -14,3 +14,17 @@ export function glance(works: { visibility: "owner" | "members"; words: number; 
     { label: "Out on loan now", value: String(loans), note: loans ? plural(loans, "open loan") : "every book is in" },
   ];
 }
+
+const DAY = 86_400_000;
+
+/** C39: "changed today" / "changed yesterday" / "changed 3 days ago" / "changed 6 Oct 2026" (SA time). */
+export function changedLabel(iso: string | undefined, now: number): string | null {
+  const t = iso ? Date.parse(iso) : NaN;
+  if (!Number.isFinite(t)) return null;
+  const sast = (ms: number) => Math.floor((ms + 2 * 3600_000) / DAY);
+  const days = sast(now) - sast(t);
+  if (days <= 0) return "changed today";
+  if (days === 1) return "changed yesterday";
+  if (days < 7) return `changed ${days} days ago`;
+  return `changed ${new Date(t).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" })}`;
+}

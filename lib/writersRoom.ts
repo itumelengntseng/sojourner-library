@@ -18,6 +18,8 @@ export interface RoomWork {
   readers: number;
   openLoans: number;
   minutes: number;
+  /** Last change to the work row (library mode) — import, settings, description, sharing. */
+  updatedAt?: string;
 }
 
 export interface RoomInvite {
@@ -62,7 +64,7 @@ export async function loadRoom(): Promise<Room> {
   }
   if (!supabase) return { mode: "closed", reason: reason as "signed-out" | "not-owner" };
   const [{ data: works }, { data: stats }, { data: invites }, { data: hallRows }, { data: archived }, { data: chapterRows }, { count: cardHolders }] = await Promise.all([
-    supabase.from("works").select("id, slug, title, canon_status, visibility, is_placeholder, description, hall, word_count").is("archived_at", null).order("title"),
+    supabase.from("works").select("id, slug, title, canon_status, visibility, is_placeholder, description, hall, word_count, updated_at").is("archived_at", null).order("title"),
     supabase.rpc("readership"),
     supabase.from("invites").select("id, note, expires_at, redeemed_at, revoked_at").eq("role", "guest").order("created_at", { ascending: false }).limit(50),
     supabase.from("halls").select("id, name, note, position"),
@@ -95,6 +97,7 @@ export async function loadRoom(): Promise<Room> {
       isPlaceholder: w.is_placeholder as boolean, description: (w.description as string | null) ?? "", hall: (w.hall as string | null) ?? "main", words: w.word_count as number,
       readers: Number(by.get(w.id as string)?.readers ?? 0), openLoans: Number(by.get(w.id as string)?.open_loans ?? 0),
       minutes: Number(by.get(w.id as string)?.minutes ?? 0),
+      updatedAt: (w.updated_at as string | null) ?? undefined,
     })),
     invites: (invites ?? []).map((i) => ({
       id: i.id as string, note: i.note as string, expiresAt: i.expires_at as string,

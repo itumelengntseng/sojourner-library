@@ -64,5 +64,5 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] QA8 QA pass after C34–C36.
 - [x] C37 Card page: the same "Continue reading" card above "On loan now" (reuse C34; nothing read → nothing shown).
 - [x] C38 Halls: a small "on loan to you · due <stamp>" mark on shelf entries the reader has out (own loans only; preview from the cookie desk).
-- [ ] C39 Writer's Room shelf list: "changed <date>" beside each work (from `updated_at`, SA time; library mode), so Itu can see what moved last.
+- [x] C39 Writer's Room shelf list: "changed <date>" beside each work (from `updated_at`, SA time; library mode), so Itu can see what moved last.
 - [ ] QA9 QA pass after C37–C39.
