@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-06 (scheduled build run 2 — C1–C13 + QA2)._
+_Last updated: 2026-11-06 (scheduled build run 3 — C16–C20, QA3, QA4)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -46,10 +46,11 @@ _Last updated: 2026-11-06 (scheduled build run 2 — C1–C13 + QA2)._
 - C18 — Reading-room keys (`lib/readerKeys.ts`, help card in `components/ReaderView.tsx`): ← → turn the page, C contents, P paged/scroll, + / − text size, B bookmark, N note, ? opens a "Keys in the reading room" card (native dialog; Esc or Close shuts it; Esc also closes the contents). A "Keys ?" button in the toolbar opens the same card. Keys are ignored while typing in a note or input, and with Ctrl/Alt/⌘ so browser shortcuts still work; the proof copy has no B/N and its card leaves them out. Smoke-tested at 375px: every key, typing "bcn?" into a note doesn't trigger anything, no console errors.
 - C19 — "Reading by month" in the ledger (`byMonth()` in `lib/ledger.ts`, `components/ReadingByMonth.tsx`): twelve timber-and-ochre bars for the last 12 months (SA time; sessions just after midnight SAST count for the new month), each with a spoken label ("June 2026: 1 h 5 min" / "no reading"); month initials under the bars (every other month at phone width). Shown once any reading is recorded; library mode from the reader's own sessions (already loaded for 400 days), preview from the cookie summaries. Smoke-tested at 375px with five months of preview sessions: bars and labels right, no sideways scroll, no console errors; empty ledger shows no chart.
 - C20 — Pitch links "last opened" (`lastOpened()` in `lib/pitch.ts`, Pitch Room list): each share link now reads "N views · last opened 6 Nov 2026, 14:32" (SA time) or "never opened". Uses the `last_viewed_at` column `open_pitch_link()` already stamps — no new migration, no visitor data beyond the time. Verified against PGlite: stamped on open, readable by the owner, not editable through the API. Library mode only (links don't exist in preview), so not browser-tested yet — covered by NEEDS ITU 4's e2e run.
+- QA4 (2026-11-06, after C17–C20): `npm run qa` all clear — now also checks the search results, the reading room with the keys card open, and the ledger with months of reading (axe WCAG 2.1 AA, sideways scroll, console errors), plus the pitch sheet in print. Preview e2e 6/6. Performance (local prod build, curl): every page < 25 ms.
 - Tests: 283 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks, re-run after C16).
 
 ## Next task
-Backlog B1–B11, NEXT ITERATION a–e, QA2 and FOLLOW-UPS C1–C16 and QA3 are complete. Next task: QA4 (BACKLOG.md → FOLLOW-UPS) (BACKLOG.md → FOLLOW-UPS).
+Backlog B1–B11, NEXT ITERATION a–e, QA2 and FOLLOW-UPS C1–C16 and QA3 are complete. Next task: C21 — re-import preview in the Writer's Room (BACKLOG.md → FOLLOW-UPS) (BACKLOG.md → FOLLOW-UPS).
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

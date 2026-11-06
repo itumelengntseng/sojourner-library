@@ -87,6 +87,37 @@ for (const settings of [{ theme: "sepia" }, { theme: "light" }, { theme: "dark",
   for (const p of problems) console.log(`    ${p}`);
 }
 
+// Pages in a particular state (QA4): the keys card open, and a ledger with months of reading.
+async function axeCheck(label) {
+  await page.evaluate(axeSource);
+  const result = await page.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21aa"] }));
+  const bad = result.violations.filter((v) => ["serious", "critical"].includes(v.impact));
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  const problems = [
+    ...bad.map((v) => `axe ${v.impact}: ${v.id} — ${v.help} (${v.nodes.length}×)`),
+    ...(overflow > 0 ? [`page scrolls sideways by ${overflow}px`] : []),
+    ...errors.map((e) => `console: ${e}`),
+  ];
+  failures += problems.length;
+  console.log(`${problems.length ? "✗" : "✓"} ${label}`);
+  for (const p of problems) console.log(`    ${p}`);
+}
+{
+  errors.length = 0;
+  await page.goto(`${BASE}/works/placeholder-work-one/read?ch=1`);
+  await page.getByRole("button", { name: /Keys/ }).click();
+  await page.locator("dialog[open]").waitFor();
+  await axeCheck("reading room with the keys card open");
+
+  errors.length = 0;
+  const now = Date.now();
+  const stats = [0, 35, 70, 140].map((d, i) => ({ id: `qa${i}`, slug: "placeholder-work-one", position: 1, wordsRead: 400, activeMs: (20 + i * 10) * 60000, endedAt: now - d * 86400000 }));
+  await ctx.addCookies([{ name: "soj_preview_sessions", value: encodeURIComponent(JSON.stringify(stats)), url: BASE }]);
+  await page.goto(`${BASE}/ledger`);
+  await page.locator("#by-month").waitFor();
+  await axeCheck("ledger with reading by month");
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);
