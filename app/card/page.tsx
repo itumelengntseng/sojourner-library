@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { MembershipCard } from "@/components/MembershipCard";
+import { OnLoanNow } from "@/components/OnLoanNow";
+import { myOpenLoans } from "@/lib/loanStore";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { ReaderCard } from "@/lib/membership";
 import { signOut } from "./actions";
@@ -27,6 +29,7 @@ export default async function CardPage() {
         <p className="max-w-prose text-paper/85">
           Reader cards will be issued here once the library&apos;s records room is connected.
         </p>
+        <OnLoanNow loans={await myOpenLoans()} />
       </Desk>
     );
   }
@@ -58,6 +61,7 @@ export default async function CardPage() {
   return (
     <Desk eyebrow="Front desk" title="Welcome back">
       <MembershipCard card={card} />
+      <OnLoanNow loans={await myOpenLoans()} />
       <form action={signOut}>
         <button className="font-sans text-sm text-sandstone underline underline-offset-4 hover:text-lamplight">Sign out</button>
       </form>

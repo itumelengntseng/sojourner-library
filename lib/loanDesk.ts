@@ -188,3 +188,18 @@ export function rowToLoan(r: LoanRow): Loan {
     renewals: r.renewals, bookmark: { chapterIndex: 0, wordOffset: r.bookmark_offset },
   };
 }
+
+// ── "On loan now" at the front desk ─────────────────────────────────────────
+
+export interface OnLoan { workKey: string; slug: string; title: string; due: string; timeLeft: string; dueSoon: boolean; resume: boolean; dueAt: number }
+
+/** The reader's open loans, soonest due first. `works` maps a loan's workId to the work's slug and title. */
+export function onLoanNow(loans: Loan[], readerId: string, works: Record<string, { slug: string; title: string }>, now: number): OnLoan[] {
+  return settleExpired(loans, now)
+    .filter((l) => l.readerId === readerId && l.returnedAt === null && works[l.workId])
+    .sort((a, b) => a.dueAt - b.dueAt)
+    .map((l) => {
+      const s = slipFor(l, now);
+      return { workKey: l.workId, slug: works[l.workId].slug, title: works[l.workId].title, due: s.due, timeLeft: s.timeLeft ?? "", dueSoon: s.status === "due_soon", resume: l.bookmark.wordOffset > 0, dueAt: l.dueAt };
+    });
+}

@@ -5,8 +5,9 @@ import { cookies } from "next/headers";
 import type { Loan, LoanPeriod } from "./engine/checkout";
 import {
   deskBorrow, deskRenew, deskReturn, parsePreviewLoans, PREVIEW_COOKIE, PREVIEW_READER,
-  rowToLoan, serializePreviewLoans, settleExpired, type DeskResult, type LoanRow,
+  onLoanNow, rowToLoan, serializePreviewLoans, settleExpired, type DeskResult, type LoanRow, type OnLoan,
 } from "./loanDesk";
+import { getWorks } from "./catalogue";
 import { supabaseServer } from "./supabase/server";
 
 export type DeskMode = "preview" | "library" | "signed-out" | "not-shelved";
@@ -86,4 +87,23 @@ export async function runDesk(slug: string, op: Op): Promise<{ ok: boolean; mess
   }
   const { error } = await supabase.from("loans").update({ returned_at: new Date(now).toISOString() }).eq("id", op.loanId);
   return error ? { ok: false, message: friendly(error.message) } : { ok: true, message: "Returned to the shelf. Your bookmark is kept." };
+}
+
+/** What the reader has out right now (front desk). Library: their loans table rows; preview: the cookie desk. */
+export async function myOpenLoans(): Promise<OnLoan[]> {
+  const now = Date.now();
+  const supabase = await supabaseServer();
+  if (!supabase) {
+    const works = Object.fromEntries(getWorks().map((w) => [w.slug, { slug: w.slug, title: w.title }]));
+    return onLoanNow(await previewLoans(), PREVIEW_READER, works, now);
+  }
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return [];
+  const { data: rows } = await supabase.from("loans").select("*")
+    .eq("reader_id", auth.user.id).is("returned_at", null).gt("due_at", new Date(now).toISOString());
+  const loans = ((rows ?? []) as LoanRow[]).map(rowToLoan);
+  if (loans.length === 0) return [];
+  const { data: works } = await supabase.from("works").select("id, slug, title").in("id", loans.map((l) => l.workId)).is("archived_at", null);
+  const byId = Object.fromEntries(((works ?? []) as { id: string; slug: string; title: string }[]).map((w) => [w.id, { slug: w.slug, title: w.title }]));
+  return onLoanNow(loans, auth.user.id, byId, now);
 }

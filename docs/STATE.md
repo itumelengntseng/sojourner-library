@@ -35,10 +35,11 @@ _Last updated: 2026-11-06 (scheduled build run)._
 - C8 — End-to-end smoke script (`scripts/e2e.mjs`, `npm run e2e`): walks the library as the Keeper at phone width — front hall → (library: card, shelve a placeholder "E2E Placeholder Check" work as Draft/Only me, proof copy) → borrow → bookmark + margin note → ledger notes export contains the note → (library: make a pitch link, open it in a card-less browser, close it) → return to shelf → no page errors. `--preview` runs against a local preview build (passes: 6/6). Library run needs a saved sign-in made once with `--login` (stored in git-ignored `.e2e-session.json`); it never deletes anything and closes the links it makes.
 - C9 — "Fresh on the shelves" (`freshOnShelves()` in `lib/catalogueRows.ts`, front hall): in library mode the front hall lists up to 3 works shelved, shared or changed in the last 60 days (as the reader is allowed to see them, canon switch respected), newest first, each with a stamped date in SA time. Preview mode shows nothing (placeholders carry no dates).
 - C10 — Set aside / restore (`archiveAction`, `ArchiveButton`, "Set aside" list in the Writer's Room): "Set aside" on any work (with a confirm) sets `archived_at` — it leaves every shelf, the catalogue, lineage/timeline titles, fresh list and readers' reach; nothing is deleted. Set-aside works are listed with the date and "Restore to the shelves". Verified against PGlite: guests lose sight, the row stays, guests can't restore, owner restores.
-- Tests: 249 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks).
+- C11 — "On loan now" at the front desk (`onLoanNow()` in `lib/loanDesk.ts`, `myOpenLoans()` in `lib/loanStore.ts`, `components/OnLoanNow.tsx`, `/card`): the reader's open loans, soonest due first, each with its stamped due time, time left (ember when due soon) and Open/Resume into the reading room; nothing out → a link to the halls. Works in preview (cookie desk) and library mode (own loans only; set-aside works left out). Smoke-tested at 375px: borrow → card shows it.
+- Tests: 251 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks).
 
 ## Next task
-Backlog B1–B11, NEXT ITERATION a–e and FOLLOW-UPS C1–C5 are all complete. All backlog and follow-up items through C10 are complete. Next task: C11 (BACKLOG.md → FOLLOW-UPS).
+Backlog B1–B11, NEXT ITERATION a–e and FOLLOW-UPS C1–C5 are all complete. All backlog and follow-up items through C11 are complete. Next task: C12 (BACKLOG.md → FOLLOW-UPS).
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
