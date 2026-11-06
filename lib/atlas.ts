@@ -110,3 +110,79 @@ export function storedOr<T>(kind: AtlasKind, stored: unknown, file: T): { value:
 }
 
 export const toAtlasText = (v: Lineage | Timeline) => JSON.stringify(v, null, 2);
+
+// ── Helpers for the form editor (one person, place or event at a time) ────────
+
+/** A lower-case-hyphen id from a name, made unique against `taken`. */
+export function makeId(name: string, taken: Iterable<string>, fallback = "entry"): string {
+  const base = name.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || fallback;
+  const used = new Set(taken);
+  if (!used.has(base)) return base;
+  let n = 2;
+  while (used.has(`${base}-${n}`)) n++;
+  return `${base}-${n}`;
+}
+
+/** Parse a document for the form editor without running relation checks (so half-done work still opens). */
+export function parseForForm(kind: "lineage", text: string): Lineage | null;
+export function parseForForm(kind: "timeline", text: string): Timeline | null;
+export function parseForForm(kind: AtlasKind, text: string): Lineage | Timeline | null {
+  try {
+    const raw = JSON.parse(text);
+    const c = kind === "lineage" ? coerceLineage(raw) : coerceTimeline(raw);
+    return c.ok ? c.value : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Change a person's id everywhere it is referred to. */
+export function renamePerson(l: Lineage, from: string, to: string): Lineage {
+  const swap = (ids: string[]) => ids.map((x) => (x === from ? to : x));
+  return { ...l, people: l.people.map((p) => ({ ...p, id: p.id === from ? to : p.id, parents: swap(p.parents), partners: swap(p.partners) })) };
+}
+
+/** Take a person off the wall, and out of everyone's parents and partners. */
+export function removePerson(l: Lineage, id: string): Lineage {
+  const drop = (ids: string[]) => ids.filter((x) => x !== id);
+  return { ...l, people: l.people.filter((p) => p.id !== id).map((p) => ({ ...p, parents: drop(p.parents), partners: drop(p.partners) })) };
+}
+
+/** Partners are listed on one side in the files; the form shows and sets them on both. */
+export function partnersOf(l: Lineage, id: string): string[] {
+  const own = l.people.find((p) => p.id === id)?.partners ?? [];
+  const theirs = l.people.filter((p) => p.partners.includes(id)).map((p) => p.id);
+  return [...new Set([...own, ...theirs])].filter((x) => x !== id);
+}
+
+export function setPartners(l: Lineage, id: string, partners: string[]): Lineage {
+  return {
+    ...l,
+    people: l.people.map((p) => {
+      if (p.id === id) return { ...p, partners: partners.filter((x) => x !== id) };
+      // Keep the tie in one place only: drop the mirror entry from the other person.
+      return p.partners.includes(id) ? { ...p, partners: p.partners.filter((x) => x !== id) } : p;
+    }),
+  };
+}
+
+export function renamePlace(t: Timeline, from: string, to: string): Timeline {
+  return { ...t, places: t.places.map((p) => (p.id === from ? { ...p, id: to } : p)), events: t.events.map((e) => (e.placeId === from ? { ...e, placeId: to } : e)) };
+}
+
+/** Remove a place; events that happened there keep their date but lose the place. */
+export function removePlace(t: Timeline, id: string): Timeline {
+  return {
+    ...t,
+    places: t.places.filter((p) => p.id !== id),
+    events: t.events.map((e) => {
+      if (e.placeId !== id) return e;
+      const { placeId: _, ...rest } = e;
+      return rest;
+    }),
+  };
+}
+
+export function removeEvent(t: Timeline, id: string): Timeline {
+  return { ...t, events: t.events.filter((e) => e.id !== id) };
+}

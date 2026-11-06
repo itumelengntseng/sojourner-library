@@ -87,3 +87,50 @@ describe("atlas_documents table", () => {
     expect(await attempt(db, OWNER, save, ["timeline", "[]"])).toMatch(/check constraint/);
   });
 });
+
+import { makeId, parseForForm, partnersOf, removeEvent, removePerson, removePlace, renamePerson, renamePlace, setPartners } from "@/lib/atlas";
+import { validateLineage } from "@/lib/lineage";
+import { validateTimeline } from "@/lib/timeline";
+
+describe("form editor helpers", () => {
+  it("makes clean, unique ids", () => {
+    expect(makeId("Placeholder Élder", [])).toBe("placeholder-elder");
+    expect(makeId("New person", ["new-person", "new-person-2"])).toBe("new-person-3");
+    expect(makeId("!!!", [], "person")).toBe("person");
+  });
+  it("opens half-finished work (shape only, no relation checks)", () => {
+    const text = JSON.stringify({ people: [{ id: "placeholder-a", name: "Placeholder A", parents: ["placeholder-ghost"] }] });
+    expect(parseForForm("lineage", text)?.people).toHaveLength(1);
+    expect(parseForForm("lineage", "{")).toBeNull();
+    expect(parseForForm("timeline", toAtlasText(TIMELINE))).toEqual(TIMELINE);
+  });
+  it("renaming a person updates every reference and stays valid", () => {
+    const l = renamePerson(LINEAGE, "placeholder-elder-a", "placeholder-elder-z");
+    expect(l.people.some((p) => p.id === "placeholder-elder-a" || p.parents.includes("placeholder-elder-a") || p.partners.includes("placeholder-elder-a"))).toBe(false);
+    expect(validateLineage(l, known)).toEqual([]);
+  });
+  it("removing a person leaves no dangling ties", () => {
+    const l = removePerson(LINEAGE, "placeholder-child-a");
+    expect(l.people).toHaveLength(LINEAGE.people.length - 1);
+    expect(validateLineage(l, known)).toEqual([]);
+  });
+  it("partners show on both sides and are stored once", () => {
+    expect(partnersOf(LINEAGE, "placeholder-elder-b")).toEqual(["placeholder-elder-a"]);
+    const l = setPartners(LINEAGE, "placeholder-elder-b", ["placeholder-elder-a", "placeholder-elder-c"]);
+    const ties = l.people.flatMap((p) => p.partners.map((x) => [p.id, x].sort().join("+")));
+    expect(new Set(ties).size).toBe(ties.length);
+    expect(partnersOf(l, "placeholder-elder-a")).toEqual(["placeholder-elder-b"]);
+    expect(partnersOf(l, "placeholder-elder-c")).toEqual(["placeholder-elder-b"]);
+    expect(partnersOf(setPartners(l, "placeholder-elder-b", []), "placeholder-elder-a")).toEqual([]);
+  });
+  it("renaming or removing a place keeps events valid", () => {
+    const r = renamePlace(TIMELINE, "placeholder-place-a", "placeholder-place-z");
+    expect(r.events.filter((e) => e.placeId === "placeholder-place-z")).toHaveLength(2);
+    expect(validateTimeline(r, known)).toEqual([]);
+    const gone = removePlace(TIMELINE, "placeholder-place-a");
+    expect(gone.events).toHaveLength(TIMELINE.events.length);
+    expect(gone.events.some((e) => e.placeId === "placeholder-place-a")).toBe(false);
+    expect(validateTimeline(gone, known)).toEqual([]);
+    expect(removeEvent(TIMELINE, "placeholder-event-1").events).toHaveLength(TIMELINE.events.length - 1);
+  });
+});
