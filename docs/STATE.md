@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-06 (scheduled build run 3 — C16–C23, QA3, QA4)._
+_Last updated: 2026-11-06 (scheduled build run 4 — C25–C30, QA5, QA6; C24 blocked)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -57,10 +57,11 @@ _Last updated: 2026-11-06 (scheduled build run 3 — C16–C23, QA3, QA4)._
 - C28 — Chapter marks on the work page (`chaptersRead()` in `lib/ledger.ts`, `myChaptersRead()` in `lib/ledgerStore.ts`, `components/ChapterMarks.tsx`): in Contents, "✓ read" beside each chapter the reader has read through (≥ 90% of its words across their own sessions — the C13 rule) and "your bookmark" on the chapter the bookmark sits in. Library mode reads only the reader's own sessions for that work (RLS); preview from the cookie summaries. Smoke-tested at 375px: no marks → chapter 1 read + bookmark in chapter 2 → both marks shown, axe clean, no sideways scroll.
 - C29 — Notes for one book (`exportNotes(slug?)` in `lib/ledgerStore.ts`, `/ledger/notes?work=<slug>`, `notesFilename()` in `lib/ledger.ts`, `PreviewNotesExport` with `slug`): each row of Hours per book has "Notes for this book" — the same Markdown as the full export, filtered to that work, named `sojourner-notes-<slug>.md`. Own notes only (queries filter by reader and work; RLS unchanged — highlight text still only for books on loan). Smoke-tested at 375px in preview: notes on two books → the per-book file holds only that book's note; axe clean, no sideways scroll.
 - C30 — Reading-room keyboard access (`components/ReaderView.tsx`, `FOCUS_RING`/`THEME_BACKGROUND` in `lib/reader.ts`, `[data-ring]` rule in `app/globals.css`): "Skip to the text" is the first item in the toolbar (shown on focus) and lands on the chapter text below the sticky bar; on sepia and light pages the focus ring is timber instead of lamplight (≥ 3:1 on each page colour — unit-tested), the dark toolbar keeps lamplight. `npm run qa` now tabs to the link in all three themes and checks focus reaches the text with the right ring colour — all clear.
+- QA6 (2026-11-06, after C27–C30): `npm run qa` all clear — now also checks the work page with read ticks (375px + 1280px) and the skip link + focus ring in all three reading-room themes; the Writer's Room (with backup links) and the ledger (with per-book notes buttons) stay in the sweep. Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 57 KB; a placeholder backup file is 85 KB. No migration this run → RLS audit unchanged.
 - Tests: 317 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks, re-run after C16).
 
 ## Next task
-Backlog B1–B11, NEXT ITERATION a–e, QA2 and FOLLOW-UPS C1–C16 and QA3 are complete. Next task: C24 — apply migration 0013 to the live Supabase project (BACKLOG.md → FOLLOW-UPS), then C25. (BACKLOG.md → FOLLOW-UPS).
+Backlog through C30 and QA6 is complete (C24 waits on Itu — NEEDS ITU 1). Next task: C31 — "Back up everything" in the Writer's Room (BACKLOG.md → FOLLOW-UPS), then C32, C33, QA7. Whenever a run can apply migrations, apply 0013 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

@@ -53,4 +53,8 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C28 Work page chapter list: a small "read" tick on chapters the reader has finished (≥ 90% of its words, from their own sessions — same rule as C13), and "you're here" on the bookmarked one.
 - [x] C29 Ledger notes export per book: a "Notes for this book" download on each row of Hours per book (same Markdown as the full export, filtered to one work; own notes only).
 - [x] C30 Reading room "Skip to the text" link (first focusable item, visible on focus) and a visible focus ring check on the toolbar buttons in all three themes.
-- [ ] QA6 QA pass after C27–C30 (axe/mobile incl. the work page with ticks and the Writer's Room backup links; preview e2e; performance; RLS unchanged unless a migration lands).
+- [x] QA6 QA pass after C27–C30 (axe/mobile incl. the work page with ticks and the Writer's Room backup links; preview e2e; performance; RLS unchanged unless a migration lands).
+- [ ] C31 Writer's Room "Back up everything": one download with every work (shelved + set-aside, each as its own Markdown file inside a .zip, no new dependency — a stored-only zip writer), plus the family-wall/timeline JSON. Owner-only, read-only.
+- [ ] C32 Reading room "chapter progress" line under the title: a thin timber rule filling with the reader's progress through the chapter (from the paragraphs read past — same data as the "min left" line), with a spoken label; hidden in the proof copy.
+- [ ] C33 Halls: sort shelves by "Recently shared" or "Title" (GET param, works without JavaScript; default stays series order).
+- [ ] QA7 QA pass after C31–C33.

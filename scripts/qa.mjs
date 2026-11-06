@@ -172,6 +172,16 @@ for (const theme of ["dark", "sepia", "light"]) {
   console.log(`${ok ? "✓" : "✗"} skip to the text + focus ring (${theme})${ok ? "" : ` — reached=${reached} ${JSON.stringify(got)}`}`);
 }
 
+// QA6: the work page with read ticks (sessions in the cookie) at both widths.
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await ctx.addCookies([{ name: "soj_preview_sessions", value: encodeURIComponent(JSON.stringify([{ id: "qa-t", slug: "placeholder-work-one", position: 1, wordsRead: 99999, activeMs: 600000, endedAt: Date.now() - 60000 }])), url: BASE }]);
+  await page.goto(`${BASE}/works/placeholder-work-one`);
+  await page.getByText(/✓\s*read/).first().waitFor();
+  await axeCheck(`${width}px work page with read ticks`);
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);
