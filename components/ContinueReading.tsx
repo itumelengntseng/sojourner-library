@@ -3,11 +3,11 @@ import type { ContinueCard } from "@/lib/continueReading";
 import { AUTHOR } from "@/lib/site";
 
 // One lamplit card by the front-hall door: the book you were last reading, and the way back in.
-export function ContinueReading({ card }: { card: ContinueCard | null }) {
+export function ContinueReading({ card, className = "mx-auto mt-8" }: { card: ContinueCard | null; className?: string }) {
   if (!card) return null;
   return (
     <section aria-labelledby="continue-reading"
-      className="mx-auto mt-8 max-w-md rounded-sm border border-lamplight/40 bg-ink/60 px-5 py-4 shadow-[0_0_40px_-12px_rgb(242_197_124/0.45)]">
+      className={`${className} max-w-md text-left rounded-sm border border-lamplight/40 bg-ink/60 px-5 py-4 shadow-[0_0_40px_-12px_rgb(242_197_124/0.45)]`}>
       <h2 id="continue-reading" className="font-sans text-xs uppercase tracking-[0.25em] text-sandstone">Continue reading</h2>
       <p className="mt-2 text-lg text-lamplight">{card.title}</p>
       <p className="font-sans text-xs text-sandstone">by {AUTHOR}</p>

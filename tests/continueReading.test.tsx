@@ -69,4 +69,11 @@ describe("continue reading", () => {
     expect(plain).toContain(">Chapter 2<");
     expect(plain).not.toContain("Chapter 2: Chapter 2");
   });
+  it("C37: sits full-width at the front desk when asked, centred on the front hall by default", () => {
+    const card = continueReading([loan("a", 1250)], [sess("a", "2", 100, T)], chapters, 200);
+    expect(renderToStaticMarkup(<ContinueReading card={card} />)).toContain("mx-auto mt-8");
+    const desk = renderToStaticMarkup(<ContinueReading card={card} className="w-full" />);
+    expect(desk).toContain("w-full");
+    expect(desk).not.toContain("mx-auto");
+  });
 });

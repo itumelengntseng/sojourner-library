@@ -124,6 +124,10 @@ async function axeCheck(label) {
     await page.goto(`${BASE}/`);
     await page.getByRole("region", { name: "Continue reading" }).waitFor();
     await axeCheck(`${width}px front hall with continue reading`);
+    errors.length = 0;
+    await page.goto(`${BASE}/card`);
+    await page.getByRole("region", { name: "Continue reading" }).waitFor();
+    await axeCheck(`${width}px card page with continue reading`);
   }
   await page.setViewportSize({ width: 375, height: 900 });
 }
