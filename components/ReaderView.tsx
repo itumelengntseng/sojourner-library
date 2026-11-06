@@ -16,6 +16,7 @@ import { AskLibrarian } from "./AskLibrarian";
 import { librarianFacts } from "@/lib/librarian";
 import { wordsBeforeChapter } from "@/lib/reader";
 import { outsideCanonNote } from "@/lib/canon";
+import { EndOfChapter } from "./EndOfChapter";
 
 const SETTINGS_KEY = "soj:reader-settings";
 const annKey = (slug: string, pos: number) => `soj:ann:${slug}:${pos}`;
@@ -328,6 +329,8 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
             <button type="button" onClick={() => turnPage(1)} className="underline-offset-4 hover:underline">Next page →</button>
           </div>
         )}
+
+        <EndOfChapter slug={slug} title={data.title} chapters={chapters} position={chapter.position} wpm={wpm} base={base} proof={proof} />
 
         <div className="mt-10 rounded-sm bg-stone-wall text-paper">
           <AskLibrarian

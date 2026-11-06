@@ -23,7 +23,7 @@ await page.getByRole("button", { name: "Borrow this work" }).click();
 await page.getByRole("link", { name: "Open the reading room" }).waitFor();
 
 const routes = ["/", "/halls", "/halls?canon=all", "/halls?q=two", "/halls?q=zzzz", "/card", "/works/placeholder-work-one", "/works/placeholder-work-one/read",
-  "/works/placeholder-work-three/read", "/works/placeholder-work-one/proof", "/works/placeholder-work-one/proof?ch=2", "/ledger", "/lineage", "/lineage?canon=all", "/timeline", "/timeline?canon=all", "/writers-room", "/writers-room/atlas", "/pitch-room", "/pitch-room/placeholder-work-one", "/pitch-room/placeholder-work-one/edit", "/p/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "/works/no-such-book"];
+  "/works/placeholder-work-three/read", "/works/placeholder-work-one/proof", "/works/placeholder-work-one/proof?ch=2", "/works/placeholder-work-one/read?ch=2", "/ledger", "/lineage", "/lineage?canon=all", "/timeline", "/timeline?canon=all", "/writers-room", "/writers-room/atlas", "/pitch-room", "/pitch-room/placeholder-work-one", "/pitch-room/placeholder-work-one/edit", "/p/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "/works/no-such-book"];
 let failures = 0;
 for (const width of WIDTHS) {
   await page.setViewportSize({ width, height: 900 });
