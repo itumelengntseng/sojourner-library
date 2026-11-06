@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RevokeLink, ShareForm } from "@/components/PitchForms";
-import { kitStatus, loglineWarning } from "@/lib/pitch";
+import { kitStatus, lastOpened, loglineWarning } from "@/lib/pitch";
 import { ownerPitchLinks, roomPitches } from "@/lib/pitchStore";
 import { AUTHOR } from "@/lib/site";
 
@@ -54,7 +54,7 @@ export default async function PitchRoom() {
                 <ul className="mt-3 divide-y divide-timber-dark/60 font-sans text-xs text-sandstone">
                   {mine.map((l) => (
                     <li key={l.id} className="flex flex-wrap justify-between gap-2 py-1.5">
-                      <span>{l.note || "Link"} · {l.views} view{l.views === 1 ? "" : "s"}</span>
+                      <span>{l.note || "Link"} · {l.views} view{l.views === 1 ? "" : "s"} · {lastOpened(l.lastViewedAt)}</span>
                       <span>{l.revoked ? "closed" : new Date(l.expiresAt) < new Date() ? "expired" : <>open until {new Date(l.expiresAt).toLocaleDateString("en-ZA", { timeZone: "Africa/Johannesburg" })} · <RevokeLink id={l.id} /></>}</span>
                     </li>
                   ))}

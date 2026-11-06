@@ -65,15 +65,15 @@ export async function openSharedPitch(token: string): Promise<{ kit: PitchKit; w
   return sharedPitch(row, getPitch(row.work_slug));
 }
 
-export interface PitchLinkRow { id: string; slug: string; note: string; expiresAt: string; revoked: boolean; views: number }
+export interface PitchLinkRow { id: string; slug: string; note: string; expiresAt: string; revoked: boolean; views: number; lastViewedAt: string | null }
 
 export async function ownerPitchLinks(): Promise<{ live: boolean; allowed: boolean; links: PitchLinkRow[] }> {
   const { supabase, reason } = await ownerClient();
   if (reason === "preview") return { live: false, allowed: true, links: [] };
   if (!supabase) return { live: true, allowed: false, links: [] };
-  const { data } = await supabase.from("pitch_links").select("id, work_slug, note, expires_at, revoked_at, views").order("created_at", { ascending: false }).limit(100);
+  const { data } = await supabase.from("pitch_links").select("id, work_slug, note, expires_at, revoked_at, views, last_viewed_at").order("created_at", { ascending: false }).limit(100);
   return {
     live: true, allowed: true,
-    links: (data ?? []).map((l) => ({ id: l.id as string, slug: l.work_slug as string, note: l.note as string, expiresAt: l.expires_at as string, revoked: !!l.revoked_at, views: l.views as number })),
+    links: (data ?? []).map((l) => ({ id: l.id as string, slug: l.work_slug as string, note: l.note as string, expiresAt: l.expires_at as string, revoked: !!l.revoked_at, views: l.views as number, lastViewedAt: (l.last_viewed_at as string | null) ?? null })),
   };
 }

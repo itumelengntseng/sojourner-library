@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { getPitch, PITCHES } from "@/content/pitches";
 import { getWorks } from "@/lib/catalogue";
-import { isPlausibleToken, kitStatus, loglineWarning, onePager, type PitchKit } from "@/lib/pitch";
+import { isPlausibleToken, kitStatus, lastOpened, loglineWarning, onePager, type PitchKit } from "@/lib/pitch";
 import { addUser, asUser, attempt, freshDb, type Db } from "./helpers/db";
 
 const real: PitchKit = { ...getPitch("placeholder-work-one")!, isPlaceholder: false, comparables: ["Comp A meets Comp B"], formats: ["Novel", "Series"], contact: "agent@example.com", sample: "First para.\n\nSecond\nline." };
@@ -38,6 +38,11 @@ describe("pitch kits", () => {
     expect(md).toContain("© Itumeleng Ntseng");
     expect(onePager(PITCHES[0], work)).toContain("Placeholder pitch");
     expect(onePager(PITCHES[0], work)).not.toContain("## Contact");
+  });
+  it("says when a link was last opened, in SA time", () => {
+    expect(lastOpened(null)).toBe("never opened");
+    expect(lastOpened("nonsense")).toBe("never opened");
+    expect(lastOpened("2026-11-06T12:32:00Z")).toBe("last opened 6 Nov 2026, 14:32");
   });
   it("checks token shape", () => {
     expect(isPlausibleToken("a".repeat(32))).toBe(true);
@@ -90,6 +95,17 @@ describe("pitch links", () => {
     const old = await mint(1);
     await db.query(`update pitch_links set expires_at = now() - interval '1 minute' where token_hash = encode(sha256(convert_to($1, 'UTF8')), 'hex')`, [old]);
     expect(await open(old)).toEqual([]);
+  });
+
+  it("stamps when a link was last opened, readable only by the owner (C20)", async () => {
+    const tok = await mint();
+    const stamp = () => db.query<{ last_viewed_at: string | null }>(`select last_viewed_at from pitch_links where token_hash = encode(sha256(convert_to($1, 'UTF8')), 'hex')`, [tok]).then((r) => r.rows[0].last_viewed_at);
+    expect(await stamp()).toBeNull();
+    await open(tok);
+    expect(await stamp()).not.toBeNull();
+    const seen = await asUser(db, OWNER, async (tx) => (await tx.query<{ last_viewed_at: string | null }>(`select last_viewed_at from pitch_links where last_viewed_at is not null`)).rows.length);
+    expect(seen).toBeGreaterThan(0);
+    expect(await attempt(db, OWNER, `update pitch_links set last_viewed_at = null`)).toMatch(/permission denied/);
   });
 
   it("guests can't list or revoke links", async () => {

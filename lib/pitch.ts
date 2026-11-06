@@ -160,3 +160,14 @@ export function sharedPitch(row: SharedRow, fileKit: PitchKit | undefined): { ki
   return { kit, work: pitchWork(row.work_slug, { title: row.title ?? row.work_slug, author: row.author ?? "", words: row.word_count ?? 0 }) };
 }
 
+/** "never opened" or "last opened 6 Nov 2026, 14:32" (SA time) — the only visitor detail the library keeps. */
+export function lastOpened(iso: string | null): string {
+  if (!iso) return "never opened";
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return "never opened";
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "Africa/Johannesburg" })
+    .formatToParts(new Date(t)).map((p) => [p.type, p.value]));
+  const date = `${Number(parts.day)} ${parts.month} ${parts.year}`;
+  const time = `${parts.hour}:${parts.minute}`;
+  return `last opened ${date}, ${time}`;
+}
