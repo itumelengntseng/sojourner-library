@@ -24,5 +24,5 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C3 Lineage and timeline editable in the Writer's Room (same pattern), keeping the file validators.
 - [x] C4 Owner preview of the reading room for unshared works without taking out a loan.
 - [x] C5 Form-based editor for the family wall and timeline (add/edit one person, place or event at a time), on top of the C3 JSON store.
-- [ ] QA2 Second QA pass over C1–C5: axe/mobile sweep incl. owner pages, RLS audit of 0008–0010 added to `tests/security.test.ts`, performance check.
+- [x] QA2 Second QA pass over C1–C5: axe/mobile sweep incl. owner pages, RLS audit of 0008–0010 added to `tests/security.test.ts`, performance check.
 - [ ] C6 Work descriptions: an owner-only "description" field per work in the Writer's Room (replaces "The author hasn't written a description…"), stored on `works`.

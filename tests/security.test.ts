@@ -67,6 +67,27 @@ describe("security audit", () => {
     expect(await attempt(db, STRANGER, `insert into readers (id, role) values ($1, 'owner')`, [STRANGER])).toMatch(/row-level security/);
   });
 
+  it("lets only the owner write the library's own content (QA2)", async () => {
+    const owned = ["works", "chapters", "chapter_texts", "pitch_kits", "pitch_links", "atlas_documents"];
+    const pols = await rows<{ tablename: string; policyname: string; cmd: string; qual: string | null; with_check: string | null }>(
+      `select tablename, policyname, cmd, qual, with_check from pg_policies where schemaname = 'public' and cmd in ('INSERT', 'UPDATE', 'ALL', 'DELETE')`);
+    const loose = pols.filter((p) => owned.includes(p.tablename) && ![p.qual, p.with_check].filter(Boolean).every((x) => x!.includes("is_owner()")));
+    expect(loose).toEqual([]);
+    const G = "00000000-0000-0000-0000-0000000000e9";
+    await addUser(db, G, "guest");
+    expect(await attempt(db, G, `insert into pitch_kits (work_slug) values ('placeholder-g')`)).toMatch(/row-level security/);
+    expect(await attempt(db, G, `insert into atlas_documents (kind, body) values ('lineage', '{}')`)).toMatch(/row-level security/);
+    expect(await attempt(db, G, `insert into works (slug, title) values ('placeholder-g', 'G')`)).toMatch(/row-level security/);
+  });
+
+  it("reads of chapter text are only for the owner or an open loan (QA2)", async () => {
+    const pols = await rows<{ policyname: string; qual: string }>(
+      `select policyname, qual from pg_policies where schemaname = 'public' and tablename = 'chapter_texts' and cmd = 'SELECT'`);
+    expect(pols.map((p) => p.policyname).sort()).toEqual(["texts_owner_select", "texts_select"]);
+    expect(pols.find((p) => p.policyname === "texts_owner_select")!.qual).toBe("is_owner()");
+    expect(pols.find((p) => p.policyname === "texts_select")!.qual).toContain("has_active_loan");
+  });
+
   it("keeps authorship on every work", async () => {
     expect(await attempt(db, null, `select 1`)).toBeNull();
     await expect(db.query(`insert into works (slug, title, author) values ('placeholder-x', 'X', 'Someone Else')`)).rejects.toThrow(/check/);
