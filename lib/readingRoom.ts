@@ -19,6 +19,7 @@ export interface ReadingData {
   dueAt: number;
   title: string;
   author: string;
+  canonStatus: "canon" | "draft" | "apocrypha";
   chapter: { position: number; title: string; body: string };
   chapters: ChapterInfo[];
   bookmark: { position: number; wordsIntoChapter: number } | null;
@@ -41,7 +42,7 @@ async function library() {
 type Sb = NonNullable<Awaited<ReturnType<typeof supabaseServer>>>;
 
 async function libraryLoan(supabase: Sb, slug: string, readerId: string) {
-  const { data: work } = await supabase.from("works").select("id, title, author").eq("slug", slug).maybeSingle();
+  const { data: work } = await supabase.from("works").select("id, title, author, canon_status").eq("slug", slug).maybeSingle();
   if (!work) return null;
   await supabase.rpc("return_expired_loans");
   const { data: loan } = await supabase.from("loans").select("id, due_at, bookmark_offset")
@@ -68,7 +69,7 @@ export async function loadReading(slug: string, position: number): Promise<Loade
     return {
       ok: true,
       data: {
-        mode: "preview", loanId: loan.id, dueAt: loan.dueAt, title: work.title, author: work.author,
+        mode: "preview", loanId: loan.id, dueAt: loan.dueAt, title: work.title, author: work.author, canonStatus: work.canonStatus,
         chapter: { position: ch.position, title: ch.title, body: ch.body }, chapters,
         bookmark: hasBookmark ? locateBookmark(chapters, loan.bookmark.wordOffset) : null,
         notes: [], highlights: [],
@@ -96,6 +97,7 @@ export async function loadReading(slug: string, position: number): Promise<Loade
     data: {
       mode: "library", loanId: found.loan.id as string, dueAt: Date.parse(found.loan.due_at as string),
       title: found.work.title as string, author: found.work.author as string,
+      canonStatus: found.work.canon_status as ReadingData["canonStatus"],
       chapter: { position: ch.position, title: ch.title, body: (text?.body_md as string | undefined) ?? "" },
       chapters,
       bookmark: offset > 0 ? locateBookmark(chapters, offset) : null,

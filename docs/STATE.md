@@ -20,10 +20,11 @@ _Last updated: 2026-11-06 (scheduled build run)._
   - Performance (local prod build): every page loads < 200 ms; ~135–143 KB gzipped JS per page (framework baseline), HTML ≤ 9 KB.
   - RLS security: new standing audit `tests/security.test.ts` — RLS on every public table, anon has no grants, only notes/highlights deletable by readers, all security-definer functions pin search_path, bootstrap functions not callable from the API, signed-in strangers see nothing, authorship check holds. Found and fixed: readers could rewrite their own card number / issue date → `0005_reader_columns.sql` limits updates to name, pace and (owner-guarded) role.
 - NEXT ITERATION a — Lineage Explorer (`app/lineage`, `components/LineageWall.tsx`, `lib/lineage.ts`, data in `content/lineage.ts`): "The family wall" — stone plaques in generation rows; select a person to see parents, partners, siblings, children and the works they appear in; "How are they connected?" traces the shortest family tie between any two people; respects the canon toggle. Data is 7 clearly-labelled placeholder people only. `npm test` validates the lineage file (unknown ids, duplicates, >2 parents, self-reference, ancestry loops, unknown works) so Itu's real file is checked on entry. In the axe sweep; all clear.
-- Tests: 161 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear.
+- NEXT ITERATION b — Canon Switcher (`lib/canon.ts`, `lib/canonServer.ts`, `proxy.ts`): one "Canon only / Include drafts" choice that follows the reader through the front hall, halls and family wall — following a `?canon=` link stores it in a cookie for a year. Drafts and apocrypha carry a plain-language note on the work page and in the reading room. Smoke-tested: switch on halls → front hall and lineage follow; switch back works.
+- Tests: 165 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear.
 
 ## Next task
-NEXT ITERATION b — Canon Switcher.
+NEXT ITERATION c — Harlem Timeline Map (structure only; placeholder events/places until Itu supplies them).
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -53,4 +54,6 @@ NEXT ITERATION b — Canon Switcher.
 - Preview mode keeps up to 40 session summaries in a cookie; library mode keeps full sessions (last 90 days used for pace).
 - The librarian assumes 30 minutes of reading a day until sessions show the reader's habit.
 - The ledger shows only your own reading; an owner-wide ledger across readers is not built (would need Itu's call on privacy).
+- Canon status is per work (canon / draft / apocrypha); per-chapter canon is not modelled.
+- The front hall is now rendered per request (it reads the canon cookie).
 - System serif font stack (no web-font download) to keep builds offline-safe.

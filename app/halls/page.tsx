@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CanonToggle } from "@/components/CanonToggle";
 import { getWorks, HALLS, seedOf } from "@/lib/catalogue";
-import { CANON_LABEL, filterByCanon, parseCanonView, workStats } from "@/lib/workStats";
+import { canonView } from "@/lib/canonServer";
+import { CANON_LABEL, filterByCanon, workStats } from "@/lib/workStats";
 
 export const metadata: Metadata = { title: "The halls" };
 
 // Timber shelves; each book stands as a spine you can pull out.
 export default async function Halls({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const view = parseCanonView((await searchParams).canon);
+  const view = await canonView((await searchParams).canon);
   const works = filterByCanon(getWorks(), view);
 
   return (

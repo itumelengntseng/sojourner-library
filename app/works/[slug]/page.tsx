@@ -9,6 +9,7 @@ import { formatDuration } from "@/lib/engine/readingTime";
 import { librarianFacts } from "@/lib/librarian";
 import { latestLoan } from "@/lib/loanDesk";
 import { loadDesk } from "@/lib/loanStore";
+import { outsideCanonNote } from "@/lib/canon";
 import { myPace } from "@/lib/sessionStore";
 import { paceNote } from "@/lib/sessions";
 import { CANON_LABEL, formatWords, workStats } from "@/lib/workStats";
@@ -45,6 +46,9 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
           </p>
           <h1 className="mt-3 text-3xl text-lamplight sm:text-4xl">{work.title}</h1>
           <p className="mt-1 font-sans text-sm uppercase tracking-[0.2em] text-sandstone">by {work.author}</p>
+          {outsideCanonNote(work.canonStatus) && (
+            <p className="mt-4 max-w-prose rounded-sm border border-ember/50 px-3 py-2 font-sans text-xs text-ember">{outsideCanonNote(work.canonStatus)}</p>
+          )}
           <p className="mt-6 max-w-prose text-paper/90">{work.blurb}</p>
 
           <dl className="mt-6 grid max-w-sm grid-cols-2 gap-4 rounded-sm border border-timber-dark bg-ink/40 p-4">

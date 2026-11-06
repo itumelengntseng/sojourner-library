@@ -1,11 +1,15 @@
 import Link from "next/link";
+import { CanonToggle } from "@/components/CanonToggle";
 import { SceneCover } from "@/components/SceneCover";
+import { canonView } from "@/lib/canonServer";
+import { filterByCanon } from "@/lib/workStats";
 import { getWorks } from "@/lib/catalogue";
 import { AUTHOR, SITE_NAME } from "@/lib/site";
 
 // The front hall: you step over the threshold and the covers are lit along the wall.
-export default function FrontHall() {
-  const works = getWorks();
+export default async function FrontHall({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const view = await canonView((await searchParams).canon);
+  const works = filterByCanon(getWorks(), view);
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16 sm:pt-24">
       <header className="flex flex-col items-center text-center">
@@ -17,6 +21,7 @@ export default function FrontHall() {
 
       <section aria-labelledby="on-the-wall" className="mt-12">
         <h2 id="on-the-wall" className="sr-only">On the wall</h2>
+        <div className="mb-6 flex justify-center"><CanonToggle view={view} basePath="/" /></div>
         <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-8">
           {works.map((w) => (
             <li key={w.slug}>

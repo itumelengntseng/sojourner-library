@@ -52,7 +52,7 @@ describe("canon toggle", () => {
   it("marks the active option", () => {
     const html = renderToStaticMarkup(<CanonToggle view="all" basePath="/halls" />);
     expect(html).toMatch(/<a aria-current="true"[^>]*href="\/halls\?canon=all"/);
-    expect(html).toContain('href="/halls"');
+    expect(html).toContain('href="/halls?canon=canon"');
   });
   it("finds works by slug", () => {
     expect(getWork("placeholder-work-one")?.title).toBe("Placeholder Work One");

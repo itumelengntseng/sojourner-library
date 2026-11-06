@@ -1,11 +1,13 @@
 import Link from "next/link";
+import { canonHref } from "@/lib/canon";
 import type { CanonView } from "@/lib/workStats";
 
 // Two brass switches on the hall wall: canon only, or everything on the shelves.
+// The choice is remembered across the library (see lib/canon.ts).
 export function CanonToggle({ view, basePath }: { view: CanonView; basePath: string }) {
   const opt = (v: CanonView, label: string) => (
     <Link
-      href={v === "canon" ? basePath : `${basePath}?canon=all`}
+      href={canonHref(basePath, v)}
       aria-current={view === v ? "true" : undefined}
       className={`rounded-sm px-3 py-1.5 font-sans text-xs uppercase tracking-wider ${
         view === v ? "bg-lamplight text-ink" : "text-sandstone hover:text-lamplight"

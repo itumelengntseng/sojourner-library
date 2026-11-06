@@ -14,6 +14,7 @@ import { useSessionTracker } from "./useSessionTracker";
 import { AskLibrarian } from "./AskLibrarian";
 import { librarianFacts } from "@/lib/librarian";
 import { wordsBeforeChapter } from "@/lib/reader";
+import { outsideCanonNote } from "@/lib/canon";
 
 const SETTINGS_KEY = "soj:reader-settings";
 const annKey = (slug: string, pos: number) => `soj:ann:${slug}:${pos}`;
@@ -214,6 +215,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
         <p className="mt-1 font-sans text-xs opacity-80">
           {left > 0 ? `About ${formatDuration(left)} left in this chapter` : "End of the chapter"} · at {wpm} wpm
         </p>
+        {outsideCanonNote(data.canonStatus) && <p className="mt-2 font-sans text-xs font-semibold">{outsideCanonNote(data.canonStatus)}</p>}
         {preview && <p className="mt-2 font-sans text-[0.7rem] opacity-80">Placeholder text · notes and highlights are kept in this browser until the library is connected.</p>}
 
         <div

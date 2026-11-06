@@ -5,12 +5,12 @@ import { CanonToggle } from "@/components/CanonToggle";
 import { LineageWall } from "@/components/LineageWall";
 import { getWorks } from "@/lib/catalogue";
 import { AUTHOR } from "@/lib/site";
-import { parseCanonView } from "@/lib/workStats";
+import { canonView } from "@/lib/canonServer";
 
 export const metadata: Metadata = { title: "Lineage" };
 
 export default async function LineagePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const view = parseCanonView((await searchParams).canon);
+  const view = await canonView((await searchParams).canon);
   const works = getWorks();
   const canonSlugs = new Set(works.filter((w) => w.canonStatus === "canon").map((w) => w.slug));
   // Canon only: keep people who appear in at least one canon work, and only their canon appearances.
