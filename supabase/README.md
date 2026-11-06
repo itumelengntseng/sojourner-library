@@ -13,6 +13,9 @@ Rules enforced in the schema:
 - No DELETE policy or grant exists on works, chapters or chapter texts — archive with `archived_at`.
 - Chapter text is readable only by the owner, or by a member holding an active loan.
 - Notes and highlights are private to the reader who made them.
+- Chapter text: the owner can always read it (proof copies, `0010`).
+- Pitch kits (`pitch_kits`) are owner-only; share links reveal one kit via `open_pitch_link()`.
+- The family wall and timeline (`atlas_documents`) are readable by card holders and written only by the owner. Neither table can be deleted from.
 
 ## First owner card (one time, Itu only)
 1. In the Supabase dashboard → Authentication → Providers, keep **Email** on (magic link) and turn **off** "Allow new users to sign up" only if you later want Supabase-side invites; our invite codes already gate reader cards.
