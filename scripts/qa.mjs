@@ -127,6 +127,18 @@ async function axeCheck(label) {
   }
   await page.setViewportSize({ width: 375, height: 900 });
 }
+// C35: the Writer's Room with a stale "last backed up" note (and its reminder) showing.
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/writers-room`);
+  await page.evaluate(() => localStorage.setItem("soj:last-backup", String(Date.now() - 40 * 86400000)));
+  await page.reload();
+  await page.getByText("a fresh copy would be wise").waitFor();
+  await axeCheck(`${width}px writer's room with a stale backup reminder`);
+  await page.evaluate(() => localStorage.removeItem("soj:last-backup"));
+}
+await page.setViewportSize({ width: 375, height: 900 });
 
 // QA5: the re-import preview with a title already on the shelves, the glance tiles, the
 // end-of-chapter card on the last chapter, and "Recently returned" on the card.

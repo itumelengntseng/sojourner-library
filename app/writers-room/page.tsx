@@ -1,3 +1,4 @@
+import { BackupEverything } from "@/components/BackupEverything";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BackupLinks } from "@/components/BackupLinks";
@@ -45,10 +46,7 @@ export default async function WritersRoom() {
         <p className="mt-2 font-sans text-[0.65rem] text-sandstone/70">Counts only. Readers&apos; notes, highlights and who read what stay private.</p>
       </section>
 
-      <p className="mt-4 font-sans text-sm">
-        <a href="/writers-room/backup" download className="inline-block rounded border border-lamplight/60 px-3 py-1.5 text-lamplight hover:bg-lamplight/10">Back up everything (.zip)</a>
-        <span className="ml-2 text-xs text-sandstone">Every manuscript as Markdown, set-aside chapters included, with the halls, pitch kits and the family wall &amp; timeline. Nothing is removed.</span>
-      </p>
+      <BackupEverything />
 
       <section aria-labelledby="import" className="mt-10 rounded-sm border border-timber-dark bg-stone-floor/60 p-5">
         <h2 id="import" className="text-xl text-paper">Shelve a manuscript</h2>

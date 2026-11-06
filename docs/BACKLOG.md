@@ -59,6 +59,6 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C33 Halls: sort shelves by "Recently shared" or "Title" (GET param, works without JavaScript; default stays series order).
 - [x] QA7 QA pass after C31–C33.
 - [x] C34 Front hall "Continue reading": the reader's most recently read open loan (from their own sessions) as a single lamplit card — title, chapter, minutes left in it at their pace, Resume. Nothing open → nothing shown.
-- [ ] C35 Writer's Room: "Last backed up" line beside the backup button (a per-browser note of the last download time — no new table), with a gentle reminder after 30 days.
+- [x] C35 Writer's Room: "Last backed up" line beside the backup button (a per-browser note of the last download time — no new table), with a gentle reminder after 30 days.
 - [ ] C36 Ledger: "Words read" total tile and per-month words on the month bars' spoken labels (no new data).
 - [ ] QA8 QA pass after C34–C36.
