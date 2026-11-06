@@ -43,7 +43,7 @@ _Last updated: 2026-11-06 (scheduled build run 2 — C1–C13 + QA2)._
 - Tests: 258 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks).
 
 ## Next task
-Backlog B1–B11, NEXT ITERATION a–e and FOLLOW-UPS C1–C5 are all complete. All backlog and follow-up items through C15 are complete. Next task: C16 — print-friendly pitch sheet (BACKLOG.md → FOLLOW-UPS).
+Backlog B1–B11, NEXT ITERATION a–e, QA2 and FOLLOW-UPS C1–C15 are complete. Next task: C16 — print-friendly pitch sheet (BACKLOG.md → FOLLOW-UPS).
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
