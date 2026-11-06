@@ -11,6 +11,7 @@ import { latestLoan } from "@/lib/loanDesk";
 import { loadDesk } from "@/lib/loanStore";
 import { outsideCanonNote } from "@/lib/canon";
 import { myPace } from "@/lib/sessionStore";
+import { myFinish } from "@/lib/ledgerStore";
 import { paceNote } from "@/lib/sessions";
 import { CANON_LABEL, formatWords, workStats } from "@/lib/workStats";
 
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function WorkPage({ params }: { params: Promise<{ slug: string }> }) {
   const work = await findWork((await params).slug);
   if (!work) notFound();
-  const [desk, pace] = await Promise.all([loadDesk(work.slug), myPace()]);
+  const [desk, pace, finished] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug)]);
   const stats = workStats(work, pace.wpm);
   const facts = librarianFacts({
     chapters: stats.chapters,
@@ -46,6 +47,11 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
           </p>
           <h1 className="mt-3 text-3xl text-lamplight sm:text-4xl">{work.title}</h1>
           <p className="mt-1 font-sans text-sm uppercase tracking-[0.2em] text-sandstone">by {work.author}</p>
+          {finished !== undefined && (
+            <p className="mt-3 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-2 py-0.5 font-mono text-xs uppercase tracking-wider text-lamplight">
+              You finished this · {new Date(finished).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" })}
+            </p>
+          )}
           {outsideCanonNote(work.canonStatus) && (
             <p className="mt-4 max-w-prose rounded-sm border border-ember/50 px-3 py-2 font-sans text-xs text-ember">{outsideCanonNote(work.canonStatus)}</p>
           )}

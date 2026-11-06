@@ -33,4 +33,5 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C11 Reader card page shows "On loan now" (title, due-date stamp, link to the reading room) so readers can resume from the front desk.
 - [x] C12 Reading-room "Contents" drawer: jump to any chapter, with words / minutes per chapter and a mark on the bookmarked one.
 - [x] C13 Ledger: per-book "finished" stamp when a reader reaches the end of the last chapter (from sessions), shown in the ledger and on the work page.
-- [ ] C14 Work page: "You finished this on …" stamp (reuse `finishedAt()`; reader's own sessions for that work only).
+- [x] C14 Work page: "You finished this on …" stamp (reuse `finishedAt()`; reader's own sessions for that work only).
+- [ ] C15 Reader preferences on the card page: display name and a fixed reading pace (`readers.display_name`, `wpm_override` — already writable by the reader under RLS), with "let the library learn my pace" to clear the override.
