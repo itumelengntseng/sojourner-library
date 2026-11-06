@@ -7,6 +7,7 @@ import { ShelfEmpty } from "@/components/ShelfEmpty";
 import { canonView } from "@/lib/canonServer";
 import { CANON_LABEL, filterByCanon, workStats } from "@/lib/workStats";
 import { cleanQuery, resultLine, searchShelves } from "@/lib/shelfSearch";
+import { parseSort, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
 
 export const metadata: Metadata = { title: "The halls" };
 
@@ -17,7 +18,9 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
   const catalogue = await loadCatalogue();
   const query = cleanQuery(params.q);
   const halls = hallsFor(catalogue.works, catalogue.halls);
-  const works = searchShelves(filterByCanon(catalogue.works, view), halls, query);
+  const sort = parseSort(params.sort);
+  const works = sortShelf(searchShelves(filterByCanon(catalogue.works, view), halls, query), sort);
+  const canonParam = typeof params.canon === "string" ? params.canon : undefined;
 
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16">
@@ -37,8 +40,18 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
             className="min-w-0 flex-1 rounded-sm border border-timber bg-stone-wall/70 px-3 py-2 text-paper placeholder:text-sandstone/70"
           />
           <button type="submit" className="rounded-sm border border-lamplight/60 px-3 py-2 text-lamplight hover:bg-lamplight/10">Search</button>
-          {query && <Link href="/halls" className="text-sandstone underline underline-offset-2 hover:text-lamplight">Clear</Link>}
+          {sort !== "shelf" && <input type="hidden" name="sort" value={sort} />}
+          {query && <Link href={sortHref(sort, "", canonParam)} className="text-sandstone underline underline-offset-2 hover:text-lamplight">Clear</Link>}
         </form>
+      )}
+      {catalogue.works.length > 1 && (
+        <nav aria-label="Order the shelves" className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 font-sans text-xs text-sandstone">
+          <span>Order:</span>
+          {SORTS.map((o) => (
+            <Link key={o.id} href={sortHref(o.id, query, canonParam)} aria-current={sort === o.id ? "true" : undefined}
+              className={sort === o.id ? "text-lamplight underline underline-offset-4" : "hover:text-lamplight"}>{o.label}</Link>
+          ))}
+        </nav>
       )}
       {query && <p role="status" className="mt-3 font-sans text-sm text-sandstone">{resultLine(works.length, query)}</p>}
       {halls.map((hall) => {
