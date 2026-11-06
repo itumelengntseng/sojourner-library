@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { ContinueReading } from "@/components/ContinueReading";
 import { continueReading, type ContinueChapter, type ContinueLoan } from "@/lib/continueReading";
 import type { WorkSession } from "@/lib/ledger";
+import { splitDueSoon, type OnLoan } from "@/lib/loanDesk";
 
 const T = Date.parse("2026-11-06T10:00:00Z");
 const chs = (n: number, words = 1000): ContinueChapter[] =>
@@ -75,5 +76,23 @@ describe("continue reading", () => {
     const desk = renderToStaticMarkup(<ContinueReading card={card} className="w-full" />);
     expect(desk).toContain("w-full");
     expect(desk).not.toContain("mx-auto");
+  });
+});
+
+describe("due soon on the continue card (C42)", () => {
+  const H = 3600_000;
+  const on = (slug: string, inMs: number): OnLoan => ({ workKey: slug, slug, title: `Placeholder ${slug}`, due: "Fri 6 Nov, 14:00", timeLeft: "4 h", dueSoon: false, resume: true, dueAt: T + inMs });
+  it("moves the continue book off the due-soon slip onto the card", () => {
+    const soon = [on("a", 2 * H), on("b", 3 * H)];
+    expect(splitDueSoon(soon, "a")).toEqual({ onCard: soon[0], onSlip: [soon[1]] });
+    expect(splitDueSoon(soon, "z")).toEqual({ onCard: undefined, onSlip: soon });
+    expect(splitDueSoon(soon, undefined)).toEqual({ onCard: undefined, onSlip: soon });
+  });
+  it("stamps the card with the due time and a way to renew", () => {
+    const card = continueReading([loan("a", 1250)], [sess("a", "2", 100, T)], chapters, 200);
+    const html = renderToStaticMarkup(<ContinueReading card={card} due={on("a", 4 * H)} />);
+    expect(html).toContain("Due back Fri 6 Nov, 14:00 · 4 h left");
+    expect(html).toContain('href="/card"');
+    expect(renderToStaticMarkup(<ContinueReading card={card} />)).not.toContain("Due back");
   });
 });

@@ -68,6 +68,10 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] QA9 QA pass after C37–C39.
 - [x] C40 Reading room end-of-book card: a "Return to shelf" button (same desk action as the work page, with a confirm line "Your bookmark is kept"), so a finished reader can hand the book back without leaving the room. Not in the proof copy.
 - [x] C41 Ledger "Finished" list: a short list of books the reader has finished (from the C13 stamps), newest first, each with its date — above Hours per book.
-- [ ] C42 Front hall "Continue reading": when the loan is due within 24 hours, show the due stamp on the card too (and leave the separate Due-soon slip for the other loans), so one book isn't announced twice.
-- [ ] QA10 QA pass after C40–C42.
+- [x] C42 Front hall "Continue reading": when the loan is due within 24 hours, show the due stamp on the card too (and leave the separate Due-soon slip for the other loans), so one book isn't announced twice.
+- [x] QA10 QA pass after C40–C42.
+- [ ] C43 Work page: "Your notes in this book" count (notes + highlights, own only) with a link to "Notes for this book" (C29), shown only when there are some.
+- [ ] C44 Reading room: remember the last-used loan period on the work page's borrow form (per browser), so "Borrow again" defaults to what the reader chose last time.
+- [ ] C45 Writer's Room glance: "Finished by readers" tile — how many loans' readers reached the end of each shared work (counts only, never who), via an owner-only SQL function; needs a migration → if the live database can't take it this run, write it and log it under NEEDS ITU like 0013.
+- [ ] QA11 QA pass after C43–C45.
 

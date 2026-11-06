@@ -209,6 +209,12 @@ export function loansBySlug(loans: OnLoan[]): Record<string, OnLoan> {
   return Object.fromEntries(loans.map((l) => [l.slug, l]));
 }
 
+/** C42: if the "Continue reading" book is due soon, it carries its own stamp and leaves the slip. */
+export function splitDueSoon(dueSoon: OnLoan[], continueSlug: string | undefined): { onCard: OnLoan | undefined; onSlip: OnLoan[] } {
+  const onCard = continueSlug ? dueSoon.find((l) => l.slug === continueSlug) : undefined;
+  return { onCard, onSlip: onCard ? dueSoon.filter((l) => l !== onCard) : dueSoon };
+}
+
 /** Loans due back within `windowMs` (default a day), soonest first — for the front-hall reminder. */
 export function dueBackSoon(loans: OnLoan[], now: number, windowMs = 24 * 3600_000): OnLoan[] {
   return loans.filter((l) => l.dueAt > now && l.dueAt - now <= windowMs).sort((a, b) => a.dueAt - b.dueAt);

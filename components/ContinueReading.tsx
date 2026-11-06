@@ -1,9 +1,10 @@
 import Link from "next/link";
 import type { ContinueCard } from "@/lib/continueReading";
+import type { OnLoan } from "@/lib/loanDesk";
 import { AUTHOR } from "@/lib/site";
 
 // One lamplit card by the front-hall door: the book you were last reading, and the way back in.
-export function ContinueReading({ card, className = "mx-auto mt-8" }: { card: ContinueCard | null; className?: string }) {
+export function ContinueReading({ card, className = "mx-auto mt-8", due }: { card: ContinueCard | null; className?: string; due?: OnLoan }) {
   if (!card) return null;
   return (
     <section aria-labelledby="continue-reading"
@@ -14,6 +15,11 @@ export function ContinueReading({ card, className = "mx-auto mt-8" }: { card: Co
       <p className="mt-2 text-paper/90">
         {/^chapter\b/i.test(card.chapterTitle) ? card.chapterTitle : `Chapter ${card.chapterPosition}: ${card.chapterTitle}`}
       </p>
+      {due && (
+        <p className="mt-2 font-mono text-[0.7rem] uppercase tracking-wider text-ember">
+          Due back {due.due}{due.timeLeft ? ` · ${due.timeLeft} left` : ""} · <Link href="/card" className="underline underline-offset-2">renew or return</Link>
+        </p>
+      )}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <p className="font-mono text-[0.7rem] uppercase tracking-wider text-sandstone">{card.left}</p>
         <Link href={card.href} className="rounded bg-lamplight px-4 py-1.5 font-sans text-sm font-semibold text-ink hover:bg-ember">

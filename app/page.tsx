@@ -7,7 +7,7 @@ import { loadCatalogue } from "@/lib/catalogueServer";
 import { AUTHOR, SITE_NAME } from "@/lib/site";
 import { ShelfEmpty } from "@/components/ShelfEmpty";
 import { freshOnShelves } from "@/lib/catalogueRows";
-import { DESK_TIME_ZONE, dueBackSoon } from "@/lib/loanDesk";
+import { DESK_TIME_ZONE, dueBackSoon, splitDueSoon } from "@/lib/loanDesk";
 import { myOpenLoans } from "@/lib/loanStore";
 import { DueSoonSlip } from "@/components/DueSoonSlip";
 import { ContinueReading } from "@/components/ContinueReading";
@@ -21,7 +21,7 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
   const now = Date.now();
   const fresh = freshOnShelves(works, now);
   const [open, cont] = await Promise.all([myOpenLoans(), myContinueReading()]);
-  const dueSoon = dueBackSoon(open, now);
+  const { onCard, onSlip } = splitDueSoon(dueBackSoon(open, now), cont?.slug);
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16 sm:pt-24">
       <header className="flex flex-col items-center text-center">
@@ -30,8 +30,8 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
         <p className="mt-3 text-paper/85">The writing of {AUTHOR}</p>
         <div className="threshold mt-8 w-48" aria-hidden="true" />
       </header>
-      <ContinueReading card={cont} />
-      <DueSoonSlip loans={dueSoon} />
+      <ContinueReading card={cont} due={onCard} />
+      <DueSoonSlip loans={onSlip} />
 
       <section aria-labelledby="on-the-wall" className="mt-12">
         <h2 id="on-the-wall" className="sr-only">On the wall</h2>
