@@ -6,14 +6,18 @@ import { loadCatalogue } from "@/lib/catalogueServer";
 import { ShelfEmpty } from "@/components/ShelfEmpty";
 import { canonView } from "@/lib/canonServer";
 import { CANON_LABEL, filterByCanon, workStats } from "@/lib/workStats";
+import { cleanQuery, resultLine, searchShelves } from "@/lib/shelfSearch";
 
 export const metadata: Metadata = { title: "The halls" };
 
 // Timber shelves; each book stands as a spine you can pull out.
 export default async function Halls({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const view = await canonView((await searchParams).canon);
+  const params = await searchParams;
+  const view = await canonView(params.canon);
   const catalogue = await loadCatalogue();
-  const works = filterByCanon(catalogue.works, view);
+  const query = cleanQuery(params.q);
+  const halls = hallsFor(catalogue.works, catalogue.halls);
+  const works = searchShelves(filterByCanon(catalogue.works, view), halls, query);
 
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16">
@@ -24,8 +28,22 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
       </div>
 
       {catalogue.works.length === 0 && <ShelfEmpty catalogue={catalogue} />}
-      {hallsFor(catalogue.works, catalogue.halls).map((hall) => {
+      {catalogue.works.length > 0 && (
+        <form role="search" action="/halls" method="get" className="mt-6 flex max-w-md items-center gap-2 font-sans text-sm">
+          <label htmlFor="shelf-q" className="sr-only">Search the shelves</label>
+          <input
+            id="shelf-q" name="q" type="search" defaultValue={query} maxLength={80} autoComplete="off"
+            placeholder="Search titles, series, halls…"
+            className="min-w-0 flex-1 rounded-sm border border-timber bg-stone-wall/70 px-3 py-2 text-paper placeholder:text-sandstone/70"
+          />
+          <button type="submit" className="rounded-sm border border-lamplight/60 px-3 py-2 text-lamplight hover:bg-lamplight/10">Search</button>
+          {query && <Link href="/halls" className="text-sandstone underline underline-offset-2 hover:text-lamplight">Clear</Link>}
+        </form>
+      )}
+      {query && <p role="status" className="mt-3 font-sans text-sm text-sandstone">{resultLine(works.length, query)}</p>}
+      {halls.map((hall) => {
         const shelf = works.filter((w) => w.hall === hall.id);
+        if (query && shelf.length === 0) return null;
         return (
           <section key={hall.id} aria-labelledby={`hall-${hall.id}`} className="mt-10">
             <h2 id={`hall-${hall.id}`} className="text-xl text-paper">{hall.name}</h2>

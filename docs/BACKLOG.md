@@ -37,7 +37,7 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C15 Reader preferences on the card page: display name and a fixed reading pace (`readers.display_name`, `wpm_override` — already writable by the reader under RLS), with "let the library learn my pace" to clear the override.
 - [x] C16 Print-friendly pitch sheet: a print stylesheet for `/pitch-room/<slug>` and `/p/<token>` (paper colours, no nav, page breaks), so "Print → Save as PDF" gives a clean one-pager.
 - [x] QA3 Full QA pass after C6–C16: axe/mobile sweep (incl. the pitch sheet in print), RLS audit of descriptions/halls/archive/reader privacy, performance, preview e2e.
-- [ ] C17 Search the shelves: a search box on `/halls` filtering by title, series, hall and description (client-side over what the reader can already see; respects the canon switch; no new data).
+- [x] C17 Search the shelves: a search box on `/halls` filtering by title, series, hall and description (client-side over what the reader can already see; respects the canon switch; no new data).
 - [ ] C18 Reading-room keyboard help: "?" (and a toolbar link) opens a small card listing the shortcuts (page turn, contents, bookmark, size), closable with Esc.
 - [ ] C19 Ledger "Reading by month": minutes read per month for the last 12 months as timber bars (SA time), from the reader's own sessions; preview mode from the cookie summaries.
 - [ ] C20 Pitch links "last opened": stamp the time a share link was last opened and show it in the Pitch Room list (owner-only; no visitor data beyond the time).
