@@ -31,7 +31,7 @@ function writeLocal(key: string, value: string) {
 
 const btn = "rounded px-2.5 py-1.5 font-sans text-xs uppercase tracking-wider";
 
-export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; data: ReadingData; wpm: number; minutesPerDay: number }) {
+export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [] }: { slug: string; data: ReadingData; wpm: number; minutesPerDay: number; readPositions?: number[] }) {
   const { chapter, chapters } = data;
   const paras = useMemo(() => splitParagraphs(chapter.body), [chapter.body]);
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
@@ -229,7 +229,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
                     <li key={c.position}>
                       <Link href={`${base}?ch=${c.position}`} aria-current={here ? "page" : undefined}
                         className={`flex items-baseline justify-between gap-3 rounded px-2 py-1.5 ${here ? "bg-timber/60 text-lamplight" : "text-paper hover:text-lamplight"}`}>
-                        <span>{c.title}{marked && <span className="ml-1.5 text-lamplight" title="Your bookmark">· bookmark</span>}</span>
+                        <span>{c.title}{readPositions.includes(c.position) && <span className="ml-1.5 text-sandstone" title="Read through"><span aria-hidden="true">✓</span><span className="sr-only">, read</span></span>}{marked && <span className="ml-1.5 text-lamplight" title="Your bookmark">· bookmark</span>}</span>
                         <span className="shrink-0 text-sandstone">{formatDuration(minutesFor(c.words, wpm))}</span>
                       </Link>
                     </li>

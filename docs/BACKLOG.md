@@ -75,6 +75,9 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C45 Writer's Room glance: "Finished by readers" tile — how many loans' readers reached the end of each shared work (counts only, never who), via an owner-only SQL function; needs a migration → if the live database can't take it this run, write it and log it under NEEDS ITU like 0013.
 - [x] QA11 QA pass after C43–C45.
 - [x] C46 Ledger: "Borrowing history" gets a "Show all / Last 10" toggle (GET param, no JavaScript needed) once it's longer than 10 rows.
-- [ ] C47 Reading room: the Contents drawer shows the reader's own "✓ read" ticks (C28 data) beside chapters, matching the work page.
-- [ ] QA12 QA pass after C46–C47.
+- [x] C47 Reading room: the Contents drawer shows the reader's own "✓ read" ticks (C28 data) beside chapters, matching the work page.
+- [x] QA12 QA pass after C46–C47.
+- [ ] C48 Preview cookie compaction: store preview loans/sessions in a shorter shape (short keys, no empty bookmark) so preview keeps ~20 loans again under the 4 KB budget; must still read the current shape.
+- [ ] C49 Work page: when the reader has the book out, show "Continue at <chapter> · N min left" (the C34 card's logic for this one work) beside the loan desk's Open/Resume.
+- [ ] QA13 QA pass after C48–C49.
 
