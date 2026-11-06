@@ -41,6 +41,9 @@ export default function FrontHall() {
         <Link href="/ledger" className="rounded border border-sandstone/50 px-5 py-2 font-sans text-sm text-paper hover:border-lamplight">
           Your ledger
         </Link>
+        <Link href="/lineage" className="rounded border border-sandstone/50 px-5 py-2 font-sans text-sm text-paper hover:border-lamplight">
+          The family wall
+        </Link>
       </div>
     </main>
   );

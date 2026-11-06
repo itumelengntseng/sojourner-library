@@ -19,10 +19,11 @@ _Last updated: 2026-11-06 (scheduled build run)._
   - Mobile 375px: no route scrolls sideways (checked by the sweep).
   - Performance (local prod build): every page loads < 200 ms; ~135–143 KB gzipped JS per page (framework baseline), HTML ≤ 9 KB.
   - RLS security: new standing audit `tests/security.test.ts` — RLS on every public table, anon has no grants, only notes/highlights deletable by readers, all security-definer functions pin search_path, bootstrap functions not callable from the API, signed-in strangers see nothing, authorship check holds. Found and fixed: readers could rewrite their own card number / issue date → `0005_reader_columns.sql` limits updates to name, pace and (owner-guarded) role.
-- Tests: 153 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear.
+- NEXT ITERATION a — Lineage Explorer (`app/lineage`, `components/LineageWall.tsx`, `lib/lineage.ts`, data in `content/lineage.ts`): "The family wall" — stone plaques in generation rows; select a person to see parents, partners, siblings, children and the works they appear in; "How are they connected?" traces the shortest family tie between any two people; respects the canon toggle. Data is 7 clearly-labelled placeholder people only. `npm test` validates the lineage file (unknown ids, duplicates, >2 parents, self-reference, ancestry loops, unknown works) so Itu's real file is checked on entry. In the axe sweep; all clear.
+- Tests: 161 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear.
 
 ## Next task
-NEXT ITERATION a — Lineage Explorer (structure only; placeholder entries until Itu supplies the real lineage).
+NEXT ITERATION b — Canon Switcher.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -32,6 +33,7 @@ NEXT ITERATION a — Lineage Explorer (structure only; placeholder entries until
 
 ## NEEDS ITU
 1. **Supabase project** (not created — may involve billing). Steps: supabase.com → New project (name `sojourner-library`, region nearest Johannesburg/your readers) → Project Settings → API: copy the URL and anon key into Vercel env vars `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (never into the repo). Then `supabase link` + `supabase db push` (see `supabase/README.md`), or ask the build team to apply migrations via the Supabase connector once it exists.
+3. **Real lineage (when ready, no rush)**: replace the placeholder people in `content/lineage.ts` (instructions at the top of the file), or send the family tree in any form and the build team will enter it. Nothing about the real families has been invented.
 2. **Vercel project** for preview deploys: vercel.com → Add New → Project → import `itumelengntseng/sojourner-library`. Production domain/DNS stays with Itu.
 
 ## DECISIONS (reversible)
