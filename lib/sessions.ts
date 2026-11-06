@@ -80,13 +80,33 @@ export interface Pace {
   wpm: number;
   source: "default" | "learned" | "set";
   sessions: number;
+  minutesPerDay: number; // usual reading per reading-day, for the librarian's deadline answers
+}
+
+/** Decision: assume half an hour a day until the reader's habits say otherwise. */
+export const DEFAULT_MINUTES_PER_DAY = 30;
+
+/** Average active minutes on the days the reader read, over the last 14 days of reading. */
+export function usualMinutesPerDay(stats: SessionStats[]): number {
+  if (stats.length === 0) return DEFAULT_MINUTES_PER_DAY;
+  const latest = Math.max(...stats.map((s) => s.endedAt));
+  const byDay = new Map<number, number>();
+  for (const s of stats) {
+    if (latest - s.endedAt > 14 * 86_400_000) continue;
+    const day = Math.floor(s.endedAt / 86_400_000);
+    byDay.set(day, (byDay.get(day) ?? 0) + s.activeMs);
+  }
+  const total = [...byDay.values()].reduce((a, b) => a + b, 0) / 60_000;
+  const avg = byDay.size ? Math.round(total / byDay.size) : 0;
+  return avg >= 5 ? avg : DEFAULT_MINUTES_PER_DAY;
 }
 
 export function paceFrom(stats: SessionStats[], override: number | null = null): Pace {
-  if (override && override >= 50 && override <= 1500) return { wpm: override, source: "set", sessions: stats.length };
+  const minutesPerDay = usualMinutesPerDay(stats);
+  if (override && override >= 50 && override <= 1500) return { wpm: override, source: "set", sessions: stats.length, minutesPerDay };
   const wpm = personalWpmFromStats(stats);
   const learned = stats.some((s) => s.wordsRead >= 150) && wpm !== DEFAULT_WPM;
-  return { wpm, source: learned ? "learned" : "default", sessions: stats.length };
+  return { wpm, source: learned ? "learned" : "default", sessions: stats.length, minutesPerDay };
 }
 
 export function paceNote(p: Pace): string {

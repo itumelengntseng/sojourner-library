@@ -11,6 +11,9 @@ import {
 import type { ReadingData } from "@/lib/readingRoom";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
 import { useSessionTracker } from "./useSessionTracker";
+import { AskLibrarian } from "./AskLibrarian";
+import { librarianFacts } from "@/lib/librarian";
+import { wordsBeforeChapter } from "@/lib/reader";
 
 const SETTINGS_KEY = "soj:reader-settings";
 const annKey = (slug: string, pos: number) => `soj:ann:${slug}:${pos}`;
@@ -24,7 +27,7 @@ function writeLocal(key: string, value: string) {
 
 const btn = "rounded px-2.5 py-1.5 font-sans text-xs uppercase tracking-wider";
 
-export function ReaderView({ slug, data, wpm }: { slug: string; data: ReadingData; wpm: number }) {
+export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; data: ReadingData; wpm: number; minutesPerDay: number }) {
   const { chapter, chapters } = data;
   const paras = useMemo(() => splitParagraphs(chapter.body), [chapter.body]);
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
@@ -268,6 +271,13 @@ export function ReaderView({ slug, data, wpm }: { slug: string; data: ReadingDat
             <button type="button" onClick={() => turnPage(1)} className="underline-offset-4 hover:underline">Next page →</button>
           </div>
         )}
+
+        <div className="mt-10 text-paper">
+          <AskLibrarian
+            title={data.title}
+            facts={librarianFacts({ chapters, bookmarkOffset: wordsBeforeChapter(chapters, chapter.position) + behind, wpm, usualMinutesPerDay: minutesPerDay })}
+          />
+        </div>
 
         <nav aria-label="Chapters" className="mt-10 flex justify-between gap-4 border-t border-current/20 pt-4 font-sans text-sm">
           {prev ? <Link href={`/works/${slug}/read?ch=${prev.position}`}>← {prev.title}</Link> : <span />}

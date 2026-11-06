@@ -37,10 +37,10 @@ export default async function ReadingRoom({ params, searchParams }: Props) {
   }
   // Opening without a chapter number resumes at the bookmark.
   const data = loaded.data;
-  const { wpm } = await myPace();
+  const { wpm, minutesPerDay } = await myPace();
   if (!(asked > 0) && data.bookmark && data.bookmark.position !== data.chapter.position) {
     const resumed = await loadReading(slug, data.bookmark.position);
-    if (resumed.ok) return <ReaderView key={resumed.data.chapter.position} slug={slug} data={resumed.data} wpm={wpm} />;
+    if (resumed.ok) return <ReaderView key={resumed.data.chapter.position} slug={slug} data={resumed.data} wpm={wpm} minutesPerDay={minutesPerDay} />;
   }
-  return <ReaderView key={data.chapter.position} slug={slug} data={data} wpm={wpm} />;
+  return <ReaderView key={data.chapter.position} slug={slug} data={data} wpm={wpm} minutesPerDay={minutesPerDay} />;
 }

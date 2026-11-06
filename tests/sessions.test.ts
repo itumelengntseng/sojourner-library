@@ -40,7 +40,7 @@ describe("pace", () => {
     expect(personalWpm(sessions)).toBeGreaterThan(200);
   });
   it("learns from sessions, defaults without them, and honours a chosen pace", () => {
-    expect(paceFrom([])).toEqual({ wpm: DEFAULT_WPM, source: "default", sessions: 0 });
+    expect(paceFrom([])).toEqual({ wpm: DEFAULT_WPM, source: "default", sessions: 0, minutesPerDay: 30 });
     const learned = paceFrom([{ wordsRead: 3000, activeMs: 10 * 60_000, endedAt: NOW }]);
     expect(learned).toMatchObject({ wpm: 300, source: "learned" });
     expect(paceNote(learned)).toMatch(/300 wpm, learned/);

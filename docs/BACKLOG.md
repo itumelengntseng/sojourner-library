@@ -11,7 +11,7 @@
 - [x] B6 Checkout flow UI: due-date slip, renew, return-to-shelf on expiry
 - [x] B7 Reader view: paged/scroll, dark/sepia/light, bookmarks, margin notes, highlights
 - [x] B8 Session tracking feeding personal speed
-- [ ] B9 "Ask the librarian" box on every book
+- [x] B9 "Ask the librarian" box on every book
 - [ ] B10 Reading ledger: history, hours per book, streaks, notes export
 - [ ] B11 QA pass: accessibility, 375px mobile, performance, RLS security check
 

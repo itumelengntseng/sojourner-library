@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AskLibrarian } from "@/components/AskLibrarian";
 import { LoanDesk } from "@/components/LoanDesk";
 import { SceneCover } from "@/components/SceneCover";
 import { getWork } from "@/lib/catalogue";
 import { formatDuration } from "@/lib/engine/readingTime";
+import { librarianFacts } from "@/lib/librarian";
+import { latestLoan } from "@/lib/loanDesk";
 import { loadDesk } from "@/lib/loanStore";
 import { myPace } from "@/lib/sessionStore";
 import { paceNote } from "@/lib/sessions";
@@ -20,6 +23,12 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
   if (!work) notFound();
   const [desk, pace] = await Promise.all([loadDesk(work.slug), myPace()]);
   const stats = workStats(work, pace.wpm);
+  const facts = librarianFacts({
+    chapters: stats.chapters,
+    bookmarkOffset: latestLoan(desk.loans, desk.workId, desk.readerId)?.bookmark.wordOffset ?? 0,
+    wpm: pace.wpm,
+    usualMinutesPerDay: pace.minutesPerDay,
+  });
   const now = Date.now();
 
   return (
@@ -60,6 +69,8 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
         <div className="threshold my-3 opacity-60" aria-hidden="true" />
         <LoanDesk desk={desk} slug={work.slug} title={work.title} now={now} />
       </section>
+
+      <div className="mt-8"><AskLibrarian facts={facts} title={work.title} /></div>
 
       <section aria-labelledby="contents" className="mt-12">
         <h2 id="contents" className="text-xl text-paper">Contents</h2>
