@@ -1,7 +1,7 @@
 // Standing RLS / privilege audit (B11). Runs every migration, then inspects the catalogue
 // so a future migration that forgets RLS or over-grants fails the build.
 import { beforeAll, describe, expect, it } from "vitest";
-import { addUser, attempt, freshDb, type Db } from "./helpers/db";
+import { addUser, asUser, attempt, freshDb, type Db } from "./helpers/db";
 
 let db: Db;
 const rows = async <T>(sql: string) => (await db.query<T>(sql)).rows;
@@ -102,5 +102,57 @@ describe("reader cards", () => {
     expect(await attempt(db, R, `update readers set card_number = 'AAAAAAAAAA' where id = $1`, [R])).toMatch(/permission denied/);
     expect(await attempt(db, R, `update readers set created_at = now() - interval '9 years' where id = $1`, [R])).toMatch(/permission denied/);
     expect(await attempt(db, R, `update readers set role = 'owner' where id = $1`, [R])).toMatch(/only the owner/);
+  });
+});
+
+describe("QA3 audit (C6–C16)", () => {
+  const OWNER = "00000000-0000-0000-0000-0000000000f1";
+  const A = "00000000-0000-0000-0000-0000000000f2";
+  const B = "00000000-0000-0000-0000-0000000000f3";
+  let work: string;
+  beforeAll(async () => {
+    await addUser(db, OWNER, "owner");
+    await addUser(db, A, "guest");
+    await addUser(db, B, "guest");
+    work = (await rows<{ id: string }>(`insert into works (slug, title, visibility, description) values ('placeholder-qa3', 'Q', 'members', 'Placeholder description') returning id`))[0].id;
+  });
+  const asA = <T>(sql: string, params: unknown[] = []) => asUser(db, A, async (tx) => (await tx.query<T>(sql, params)).rows);
+
+  it("guests can't rewrite a work's description, hall, sharing or archive state", async () => {
+    await asA(`update works set description = 'Hijacked', hall = 'elsewhere', visibility = 'owner', archived_at = now() where id = $1`, [work]);
+    const [w] = await rows<{ description: string; hall: string; visibility: string; archived_at: string | null }>(`select description, hall, visibility, archived_at from works where id = '${work}'`);
+    expect(w).toEqual({ description: "Placeholder description", hall: "main", visibility: "members", archived_at: null });
+    expect(await attempt(db, A, `insert into halls (id, name) values ('placeholder-hall-g', 'G')`)).toMatch(/row-level security/);
+  });
+
+  it("set-aside and owner-only works are out of a guest's sight", async () => {
+    expect((await asA(`select id from works where id = $1`, [work])).length).toBe(1);
+    await db.query(`update works set archived_at = now() where id = $1`, [work]);
+    expect((await asA(`select id from works where id = $1`, [work])).length).toBe(0);
+    await db.query(`update works set archived_at = null, visibility = 'owner' where id = $1`, [work]);
+    expect((await asA(`select id from works where id = $1`, [work])).length).toBe(0);
+    await db.query(`update works set visibility = 'members' where id = $1`, [work]);
+  });
+
+  it("one reader never sees another reader's loans, sessions, notes or highlights", async () => {
+    const ch = (await rows<{ id: string }>(`insert into chapters (work_id, position, title) values ('${work}', 1, 'Placeholder') returning id`))[0].id;
+    await db.query(`insert into loans (reader_id, work_id, period, due_at) values ($1, $2, 'hour', now() + interval '1 hour')`, [B, work]);
+    await db.query(`insert into sessions (reader_id, work_id, chapter_id, words_read) values ($1, $2, $3, 10)`, [B, work, ch]);
+    await db.query(`insert into notes (reader_id, work_id, chapter_id, body) values ($1, $2, $3, 'Private')`, [B, work, ch]);
+    await db.query(`insert into highlights (reader_id, work_id, chapter_id, start_offset, end_offset) values ($1, $2, $3, 0, 5)`, [B, work, ch]);
+    for (const t of ["loans", "sessions", "notes", "highlights"]) {
+      expect((await rows(`select 1 from ${t} where reader_id = '${B}'`)).length, `${t} seeded`).toBe(1);
+    }
+    for (const t of ["loans", "sessions", "notes", "highlights"]) {
+      const theirs = await asUser(db, A, async (tx) => (await tx.query(`select 1 from ${t} where reader_id = $1`, [B])).rows.length);
+      expect(theirs, t).toBe(0);
+    }
+    expect((await asA(`select id from readers where id = $1`, [B])).length).toBe(0);
+  });
+
+  it("caps a reader's name length in the database, not only in the form", async () => {
+    expect(await attempt(db, A, `update readers set display_name = $2 where id = $1`, [A, "x".repeat(80)])).toBeNull();
+    expect(await attempt(db, A, `update readers set display_name = $2 where id = $1`, [A, "x".repeat(81)])).toMatch(/readers_display_name_length/);
+    expect(await attempt(db, A, `update readers set wpm_override = 5000 where id = $1`, [A])).toMatch(/check/);
   });
 });

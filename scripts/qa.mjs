@@ -73,6 +73,20 @@ for (const settings of [{ theme: "sepia" }, { theme: "light" }, { theme: "dark",
   for (const p of problems) console.log(`    ${p}`);
 }
 
+// The pitch sheet on paper (C16): one A4 page, no nav, footer or print button.
+{
+  await page.goto(`${BASE}/pitch-room/placeholder-work-one`);
+  await page.emulateMedia({ media: "print" });
+  const shown = await page.evaluate(() => [...document.querySelectorAll("nav, footer, button")].filter((el) => getComputedStyle(el).display !== "none").map((el) => el.tagName.toLowerCase()));
+  const pdf = await page.pdf({ format: "A4", printBackground: true });
+  const pages = (pdf.toString("latin1").match(/\/Type\s*\/Page[^s]/g) ?? []).length;
+  await page.emulateMedia({ media: "screen" });
+  const problems = [...shown.map((t) => `${t} still visible on paper`), ...(pages !== 1 ? [`placeholder sheet prints on ${pages} pages, expected 1`] : [])];
+  failures += problems.length;
+  console.log(`${problems.length ? "✗" : "✓"} pitch sheet in print`);
+  for (const p of problems) console.log(`    ${p}`);
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);
