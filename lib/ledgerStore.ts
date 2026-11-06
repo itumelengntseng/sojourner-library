@@ -187,3 +187,18 @@ export async function myChaptersRead(slug: string): Promise<number[]> {
   const read = new Set(chaptersRead(sessions, list.map((c) => ({ key: c.id, words: c.word_count }))));
   return list.filter((c) => read.has(c.id)).map((c) => c.position);
 }
+
+/** C43: how many margin notes and highlights the reader has in this work (own rows only; null in preview — the browser counts). */
+export async function myAnnotationCount(slug: string): Promise<{ notes: number; highlights: number } | null> {
+  const supabase = await supabaseServer();
+  if (!supabase) return null;
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return { notes: 0, highlights: 0 };
+  const { data: work } = await supabase.from("works").select("id").eq("slug", slug).maybeSingle();
+  if (!work) return { notes: 0, highlights: 0 };
+  const [{ count: notes }, { count: highlights }] = await Promise.all([
+    supabase.from("notes").select("id", { count: "exact", head: true }).eq("reader_id", auth.user.id).eq("work_id", work.id),
+    supabase.from("highlights").select("id", { count: "exact", head: true }).eq("reader_id", auth.user.id).eq("work_id", work.id),
+  ]);
+  return { notes: notes ?? 0, highlights: highlights ?? 0 };
+}

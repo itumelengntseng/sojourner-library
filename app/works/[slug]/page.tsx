@@ -12,7 +12,8 @@ import { latestLoan } from "@/lib/loanDesk";
 import { loadDesk } from "@/lib/loanStore";
 import { outsideCanonNote } from "@/lib/canon";
 import { myPace } from "@/lib/sessionStore";
-import { myChaptersRead, myFinish } from "@/lib/ledgerStore";
+import { myAnnotationCount, myChaptersRead, myFinish } from "@/lib/ledgerStore";
+import { YourNotes } from "@/components/YourNotes";
 import { ChapterMarks } from "@/components/ChapterMarks";
 import { locateBookmark } from "@/lib/reader";
 import { paceNote } from "@/lib/sessions";
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function WorkPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const work = await findWork((await params).slug);
   if (!work) notFound();
-  const [desk, pace, finished, readPositions] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug)]);
+  const [desk, pace, finished, readPositions, annotations] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug), myAnnotationCount(work.slug)]);
   const stats = workStats(work, pace.wpm);
   const facts = librarianFacts({
     chapters: stats.chapters,
@@ -74,6 +75,7 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
               <dd className="font-sans text-[0.65rem] text-sandstone/80">{paceNote(pace)}</dd>
             </div>
           </dl>
+          <YourNotes slug={work.slug} title={work.title} positions={work.chapters.map((c) => c.position)} counts={annotations} />
           {work.isPlaceholder && (
             <p className="mt-4 font-sans text-xs text-sandstone/80">Placeholder text — the manuscript has not arrived yet.</p>
           )}
