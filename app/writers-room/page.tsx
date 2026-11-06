@@ -51,6 +51,8 @@ export default async function WritersRoom() {
         </ul>
       </section>
 
+      <p className="mt-10 font-sans text-sm"><Link href="/pitch-room" className="text-lamplight underline underline-offset-2">The Pitch Room →</Link> <span className="text-sandstone">one-sheet pitches and private links for agents and producers.</span></p>
+
       <section aria-labelledby="invites" className="mt-10 rounded-sm border border-timber-dark bg-ink/40 p-5">
         <h2 id="invites" className="text-xl text-paper">Reader cards</h2>
         {live ? (

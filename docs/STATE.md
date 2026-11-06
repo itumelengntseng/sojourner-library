@@ -23,10 +23,11 @@ _Last updated: 2026-11-06 (scheduled build run)._
 - NEXT ITERATION b — Canon Switcher (`lib/canon.ts`, `lib/canonServer.ts`, `proxy.ts`): one "Canon only / Include drafts" choice that follows the reader through the front hall, halls and family wall — following a `?canon=` link stores it in a cookie for a year. Drafts and apocrypha carry a plain-language note on the work page and in the reading room. Smoke-tested: switch on halls → front hall and lineage follow; switch back works.
 - NEXT ITERATION c — Harlem Timeline Map (`app/timeline`, `components/HarlemMap.tsx`, `lib/timeline.ts`, data in `content/timeline.ts`): a lamplit schematic street plan of Harlem (110th–155th, Morningside Ave → First Ave; real geography, drawn in SVG, no external map service), year-range sliders, an event list, place chips (incl. places "elsewhere", off the map), and a detail card linking to the works. Follows the canon switch. Data is placeholder only; `npm test` validates the file (dates, off-map streets, unknown places/works, duplicates). In the axe sweep; all clear.
 - NEXT ITERATION d — Writer's Room (`app/writers-room`, `components/WritersRoomForms.tsx`, `lib/manuscript.ts`, `lib/writersRoom.ts`, `supabase/migrations/0006_writers_room.sql`): owner-only. Shelve a manuscript from a Markdown file or paste — live preview splits it into chapters with word counts and reading time, warns about headless text/empty chapters; the server re-parses and calls `import_manuscript()` (owner-only RPC; authorship enforced; re-import updates; chapters are never deleted — extras are archived and hidden from readers). Per-work "Only me / Card holders" and canon/draft/apocrypha settings. Issue invites (code shown once) and revoke unused ones. Readership counts per work via `readership()` (counts only — never notes/highlights). New imports default to Draft and Only me. Linked from the footer. In preview mode the import preview works but saving is disabled.
-- Tests: 183 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear.
+- NEXT ITERATION e — Pitch Room (`app/pitch-room`, `app/p/[token]`, `components/PitchSheet.tsx`, `lib/pitch.ts`, `lib/pitchStore.ts`, kits in `content/pitches.ts`, `supabase/migrations/0007_pitch_links.sql`): owner-only room listing a pitch kit per work (logline, synopsis, themes, comparables, audience, formats, sample excerpt chosen by the author, author's note, contact) with readiness status and a long-logline warning; a paper "sheet" preview; Markdown one-pager download; private share links for agents/producers — token shown once, stored hashed, 1–60 days, revocable, view-counted; `/p/<token>` shows only the sheet (no library data), callable without a card via `open_pitch_link()`. All kits are placeholders; contact empty. Linked from the Writer's Room.
+- Tests: 193 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (now 33 page checks).
 
 ## Next task
-NEXT ITERATION e — Pitch Room.
+C1 — Catalogue from Supabase (see BACKLOG.md → FOLLOW-UPS). Backlog B1–B11 and NEXT ITERATION a–e are complete.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -35,9 +36,14 @@ NEXT ITERATION e — Pitch Room.
 - Minor: the final session beacon can arrive just after you navigate straight to the ledger, so the newest few seconds of reading may appear only on the next load.
 
 ## NEEDS ITU
-1. **Supabase project** (not created — may involve billing). Steps: supabase.com → New project (name `sojourner-library`, region nearest Johannesburg/your readers) → Project Settings → API: copy the URL and anon key into Vercel env vars `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (never into the repo). Then `supabase link` + `supabase db push` (see `supabase/README.md`), or ask the build team to apply migrations via the Supabase connector once it exists.
-3. **Real lineage and timeline (when ready, no rush)**: replace the placeholders in `content/lineage.ts` and `content/timeline.ts` (instructions at the top of each file), or send the family tree / places and dates in any form and the build team will enter them. Nothing about the real families, places or events has been invented.
-2. **Vercel project** for preview deploys: vercel.com → Add New → Project → import `itumelengntseng/sojourner-library`. Production domain/DNS stays with Itu.
+1. **Supabase project** (not created — may involve billing). Steps: supabase.com → New project (name `sojourner-library`, region nearest Johannesburg/your readers) → Project Settings → API: copy the URL and anon key into Vercel env vars `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (never into the repo). Then `supabase link` + `supabase db push` to apply migrations 0001–0007 (see `supabase/README.md`). Then in the SQL editor run `select public.mint_owner_invite();`, sign in at `/card` with your email and redeem that code — that card is the Keeper's card that opens the Writer's Room and Pitch Room.
+2. **Vercel project** for preview deploys: vercel.com → Add New → Project → import `itumelengntseng/sojourner-library`; set `NEXT_PUBLIC_SITE_URL` to the preview URL (used in magic links and pitch links). Production domain/DNS stays with Itu.
+3. **Your words (when ready, no rush)** — nothing has been invented; all of these are placeholders:
+   - manuscripts → Writer's Room import (once Supabase is connected) or send the Markdown;
+   - the real lineage → `content/lineage.ts` (instructions at the top);
+   - Harlem places and dates → `content/timeline.ts`;
+   - pitch kits (logline, synopsis, comparables, chosen excerpt, contact) → `content/pitches.ts`;
+   - names for the halls (`lib/catalogue.ts` → HALLS).
 
 ## DECISIONS (reversible)
 - Default speed 230 wpm; personal speed half-life 14 days.
@@ -58,4 +64,6 @@ NEXT ITERATION e — Pitch Room.
 - The ledger shows only your own reading; an owner-wide ledger across readers is not built (would need Itu's call on privacy).
 - Canon status is per work (canon / draft / apocrypha); per-chapter canon is not modelled.
 - The front hall is now rendered per request (it reads the canon cookie).
+- Writer's Room imports default to Draft + Only me.
+- Pitch share links last 14 days by default (max 60); the sample excerpt is chosen by the author, never pulled from a manuscript automatically.
 - System serif font stack (no web-font download) to keep builds offline-safe.
