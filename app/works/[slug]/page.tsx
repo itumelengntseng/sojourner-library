@@ -1,3 +1,4 @@
+import { openLoan } from "@/lib/loanDesk";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: work ? `${work.title} — ${work.author}` : "Not on the shelves" };
 }
 
-export default async function WorkPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function WorkPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const work = await findWork((await params).slug);
   if (!work) notFound();
   const [desk, pace, finished, readPositions] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug)]);
@@ -82,6 +83,9 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
       <section aria-labelledby="desk" className="mt-12 rounded-sm border border-timber-dark bg-stone-floor/60 p-5">
         <h2 id="desk" className="text-xl text-paper">The loan desk</h2>
         <div className="threshold my-3 opacity-60" aria-hidden="true" />
+        {(await searchParams).returned === "1" && !openLoan(desk.loans, desk.workId, desk.readerId, now) && (
+          <p role="status" className="mb-4 font-sans text-sm text-lamplight">Returned to the shelf. Your bookmark is kept — borrow it again any time.</p>
+        )}
         <LoanDesk desk={desk} slug={work.slug} title={work.title} now={now} />
       </section>
 

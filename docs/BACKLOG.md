@@ -66,7 +66,7 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C38 Halls: a small "on loan to you · due <stamp>" mark on shelf entries the reader has out (own loans only; preview from the cookie desk).
 - [x] C39 Writer's Room shelf list: "changed <date>" beside each work (from `updated_at`, SA time; library mode), so Itu can see what moved last.
 - [x] QA9 QA pass after C37–C39.
-- [ ] C40 Reading room end-of-book card: a "Return to shelf" button (same desk action as the work page, with a confirm line "Your bookmark is kept"), so a finished reader can hand the book back without leaving the room. Not in the proof copy.
+- [x] C40 Reading room end-of-book card: a "Return to shelf" button (same desk action as the work page, with a confirm line "Your bookmark is kept"), so a finished reader can hand the book back without leaving the room. Not in the proof copy.
 - [ ] C41 Ledger "Finished" list: a short list of books the reader has finished (from the C13 stamps), newest first, each with its date — above Hours per book.
 - [ ] C42 Front hall "Continue reading": when the loan is due within 24 hours, show the due stamp on the card too (and leave the separate Due-soon slip for the other loans), so one book isn't announced twice.
 - [ ] QA10 QA pass after C40–C42.

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
+import { ReturnFromRoom } from "./ReturnFromRoom";
 
 export interface ChapterLink { position: number; title: string; words: number }
 
@@ -12,8 +13,8 @@ export function endOfChapter(chapters: ChapterLink[], position: number, wpm: num
   return { kind: "next" as const, position: next.position, title: next.title, minutes: minutesFor(next.words, wpm) };
 }
 
-export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof }: {
-  slug: string; title: string; chapters: ChapterLink[]; position: number; wpm: number; base: string; proof: boolean;
+export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof, loanId = "" }: {
+  slug: string; title: string; chapters: ChapterLink[]; position: number; wpm: number; base: string; proof: boolean; loanId?: string;
 }) {
   const end = endOfChapter(chapters, position, wpm);
   return (
@@ -37,6 +38,7 @@ export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof
             <Link href="/ledger" className="mt-3 inline-block rounded bg-lamplight px-4 py-2 text-ink">See it in your ledger</Link>
           )}
           <p className="mt-3"><Link href={`/works/${slug}`} className="underline">Back to the desk</Link></p>
+          {!proof && loanId && <ReturnFromRoom slug={slug} loanId={loanId} title={title} />}
         </>
       )}
     </section>

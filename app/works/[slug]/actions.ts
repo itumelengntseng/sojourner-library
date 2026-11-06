@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { findWork } from "@/lib/catalogueServer";
 import { isLoanPeriod } from "@/lib/loanDesk";
 import { runDesk } from "@/lib/loanStore";
@@ -29,4 +30,15 @@ export async function deskAction(_: DeskState, form: FormData): Promise<DeskStat
   }
   revalidatePath(`/works/${slug}`);
   return result;
+}
+
+/** C40: return from the end-of-book card, then walk the reader back to the work's loan desk. */
+export async function returnFromRoomAction(_: DeskState, form: FormData): Promise<DeskState> {
+  const slug = String(form.get("slug") ?? "");
+  const loanId = String(form.get("loanId") ?? "");
+  if (!loanId || !(await findWork(slug))) return { ok: false, message: "The desk didn't understand that request." };
+  const result = await runDesk(slug, { kind: "return", loanId });
+  if (!result.ok) return result;
+  revalidatePath(`/works/${slug}`);
+  redirect(`/works/${encodeURIComponent(slug)}?returned=1#desk`);
 }

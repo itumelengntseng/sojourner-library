@@ -1,4 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+// The desk action is server-only; the card just needs something to post to.
+vi.mock("@/app/works/[slug]/actions", () => ({ returnFromRoomAction: async () => ({ ok: false, message: "" }) }));
 import { renderToStaticMarkup } from "react-dom/server";
 import { EndOfChapter, endOfChapter } from "@/components/EndOfChapter";
 
@@ -27,5 +30,21 @@ describe("end of chapter card", () => {
     const proof = renderToStaticMarkup(<EndOfChapter slug="w" title="Placeholder Work" chapters={CH} position={2} wpm={230} base="/works/w/proof" proof />);
     expect(proof).toContain('href="/writers-room"');
     expect(proof).not.toContain('href="/ledger"');
+  });
+});
+
+describe("return from the reading room (C40)", () => {
+  const CH2 = [{ position: 1, title: "Placeholder chapter one", words: 1150 }];
+  it("offers Return to shelf on the last chapter of a loan, with the loan id and a bookmark note", () => {
+    const html = renderToStaticMarkup(<EndOfChapter slug="w" title="Placeholder Work" chapters={CH2} position={1} wpm={230} base="/works/w/read" proof={false} loanId="loan-1" />);
+    expect(html).toContain("Return to shelf");
+    expect(html).toContain('name="loanId" value="loan-1"');
+    expect(html).toContain('name="intent" value="return"');
+    expect(html).toContain("Your bookmark is kept");
+  });
+  it("never in the proof copy, nor mid-book, nor without a loan", () => {
+    expect(renderToStaticMarkup(<EndOfChapter slug="w" title="T" chapters={CH2} position={1} wpm={230} base="/works/w/proof" proof loanId="" />)).not.toContain("Return to shelf");
+    expect(renderToStaticMarkup(<EndOfChapter slug="w" title="T" chapters={CH} position={1} wpm={230} base="/works/w/read" proof={false} loanId="loan-1" />)).not.toContain("Return to shelf");
+    expect(renderToStaticMarkup(<EndOfChapter slug="w" title="T" chapters={CH2} position={1} wpm={230} base="/works/w/read" proof={false} />)).not.toContain("Return to shelf");
   });
 });

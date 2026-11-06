@@ -7,6 +7,19 @@ import { ACTIVITY_THROTTLE_MS, MAX_ACTIVITY } from "@/lib/sessions";
 
 const HEARTBEAT_MS = 60_000;
 
+/** Fired by anything that is about to end the loan (C40) so the last of the reading is saved first. */
+export const FLUSH_EVENT = "soj:flush-session";
+
+/** Asks the reading-room tracker to report now and waits (at most `timeoutMs`) for it to land. */
+export function flushReadingSession(timeoutMs = 2000): Promise<void> {
+  const waits: Promise<unknown>[] = [];
+  window.dispatchEvent(new CustomEvent(FLUSH_EVENT, { detail: { wait: (p: Promise<unknown>) => waits.push(p) } }));
+  return Promise.race([
+    Promise.allSettled(waits).then(() => undefined),
+    new Promise<void>((resolve) => window.setTimeout(resolve, timeoutMs)),
+  ]);
+}
+
 /**
  * Watches the reader read: notes activity (scrolls, keys, taps, page turns) and the
  * furthest paragraph seen, and reports the session to /api/sessions as it goes.
@@ -59,7 +72,7 @@ export function useSessionTracker(opts: {
       if (passed > s.furthest) { s.furthest = passed; setBehind(passed); }
     };
 
-    const send = (final: boolean) => {
+    const send = (final: boolean): Promise<unknown> | undefined => {
       if (!s.dirty && !final) return;
       s.dirty = false;
       const body = JSON.stringify({
@@ -67,8 +80,8 @@ export function useSessionTracker(opts: {
         activity: s.activity.slice(-MAX_ACTIVITY), wordsRead: Math.max(0, s.furthest - Math.max(0, s.startWords)),
       });
       if (!record) return;
-      if (final && navigator.sendBeacon) navigator.sendBeacon("/api/sessions", new Blob([body], { type: "application/json" }));
-      else fetch("/api/sessions", { method: "POST", body, headers: { "content-type": "application/json" }, keepalive: true }).catch(() => {});
+      if (final && navigator.sendBeacon) { navigator.sendBeacon("/api/sessions", new Blob([body], { type: "application/json" })); return; }
+      return fetch("/api/sessions", { method: "POST", body, headers: { "content-type": "application/json" }, keepalive: true }).catch(() => {});
     };
 
     const onActivity = () => {
@@ -76,6 +89,12 @@ export function useSessionTracker(opts: {
       const last = s.activity[s.activity.length - 1] ?? 0;
       if (now - last >= ACTIVITY_THROTTLE_MS) { s.activity.push(now); s.dirty = true; }
       measure();
+    };
+    const onFlush = (e: Event) => {
+      measure();
+      s.dirty = true;
+      const p = send(false);
+      if (p) (e as CustomEvent<{ wait: (p: Promise<unknown>) => void }>).detail?.wait(p);
     };
     const onHide = () => { if (document.visibilityState === "hidden") send(true); };
 
@@ -86,6 +105,7 @@ export function useSessionTracker(opts: {
     for (const e of events) window.addEventListener(e, onActivity, { passive: true });
     box?.addEventListener("scroll", onActivity, { passive: true });
     document.addEventListener("visibilitychange", onHide);
+    window.addEventListener(FLUSH_EVENT, onFlush);
     const beat = window.setInterval(() => send(false), HEARTBEAT_MS);
     return () => {
       window.clearTimeout(first);
@@ -93,6 +113,7 @@ export function useSessionTracker(opts: {
       for (const e of events) window.removeEventListener(e, onActivity);
       box?.removeEventListener("scroll", onActivity);
       document.removeEventListener("visibilitychange", onHide);
+      window.removeEventListener(FLUSH_EVENT, onFlush);
       send(true);
     };
   }, [slug, position, paras, textRef, record]);
