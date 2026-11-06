@@ -171,6 +171,10 @@ export function parseSettings(raw: string | null | undefined): ReaderSettings {
 }
 
 /** Lamplit stone, an old paperback, or a bright reading table. */
+/** Page background per theme (kept in step with THEME_CLASSES) and a focus ring that stands out on it (≥ 3:1). */
+export const THEME_BACKGROUND: Record<ReaderTheme, string> = { dark: "#1d1a17", sepia: "#efe0c2", light: "#fbf8f2" };
+export const FOCUS_RING: Record<ReaderTheme, string> = { dark: "#f2c57c", sepia: "#6b4428", light: "#6b4428" };
+
 export const THEME_CLASSES: Record<ReaderTheme, string> = {
   dark: "bg-ink text-paper",
   sepia: "bg-[#efe0c2] text-[#3b2a1a]",

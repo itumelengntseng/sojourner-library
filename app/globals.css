@@ -48,6 +48,8 @@ body {
   outline: 2px solid var(--color-lamplight);
   outline-offset: 3px;
 }
+/* Reading room pages in sepia/light: a timber ring instead of lamplight (C30). */
+[data-ring] :focus-visible, [data-ring]:focus-visible { outline-color: var(--ring); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

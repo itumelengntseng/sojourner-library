@@ -7,7 +7,7 @@ import { bookmarkAction, highlightAction, noteAction, removeAction } from "@/app
 import {
   bookmarkOffset, cleanNote, DEFAULT_SETTINGS, FONT_MAX, FONT_MIN, HIGHLIGHT_CLASSES, HIGHLIGHT_COLOURS,
   normaliseSelection, notesByParagraph, paragraphAtWord, parseSettings, segmentParagraph, splitParagraphs,
-  THEME_CLASSES, type Highlight, type HighlightColour, type MarginNote, type ReaderSettings,
+  FOCUS_RING, THEME_CLASSES, type Highlight, type HighlightColour, type MarginNote, type ReaderSettings,
 } from "@/lib/reader";
 import type { ReadingData } from "@/lib/readingRoom";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
@@ -215,6 +215,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
     <div className={`min-h-dvh overflow-x-clip ${THEME_CLASSES[settings.theme]}`}>
       <header className="sticky top-0 z-20 border-b border-timber-dark/60 bg-stone-wall/95 px-3 py-2 text-paper backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 gap-y-2">
+          <a href="#chapter-text" className="sr-only rounded bg-ink px-2 py-1 font-sans text-xs text-lamplight focus:not-sr-only">Skip to the text</a>
           <Link href={`/works/${slug}`} className="font-sans text-xs text-sandstone hover:text-lamplight">← {data.title}</Link>
           <details ref={contentsRef} className="font-sans text-xs">
             <summary className={`${btn} cursor-pointer list-none border border-sandstone/40 text-paper`}>Contents</summary>
@@ -264,7 +265,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
         <p role="status" aria-live="polite" className="mx-auto max-w-5xl font-sans text-[0.7rem] text-lamplight empty:hidden">{status}</p>
       </header>
 
-      <main id="main" className="mx-auto max-w-3xl px-5 pb-24 pt-8">
+      <main id="main" data-ring="" style={{ ["--ring" as string]: FOCUS_RING[settings.theme] }} className="mx-auto max-w-3xl px-5 pb-24 pt-8">
         <p className="font-sans text-xs uppercase tracking-[0.25em] opacity-80">{data.author}</p>
         <h1 className="mt-1 text-2xl">{chapter.title}</h1>
         <p className="mt-1 font-sans text-xs opacity-80">
@@ -276,13 +277,14 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
 
         <div
           ref={textRef}
+          id="chapter-text"
           tabIndex={0}
           aria-label="Chapter text"
           style={{
             fontSize: settings.fontSize,
             ...(paged ? { columnWidth: "100vw", columnGap: 0, height: "calc(100dvh - 12rem)", overflow: "hidden" } : {}),
           }}
-          className={`relative mt-6 leading-relaxed ${paged ? "[column-fill:auto]" : ""}`}
+          className={`relative mt-6 scroll-mt-32 leading-relaxed ${paged ? "[column-fill:auto]" : ""}`}
         >
           {paras.map((p) => (
             <div key={p.index} data-para={p.index} className="mb-5 scroll-mt-32 pr-1 sm:relative">

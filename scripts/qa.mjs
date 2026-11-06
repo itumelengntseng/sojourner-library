@@ -144,6 +144,34 @@ for (const width of WIDTHS) {
   await axeCheck("card with recently returned");
 }
 
+// C30: "Skip to the text" reaches the chapter text by keyboard, and the focus ring is timber on sepia/light.
+await page.goto(`${BASE}/works/placeholder-work-one`);
+if (await page.getByRole("button", { name: "Borrow this work" }).count()) {
+  await page.getByRole("button", { name: "Borrow this work" }).click();
+  await page.getByRole("link", { name: "Open the reading room" }).waitFor();
+}
+for (const theme of ["dark", "sepia", "light"]) {
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto(`${BASE}/works/placeholder-work-one/read?ch=1`);
+  await page.evaluate((t) => localStorage.setItem("soj:reader-settings", JSON.stringify({ theme: t, fontSize: 19 })), theme);
+  await page.reload();
+  await page.waitForTimeout(300);
+  let reached = false;
+  for (let i = 0; i < 4 && !reached; i++) {
+    await page.keyboard.press("Tab");
+    reached = await page.evaluate(() => document.activeElement?.textContent?.trim() === "Skip to the text");
+  }
+  if (reached) await page.keyboard.press("Enter");
+  const got = await page.evaluate(() => {
+    const el = document.activeElement;
+    return { id: el?.id ?? "", ring: el ? getComputedStyle(el).outlineColor : "", style: el ? getComputedStyle(el).outlineStyle : "" };
+  });
+  const want = theme === "dark" ? "rgb(242, 197, 124)" : "rgb(107, 68, 40)";
+  const ok = reached && got.id === "chapter-text" && got.ring === want && got.style !== "none";
+  if (!ok) failures++;
+  console.log(`${ok ? "✓" : "✗"} skip to the text + focus ring (${theme})${ok ? "" : ` — reached=${reached} ${JSON.stringify(got)}`}`);
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);
