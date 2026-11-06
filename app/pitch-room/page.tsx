@@ -5,6 +5,8 @@ import { kitStatus, loglineWarning } from "@/lib/pitch";
 import { ownerPitchLinks, roomPitches } from "@/lib/pitchStore";
 import { AUTHOR } from "@/lib/site";
 
+// Owner-only: always render per request (reads the session).
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Pitch Room" };
 
 export default async function PitchRoom() {

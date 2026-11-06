@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LINEAGE } from "@/content/lineage";
 import { CanonToggle } from "@/components/CanonToggle";
 import { LineageWall } from "@/components/LineageWall";
 import { loadCatalogue } from "@/lib/catalogueServer";
+import { loadAtlas } from "@/lib/atlasStore";
+import { ShelfEmpty } from "@/components/ShelfEmpty";
 import { AUTHOR } from "@/lib/site";
 import { canonView } from "@/lib/canonServer";
 
@@ -11,7 +12,12 @@ export const metadata: Metadata = { title: "Lineage" };
 
 export default async function LineagePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const view = await canonView((await searchParams).canon);
-  const works = (await loadCatalogue()).works;
+  const [catalogue, atlas] = await Promise.all([loadCatalogue(), loadAtlas()]);
+  const works = catalogue.works;
+  const LINEAGE = atlas.lineage;
+  if (catalogue.mode === "library" && !catalogue.signedIn) {
+    return <main id="main" className="mx-auto max-w-5xl px-4 pt-16"><h1 className="text-3xl text-lamplight">The family wall</h1><ShelfEmpty catalogue={catalogue} /></main>;
+  }
   const canonSlugs = new Set(works.filter((w) => w.canonStatus === "canon").map((w) => w.slug));
   // Canon only: keep people who appear in at least one canon work, and only their canon appearances.
   const people = view === "all" ? LINEAGE.people : LINEAGE.people

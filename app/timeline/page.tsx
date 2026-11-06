@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { TIMELINE } from "@/content/timeline";
 import { CanonToggle } from "@/components/CanonToggle";
 import { HarlemMap } from "@/components/HarlemMap";
 import { loadCatalogue } from "@/lib/catalogueServer";
+import { loadAtlas } from "@/lib/atlasStore";
+import { ShelfEmpty } from "@/components/ShelfEmpty";
 import { canonView } from "@/lib/canonServer";
 import { AUTHOR } from "@/lib/site";
 import { timelineForWorks } from "@/lib/timeline";
@@ -13,7 +14,12 @@ export const metadata: Metadata = { title: "Harlem timeline" };
 
 export default async function TimelinePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const view = await canonView((await searchParams).canon);
-  const works = (await loadCatalogue()).works;
+  const [catalogue, atlas] = await Promise.all([loadCatalogue(), loadAtlas()]);
+  const works = catalogue.works;
+  const TIMELINE = atlas.timeline;
+  if (catalogue.mode === "library" && !catalogue.signedIn) {
+    return <main id="main" className="mx-auto max-w-6xl px-4 pt-16"><h1 className="text-3xl text-lamplight">Harlem timeline</h1><ShelfEmpty catalogue={catalogue} /></main>;
+  }
   const timeline = timelineForWorks(TIMELINE, new Set(filterByCanon(works, view).map((w) => w.slug)));
   return (
     <main id="main" className="mx-auto max-w-6xl px-4 pt-16">

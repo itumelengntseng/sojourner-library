@@ -5,6 +5,8 @@ import { CANON_LABEL, formatWords } from "@/lib/workStats";
 import { AUTHOR } from "@/lib/site";
 import { loadRoom } from "@/lib/writersRoom";
 
+// Owner-only: always render per request (reads the session).
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Writer's Room" };
 
 // Behind the stacks: a timber table under one lamp, where the Keeper shelves new work.
@@ -52,6 +54,7 @@ export default async function WritersRoom() {
       </section>
 
       <p className="mt-10 font-sans text-sm"><Link href="/pitch-room" className="text-lamplight underline underline-offset-2">The Pitch Room →</Link> <span className="text-sandstone">one-sheet pitches and private links for agents and producers.</span></p>
+      <p className="mt-2 font-sans text-sm"><Link href="/writers-room/atlas" className="text-lamplight underline underline-offset-2">The family wall &amp; timeline →</Link> <span className="text-sandstone">edit the people, places and dates behind the explorers.</span></p>
 
       <section aria-labelledby="invites" className="mt-10 rounded-sm border border-timber-dark bg-ink/40 p-5">
         <h2 id="invites" className="text-xl text-paper">Reader cards</h2>

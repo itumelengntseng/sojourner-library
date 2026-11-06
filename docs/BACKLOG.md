@@ -21,5 +21,6 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 ## FOLLOW-UPS (proposed by the build team, in order — unblocked)
 - [x] C1 Catalogue from Supabase: when connected, the front hall, halls, work page, lineage/timeline titles and librarian read `works`/`chapters` (not the static placeholder catalogue), so Writer's Room imports appear on the shelves. Keep the static catalogue for preview mode.
 - [x] C2 Pitch kits editable in the Writer's Room (stored in Supabase, owner-only), with `content/pitches.ts` as the preview fallback.
-- [ ] C3 Lineage and timeline editable in the Writer's Room (same pattern), keeping the file validators.
+- [x] C3 Lineage and timeline editable in the Writer's Room (same pattern), keeping the file validators.
 - [ ] C4 Owner preview of the reading room for unshared works without taking out a loan.
+- [ ] C5 Form-based editor for the family wall and timeline (add/edit one person, place or event at a time), on top of the C3 JSON store.

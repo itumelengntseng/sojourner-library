@@ -46,7 +46,7 @@ describe("security audit", () => {
   });
 
   it("refuses anonymous visitors everywhere", async () => {
-    for (const t of ["readers", "works", "chapters", "chapter_texts", "loans", "sessions", "notes", "highlights", "invites", "pitch_links", "pitch_kits"]) {
+    for (const t of ["readers", "works", "chapters", "chapter_texts", "loans", "sessions", "notes", "highlights", "invites", "pitch_links", "pitch_kits", "atlas_documents"]) {
       expect(await attempt(db, null, `select * from ${t}`)).toMatch(/permission denied/);
     }
   });
