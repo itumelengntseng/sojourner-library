@@ -73,7 +73,7 @@ describe("pitch links", () => {
 
   it("opens for anyone holding the link, counting views, and reveals only the pitch basics", async () => {
     const tok = await mint();
-    expect(await open(tok)).toEqual([{ work_slug: "placeholder-work-one", title: "Placeholder Work One", author: "Itumeleng Ntseng", word_count: 0 }]);
+    expect(await open(tok)).toMatchObject([{ work_slug: "placeholder-work-one", title: "Placeholder Work One", author: "Itumeleng Ntseng", word_count: 0, has_kit: false }]);
     await open(tok);
     const v = (await db.query<{ views: number }>(`select views from pitch_links where token_hash = encode(sha256(convert_to($1, 'UTF8')), 'hex')`, [tok])).rows[0];
     expect(v.views).toBe(2);

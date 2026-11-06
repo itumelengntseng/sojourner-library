@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PITCHES } from "@/content/pitches";
 import { RevokeLink, ShareForm } from "@/components/PitchForms";
 import { kitStatus, loglineWarning } from "@/lib/pitch";
-import { ownerPitchLinks, pitchFor } from "@/lib/pitchStore";
+import { ownerPitchLinks, roomPitches } from "@/lib/pitchStore";
 import { AUTHOR } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Pitch Room" };
 
 export default async function PitchRoom() {
-  const { live, allowed, links } = await ownerPitchLinks();
+  const [{ live, allowed, links }, { pitches }] = await Promise.all([ownerPitchLinks(), roomPitches()]);
   if (!allowed) {
     return (
       <main id="main" className="mx-auto max-w-xl px-4 pt-24 text-center">
@@ -26,8 +25,9 @@ export default async function PitchRoom() {
       {!live && <p className="mt-4 rounded-sm border border-ember/50 px-3 py-2 font-sans text-xs text-ember">Preview: sheets and one-pagers work now; private links start once the library is connected.</p>}
 
       <ul className="mt-8 flex flex-col gap-4">
-        {PITCHES.map((k) => {
-          const p = pitchFor(k.slug)!;
+        {pitches.length === 0 && <li className="font-sans text-sm text-sandstone">No works on the shelves yet — shelve a manuscript in the Writer&apos;s Room first.</li>}
+        {pitches.map((p) => {
+          const k = p.kit;
           const st = kitStatus(k);
           const warn = loglineWarning(k.logline);
           const mine = links.filter((l) => l.slug === k.slug);
@@ -39,9 +39,10 @@ export default async function PitchRoom() {
                   {st.ready ? "Ready to send" : st.placeholder ? "Placeholder — awaiting the author's words" : `Missing: ${st.missing.join(", ")}`}
                 </span>
               </div>
-              <p className="mt-2 text-paper/90">{k.logline}</p>
+              <p className="mt-2 text-paper/90">{k.logline || <span className="font-sans text-sm text-sandstone">No logline yet.</span>}</p>
               {warn && <p className="font-sans text-xs text-ember">{warn}</p>}
               <div className="mt-3 flex flex-wrap gap-4 font-sans text-sm">
+                <Link href={`/pitch-room/${k.slug}/edit`} className="text-lamplight underline underline-offset-2">Edit the kit</Link>
                 <Link href={`/pitch-room/${k.slug}`} className="text-lamplight underline underline-offset-2">See the sheet</Link>
                 <a href={`/pitch-room/${k.slug}/one-pager`} className="text-lamplight underline underline-offset-2">Download one-pager (Markdown)</a>
               </div>
