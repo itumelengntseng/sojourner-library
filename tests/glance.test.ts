@@ -35,3 +35,17 @@ describe("changed label (C39)", () => {
     expect(changedLabel("2026-10-06T10:00:00Z", now)).toMatch(/^changed 0?6 Oct 2026$/);
   });
 });
+
+describe("read to the end tile (C45)", () => {
+  const w = (finished?: number) => ({ visibility: "members" as const, words: 10, openLoans: 0, ...(finished !== undefined ? { finished } : {}) });
+  it("appears only when the library could count every work", () => {
+    expect(glance([w(), w()], 0, 3).map((t) => t.label)).not.toContain("Read to the end");
+    expect(glance([w(2), w()], 0, 3).map((t) => t.label)).not.toContain("Read to the end");
+    expect(glance([], 0, 3).map((t) => t.label)).not.toContain("Read to the end");
+  });
+  it("sums the counts across works, with a plain note", () => {
+    const t = glance([w(2), w(1), w(0)], 0, 3).find((x) => x.label === "Read to the end")!;
+    expect(t).toEqual({ label: "Read to the end", value: "3", note: "by guest readers, counted per book" });
+    expect(glance([w(0)], 0, 3).find((x) => x.label === "Read to the end")!.note).toBe("no guest has reached an ending yet");
+  });
+});

@@ -18,6 +18,8 @@ export interface RoomWork {
   readers: number;
   openLoans: number;
   minutes: number;
+  /** Guest readers who read it to the end (C45); undefined until 0014 is applied to the live database. */
+  finished?: number;
   /** Last change to the work row (library mode) — import, settings, description, sharing. */
   updatedAt?: string;
 }
@@ -63,7 +65,7 @@ export async function loadRoom(): Promise<Room> {
     };
   }
   if (!supabase) return { mode: "closed", reason: reason as "signed-out" | "not-owner" };
-  const [{ data: works }, { data: stats }, { data: invites }, { data: hallRows }, { data: archived }, { data: chapterRows }, { count: cardHolders }] = await Promise.all([
+  const [{ data: works }, { data: stats }, { data: invites }, { data: hallRows }, { data: archived }, { data: chapterRows }, { count: cardHolders }, finishedRes] = await Promise.all([
     supabase.from("works").select("id, slug, title, canon_status, visibility, is_placeholder, description, hall, word_count, updated_at").is("archived_at", null).order("title"),
     supabase.rpc("readership"),
     supabase.from("invites").select("id, note, expires_at, redeemed_at, revoked_at").eq("role", "guest").order("created_at", { ascending: false }).limit(50),
@@ -71,7 +73,10 @@ export async function loadRoom(): Promise<Room> {
     supabase.from("works").select("id, slug, title, archived_at").not("archived_at", "is", null).order("archived_at", { ascending: false }).limit(100),
     supabase.from("chapters").select("work_id, position, title, word_count, archived_at").order("position").limit(10000),
     supabase.from("readers").select("id", { count: "exact", head: true }).eq("role", "guest"),
+    supabase.rpc("finished_readers"), // C45 — an error (0014 not applied yet) simply leaves the counts off
   ]);
+  const finishedBy = finishedRes.error ? null
+    : new Map(((finishedRes.data ?? []) as { work_id: string; finished: number | string }[]).map((r) => [r.work_id, Number(r.finished)]));
   // What a re-import would touch: every shelved work (set-aside ones too) with its chapter list.
   const shelf: Record<string, ShelvedWork> = {};
   const byId = new Map<string, ShelvedWork>();
@@ -98,6 +103,7 @@ export async function loadRoom(): Promise<Room> {
       readers: Number(by.get(w.id as string)?.readers ?? 0), openLoans: Number(by.get(w.id as string)?.open_loans ?? 0),
       minutes: Number(by.get(w.id as string)?.minutes ?? 0),
       updatedAt: (w.updated_at as string | null) ?? undefined,
+      ...(finishedBy ? { finished: finishedBy.get(w.id as string) ?? 0 } : {}),
     })),
     invites: (invites ?? []).map((i) => ({
       id: i.id as string, note: i.note as string, expiresAt: i.expires_at as string,

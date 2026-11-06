@@ -72,6 +72,6 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] QA10 QA pass after C40–C42.
 - [x] C43 Work page: "Your notes in this book" count (notes + highlights, own only) with a link to "Notes for this book" (C29), shown only when there are some.
 - [x] C44 Reading room: remember the last-used loan period on the work page's borrow form (per browser), so "Borrow again" defaults to what the reader chose last time.
-- [ ] C45 Writer's Room glance: "Finished by readers" tile — how many loans' readers reached the end of each shared work (counts only, never who), via an owner-only SQL function; needs a migration → if the live database can't take it this run, write it and log it under NEEDS ITU like 0013.
+- [x] C45 Writer's Room glance: "Finished by readers" tile — how many loans' readers reached the end of each shared work (counts only, never who), via an owner-only SQL function; needs a migration → if the live database can't take it this run, write it and log it under NEEDS ITU like 0013.
 - [ ] QA11 QA pass after C43–C45.
 

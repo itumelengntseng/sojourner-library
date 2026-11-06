@@ -26,6 +26,7 @@ export default async function WritersRoom() {
     );
   }
   const live = room.mode === "library";
+  const tiles = glance(room.works, live ? room.setAside.length : 0, live ? room.cardHolders : null);
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16">
       <nav className="font-sans text-xs text-sandstone"><Link href="/" className="hover:text-lamplight">Front hall</Link> / Writer&apos;s Room</nav>
@@ -35,8 +36,8 @@ export default async function WritersRoom() {
 
       <section aria-labelledby="glance" className="mt-8">
         <h2 id="glance" className="sr-only">The library at a glance</h2>
-        <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {glance(room.works, live ? room.setAside.length : 0, live ? room.cardHolders : null).map((t) => (
+        <dl className={`grid grid-cols-2 gap-3 sm:grid-cols-4 ${tiles.length > 4 ? "lg:grid-cols-5" : ""}`}>
+          {tiles.map((t) => (
             <div key={t.label} className="rounded-sm border border-timber-dark bg-ink/40 p-4">
               <dt className="font-sans text-[0.65rem] uppercase tracking-wider text-sandstone">{t.label}</dt>
               <dd className="mt-1 text-2xl text-paper">{t.value}</dd>
@@ -66,7 +67,7 @@ export default async function WritersRoom() {
                 <Link href={`/works/${w.slug}/proof`} className="ml-3 font-sans text-xs text-lamplight underline underline-offset-2">Read the proof</Link>
                 <span className="ml-3"><BackupLinks slug={w.slug} title={w.title} shelf={room.shelf[w.slug]} /></span>
                 <p className="font-sans text-xs text-sandstone">
-                  {CANON_LABEL[w.canonStatus]}{w.isPlaceholder ? " · placeholder" : ""}{live ? ` · ${formatWords(w.words)} · ${w.readers} reader${w.readers === 1 ? "" : "s"}, ${w.openLoans} on loan now, ${w.minutes} min read` : ""}{live && changedLabel(w.updatedAt, now) ? ` · ${changedLabel(w.updatedAt, now)}` : ""}
+                  {CANON_LABEL[w.canonStatus]}{w.isPlaceholder ? " · placeholder" : ""}{live ? ` · ${formatWords(w.words)} · ${w.readers} reader${w.readers === 1 ? "" : "s"}, ${w.openLoans} on loan now, ${w.minutes} min read` : ""}{live && w.finished !== undefined ? ` · ${w.finished} read to the end` : ""}{live && changedLabel(w.updatedAt, now) ? ` · ${changedLabel(w.updatedAt, now)}` : ""}
                 </p>
                 {live && <div className="mt-1 flex flex-wrap items-start gap-4"><DescriptionForm id={w.id} title={w.title} description={w.description} /><ArchiveButton id={w.id} title={w.title} intent="archive" /></div>}
               </div>
