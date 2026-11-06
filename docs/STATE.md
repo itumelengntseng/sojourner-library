@@ -75,10 +75,11 @@ _Last updated: 2026-11-06 (scheduled build run 5 — C34 onward; C24 still block
 - C42 — Due stamp on the Continue reading card (`splitDueSoon()` in `lib/loanDesk.ts`, `due` prop on `ContinueReading`, front hall): when the book on the card is due within 24 hours, the card itself carries "Due back Sat 7 Nov, 00:25 · 59 min left · renew or return" (ember, links to the front desk) and the "Due back soon" slip lists only the other loans — one book is never announced twice. Smoke-tested at 375px in preview: two hour-loans, one read → card stamped, slip lists only the other; no errors; `npm run qa` all clear.
 - QA10 (2026-11-06, after C40–C42): `npm run qa` all clear — the end-of-book card with Return to shelf (both widths), the ledger with a finished book (both widths) and the front hall/card with a due-stamped Continue card are in the sweep. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 57 KB. No migration this run → RLS audit unchanged (the return uses the existing desk path; the session flush uses the existing `/api/sessions` checks).
 - C43 — "Your notes in this book" on the work page (`lib/notesCount.ts`, `components/YourNotes.tsx`, `myAnnotationCount()` in `lib/ledgerStore.ts`): under the length/reading-time box, "You have 2 margin notes and 1 highlight in this book · Notes for this book" (the C29 per-book download). Counts only — the text stays in the export. Library mode counts the reader's own rows (`reader_id` + `work_id`, head-only count queries; RLS agrees); preview counts this browser's saved annotations after load. None → nothing shown. Smoke-tested at 375px in preview: none → two chapters annotated → line + download (`sojourner-notes-placeholder-work-one.md`), no errors; `npm run qa` all clear (the work page is swept with annotations present).
-- Tests: 356 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (re-run after C36 / QA8).
+- C44 — The borrow form remembers the period (`LAST_PERIOD_KEY` + `rememberedPeriod()` in `app/works/[slug]/LoanDeskForms.tsx`): the period radios are now controlled; on borrowing, the chosen period is kept in this browser (localStorage) and every borrow form opens on it next time (stored values that aren't a real period are ignored; private mode falls back to An evening). Server render still starts on An evening, so nothing changes for a first visit. Smoke-tested at 375px in preview: evening by default → borrow Two weeks → another work's form opens on Two weeks, no errors; `npm run qa` all clear.
+- Tests: 358 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (re-run after C36 / QA8).
 
 ## Next task
-C44 — remember the last loan period on the borrow form (BACKLOG.md → FOLLOW-UPS), then C45, QA11. Whenever a run can apply migrations, apply 0013 (and 0004/0006/0008 if still missing) and tick C24.
+C45 — "Finished by readers" counts in the Writer's Room (BACKLOG.md → FOLLOW-UPS; needs a migration), then QA11. Whenever a run can apply migrations, apply 0013 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -131,4 +132,5 @@ C44 — remember the last loan period on the borrow form (BACKLOG.md → FOLLOW-
 - The full backup leaves out everything that belongs to readers (notes, highlights, loans, sessions) and pitch-link hashes.
 - System serif font stack (no web-font download) to keep builds offline-safe.
 - "Continue reading" shows only an open loan the reader has actually read in (books borrowed but never opened stay on the card page's "On loan now"); a chapter read through (90%) points to the next chapter.
+- The borrow form's remembered period (C44) is per browser, like the reader settings.
 - "Last backed up" is remembered per browser (localStorage), so a backup made on another device doesn't show; reminder after 30 days.

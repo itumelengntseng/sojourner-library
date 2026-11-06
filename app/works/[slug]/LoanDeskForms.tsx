@@ -1,7 +1,15 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import type { LoanPeriod } from "@/lib/engine/checkout";
+import { isLoanPeriod } from "@/lib/loanDesk";
+
+/** C44: the borrow form remembers the period this browser chose last time. */
+export const LAST_PERIOD_KEY = "soj:last-period";
+
+export function rememberedPeriod(raw: string | null, ids: LoanPeriod[], fallback: LoanPeriod): LoanPeriod {
+  return isLoanPeriod(raw) && ids.includes(raw) ? raw : fallback;
+}
 import { deskAction, type DeskState } from "./actions";
 
 const initial: DeskState = { ok: false, message: "" };
@@ -17,16 +25,23 @@ function Status({ state }: { state: DeskState }) {
 
 export function BorrowForm({ slug, periods }: { slug: string; periods: { id: LoanPeriod; label: string; hint: string }[] }) {
   const [state, action, pending] = useActionState(deskAction, initial);
+  const fallback = periods[1]?.id ?? periods[0]?.id ?? "evening";
+  const [period, setPeriod] = useState<LoanPeriod>(fallback);
+  useEffect(() => {
+    let raw: string | null = null;
+    try { raw = window.localStorage.getItem(LAST_PERIOD_KEY); } catch { /* private mode */ }
+    setPeriod(rememberedPeriod(raw, periods.map((p) => p.id), fallback));
+  }, [periods, fallback]);
   return (
-    <form action={action} className="flex flex-col gap-3">
+    <form action={action} onSubmit={() => { try { window.localStorage.setItem(LAST_PERIOD_KEY, period); } catch { /* private mode */ } }} className="flex flex-col gap-3">
       <input type="hidden" name="slug" value={slug} />
       <input type="hidden" name="intent" value="borrow" />
       <fieldset className="grid grid-cols-2 gap-2">
         <legend className="mb-2 font-sans text-xs uppercase tracking-wider text-sandstone">How long would you like it?</legend>
-        {periods.map((p, i) => (
+        {periods.map((p) => (
           <label key={p.id} className="flex cursor-pointer flex-col rounded-sm border border-timber-dark bg-ink/40 px-3 py-2 has-[:checked]:border-lamplight has-[:checked]:bg-timber-dark/60">
             <span className="flex items-center gap-2">
-              <input type="radio" name="period" value={p.id} defaultChecked={i === 1} className="accent-[#f2c57c]" />
+              <input type="radio" name="period" value={p.id} checked={period === p.id} onChange={() => setPeriod(p.id)} className="accent-[#f2c57c]" />
               <span>{p.label}</span>
             </span>
             <span className="pl-5 font-sans text-[0.7rem] text-sandstone/80">{p.hint}</span>
