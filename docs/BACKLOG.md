@@ -8,7 +8,7 @@
 - [x] B3 Sign-in as a membership card (invite-only; owner + guest roles)
 - [x] B4 Front hall: animated covers (layered CSS/JS scene transitions — Harlem streets into Free State plains)
 - [x] B5 Halls & shelves → work detail page (word count, reading time, canon toggle)
-- [ ] B6 Checkout flow UI: due-date slip, renew, return-to-shelf on expiry
+- [x] B6 Checkout flow UI: due-date slip, renew, return-to-shelf on expiry
 - [ ] B7 Reader view: paged/scroll, dark/sepia/light, bookmarks, margin notes, highlights
 - [ ] B8 Session tracking feeding personal speed
 - [ ] B9 "Ask the librarian" box on every book

@@ -85,10 +85,11 @@ describe("row-level security", () => {
   });
 
   it("closes the text again once the loan expires", async () => {
+    // Back-dated loans can only be written from the SQL editor (the desk stamps API loans with now()).
+    await db.query(
+      `insert into loans (reader_id, work_id, period, borrowed_at, due_at) values ($1, $2, 'hour', now() - interval '2 hours', now() - interval '1 hour')`,
+      [OTHER, sharedWork]);
     await asUser(db, OTHER, async (tx) => {
-      await tx.query(
-        `insert into loans (work_id, period, borrowed_at, due_at) values ($1, 'hour', now() - interval '2 hours', now() - interval '1 hour')`,
-        [sharedWork]);
       expect(await count(tx, `select * from chapter_texts`)).toBe(0);
     });
   });

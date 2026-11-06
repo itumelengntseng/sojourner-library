@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { LoanDesk } from "@/components/LoanDesk";
 import { SceneCover } from "@/components/SceneCover";
-import { getWork, getWorks } from "@/lib/catalogue";
+import { getWork } from "@/lib/catalogue";
 import { DEFAULT_WPM, formatDuration } from "@/lib/engine/readingTime";
+import { loadDesk } from "@/lib/loanStore";
 import { CANON_LABEL, formatWords, workStats } from "@/lib/workStats";
-
-export function generateStaticParams() {
-  return getWorks().map((w) => ({ slug: w.slug }));
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const work = getWork((await params).slug);
@@ -19,6 +17,8 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
   const work = getWork((await params).slug);
   if (!work) notFound();
   const stats = workStats(work);
+  const desk = await loadDesk(work.slug);
+  const now = Date.now();
 
   return (
     <main id="main" className="mx-auto max-w-4xl px-4 pt-16">
@@ -52,6 +52,12 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
           )}
         </div>
       </div>
+
+      <section aria-labelledby="desk" className="mt-12 rounded-sm border border-timber-dark bg-stone-floor/60 p-5">
+        <h2 id="desk" className="text-xl text-paper">The loan desk</h2>
+        <div className="threshold my-3 opacity-60" aria-hidden="true" />
+        <LoanDesk desk={desk} slug={work.slug} title={work.title} now={now} />
+      </section>
 
       <section aria-labelledby="contents" className="mt-12">
         <h2 id="contents" className="text-xl text-paper">Contents</h2>

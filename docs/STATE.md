@@ -9,13 +9,13 @@ _Last updated: 2026-11-06 (scheduled build run)._
 - B3 Invite-only membership cards (`supabase/migrations/0002_invites.sql`, `app/card/`): hashed invite codes, owner-only `create_invite`, `mint_owner_invite()` callable only from the SQL editor, `redeem_invite` issues a guest card; magic-link sign-in; card rendered as a stamped library card.
 - B4 Front hall living covers (`components/SceneCover.tsx`): layered Harlem street → Free State plains scenes, pauses on hover/focus, static under reduced motion.
 - B5 Halls with timber shelves (`app/halls`), canon toggle (`?canon=all`), work detail page (`app/works/[slug]`) with word count and reading time per chapter. Catalogue is placeholder-only (`lib/catalogue.ts`).
-- Tests: 79 passing (`npm test`). Typecheck clean (`npm run typecheck`).
+- B6 Loan desk (`supabase/migrations/0003_loan_desk.sql`, `lib/loanDesk.ts`, `lib/loanStore.ts`, `components/LoanDesk.tsx`, `components/DueDateSlip.tsx`): borrow for an hour / evening / three days / two weeks; date-due slip stamped in SA time; renew (max 3, never once expired); return to shelf. DB triggers stamp dates server-side (readers can't forge due dates), auto-return expired loans on re-borrow and via `return_expired_loans()`, and carry the bookmark forward. Without Supabase the page runs a "preview desk" kept in a browser cookie. Smoke-tested in Chromium at 375px: borrow → renew → reload → return.
+- Tests: 103 passing (`npm test`). Typecheck clean; `npm run build` passes.
 
 ## Next task
-B6 — Checkout flow UI: due-date slip, renew, return-to-shelf on expiry.
+B7 — Reader view: paged/scroll, dark/sepia/light, bookmarks, margin notes, highlights.
 
 ## Known issues
-- An expired loan that was never returned still blocks a new loan of the same book (unique open-loan index). B6 must auto-return expired loans ("return to shelf").
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
 
 ## NEEDS ITU
@@ -30,4 +30,7 @@ B6 — Checkout flow UI: due-date slip, renew, return-to-shelf on expiry.
 - Chapter text stored apart from chapter metadata (`chapter_texts`) so shelves show titles/word counts without a loan.
 - Notes and highlights are private even from the owner; loans and sessions are visible to the owner (for the ledger).
 - Works default to `visibility = 'owner'` and `is_placeholder = true`; Itu shares a work by switching to `members`.
+- Loan slips are stamped in Africa/Johannesburg time.
+- Expired loans cannot be renewed; they return to the shelf and the reader borrows again (bookmark carried).
+- Until Supabase is connected, the loan desk works as a per-browser preview (cookie), clearly labelled.
 - System serif font stack (no web-font download) to keep builds offline-safe.
