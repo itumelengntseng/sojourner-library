@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { actionForKey, shortcutsFor, type ReaderKeyAction } from "@/lib/readerKeys";
 import { bookmarkAction, highlightAction, noteAction, removeAction } from "@/app/works/[slug]/read/actions";
 import {
   bookmarkOffset, cleanNote, DEFAULT_SETTINGS, FONT_MAX, FONT_MIN, HIGHLIGHT_CLASSES, HIGHLIGHT_COLOURS,
@@ -171,15 +172,33 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
     if (el && settings.layout === "paged") el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" });
   }, [settings.layout]);
 
+  const contentsRef = useRef<HTMLDetailsElement>(null);
+  const helpRef = useRef<HTMLDialogElement>(null);
+  const keyActions = useRef<(a: ReaderKeyAction) => void>(() => {});
+  keyActions.current = (a) => {
+    if (a === "prevPage") turnPage(-1);
+    else if (a === "nextPage") turnPage(1);
+    else if (a === "contents" && contentsRef.current) contentsRef.current.open = !contentsRef.current.open;
+    else if (a === "layout") updateSettings({ layout: settings.layout === "paged" ? "scroll" : "paged" });
+    else if (a === "larger" && settings.fontSize < FONT_MAX) updateSettings({ fontSize: settings.fontSize + 1 });
+    else if (a === "smaller" && settings.fontSize > FONT_MIN) updateSettings({ fontSize: settings.fontSize - 1 });
+    else if (a === "bookmark") void placeBookmark();
+    else if (a === "note") startNote();
+    else if (a === "help" && helpRef.current && !helpRef.current.open) helpRef.current.showModal();
+  };
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement)?.closest("textarea, input")) return;
-      if (e.key === "ArrowRight") turnPage(1);
-      if (e.key === "ArrowLeft") turnPage(-1);
+      if (e.key === "Escape" && contentsRef.current?.open) { contentsRef.current.open = false; return; }
+      if ((e.target as HTMLElement)?.closest("textarea, input, select, [contenteditable], dialog")) return;
+      const a = actionForKey(e, proof);
+      if (!a) return;
+      e.preventDefault();
+      keyActions.current(a);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [turnPage]);
+  }, [proof]);
 
   const byPara = notesByParagraph(paras, notes);
   const idx = chapters.findIndex((c) => c.position === chapter.position);
@@ -196,7 +215,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
       <header className="sticky top-0 z-20 border-b border-timber-dark/60 bg-stone-wall/95 px-3 py-2 text-paper backdrop-blur">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 gap-y-2">
           <Link href={`/works/${slug}`} className="font-sans text-xs text-sandstone hover:text-lamplight">← {data.title}</Link>
-          <details className="font-sans text-xs">
+          <details ref={contentsRef} className="font-sans text-xs">
             <summary className={`${btn} cursor-pointer list-none border border-sandstone/40 text-paper`}>Contents</summary>
             <nav aria-label="Contents" className="absolute inset-x-3 top-full z-30 mt-1 max-h-[60dvh] overflow-auto sm:inset-x-auto sm:w-80 rounded-sm border border-timber-dark bg-stone-wall p-2 shadow-lg">
               <ol>
@@ -227,7 +246,20 @@ export function ReaderView({ slug, data, wpm, minutesPerDay }: { slug: string; d
           </div>
           {!proof && <button type="button" onClick={placeBookmark} className={`${btn} bg-timber text-paper hover:bg-ochre`}>Bookmark here</button>}
           {!proof && <button type="button" onClick={startNote} className={`${btn} border border-sandstone/40 text-paper`}>Note</button>}
+          <button type="button" aria-haspopup="dialog" onClick={() => helpRef.current?.showModal()} className={`${btn} text-sandstone hover:text-lamplight`}>Keys <span aria-hidden="true">?</span></button>
         </div>
+        <dialog ref={helpRef} aria-labelledby="keys-title" className="m-auto w-[min(22rem,calc(100vw-2rem))] rounded-sm border border-timber-dark bg-stone-wall p-5 font-sans text-sm text-paper shadow-xl backdrop:bg-ink/70">
+          <h2 id="keys-title" className="font-serif text-lg text-lamplight">Keys in the reading room</h2>
+          <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
+            {shortcutsFor(proof).map((s) => (
+              <Fragment key={s.label}>
+                <dt className="flex gap-1">{s.keys.map((k) => <kbd key={k} className="rounded-sm border border-sandstone/50 px-1.5 text-xs text-lamplight">{k}</kbd>)}</dt>
+                <dd className="text-paper/90">{s.label}</dd>
+              </Fragment>
+            ))}
+          </dl>
+          <form method="dialog" className="mt-4 text-right"><button className="rounded-sm border border-lamplight/60 px-3 py-1 text-xs text-lamplight hover:bg-lamplight/10">Close</button></form>
+        </dialog>
         <p role="status" aria-live="polite" className="mx-auto max-w-5xl font-sans text-[0.7rem] text-lamplight empty:hidden">{status}</p>
       </header>
 
