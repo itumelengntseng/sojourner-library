@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-06 (scheduled build run 5 — C34 onward; C24 still blocked → NEEDS ITU 1)._
+_Last updated: 2026-11-06 (scheduled build run 5 — C34–C47, QA8–QA12, preview-cookie fix; C24 + 0014 wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -85,7 +85,7 @@ _Last updated: 2026-11-06 (scheduled build run 5 — C34 onward; C24 still block
 - Tests: 371 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (re-run after C47 / QA12).
 
 ## Next task
-C48 — see BACKLOG.md → FOLLOW-UPS (proposed by run 5), then C49, QA13. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C48 — preview cookie compaction (BACKLOG.md → FOLLOW-UPS), then C49, QA13. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
