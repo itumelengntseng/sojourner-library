@@ -50,6 +50,11 @@ export function finishedAt(sessions: WorkSession[], last: { key: string; words: 
   return undefined;
 }
 
+/** Keys of the chapters the reader has read through (same 90% rule as the finish stamp). */
+export function chaptersRead(sessions: WorkSession[], chapters: { key: string; words: number }[]): string[] {
+  return chapters.filter((c) => finishedAt(sessions, c) !== undefined).map((c) => c.key);
+}
+
 /** Adds the finished stamp to each book's hours. `lastChapters` maps workKey → its last chapter. */
 export function withFinished(hours: WorkHours[], sessions: WorkSession[], lastChapters: Record<string, { key: string; words: number }>): WorkHours[] {
   return hours.map((h) => {

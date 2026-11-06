@@ -11,7 +11,9 @@ import { latestLoan } from "@/lib/loanDesk";
 import { loadDesk } from "@/lib/loanStore";
 import { outsideCanonNote } from "@/lib/canon";
 import { myPace } from "@/lib/sessionStore";
-import { myFinish } from "@/lib/ledgerStore";
+import { myChaptersRead, myFinish } from "@/lib/ledgerStore";
+import { ChapterMarks } from "@/components/ChapterMarks";
+import { locateBookmark } from "@/lib/reader";
 import { paceNote } from "@/lib/sessions";
 import { CANON_LABEL, formatWords, workStats } from "@/lib/workStats";
 
@@ -23,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function WorkPage({ params }: { params: Promise<{ slug: string }> }) {
   const work = await findWork((await params).slug);
   if (!work) notFound();
-  const [desk, pace, finished] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug)]);
+  const [desk, pace, finished, readPositions] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug)]);
   const stats = workStats(work, pace.wpm);
   const facts = librarianFacts({
     chapters: stats.chapters,
@@ -32,6 +34,9 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
     usualMinutesPerDay: pace.minutesPerDay,
   });
   const now = Date.now();
+  const bookmarkWords = latestLoan(desk.loans, desk.workId, desk.readerId)?.bookmark.wordOffset ?? 0;
+  const here = bookmarkWords > 0 ? locateBookmark(stats.chapters, bookmarkWords).position : null;
+  const read = new Set(readPositions);
 
   return (
     <main id="main" className="mx-auto max-w-4xl px-4 pt-16">
@@ -87,7 +92,7 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
         <ol className="mt-4 divide-y divide-timber-dark/70 border-y border-timber-dark/70">
           {stats.chapters.map((c) => (
             <li key={c.position} className="flex items-baseline justify-between gap-4 py-3">
-              <span>{c.title}</span>
+              <span>{c.title}<ChapterMarks read={read.has(c.position)} here={here === c.position} /></span>
               <span className="shrink-0 font-sans text-xs text-sandstone">{formatWords(c.words)} · {formatDuration(c.minutes)}</span>
             </li>
           ))}

@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { getWorks } from "./catalogue";
 import { activeMs, countWords } from "./engine/readingTime";
-import { byMonth, finishedAt, hoursByWork, loanHistory, notesMarkdown, streaks, withFinished, type ExportWork, type HistoryRow, type MonthRow, type Streaks, type WorkHours, type WorkSession } from "./ledger";
+import { byMonth, chaptersRead, finishedAt, hoursByWork, loanHistory, notesMarkdown, streaks, withFinished, type ExportWork, type HistoryRow, type MonthRow, type Streaks, type WorkHours, type WorkSession } from "./ledger";
 import { parsePreviewLoans, PREVIEW_COOKIE, rowToLoan, type LoanRow } from "./loanDesk";
 import { splitParagraphs } from "./reader";
 import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
@@ -148,4 +148,31 @@ export async function myFinish(slug: string): Promise<number | undefined> {
     endedAt: Date.parse((r.ended_at ?? r.started_at) as string),
   }));
   return finishedAt(sessions, { key: last.id as string, words: last.word_count as number });
+}
+
+/** Positions of the chapters of `slug` the reader has read through, from their own sessions (C28). */
+export async function myChaptersRead(slug: string): Promise<number[]> {
+  const supabase = await supabaseServer();
+  if (!supabase) {
+    const work = getWorks().find((w) => w.slug === slug);
+    if (!work) return [];
+    const stats = parseStoredStats((await cookies()).get(PREVIEW_SESSIONS_COOKIE)?.value).filter((s) => s.slug === slug && s.position);
+    const sessions = stats.map((s) => ({ ...s, workKey: slug, chapterKey: String(s.position) }));
+    return chaptersRead(sessions, work.chapters.map((c) => ({ key: String(c.position), words: countWords(c.body) }))).map(Number);
+  }
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return [];
+  const { data: work } = await supabase.from("works").select("id").eq("slug", slug).maybeSingle();
+  if (!work) return [];
+  const { data: chs } = await supabase.from("chapters").select("id, position, word_count").eq("work_id", work.id).is("archived_at", null).order("position").limit(400);
+  const list = (chs ?? []) as { id: string; position: number; word_count: number }[];
+  if (list.length === 0) return [];
+  const { data: rows } = await supabase.from("sessions").select("chapter_id, words_read, started_at, ended_at")
+    .eq("reader_id", auth.user.id).eq("work_id", work.id).not("chapter_id", "is", null).limit(5000);
+  const sessions = (rows ?? []).map((r) => ({
+    workKey: work.id as string, chapterKey: r.chapter_id as string, wordsRead: r.words_read as number, activeMs: 0,
+    endedAt: Date.parse((r.ended_at ?? r.started_at) as string),
+  }));
+  const read = new Set(chaptersRead(sessions, list.map((c) => ({ key: c.id, words: c.word_count }))));
+  return list.filter((c) => read.has(c.id)).map((c) => c.position);
 }
