@@ -4,7 +4,7 @@ import type { PitchKit } from "@/lib/pitch";
 export function PitchSheet({ kit, work }: { kit: PitchKit; work: { title: string; author: string; words: number; readingTime: string } }) {
   const list = (items: string[]) => <ul className="list-disc pl-5">{items.map((t) => <li key={t}>{t}</li>)}</ul>;
   return (
-    <article className="mx-auto max-w-2xl rounded-sm bg-paper px-6 py-8 text-ink shadow-[0_18px_40px_-12px_rgb(0_0_0/0.7)] sm:px-10">
+    <article className="pitch-sheet mx-auto max-w-2xl rounded-sm bg-paper px-6 py-8 text-ink shadow-[0_18px_40px_-12px_rgb(0_0_0/0.7)] sm:px-10">
       {kit.isPlaceholder && <p className="mb-4 rounded-sm border border-ochre px-3 py-1 font-sans text-xs text-[#8a4a12]">Placeholder pitch — the author&apos;s own words will replace this.</p>}
       <h1 className="text-3xl">{work.title}</h1>
       <p className="mt-1 font-sans text-sm uppercase tracking-[0.2em] text-timber">by {work.author}</p>
@@ -17,8 +17,8 @@ export function PitchSheet({ kit, work }: { kit: PitchKit; work: { title: string
       {kit.audience && (<><h2 className="mt-6 font-sans text-xs uppercase tracking-wider text-timber">Audience</h2><p>{kit.audience}</p></>)}
       {kit.formats.length > 0 && (<><h2 className="mt-6 font-sans text-xs uppercase tracking-wider text-timber">Formats</h2><p>{kit.formats.join(" · ")}</p></>)}
       <p className="mt-6 font-sans text-sm text-timber">{work.words > 0 ? `${work.words.toLocaleString("en-ZA")} words · about ${work.readingTime} to read` : "Length to come"}</p>
-      <h2 className="mt-6 font-sans text-xs uppercase tracking-wider text-timber">From the work</h2>
-      <blockquote className="mt-1 whitespace-pre-line border-l-2 border-ochre pl-4 italic">{kit.sample}</blockquote>
+      <section className="sheet-keep"><h2 className="mt-6 font-sans text-xs uppercase tracking-wider text-timber">From the work</h2>
+      <blockquote className="mt-1 whitespace-pre-line border-l-2 border-ochre pl-4 italic">{kit.sample}</blockquote></section>
       <h2 className="mt-6 font-sans text-xs uppercase tracking-wider text-timber">From the author</h2>
       <p className="mt-1 whitespace-pre-line">{kit.authorNote}</p>
       {kit.contact && (<><h2 className="mt-6 font-sans text-xs uppercase tracking-wider text-timber">Contact</h2><p className="mt-1">{kit.contact}</p></>)}

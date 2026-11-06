@@ -40,10 +40,11 @@ _Last updated: 2026-11-06 (scheduled build run 2 — C1–C13 + QA2)._
 - C13 — "Finished" stamp in the ledger (`finishedAt()` / `withFinished()` in `lib/ledger.ts`, `lib/ledgerStore.ts`, `/ledger`): a book is stamped "Finished <date>" in Hours per book once the words read in its last (non-archived) chapter reach 90% of it, dated by the session that crossed the line. Library mode uses `sessions.chapter_id`; preview session summaries now remember the chapter position (older summaries without it simply never count). Smoke-tested in preview: borrow → read the last chapter through → ledger shows the stamp. The work-page stamp is split out as C14.
 - C14 — "You finished this · <date>" stamp on the work page (`myFinish()` in `lib/ledgerStore.ts`), from the reader's own sessions on the last chapter (same 90% rule). Smoke-tested in preview: none before → stamp after reading the last chapter.
 - C15 — Reader preferences on the card (`PrefsForm` in `app/card/forms.tsx`, `savePrefs`, `checkPrefs()` in `lib/membership.ts`): "Your name and reading pace" under the card — name on the card (≤ 60 chars) and an optional fixed pace (50–1500 wpm) or "let the library learn my pace" (clears the override). Saved to the reader's own row only (RLS verified: can't change someone else's). Library mode only (the card page needs a reader).
-- Tests: 258 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks).
+- C16 — Print-friendly pitch sheet (`@media print` + `@page` A4 in `app/globals.css`, `components/PrintSheetButton.tsx`): "Print or save as PDF" on `/pitch-room/<slug>` and `/p/<token>`; on paper: white page, no nav/footer/button, no shadow, headings kept with their text, the excerpt never split; the placeholder notice and authorship/© stay on. Verified in Chromium print emulation: placeholder sheet → exactly 1 A4 page, nav/footer hidden, no errors.
+- Tests: 262 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks, re-run after C16).
 
 ## Next task
-Backlog B1–B11, NEXT ITERATION a–e, QA2 and FOLLOW-UPS C1–C15 are complete. Next task: C16 — print-friendly pitch sheet (BACKLOG.md → FOLLOW-UPS).
+Backlog B1–B11, NEXT ITERATION a–e, QA2 and FOLLOW-UPS C1–C16 are complete. Next task: QA3 — full QA pass after C6–C16 (BACKLOG.md → FOLLOW-UPS).
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PitchSheet } from "@/components/PitchSheet";
+import { PrintSheetButton } from "@/components/PrintSheetButton";
 import { openSharedPitch } from "@/lib/pitchStore";
 
 export const metadata: Metadata = { title: "A private pitch", robots: { index: false, follow: false }, referrer: "no-referrer" };
@@ -15,5 +16,10 @@ export default async function SharedPitch({ params }: { params: Promise<{ token:
       </main>
     );
   }
-  return <main id="main" className="px-4 pt-12"><PitchSheet kit={p.kit} work={p.work} /></main>;
+  return (
+    <main id="main" className="sheet-page px-4 pt-12">
+      <div className="no-print mx-auto mb-4 flex max-w-2xl justify-end"><PrintSheetButton /></div>
+      <PitchSheet kit={p.kit} work={p.work} />
+    </main>
+  );
 }

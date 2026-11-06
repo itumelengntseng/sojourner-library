@@ -84,3 +84,36 @@ body {
   .scene-cover .scene-harlem { opacity: 1; }
   .scene-cover .scene, .scene-cover g { animation: none !important; }
 }
+
+/* ── Print: the pitch sheet as one clean page of paper ─────────────────────── */
+@page {
+  size: A4;
+  margin: 16mm 18mm;
+}
+
+@media print {
+  :root { color-scheme: light; }
+  html, body, .lamplit {
+    background: #fff !important;
+    color: var(--color-ink);
+    min-height: 0 !important;
+  }
+  .no-print { display: none !important; }
+  .sheet-page { padding: 0 !important; }
+  .pitch-sheet {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none !important;
+    border-radius: 0;
+    background: #fff !important;
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+  .pitch-sheet h1 { font-size: 22pt; }
+  .pitch-sheet h2 { break-after: avoid; page-break-after: avoid; }
+  .pitch-sheet blockquote, .pitch-sheet ul, .pitch-sheet .sheet-keep { break-inside: avoid; page-break-inside: avoid; }
+  .pitch-sheet p { orphans: 3; widows: 3; }
+  .pitch-sheet .threshold { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  a { color: inherit; text-decoration: none; }
+}
