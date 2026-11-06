@@ -208,6 +208,16 @@ for (const width of WIDTHS) {
   await axeCheck(`${width}px work page with read ticks`);
 }
 
+// C41: the ledger with a book read to the end (a session through the last chapter).
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await ctx.addCookies([{ name: "soj_preview_sessions", value: encodeURIComponent(JSON.stringify([{ id: "qa-f", slug: "placeholder-work-one", position: 6, wordsRead: 99999, activeMs: 600000, endedAt: Date.now() - 60000 }])), url: BASE }]);
+  await page.goto(`${BASE}/ledger`);
+  await page.getByRole("region", { name: "Read to the end" }).waitFor();
+  await axeCheck(`${width}px ledger with a finished book`);
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);

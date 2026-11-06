@@ -64,6 +64,12 @@ export function withFinished(hours: WorkHours[], sessions: WorkSession[], lastCh
 }
 
 /** "3 h 20 min", "12 min", "under a minute". */
+/** C41: the books the reader has finished, newest finish first. */
+export function finishedBooks(hours: WorkHours[]): { workKey: string; finishedAt: number }[] {
+  return hours.flatMap((h) => (h.finishedAt !== undefined ? [{ workKey: h.workKey, finishedAt: h.finishedAt }] : []))
+    .sort((a, b) => b.finishedAt - a.finishedAt);
+}
+
 export function formatHours(ms: number): string {
   const mins = Math.floor(ms / 60_000);
   if (mins < 1) return "under a minute";

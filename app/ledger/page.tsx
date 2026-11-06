@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
-import { formatHours } from "@/lib/ledger";
+import { finishedBooks, formatHours } from "@/lib/ledger";
+import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
 import { stampDate } from "@/lib/loanDesk";
 import { AUTHOR } from "@/lib/site";
@@ -48,6 +49,8 @@ export default async function Ledger() {
       </dl>
 
       {l.totalMs > 0 && l.months.length > 0 && <ReadingByMonth months={l.months} />}
+
+      <FinishedShelf items={finishedBooks(l.hours)} title={title} href={link} />
 
       <section aria-labelledby="hours" className="mt-12">
         <h2 id="hours" className="text-xl text-paper">Hours per book</h2>
