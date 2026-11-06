@@ -145,3 +145,14 @@ describe("notes for one book (C29)", () => {
     expect(html).toContain("Placeholder Work One");
   });
 });
+
+describe("borrowing history paging (C46)", () => {
+  it("shows the newest 10 unless asked for all", async () => {
+    const { historyPage } = await import("@/lib/ledger");
+    const rows = Array.from({ length: 13 }, (_, i) => i);
+    expect(historyPage(rows, false)).toEqual({ rows: rows.slice(0, 10), hidden: 3 });
+    expect(historyPage(rows, true)).toEqual({ rows, hidden: 0 });
+    expect(historyPage(rows.slice(0, 10), false)).toEqual({ rows: rows.slice(0, 10), hidden: 0 });
+    expect(historyPage([], false)).toEqual({ rows: [], hidden: 0 });
+  });
+});

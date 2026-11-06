@@ -163,6 +163,13 @@ export interface HistoryRow {
   renewals: number;
 }
 
+/** C46: the history shows the newest `limit` rows unless the reader asks for all of it. */
+export const HISTORY_SHORT = 10;
+export function historyPage<T>(rows: T[], showAll: boolean, limit = HISTORY_SHORT): { rows: T[]; hidden: number } {
+  if (showAll || rows.length <= limit) return { rows, hidden: 0 };
+  return { rows: rows.slice(0, limit), hidden: rows.length - limit };
+}
+
 export function loanHistory(loans: Loan[], now: number): HistoryRow[] {
   return [...loans]
     .sort((a, b) => b.borrowedAt - a.borrowedAt)

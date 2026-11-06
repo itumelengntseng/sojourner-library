@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
-import { finishedBooks, formatHours } from "@/lib/ledger";
+import { finishedBooks, formatHours, historyPage } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
 import { stampDate } from "@/lib/loanDesk";
@@ -11,7 +11,8 @@ import { AUTHOR } from "@/lib/site";
 export const metadata: Metadata = { title: "Your ledger" };
 
 // A bound ledger on the librarian's desk: what you borrowed, how long you read, your run of days.
-export default async function Ledger() {
+export default async function Ledger({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const showAll = (await searchParams).history === "all";
   const l = await loadLedger();
   if (l.mode === "signed-out") {
     return (
@@ -88,7 +89,7 @@ export default async function Ledger() {
           <p className="mt-3 font-sans text-sm text-sandstone">Nothing borrowed yet. <Link href="/halls" className="text-lamplight underline">Visit the halls.</Link></p>
         ) : (
           <ol className="mt-4 divide-y divide-timber-dark/70 border-y border-timber-dark/70">
-            {l.history.map((r) => (
+            {historyPage(l.history, showAll).rows.map((r) => (
               <li key={r.id} className="flex flex-wrap items-baseline justify-between gap-2 py-3">
                 <span>{title(r.workKey)}</span>
                 <span className="font-mono text-xs text-ochre">
@@ -98,6 +99,12 @@ export default async function Ledger() {
               </li>
             ))}
           </ol>
+        )}
+        {historyPage(l.history, showAll).hidden > 0 && (
+          <p className="mt-2 font-sans text-xs"><Link href="/ledger?history=all#history" className="text-lamplight underline underline-offset-2">Show all {l.history.length} loans</Link> <span className="text-sandstone">({historyPage(l.history, showAll).hidden} older)</span></p>
+        )}
+        {showAll && l.history.length > 10 && (
+          <p className="mt-2 font-sans text-xs"><Link href="/ledger#history" className="text-lamplight underline underline-offset-2">Show the last 10</Link></p>
         )}
       </section>
 

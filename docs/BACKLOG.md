@@ -74,7 +74,7 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C44 Reading room: remember the last-used loan period on the work page's borrow form (per browser), so "Borrow again" defaults to what the reader chose last time.
 - [x] C45 Writer's Room glance: "Finished by readers" tile — how many loans' readers reached the end of each shared work (counts only, never who), via an owner-only SQL function; needs a migration → if the live database can't take it this run, write it and log it under NEEDS ITU like 0013.
 - [x] QA11 QA pass after C43–C45.
-- [ ] C46 Ledger: "Borrowing history" gets a "Show all / Last 10" toggle (GET param, no JavaScript needed) once it's longer than 10 rows.
+- [x] C46 Ledger: "Borrowing history" gets a "Show all / Last 10" toggle (GET param, no JavaScript needed) once it's longer than 10 rows.
 - [ ] C47 Reading room: the Contents drawer shows the reader's own "✓ read" ticks (C28 data) beside chapters, matching the work page.
 - [ ] QA12 QA pass after C46–C47.
 
