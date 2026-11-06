@@ -12,7 +12,7 @@
 - [x] B7 Reader view: paged/scroll, dark/sepia/light, bookmarks, margin notes, highlights
 - [x] B8 Session tracking feeding personal speed
 - [x] B9 "Ask the librarian" box on every book
-- [ ] B10 Reading ledger: history, hours per book, streaks, notes export
+- [x] B10 Reading ledger: history, hours per book, streaks, notes export
 - [ ] B11 QA pass: accessibility, 375px mobile, performance, RLS security check
 
 ## NEXT ITERATION (after backlog)

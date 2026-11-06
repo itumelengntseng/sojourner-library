@@ -53,6 +53,7 @@ const PREVIEW_LIMIT = 40;
 
 export interface StoredStats extends SessionStats {
   id: string;
+  slug?: string; // which work (absent on summaries saved before the ledger existed)
 }
 
 export function parseStoredStats(raw: string | undefined): StoredStats[] {
@@ -62,7 +63,7 @@ export function parseStoredStats(raw: string | undefined): StoredStats[] {
     if (!Array.isArray(data)) return [];
     return data.filter((x): x is StoredStats => {
       const s = x as Record<string, unknown>;
-      return !!s && typeof s.id === "string" && [s.wordsRead, s.activeMs, s.endedAt].every((n) => typeof n === "number" && Number.isFinite(n) && n >= 0);
+      return !!s && typeof s.id === "string" && (s.slug === undefined || typeof s.slug === "string") && [s.wordsRead, s.activeMs, s.endedAt].every((n) => typeof n === "number" && Number.isFinite(n) && n >= 0);
     }).slice(0, PREVIEW_LIMIT);
   } catch {
     return [];

@@ -31,12 +31,15 @@ export default function FrontHall() {
         </p>
       </section>
 
-      <div className="mt-12 flex justify-center gap-4">
+      <div className="mt-12 flex flex-wrap justify-center gap-4">
         <Link href="/halls" className="rounded border border-sandstone/50 px-5 py-2 font-sans text-sm text-paper hover:border-lamplight">
           Walk the halls
         </Link>
         <Link href="/card" className="rounded border border-lamplight/60 px-5 py-2 font-sans text-sm text-lamplight hover:bg-lamplight hover:text-ink">
           Front desk
+        </Link>
+        <Link href="/ledger" className="rounded border border-sandstone/50 px-5 py-2 font-sans text-sm text-paper hover:border-lamplight">
+          Your ledger
         </Link>
       </div>
     </main>

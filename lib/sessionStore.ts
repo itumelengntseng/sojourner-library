@@ -19,7 +19,7 @@ export async function recordSession(p: SessionPayload): Promise<boolean> {
     const loans = settleExpired(parsePreviewLoans(store.get(PREVIEW_COOKIE)?.value), now);
     if (!work || !ch || !openLoan(loans, p.slug, PREVIEW_READER, now)) return false;
     const stats = toStats(capWords(p, countWords(ch.body)));
-    const list = upsertStats(parseStoredStats(store.get(PREVIEW_SESSIONS_COOKIE)?.value), { id: p.sessionId, ...stats });
+    const list = upsertStats(parseStoredStats(store.get(PREVIEW_SESSIONS_COOKIE)?.value), { id: p.sessionId, slug: p.slug, ...stats });
     store.set(PREVIEW_SESSIONS_COOKIE, JSON.stringify(list), COOKIE_OPTS);
     return true;
   }
