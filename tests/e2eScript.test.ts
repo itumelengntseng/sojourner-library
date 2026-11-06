@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
 
 const run = (args: string[], env: Record<string, string> = {}) =>
-  spawnSync(process.execPath, ["scripts/e2e.mjs", ...args], { env: { PATH: process.env.PATH ?? "", ...env }, encoding: "utf8" });
+  spawnSync(process.execPath, ["scripts/e2e.mjs", ...args], { env: { PATH: process.env.PATH ?? "", ...env } as unknown as NodeJS.ProcessEnv, encoding: "utf8" });
 
 describe("end-to-end smoke script", () => {
   it("refuses to start without a target", () => {

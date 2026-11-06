@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { getWorks, hallsFor, HALLS } from "@/lib/catalogue";
-import { NO_BLURB, withAuthor, worksFromRows, type ChapterRow, type WorkRow } from "@/lib/catalogueRows";
+import { freshOnShelves, NO_BLURB, withAuthor, worksFromRows, type ChapterRow, type WorkRow } from "@/lib/catalogueRows";
 import { workStats } from "@/lib/workStats";
 import { addUser, asUser, freshDb, type Db } from "./helpers/db";
 
@@ -65,6 +65,19 @@ describe("catalogue from rows", () => {
       row({ id: "4", slug: "y", title: "Y" }),
     ], []);
     expect(works.map((w) => w.slug)).toEqual(["y", "z", "s1", "s2"]);
+  });
+});
+
+describe("fresh on the shelves", () => {
+  const now = Date.parse("2026-11-06T10:00:00Z");
+  const day = 86_400_000;
+  const w = (slug: string, ago: number | null) => worksFromRows([row({ id: slug, slug, updated_at: ago === null ? null : new Date(now - ago * day).toISOString() })], [])[0];
+  it("lists the newest few from the last 60 days, newest first", () => {
+    const list = freshOnShelves([w("old", 90), w("a", 5), w("b", 1), w("c", 30), w("d", 2), w("none", null)], now);
+    expect(list.map((x) => x.slug)).toEqual(["b", "d", "a"]);
+  });
+  it("shows nothing for the placeholder catalogue (no dates)", () => {
+    expect(freshOnShelves(getWorks(), now)).toEqual([]);
   });
 });
 

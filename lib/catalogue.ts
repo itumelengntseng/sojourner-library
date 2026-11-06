@@ -23,6 +23,8 @@ export interface Work {
   isPlaceholder: boolean;
   blurb: string;
   chapters: PlaceholderChapter[];
+  /** Library mode: when the work was last shelved, shared or changed (ms). */
+  updatedAt?: number;
 }
 
 const LOREM =

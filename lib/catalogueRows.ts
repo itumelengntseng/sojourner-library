@@ -15,6 +15,7 @@ export interface WorkRow {
   canon_status: string;
   is_placeholder: boolean;
   description?: string | null;
+  updated_at?: string | null;
   archived_at?: string | null;
 }
 
@@ -58,6 +59,7 @@ export function worksFromRows(works: WorkRow[], chapters: ChapterRow[]): Work[] 
       chapters: (byWork.get(w.id) ?? [])
         .sort((a, b) => a.position - b.position)
         .map((c) => ({ position: c.position, title: c.title, body: "", words: Math.max(0, c.word_count ?? 0) })),
+      ...(w.updated_at && Number.isFinite(Date.parse(w.updated_at)) ? { updatedAt: Date.parse(w.updated_at) } : {}),
       _order: [w.series ?? "", w.series_order ?? 0, w.title] as const,
     }))
     .sort((a, b) => a._order[0].localeCompare(b._order[0]) || a._order[1] - b._order[1] || a._order[2].localeCompare(b._order[2]))
@@ -84,4 +86,14 @@ export function checkHall(name: unknown, note: unknown, position: unknown = 0): 
   if (n.length > 80) return { ok: false, message: "Keep the hall's name under 80 characters." };
   if (t.length > 300) return { ok: false, message: "Keep the note under 300 characters." };
   return { ok: true, name: n, note: t, position: Number.isFinite(p) ? Math.max(0, Math.min(999, p)) : 0 };
+}
+
+/** The few works most recently shelved or changed, newest first (only those with a date). */
+export function freshOnShelves(works: Work[], now: number, opts: { limit?: number; days?: number } = {}): Work[] {
+  const { limit = 3, days = 60 } = opts;
+  const since = now - days * 86_400_000;
+  return works
+    .filter((w) => w.updatedAt !== undefined && w.updatedAt >= since && w.updatedAt <= now + 60_000)
+    .sort((a, b) => b.updatedAt! - a.updatedAt!)
+    .slice(0, limit);
 }

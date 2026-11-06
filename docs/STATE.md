@@ -33,10 +33,11 @@ _Last updated: 2026-11-06 (scheduled build run)._
 - C6 — Work descriptions (`supabase/migrations/0011_work_descriptions.sql`, `DescriptionForm` in `components/WritersRoomForms.tsx`, `descriptionAction`): each work in the Writer's Room has "Add / Edit description" (up to 2000 characters). Shown on the work page via the catalogue; empty → "The author hasn't written a description…" (placeholders keep their placeholder line). Guests can read, not change (RLS verified). Form appears in library mode only.
 - C7 — Hall names (`supabase/migrations/0012_halls.sql`, `HallForm` + hall choice in `WorkSettings`, `hallAction`, `hallsFromRows`/`checkHall` in `lib/catalogueRows.ts`): "The halls" section in the Writer's Room — rename the placeholder hall, add a note, set the order, open new halls (address made from the name); each work gets a hall choice on the shelf list. `/halls` reads the library's halls (placeholder hall until any are named); works in a hall that isn't named still show. Halls are never deleted; card holders read, owner writes (RLS + security audit). Preview shows the forms with saving disabled.
 - C8 — End-to-end smoke script (`scripts/e2e.mjs`, `npm run e2e`): walks the library as the Keeper at phone width — front hall → (library: card, shelve a placeholder "E2E Placeholder Check" work as Draft/Only me, proof copy) → borrow → bookmark + margin note → ledger notes export contains the note → (library: make a pitch link, open it in a card-less browser, close it) → return to shelf → no page errors. `--preview` runs against a local preview build (passes: 6/6). Library run needs a saved sign-in made once with `--login` (stored in git-ignored `.e2e-session.json`); it never deletes anything and closes the links it makes.
-- Tests: 246 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks).
+- C9 — "Fresh on the shelves" (`freshOnShelves()` in `lib/catalogueRows.ts`, front hall): in library mode the front hall lists up to 3 works shelved, shared or changed in the last 60 days (as the reader is allowed to see them, canon switch respected), newest first, each with a stamped date in SA time. Preview mode shows nothing (placeholders carry no dates).
+- Tests: 248 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (37 page checks).
 
 ## Next task
-Backlog B1–B11, NEXT ITERATION a–e and FOLLOW-UPS C1–C5 are all complete. All backlog and follow-up items through C8 are complete. Next task: C9 — reader-facing "What's new" shelf (BACKLOG.md → FOLLOW-UPS).
+Backlog B1–B11, NEXT ITERATION a–e and FOLLOW-UPS C1–C5 are all complete. All backlog and follow-up items through C9 are complete. Next task: C10 — archive / restore a work from the Writer's Room (BACKLOG.md → FOLLOW-UPS).
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -80,4 +81,5 @@ Backlog B1–B11, NEXT ITERATION a–e and FOLLOW-UPS C1–C5 are all complete. 
 - A new person/place/event gets an id from "new …"; Itu renames it if he wants a meaningful id (renaming updates references).
 - Lineage and timeline are readable by any card holder (as before); editing is owner-only.
 - The Keeper's proof copy is read-only and unrecorded, so it never skews readership counts or the Keeper's own pace.
+- "Fresh on the shelves" uses a work's `updated_at`, so sharing a work or editing its description also brings it forward (60-day window, 3 works).
 - System serif font stack (no web-font download) to keep builds offline-safe.

@@ -6,12 +6,15 @@ import { filterByCanon } from "@/lib/workStats";
 import { loadCatalogue } from "@/lib/catalogueServer";
 import { AUTHOR, SITE_NAME } from "@/lib/site";
 import { ShelfEmpty } from "@/components/ShelfEmpty";
+import { freshOnShelves } from "@/lib/catalogueRows";
+import { DESK_TIME_ZONE } from "@/lib/loanDesk";
 
 // The front hall: you step over the threshold and the covers are lit along the wall.
 export default async function FrontHall({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const view = await canonView((await searchParams).canon);
   const catalogue = await loadCatalogue();
   const works = filterByCanon(catalogue.works, view);
+  const fresh = freshOnShelves(works, Date.now());
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16 sm:pt-24">
       <header className="flex flex-col items-center text-center">
@@ -40,6 +43,22 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
           </p>
         )}
       </section>
+
+      {fresh.length > 0 && (
+        <section aria-labelledby="fresh" className="mx-auto mt-12 max-w-xl rounded-sm border border-timber-dark bg-ink/40 px-5 py-4">
+          <h2 id="fresh" className="font-sans text-xs uppercase tracking-[0.25em] text-sandstone">Fresh on the shelves</h2>
+          <ul className="mt-3 divide-y divide-timber-dark/60">
+            {fresh.map((w) => (
+              <li key={w.slug} className="flex flex-wrap items-baseline justify-between gap-2 py-2">
+                <Link href={`/works/${w.slug}`} className="text-paper hover:text-lamplight">{w.title} <span className="font-sans text-xs text-sandstone">by {w.author}</span></Link>
+                <time dateTime={new Date(w.updatedAt!).toISOString()} className="rounded-sm border border-ember/50 px-1.5 font-mono text-[0.7rem] uppercase tracking-wider text-ember">
+                  {new Date(w.updatedAt!).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: DESK_TIME_ZONE })}
+                </time>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <div className="mt-12 flex flex-wrap justify-center gap-4">
         <Link href="/halls" className="rounded border border-sandstone/50 px-5 py-2 font-sans text-sm text-paper hover:border-lamplight">
