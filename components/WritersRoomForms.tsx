@@ -67,7 +67,7 @@ export function ManuscriptImport({ canSave, shelf = {} }: { canSave: boolean; sh
           <p className="text-paper">{parsed.chapters.length} chapter{parsed.chapters.length === 1 ? "" : "s"} · {parsed.words.toLocaleString("en-ZA")} word{parsed.words === 1 ? "" : "s"} · about {parsed.readingTime}</p>
           {parsed.warnings.map((w) => <p key={w} className="text-ember">{w}</p>)}
           {shownTitle && <p className={plan.update ? "mt-1 text-lamplight" : "mt-1 text-sandstone"}>{planSummary(plan)}</p>}
-          <ol className="mt-2 max-h-56 overflow-y-auto">
+          <ol tabIndex={0} aria-label="Chapters in this import" className="mt-2 max-h-56 overflow-y-auto focus:outline focus:outline-2 focus:outline-lamplight">
             {plan.rows.map((r) => (
               <li key={`${r.status}-${r.position}`} className={`flex flex-wrap justify-between gap-x-3 border-t border-timber-dark/60 py-1 ${r.status === "archive" ? "opacity-80" : ""}`}>
                 <span>{r.position}. {r.title}{plan.update && <span className={`ml-2 text-xs ${PLAN_TONE[r.status]}`}>· {PLAN_LABEL[r.status]}</span>}</span>

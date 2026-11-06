@@ -118,6 +118,32 @@ async function axeCheck(label) {
   await axeCheck("ledger with reading by month");
 }
 
+// QA5: the re-import preview with a title already on the shelves, the glance tiles, the
+// end-of-chapter card on the last chapter, and "Recently returned" on the card.
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/writers-room`);
+  await page.locator('textarea[name="manuscript"]').fill("# Placeholder Work One\n\n## Chapter 1\n\nPlaceholder text for the QA sweep.\n\n## A new chapter\n\nMore placeholder text.");
+  await page.getByRole("region", { name: "Import preview" }).waitFor();
+  await axeCheck(`${width}px writer's room re-import preview + glance tiles`);
+
+  errors.length = 0;
+  await page.goto(`${BASE}/works/placeholder-work-one/read?ch=2`);
+  await page.getByRole("region", { name: "End of the chapter" }).waitFor();
+  await axeCheck(`${width}px reading room end-of-chapter card`);
+}
+{
+  await page.setViewportSize({ width: 375, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/works/placeholder-work-one`);
+  await page.getByRole("button", { name: "Return to shelf" }).click();
+  await page.getByRole("button", { name: "Return to shelf" }).waitFor({ state: "detached" });
+  await page.goto(`${BASE}/card`);
+  await page.getByRole("region", { name: "Recently returned" }).waitFor();
+  await axeCheck("card with recently returned");
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);
