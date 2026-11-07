@@ -57,7 +57,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
 
       {l.totalMs > 0 && l.months.length > 0 && <ReadingByMonth months={l.months} />}
 
-      <FinishedShelf items={finishedBooks(l.hours)} title={title} href={link} />
+      <FinishedShelf items={finishedBooks(l.hours)} title={title} href={link} slug={(k) => l.slugs[k] ?? null} notes={l.mode === "preview" ? "preview" : "library"} />
 
       <section aria-labelledby="hours" className="mt-12">
         <h2 id="hours" className="text-xl text-paper">Hours per book</h2>
