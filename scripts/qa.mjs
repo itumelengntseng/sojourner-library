@@ -435,6 +435,8 @@ for (const width of WIDTHS) {
     await renew.first().click();
     await page.waitForURL(/\/works\/placeholder-work-two#desk$/);
     await page.getByRole("button", { name: "Renew" }).waitFor();
+    // QA33 (C107): the slip calls out the loan's last hour.
+    if (!(await page.getByText("Due back within the hour").count())) { failures++; console.log(`✗ ${width}px work page slip without "Due back within the hour"`); }
     await axeCheck(`${width}px card Renew → the work's loan desk`);
   }
   // QA30 (C99): the halls spine of the loan due within the hour says so.
@@ -498,6 +500,15 @@ for (const width of WIDTHS) {
   if (!(await onLoan.getByText(/No renewals left — return by /).count())) { failures++; console.log(`✗ ${width}px card: no "No renewals left" on the spent loan`); }
   if (await onLoan.locator("a[href='/works/placeholder-work-two#desk']").count()) { failures++; console.log(`✗ ${width}px card: still offers Renew on the spent loan`); }
   await axeCheck(`${width}px card with no renewals left`);
+  // QA33 (C108, C109): the spine says so, and the ledger's history row too.
+  errors.length = 0;
+  await page.goto(`${BASE}/halls`);
+  const spent = await page.locator("a[href='/works/placeholder-work-two'] .sr-only").first().textContent();
+  if (!/no renewals left/.test(spent ?? "")) { failures++; console.log(`✗ ${width}px halls: the spent loan's spine doesn't say no renewals left (${spent})`); }
+  await page.goto(`${BASE}/ledger`);
+  if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/· no renewals left/).count())) { failures++; console.log(`✗ ${width}px ledger: the open loan's row doesn't say no renewals left`); }
+  if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/· [123] renewals? left/).count())) { failures++; console.log(`✗ ${width}px ledger: no open loan with renewals left`); }
+  await axeCheck(`${width}px ledger with renewals left on open loans`);
   // The reading room's line is worked out in the browser, so move the page's clock into the loan's last hour.
   const p2 = await page.context().newPage();
   p2.on("pageerror", (e) => errors.push(String(e)));

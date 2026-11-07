@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 9 — C101–C106, QA31–QA32 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 9 — C101–C109, QA31–QA33 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -161,10 +161,14 @@ _Last updated: 2026-11-07 (scheduled build run 9 — C101–C106, QA31–QA32 so
 - C105 — Front hall Due back soon slip: the same rule — "no renewals left" in place of Renew. Unit-tested.
 - C106 — Reading room due line (C102): with no renewals left it reads "Due back at 14:00 · no renewals left — return at the desk". The reading-room loader now carries `renewalsLeft` (preview from the cookie loan; library selects the loan's `renewals` — the reader's own row, already readable under RLS). Unit-tested.
 - QA32 (2026-11-07, after C104–C106): `npm run qa` all clear — now also renews the hour loan three times at its desk (Renew then disabled), requires "No renewals left — return by" and no Renew link on the card, and opens the reading room with the browser clock moved into the loan's last hour to require "no renewals left — return at the desk" (375px + 1280px, axe clean). The slip's rule is unit-tested only: by then the spent loan is the Continue reading book, which (C42) leaves the slip. Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 500 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA32).
+- C107 — Work page slip (`withinHour` on `Slip` in `lib/loanDesk.ts`, `components/DueDateSlip.tsx`): in an open loan's last hour the slip carries "Due back within the hour" (ember); in the final 15 minutes the existing "Due back very soon" headline takes over, so it is never said twice. Worked out on the server when the page renders (the work page is per request), not in the browser as the backlog line suggested — the slip's other stamps are server-made too. Unit-tested (`tests/slipWithinHour.test.tsx`).
+- C108 — Halls spoken spine (`noRenewals` in `lib/spine.ts`): a book on loan with every renewal used adds ", no renewals left" after its due time. Unit-tested.
+- C109 — Ledger Borrowing history (`renewalsLeftLine()` in `lib/ledger.ts`): an open loan's row adds "· 3 renewals left" / "· 1 renewal left" / "· no renewals left"; returned loans unchanged. Unit-tested (`tests/historyRenewals.test.ts`).
+- QA33 (2026-11-07, after C107–C109): `npm run qa` all clear — now also requires "Due back within the hour" on the work page slip (the hour loan, via the card's Renew), and after the three renewals the spine's "no renewals left" and the ledger rows' "no renewals left" / "N renewals left" (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 506 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA33).
 
 ## Next task
-C107 — the work page's loan desk says "Due back within the hour" (BACKLOG.md → FOLLOW-UPS), then C108, C109, QA33. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C110 — the work page's loan desk explains a spent loan ("No renewals left — return it…") (BACKLOG.md → FOLLOW-UPS), then C111, C112, QA34. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
