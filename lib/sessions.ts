@@ -1,5 +1,5 @@
 // Reading sessions: what the reading room reports, checked before it is trusted.
-import { fitJson } from "./cookieBudget";
+import { b36, compactSafe, fitCookie, packRecords, readNum, unpackRecords } from "./cookieBudget";
 import { activeMs, DEFAULT_WPM, personalWpmFromStats, type SessionStats } from "./engine/readingTime";
 
 export const MAX_ACTIVITY = 2000;
@@ -58,8 +58,27 @@ export interface StoredStats extends SessionStats {
   position?: number; // which chapter (absent on older summaries)
 }
 
+// C48: compact shape — id~slug~chapter~words~activeMs~endedAt (ms in base 36; slug/chapter empty when unknown).
+function statsRecord(s: StoredStats): string[] {
+  return [s.id, s.slug ?? "", s.position === undefined ? "" : String(s.position), String(Math.round(s.wordsRead)), b36(s.activeMs), b36(s.endedAt)];
+}
+
+function recordStats(r: string[]): StoredStats | null {
+  if (r.length !== 6) return null;
+  const [id, slug, pos, w, a, e] = r;
+  const position = pos === "" ? undefined : readNum(pos, 10);
+  const wordsRead = readNum(w, 10), activeMs = readNum(a, 36), endedAt = readNum(e, 36);
+  if (!id || position === null || (position !== undefined && position < 1) || wordsRead === null || activeMs === null || endedAt === null) return null;
+  const out: StoredStats = { id, wordsRead, activeMs, endedAt };
+  if (slug !== "") out.slug = slug;
+  if (position !== undefined) out.position = position;
+  return out;
+}
+
 export function parseStoredStats(raw: string | undefined): StoredStats[] {
   if (!raw) return [];
+  const records = unpackRecords(raw);
+  if (records) return records.map(recordStats).filter((s): s is StoredStats => s !== null).slice(0, PREVIEW_LIMIT);
   try {
     const data: unknown = JSON.parse(raw);
     if (!Array.isArray(data)) return [];
@@ -72,9 +91,14 @@ export function parseStoredStats(raw: string | undefined): StoredStats[] {
   }
 }
 
+function writeStats(list: StoredStats[]): string {
+  const records = list.map(statsRecord);
+  return records.every((r) => compactSafe(r) && r[0] !== "") ? packRecords(records) : JSON.stringify(list);
+}
+
 /** The preview sessions cookie, kept under the browser's size limit by dropping the oldest summaries. */
 export function serializeStoredStats(list: StoredStats[]): string {
-  return fitJson(list, (l) => {
+  return fitCookie(list, writeStats, (l) => {
     if (l.length === 0) return -1;
     let oldest = 0;
     l.forEach((s, i) => { if (s.endedAt < l[oldest].endedAt) oldest = i; });

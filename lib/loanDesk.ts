@@ -1,6 +1,6 @@
 // The loan desk: pure helpers shared by the work page, the server actions and tests.
 // Built on the checkout engine; the database enforces the same rules (0003_loan_desk.sql).
-import { fitJson } from "./cookieBudget";
+import { b36, compactSafe, fitCookie, packRecords, readNum, unpackRecords } from "./cookieBudget";
 import {
   borrow,
   loanStatus,
@@ -109,11 +109,22 @@ export type DeskResult = { ok: true; loans: Loan[]; message: string } | { ok: fa
 
 const HISTORY_LIMIT = 20;
 
+/**
+ * Newest first, at most HISTORY_LIMIT — but a loan still out is never trimmed away
+ * (found in run 6: twenty newer borrows of another book silently dropped an open loan).
+ */
+export function trimHistory(loans: Loan[]): Loan[] {
+  const sorted = [...loans].sort((x, y) => y.borrowedAt - x.borrowedAt);
+  const open = sorted.filter((l) => l.returnedAt === null).length;
+  let room = Math.max(0, HISTORY_LIMIT - open);
+  return sorted.filter((l) => l.returnedAt === null || room-- > 0);
+}
+
 export function deskBorrow(loans: Loan[], a: { id: string; workId: string; readerId: string; period: LoanPeriod; now: number }): DeskResult {
   const settled = settleExpired(loans, a.now);
   try {
     const loan = borrow(a, settled);
-    const next = [...settled, loan].sort((x, y) => y.borrowedAt - x.borrowedAt).slice(0, HISTORY_LIMIT);
+    const next = trimHistory([...settled, loan]);
     return { ok: true, loans: next, message: `Stamped. Due back ${stampDate(loan.dueAt)}.` };
   } catch (e) {
     return { ok: false, loans: settled, message: (e as Error).message };
@@ -159,20 +170,53 @@ function isLoan(x: unknown): x is Loan {
   );
 }
 
-/** Parses the cookie; anything malformed is dropped rather than trusted. */
+// C48: the cookie's compact shape — id~work~period~borrowed~due~returned~renewals[~chapter~word]
+// (times base 36; returned empty while out; the bookmark left off when it's at the start).
+const PERIOD_CODE: Record<LoanPeriod, string> = { hour: "h", evening: "e", three_days: "d", two_weeks: "w" };
+const CODE_PERIOD: Record<string, LoanPeriod> = { h: "hour", e: "evening", d: "three_days", w: "two_weeks" };
+
+function loanRecord(l: Loan): string[] {
+  const r = [l.id, l.workId, PERIOD_CODE[l.period], b36(l.borrowedAt), b36(l.dueAt), l.returnedAt === null ? "" : b36(l.returnedAt), String(l.renewals)];
+  if (l.bookmark.chapterIndex !== 0 || l.bookmark.wordOffset !== 0) r.push(String(l.bookmark.chapterIndex), String(l.bookmark.wordOffset));
+  return r;
+}
+
+function recordLoan(r: string[]): Loan | null {
+  if (r.length !== 7 && r.length !== 9) return null;
+  const [id, workId, code, b, d, ret, ren, ch, wo] = r;
+  const period = CODE_PERIOD[code];
+  const borrowedAt = readNum(b, 36), dueAt = readNum(d, 36), renewals = readNum(ren, 10);
+  const returnedAt = ret === "" ? null : readNum(ret, 36);
+  const chapterIndex = r.length === 9 ? readNum(ch, 10) : 0, wordOffset = r.length === 9 ? readNum(wo, 10) : 0;
+  if (!id || !workId || !period || borrowedAt === null || dueAt === null || renewals === null || (ret !== "" && returnedAt === null) || chapterIndex === null || wordOffset === null) return null;
+  return { id, workId, readerId: PREVIEW_READER, period, borrowedAt, dueAt, renewals, returnedAt, bookmark: { chapterIndex, wordOffset } };
+}
+
+/** Parses the cookie (compact shape, or the older JSON); anything malformed is dropped rather than trusted. */
 export function parsePreviewLoans(raw: string | undefined): Loan[] {
   if (!raw) return [];
+  const records = unpackRecords(raw);
+  if (records) return trimHistory(records.map(recordLoan).filter((l): l is Loan => l !== null));
   try {
     const data: unknown = JSON.parse(raw);
-    return Array.isArray(data) ? data.filter(isLoan).slice(0, HISTORY_LIMIT) : [];
+    return Array.isArray(data) ? trimHistory(data.filter(isLoan)) : [];
   } catch {
     return [];
   }
 }
 
+/** The compact shape when every loan fits it (always, for the desk's own ids and slugs), else JSON. */
+function writeLoans(loans: Loan[]): string {
+  const records = loans.map(loanRecord);
+  const compact = loans.every((l) => l.readerId === PREVIEW_READER && Number.isInteger(l.renewals) && l.renewals >= 0 &&
+    Number.isInteger(l.bookmark.chapterIndex) && l.bookmark.chapterIndex >= 0 && Number.isInteger(l.bookmark.wordOffset) && l.bookmark.wordOffset >= 0) &&
+    records.every((r) => compactSafe(r) && r[0] !== "" && r[1] !== "");
+  return compact ? packRecords(records) : JSON.stringify(loans);
+}
+
 /** Keeps every open loan; when the cookie would pass its budget, the oldest ended loans go first. */
 export function serializePreviewLoans(loans: Loan[]): string {
-  return fitJson(loans.slice(0, HISTORY_LIMIT), (list) => {
+  return fitCookie(trimHistory(loans), writeLoans, (list) => {
     let oldest = -1;
     list.forEach((l, i) => { if (l.returnedAt !== null && (oldest < 0 || l.borrowedAt < list[oldest].borrowedAt)) oldest = i; });
     return oldest;
