@@ -2,12 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
 // C91: a "Read to the end" tile at the top of the ledger once a book is finished, leading to the shelf.
+let history: { id: string; workKey: string; borrowedAt: number; endedAt: number | null; open: boolean; renewals: number }[] = [];
 let hours: { workKey: string; activeMs: number; wordsRead: number; sessions: number; lastRead: number; finishedAt?: number }[] = [];
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/ledgerStore", () => ({
   loadLedger: async () => ({
     mode: "preview", readerName: "", titles: { w: "Placeholder Work One" }, slugs: { w: "placeholder-work-one" },
-    history: [], hours, streaks: { current: 0, longest: 0, readToday: false, days: 0 }, totalMs: 0, totalWords: 0, months: [], week: { ms: 0, days: 0 },
+    history, hours, streaks: { current: 0, longest: 0, readToday: false, days: 0 }, totalMs: 0, totalWords: 0, months: [], week: { ms: 0, days: 0 },
   }),
 }));
 vi.mock("@/lib/continueStore", () => ({ myContinueBySlug: async () => ({}) }));
@@ -50,5 +51,34 @@ describe("Borrow again on Read to the end (C92)", () => {
     expect(await render()).not.toContain("Borrow again");
     openSlugs = [];
     expect((await render()).match(/>Borrow again</g)).toHaveLength(1);
+  });
+});
+
+describe("Finished stamp in Borrowing history (C97)", () => {
+  it("stamps only the loan during which the book was read to the end", async () => {
+    const fin = Date.parse("2026-11-05T10:00:00Z");
+    hours = [{ workKey: "w", activeMs: 60_000, wordsRead: 100, sessions: 1, lastRead: fin, finishedAt: fin }];
+    history = [
+      { id: "l2", workKey: "w", borrowedAt: Date.parse("2026-11-06T10:00:00Z"), endedAt: null, open: true, renewals: 0 }, // a reread
+      { id: "l1", workKey: "w", borrowedAt: Date.parse("2026-11-01T10:00:00Z"), endedAt: Date.parse("2026-11-05T12:00:00Z"), open: false, renewals: 0 },
+    ];
+    openSlugs = [];
+    const html = await render();
+    const hist = html.slice(html.indexOf("Borrowing history"));
+    expect(hist.match(/Finished 0?5 Nov 2026/g)).toHaveLength(1);
+    expect(hist.indexOf("Finished")).toBeGreaterThan(hist.indexOf("on loan"));
+    history = [];
+  });
+});
+
+import { finishedDuring } from "@/lib/ledger";
+describe("finishedDuring (C97)", () => {
+  const row = { id: "x", workKey: "w", borrowedAt: 100, endedAt: 200 as number | null, open: false, renewals: 0 };
+  it("is true only inside the loan, open loans running to now", () => {
+    expect(finishedDuring(row, 150, 1_000)).toBe(true);
+    expect(finishedDuring(row, 250, 1_000)).toBe(false);
+    expect(finishedDuring(row, 50, 1_000)).toBe(false);
+    expect(finishedDuring(row, undefined, 1_000)).toBe(false);
+    expect(finishedDuring({ ...row, endedAt: null, open: true }, 900, 1_000)).toBe(true);
   });
 });

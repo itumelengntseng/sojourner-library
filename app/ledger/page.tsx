@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
-import { finishedBooks, finishedStamp, formatHours, historyPage, type FinishInfo } from "@/lib/ledger";
+import { finishedBooks, finishedDuring, finishedStamp, formatHours, historyPage, type FinishInfo } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
 import { myOpenLoans } from "@/lib/loanStore";
@@ -35,6 +35,8 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
   const borrowAgain = (k: string) => (l.slugs[k] && !onLoan.has(l.slugs[k]) ? `/works/${l.slugs[k]}` : null);
   const link = (k: string) => (l.slugs[k] ? `/works/${l.slugs[k]}` : null);
   const finished = finishedBooks(l.hours);
+  const finishAt: Record<string, number | undefined> = Object.fromEntries(finished.map((f) => [f.workKey, f.finishedAt]));
+  const now = Date.now();
   // C94: preview downloads add the Finished line to finished books (library mode does it on the server).
   const finishMap: Record<string, FinishInfo> = Object.fromEntries(finished.flatMap((f) => (l.slugs[f.workKey] ? [[l.slugs[f.workKey], { at: f.finishedAt, firstRead: f.firstRead }]] : [])));
   const tiles: { label: string; value: string; note?: string; href?: string }[] = [
@@ -117,7 +119,13 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
           <ol className="mt-4 divide-y divide-timber-dark/70 border-y border-timber-dark/70">
             {historyPage(l.history, showAll).rows.map((r) => (
               <li key={r.id} className="flex flex-wrap items-baseline justify-between gap-2 py-3">
-                <span>{title(r.workKey)}</span>
+                <span>
+                  {title(r.workKey)}
+                  {/* C97: the loan during which the reader read the book to the end carries the Finished stamp. */}
+                  {finishedDuring(r, finishAt[r.workKey], now) && (
+                    <span className="ml-2 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">{finishedStamp(finishAt[r.workKey]!)}</span>
+                  )}
+                </span>
                 <span className="font-mono text-xs text-ochre">
                   {stampDate(r.borrowedAt)} → {r.open ? "on loan" : stampDate(r.endedAt!)}
                   {r.renewals > 0 ? ` · renewed ${r.renewals}×` : ""}

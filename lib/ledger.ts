@@ -193,6 +193,12 @@ export interface HistoryRow {
   renewals: number;
 }
 
+/** C97: whether the reader finished the book during this loan (the finish falls between borrowing and its end). */
+export function finishedDuring(row: HistoryRow, finishedAt: number | undefined, now: number): boolean {
+  if (finishedAt === undefined || !Number.isFinite(finishedAt)) return false;
+  return finishedAt >= row.borrowedAt && finishedAt <= (row.endedAt ?? now);
+}
+
 /** C46: the history shows the newest `limit` rows unless the reader asks for all of it. */
 export const HISTORY_SHORT = 10;
 export function historyPage<T>(rows: T[], showAll: boolean, limit = HISTORY_SHORT): { rows: T[]; hidden: number } {
