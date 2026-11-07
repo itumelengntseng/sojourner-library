@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 11 — C140–C142, QA44; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 11 — C140–C145, QA44–QA45; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -209,10 +209,14 @@ _Last updated: 2026-11-07 (scheduled build run 11 — C140–C142, QA44; run 10 
 - C141 — Ledger Borrowing history: an open loan taken out within the hour reads "just borrowed" in place of its borrow stamp (stamp in its spoken label). Unit-tested + swept.
 - C142 — Halls: a key for the lamplight ✓ — "✓ marks a book you returned in the last hour — borrow it again any time." (plural for several; `justBackLegend()` in `lib/spine.ts`), shown only when a ✓ shows. Re-scoped: the halls mark only returns within the hour, not borrows (borrowed books already wear "out"). Unit-tested + swept.
 - QA44 (2026-11-07, after C140–C142): `npm run qa` all clear (run twice) — now also requires the work page's "Just borrowed · On loan to you" line, the ledger history's "just borrowed" (375px + 1280px) and the halls ✓ key. Preview e2e (`npm run e2e -- --preview`) 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 569 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA44).
+- C143 — Front hall: with no Continue reading card and nothing handed back within the hour, the newest loan taken out within the hour that the reader hasn't read in yet shows one quiet line, "Just borrowed · <title> · open it in the reading room" (spoken with the borrow stamp; `components/JustBorrowedNote.tsx`). Unit-tested + swept.
+- C144 — Halls: a spine on loan taken out within the hour adds "Just borrowed, <stamp>." to its spoken label, after the loan line. Unit-tested + swept.
+- C145 — Pitch Room: the open-link line adds "· N opened in the last hour" in lamplight (open links only; `openedInHour()`). Unit-tested (preview has no share links).
+- QA45 (2026-11-07, after C143–C145): `npm run qa` all clear — now also requires the halls spine's "Just borrowed" (375px + 1280px) and, in a fresh browser that borrows without reading, the front hall's Just borrowed line (axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 577 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA45).
 
 ## Next task
-C143 — front hall "Just borrowed" line for an unopened loan taken out within the hour (BACKLOG.md → FOLLOW-UPS), then C144, C145, QA45. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C146 — ledger On loan tile "· N just borrowed" (BACKLOG.md → FOLLOW-UPS), then C147, C148, QA46. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
@@ -282,3 +286,4 @@ C143 — front hall "Just borrowed" line for an unopened loan taken out within t
 - A book counts as "read" on the halls by the same rule as the ledger's finished stamp (C13); the halls show the mark only to the reader who finished it.
 - "Last backed up" is remembered per browser (localStorage), so a backup made on another device doesn't show; reminder after 30 days.
 - The halls' lamplight ✓ (C132/C142) marks only books handed back within the hour; a book borrowed within the hour already wears "out" on its spine, so it gets no extra mark there.
+- The front hall's Just borrowed line (C143) treats a loan with no bookmark yet as "not opened" (the bookmark moves once a paragraph is read past); it gives way to the Continue reading card and the Just returned line.

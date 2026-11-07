@@ -390,6 +390,8 @@ for (const width of WIDTHS) {
   await page.goto(`${BASE}/halls`);
   const spoken = await page.locator("a[href='/works/placeholder-work-one'] .sr-only").first().textContent();
   if (!/On loan to you, due .+; (about .+ left in this book|at the end of this book)\./.test(spoken ?? "")) { failures++; console.log(`✗ ${width}px halls: the spine on loan doesn't say the time left (${spoken})`); }
+  // QA45 (C144): this run's loan was taken out within the hour — the spine says so.
+  if (!/ Just borrowed, .+\./.test(spoken ?? "")) { failures++; console.log(`✗ ${width}px halls: the spine on loan doesn't say just borrowed (${spoken})`); }
   await axeCheck(`${width}px halls with the time left spoken on a spine`);
 }
 
@@ -614,6 +616,21 @@ await axeCheck("375px reading room gate just returned");
   const res = await fp.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] })); // eslint-disable-line no-undef
   const bad = res.violations.filter((v) => ["serious", "critical"].includes(v.impact));
   if (bad.length) { failures++; console.log(`✗ 375px front hall just returned\n${bad.map((v) => `    axe ${v.impact}: ${v.id}`).join("\n")}`); } else console.log("✓ 375px front hall just returned");
+  await fresh.close();
+}
+// QA45 (C143): a fresh visitor who borrows a book and hasn't opened it sees the Just borrowed line in the front hall.
+{
+  const fresh = await browser.newContext({ viewport: { width: 375, height: 900 } });
+  const fp = await fresh.newPage();
+  await fp.goto(`${BASE}/works/placeholder-work-two`);
+  await fp.getByRole("button", { name: "Borrow this work" }).click();
+  await fp.getByRole("button", { name: "Return to shelf" }).waitFor();
+  await fp.goto(`${BASE}/`);
+  if (!(await fp.locator("main a[href='/works/placeholder-work-two/read']", { hasText: /^open it in the reading room/ }).count()) || !(await fp.locator(".sr-only", { hasText: /^Just borrowed, / }).count())) { failures++; console.log("✗ front hall without the Just borrowed line"); }
+  await fp.evaluate(axeSource);
+  const res = await fp.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] })); // eslint-disable-line no-undef
+  const bad = res.violations.filter((v) => ["serious", "critical"].includes(v.impact));
+  if (bad.length) { failures++; console.log(`✗ 375px front hall just borrowed\n${bad.map((v) => `    axe ${v.impact}: ${v.id}`).join("\n")}`); } else console.log("✓ 375px front hall just borrowed");
   await fresh.close();
 }
 
