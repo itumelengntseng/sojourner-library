@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import { ask } from "@/lib/engine/ask";
-import { SUGGESTED_QUESTIONS, toReaderContext, type LibrarianFacts } from "@/lib/librarian";
+import { suggestedQuestions, toReaderContext, type LibrarianFacts } from "@/lib/librarian";
 
 interface Exchange { q: string; a: string }
 
@@ -43,7 +43,7 @@ export function AskLibrarian({ facts, title }: { facts: LibrarianFacts; title: s
         <button type="submit" className="rounded bg-lamplight px-4 py-2 font-sans text-sm font-semibold text-ink hover:bg-ember">Ring the bell</button>
       </form>
       <ul className="mt-3 flex flex-wrap gap-2" aria-label="Questions the librarian knows">
-        {SUGGESTED_QUESTIONS.map((q) => (
+        {suggestedQuestions(facts).map((q) => (
           <li key={q}>
             <button type="button" onClick={() => put(q)}
               className="rounded-full border border-sandstone/40 px-3 py-1 font-sans text-xs text-sandstone hover:border-lamplight hover:text-lamplight">

@@ -44,3 +44,11 @@ export const SUGGESTED_QUESTIONS = [
   "How much a day to finish in 2 weeks?",
   "Time left in this chapter?",
 ];
+
+/** C69: once the reader has a bookmark, the desk also offers the remaining-time question for the whole book. */
+export const BOOK_LEFT_QUESTION = "How long is left in this book?";
+
+export function suggestedQuestions(f: Pick<LibrarianFacts, "wordsRead" | "totalWords">): string[] {
+  const placed = f.wordsRead > 0 && f.wordsRead < f.totalWords;
+  return placed ? [BOOK_LEFT_QUESTION, ...SUGGESTED_QUESTIONS] : [...SUGGESTED_QUESTIONS];
+}

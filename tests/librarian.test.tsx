@@ -57,3 +57,25 @@ describe("the librarian's desk", () => {
     for (const q of SUGGESTED_QUESTIONS) expect(html).toContain(q);
   });
 });
+
+import { BOOK_LEFT_QUESTION, suggestedQuestions } from "@/lib/librarian";
+
+describe("'How long is left in this book?' (C69)", () => {
+  const f = (offset: number) => librarianFacts({ chapters, bookmarkOffset: offset, wpm: 230, usualMinutesPerDay: 30 });
+  it("is offered only once the reader has a bookmark inside the book", () => {
+    expect(suggestedQuestions(f(0))).toEqual(SUGGESTED_QUESTIONS);
+    expect(suggestedQuestions(f(3450))[0]).toBe(BOOK_LEFT_QUESTION);
+    expect(suggestedQuestions(f(3450)).slice(1)).toEqual(SUGGESTED_QUESTIONS);
+    expect(suggestedQuestions(f(99_999))).toEqual(SUGGESTED_QUESTIONS); // at the end: nothing left to ask about
+  });
+  it("is answered by the engine's existing time-left rule, from the bookmark", () => {
+    const a = ask(BOOK_LEFT_QUESTION, toReaderContext(f(3450), now));
+    expect(a.kind).toBe("time_left");
+    expect(a.text).toMatch(/25 min to finish/);
+  });
+  it("shows on the desk with a bookmark, not without", () => {
+    const html = (offset: number) => renderToStaticMarkup(<AskLibrarian title="T" facts={f(offset)} />);
+    expect(html(3450)).toContain(BOOK_LEFT_QUESTION);
+    expect(html(0)).not.toContain(BOOK_LEFT_QUESTION);
+  });
+});
