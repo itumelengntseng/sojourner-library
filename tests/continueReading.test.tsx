@@ -96,3 +96,16 @@ describe("due soon on the continue card (C42)", () => {
     expect(renderToStaticMarkup(<ContinueReading card={card} />)).not.toContain("Due back");
   });
 });
+
+describe("time left in the book on the Continue reading card (C95)", () => {
+  it("follows the chapter's time left, mid-sentence", () => {
+    const card = continueReading([loan("a", 1250)], [sess("a", "2", 100, T)], chapters, 200);
+    const html = renderToStaticMarkup(<ContinueReading card={card} bookLeft="About 25 min left in this book" />);
+    expect(html).toContain(`${card!.left} · about 25 min left in this book`);
+    expect(renderToStaticMarkup(<ContinueReading card={card} bookLeft="At the end of this book" />)).toContain(" · at the end of this book");
+  });
+  it("adds nothing when the time left in the book isn't known", () => {
+    const card = continueReading([loan("a", 1250)], [sess("a", "2", 100, T)], chapters, 200);
+    expect(renderToStaticMarkup(<ContinueReading card={card} />)).not.toContain("in this book");
+  });
+});

@@ -36,6 +36,14 @@ async function LoanShelf() {
 }
 
 /** "Recently returned", with a Finished mark on books read to the end (C70). */
+// C37 + C95: the Continue reading card, with the time left in the book.
+async function ContinueShelf() {
+  const card = await myContinueReading();
+  if (!card) return null;
+  const bookLeft = await myBookLeft();
+  return <ContinueReading card={card} className="w-full" bookLeft={bookLeft[card.slug]} />;
+}
+
 async function ReturnedShelf({ notes = "preview" }: { notes?: "library" | "preview" }) {
   const items = await myRecentlyReturned();
   if (items.length === 0) return null;
@@ -54,7 +62,7 @@ export default async function CardPage() {
         </p>
         <WeekLine week={await myWeek()} />
         <FinishedLine count={await myFinishedCount()} />
-        <ContinueReading card={await myContinueReading()} className="w-full" />
+        <ContinueShelf />
         <LoanShelf />
         <ReturnedShelf />
       </Desk>
@@ -90,7 +98,7 @@ export default async function CardPage() {
       <MembershipCard card={card} />
       <WeekLine week={await myWeek()} />
       <FinishedLine count={await myFinishedCount()} />
-      <ContinueReading card={await myContinueReading()} className="w-full" />
+      <ContinueShelf />
       <LoanShelf />
       <ReturnedShelf notes="library" />
       <PrefsForm name={card.display_name ?? ""} wpm={(card as ReaderCard & { wpm_override?: number | null }).wpm_override ?? null} />

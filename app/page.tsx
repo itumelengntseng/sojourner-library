@@ -25,6 +25,8 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
   const fresh = freshOnShelves(works, now);
   const [open, cont, pace] = await Promise.all([myOpenLoans(), myContinueReading(), myPace()]);
   const { onCard, onSlip } = splitDueSoon(dueBackSoon(open, now), cont?.slug);
+  // C95 + C80: time left in the book for the Continue reading card and the due-soon slip (own loans only).
+  const bookLeft = cont || onSlip.length ? await myBookLeft(open) : {};
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16 sm:pt-24">
       <header className="flex flex-col items-center text-center">
@@ -33,8 +35,8 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
         <p className="mt-3 text-paper/85">The writing of {AUTHOR}</p>
         <div className="threshold mt-8 w-48" aria-hidden="true" />
       </header>
-      <ContinueReading card={cont} due={onCard} />
-      <DueSoonSlip loans={onSlip} bookLeft={onSlip.length ? await myBookLeft(onSlip) : {}} />
+      <ContinueReading card={cont} due={onCard} bookLeft={cont ? bookLeft[cont.slug] : undefined} />
+      <DueSoonSlip loans={onSlip} bookLeft={bookLeft} />
 
       <section aria-labelledby="on-the-wall" className="mt-12">
         <h2 id="on-the-wall" className="sr-only">On the wall</h2>
