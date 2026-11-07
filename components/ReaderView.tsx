@@ -71,8 +71,8 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [] 
     if (preview) writeLocal(annKey(slug, chapter.position), JSON.stringify({ notes: n, highlights: h }));
   };
 
-  // Resume at the bookmark when it falls in this chapter.
-  useEffect(() => {
+  // Resume at the bookmark when it falls in this chapter (and C52: "Go to your bookmark" in Contents).
+  const showBookmark = useCallback(() => {
     if (!data.bookmark || data.bookmark.position !== chapter.position) return;
     const idx = paragraphAtWord(paras, data.bookmark.wordsIntoChapter);
     const box = textRef.current;
@@ -86,6 +86,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [] 
       target.scrollIntoView({ block: "start" });
     }
   }, [data.bookmark, chapter.position, paras, settings.layout]);
+  useEffect(() => { showBookmark(); }, [showBookmark]);
 
   /** First paragraph whose top edge is on screen (or page, when paged). */
   const currentParagraph = useCallback(() => {
@@ -221,6 +222,18 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [] 
           <details ref={contentsRef} className="font-sans text-xs">
             <summary className={`${btn} cursor-pointer list-none border border-sandstone/40 text-paper`}>Contents</summary>
             <nav aria-label="Contents" className="absolute inset-x-3 top-full z-30 mt-1 max-h-[60dvh] overflow-auto sm:inset-x-auto sm:w-80 rounded-sm border border-timber-dark bg-stone-wall p-2 shadow-lg">
+              {!proof && data.bookmark && (
+                data.bookmark.position === chapter.position ? (
+                  <button type="button" onClick={() => { if (contentsRef.current) contentsRef.current.open = false; showBookmark(); }}
+                    className="mb-1 block w-full rounded border border-lamplight/40 px-2 py-1.5 text-left text-lamplight hover:bg-timber/40">
+                    Go to your bookmark <span className="text-sandstone">· this chapter</span>
+                  </button>
+                ) : (
+                  <Link href={base} className="mb-1 block rounded border border-lamplight/40 px-2 py-1.5 text-lamplight hover:bg-timber/40">
+                    Go to your bookmark <span className="text-sandstone">· {chapters.find((c) => c.position === data.bookmark!.position)?.title ?? `chapter ${data.bookmark.position}`}</span>
+                  </Link>
+                )
+              )}
               <ol>
                 {chapters.map((c) => {
                   const here = c.position === chapter.position;

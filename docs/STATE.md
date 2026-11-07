@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 6 — C48–C50, QA13 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 6 — C48–C52, QA13–QA14 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -86,10 +86,13 @@ _Last updated: 2026-11-07 (scheduled build run 6 — C48–C50, QA13 so far; C24
 - C49 — "Continue at <chapter>" at the work page's loan desk (`components/ContinueHere.tsx`, `chapterLabel()` in `lib/continueReading.ts`, `myContinueReading(slug)` in `lib/continueStore.ts`): when the reader has the book out and has read in it, under Open/Resume: "Continue at Chapter 2 · about 11 min left in this chapter", linking into that chapter (or the bookmark when it sits there). Same rules as the front hall's C34 card, narrowed to this one work — own loans and sessions only, a chapter read through points to the next, never-opened loans show nothing. Titles and word counts only. Unit-tested (`tests/continueHere.test.tsx`); smoke-tested at 375px in preview: nothing before borrowing → nothing while unread → line after a session in chapter 2 → the link opens `?ch=2`; another work's desk shows nothing; no sideways scroll, no console errors.
 - QA13 (2026-11-07, after C48–C49): `npm run qa` all clear — now also sweeps the work page with the Continue at line (375px + 1280px). Preview e2e 6/6. Preview desk: 24 borrow/return rounds from a legacy cookie all stick, 20 loans kept, an older open loan survives. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 57 KB. No migration → RLS audit unchanged (the new loader reads only the signed-in reader's own loans and sessions, as C34).
 - C50 — "Continue at" in the card page's On loan now (`myContinueBySlug()` in `lib/continueStore.ts` — the C34/C49 loader shared, one card per open loan; `continueAt` prop on `components/OnLoanNow.tsx`): each loan the reader has read in now carries "Continue at Chapter 3 · about 9 min left in this chapter" under its due stamp, linking into that chapter; loans not yet opened show only the due stamp. Own loans and sessions only. Unit-tested (`tests/onLoan.test.tsx`); smoke-tested at 375px in preview: two loans, one read → only that one has the line, no sideways scroll, no errors.
-- Tests: 384 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA13).
+- C51 — Search matches chapter titles (`searchShelves()` + `chapterHits()` in `lib/shelfSearch.ts`, `/halls?q=`): the halls search now also looks in a work's chapter titles (never chapter text). Under each hall's shelf, works found through a chapter title get a line "<work> · chapter: <title>" (up to 3 per work), shown only for the words the work's own details don't already match — so "placeholder" doesn't list every "Chapter 1". Unit-tested (titles yes, text no, split words, cap 3); smoke-tested at 375px: "chapter 5" → 1 work, "Placeholder Work One · chapter: Chapter 5"; no sideways scroll, no errors.
+- C52 — "Go to your bookmark" in the reading room's Contents (`showBookmark` in `components/ReaderView.tsx`): at the top of the drawer when the reader has a bookmark — in the bookmark's chapter a button that closes the drawer and turns/scrolls to it (paged or scroll); in any other chapter a link to the reading room (which resumes at the bookmark), naming the chapter. Not in the proof copy, nothing without a bookmark. Unit-tested (`tests/contentsTicks.test.tsx`); smoke-tested at 375px in preview: bookmark in chapter 2 → from chapter 1 the link opens chapter 2 at the bookmark → the button brings it back after scrolling away; no errors.
+- QA14 (2026-11-07, after C50–C52): `npm run qa` all clear — now also sweeps `/halls?q=chapter+5` (chapter-title hits) and the reading room with Contents open and Go to your bookmark (375px + 1280px); the card page with Continue at lines is covered by the existing card sweep. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 57 KB. No migration → RLS audit unchanged.
+- Tests: 392 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA14).
 
 ## Next task
-C51 — search matches chapter titles (BACKLOG.md → FOLLOW-UPS), then C52, QA14. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C53 — search box on the front hall (BACKLOG.md → FOLLOW-UPS), then C54, C55, QA15. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -138,6 +141,7 @@ C51 — search matches chapter titles (BACKLOG.md → FOLLOW-UPS), then C52, QA1
 - A book counts as finished at 90% of its last chapter's words (readers skim endings and the tracker is conservative); rereads keep the first finish date.
 - "Recently returned" shows one line per work (its latest return) and leaves out works out on loan again; 5 at most.
 - On the last chapter the end card links to the ledger; in the Keeper's proof copy it links back to the Writer's Room instead (proofing isn't recorded).
+- Search looks in chapter titles but never chapter text; chapter hits are listed only for words the work's own details don't match.
 - Shelf order defaults to series order; "Recently changed" and "Title" are opt-in via `?sort=`.
 - The full backup leaves out everything that belongs to readers (notes, highlights, loans, sessions) and pitch-link hashes.
 - System serif font stack (no web-font download) to keep builds offline-safe.

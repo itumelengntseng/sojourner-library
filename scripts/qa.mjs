@@ -22,7 +22,7 @@ await page.goto(`${BASE}/works/placeholder-work-one`);
 await page.getByRole("button", { name: "Borrow this work" }).click();
 await page.getByRole("link", { name: "Open the reading room" }).waitFor();
 
-const routes = ["/", "/halls", "/halls?canon=all", "/halls?q=two", "/halls?sort=title", "/halls?q=placeholder&sort=recent", "/halls?q=zzzz", "/card", "/works/placeholder-work-one", "/works/placeholder-work-one/read",
+const routes = ["/", "/halls", "/halls?canon=all", "/halls?q=two", "/halls?sort=title", "/halls?q=placeholder&sort=recent", "/halls?q=zzzz", "/halls?q=chapter+5", "/card", "/works/placeholder-work-one", "/works/placeholder-work-one/read",
   "/works/placeholder-work-three/read", "/works/placeholder-work-one/proof", "/works/placeholder-work-one/proof?ch=2", "/works/placeholder-work-one/read?ch=2", "/ledger", "/ledger?history=all", "/lineage", "/lineage?canon=all", "/timeline", "/timeline?canon=all", "/writers-room", "/writers-room/atlas", "/pitch-room", "/pitch-room/placeholder-work-one", "/pitch-room/placeholder-work-one/edit", "/p/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "/works/no-such-book"];
 let failures = 0;
 for (const width of WIDTHS) {
@@ -222,6 +222,22 @@ for (const width of WIDTHS) {
   await page.goto(`${BASE}/works/placeholder-work-one`);
   await page.getByText("Continue at").first().waitFor();
   await axeCheck(`${width}px work page with Continue at`);
+}
+
+// C52: the reading room's Contents open with "Go to your bookmark" (book out from the C49 check; bookmark in chapter 2).
+{
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto(`${BASE}/works/placeholder-work-one/read?ch=2`);
+  await page.getByRole("button", { name: "Bookmark here" }).click();
+  await page.waitForTimeout(800);
+  for (const width of WIDTHS) {
+    await page.setViewportSize({ width, height: 900 });
+    errors.length = 0;
+    await page.goto(`${BASE}/works/placeholder-work-one/read?ch=1`);
+    await page.getByText("Contents", { exact: true }).click();
+    await page.getByRole("link", { name: /Go to your bookmark/ }).waitFor();
+    await axeCheck(`${width}px reading room Contents with Go to your bookmark`);
+  }
 }
 
 // C41: the ledger with a book read to the end (a session through the last chapter).

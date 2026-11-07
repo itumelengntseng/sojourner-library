@@ -18,15 +18,40 @@ export function cleanQuery(raw: string | string[] | undefined): string {
   return (q ?? "").replace(/\s+/g, " ").trim().slice(0, MAX_QUERY);
 }
 
-/** Works where every word of the query appears in the title, series, hall, author or description. */
-export function searchShelves<W extends Pick<Work, "title" | "series" | "hall" | "author" | "blurb">>(works: W[], halls: readonly Hall[], query: string): W[] {
-  const words = fold(query).split(" ").filter(Boolean);
-  if (words.length === 0) return works;
+type Searchable = Pick<Work, "title" | "series" | "hall" | "author" | "blurb"> & { chapters?: readonly { position: number; title: string }[] };
+
+const words = (query: string) => fold(query).split(" ").filter(Boolean);
+const ownHay = (w: Searchable, hallName: Map<string, string>) =>
+  fold([w.title, w.series ?? "", hallName.get(w.hall) ?? w.hall, w.author, STAND_IN(w.blurb) ? "" : w.blurb].join(" "));
+
+/**
+ * Works where every word of the query appears in the title, series, hall, author or description —
+ * or in its chapter titles (C51; titles only, never chapter text).
+ */
+export function searchShelves<W extends Searchable>(works: W[], halls: readonly Hall[], query: string): W[] {
+  const ws = words(query);
+  if (ws.length === 0) return works;
   const hallName = new Map(halls.map((h) => [h.id, h.name]));
   return works.filter((w) => {
-    const hay = ` ${fold([w.title, w.series ?? "", hallName.get(w.hall) ?? w.hall, w.author, STAND_IN(w.blurb) ? "" : w.blurb].join(" "))} `;
-    return words.every((word) => hay.includes(word));
+    const hay = ` ${ownHay(w, hallName)} ${fold((w.chapters ?? []).map((c) => c.title).join(" "))} `;
+    return ws.every((word) => hay.includes(word));
   });
+}
+
+export interface ChapterHit { position: number; title: string }
+
+/**
+ * The chapters that brought a work into the results: those whose title holds every query word the
+ * work's own details don't already. None when the work matched on its own (no "Chapter 1…" noise).
+ */
+export function chapterHits(w: Searchable, halls: readonly Hall[], query: string, max = 3): ChapterHit[] {
+  const own = ` ${ownHay(w, new Map(halls.map((h) => [h.id, h.name])))} `;
+  const need = words(query).filter((word) => !own.includes(word));
+  if (need.length === 0) return [];
+  return (w.chapters ?? [])
+    .filter((c) => { const t = ` ${fold(c.title)} `; return need.every((word) => t.includes(word)); })
+    .slice(0, max)
+    .map((c) => ({ position: c.position, title: c.title }));
 }
 
 export function resultLine(count: number, query: string): string {

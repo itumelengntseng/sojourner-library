@@ -81,7 +81,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C49 Work page: when the reader has the book out, show "Continue at <chapter> · N min left" (the C34 card's logic for this one work) beside the loan desk's Open/Resume.
 - [x] QA13 QA pass after C48–C49.
 - [x] C50 Card page "On loan now": each loan the reader has read in gets "Continue at <chapter> · N min left" (C49's line, per loan; own sessions only), linking into that chapter.
-- [ ] C51 Search the shelves also matches chapter titles (titles only — never chapter text), showing "chapter: <title>" under the matching work.
-- [ ] C52 Reading room Contents drawer: a "Go to your bookmark" link at the top when the reader has one (not in the proof copy).
-- [ ] QA14 QA pass after C50–C52.
+- [x] C51 Search the shelves also matches chapter titles (titles only — never chapter text), showing "chapter: <title>" under the matching work.
+- [x] C52 Reading room Contents drawer: a "Go to your bookmark" link at the top when the reader has one (not in the proof copy).
+- [x] QA14 QA pass after C50–C52.
+- [ ] C53 Front hall: a small "Search the shelves" box (plain GET form to `/halls?q=`, works without JavaScript; keeps the canon choice).
+- [ ] C54 Work page Contents: when the reader has the book out, each chapter title links straight into the reading room at that chapter (`/read?ch=N`); otherwise plain text as now.
+- [ ] C55 Halls: under each hall's name, "N works · about H h to read at your pace" (what the reader can see, canon switch respected).
+- [ ] QA15 QA pass after C53–C55.
 

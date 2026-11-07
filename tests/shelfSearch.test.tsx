@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getWorks, HALLS, type Work } from "@/lib/catalogue";
 import { NO_BLURB } from "@/lib/catalogueRows";
-import { cleanQuery, fold, resultLine, searchShelves } from "@/lib/shelfSearch";
+import { chapterHits, cleanQuery, fold, resultLine, searchShelves } from "@/lib/shelfSearch";
 
 const base = getWorks()[0];
 const w = (over: Partial<Work>): Work => ({ ...base, ...over });
@@ -45,5 +45,32 @@ describe("search the shelves", () => {
     expect(resultLine(0, "lamp")).toBe("Nothing on the shelves matches “lamp”.");
     expect(resultLine(1, "lamp")).toBe("1 work matches “lamp”.");
     expect(resultLine(3, "book")).toBe("3 works match “book”.");
+  });
+});
+
+describe("C51 search matches chapter titles (titles only)", () => {
+  const ch = (titles: string[]) => titles.map((title, i) => ({ position: i + 1, title, body: "Placeholder body mentioning lighthouse." }));
+  const shelf = [
+    w({ slug: "x", title: "Placeholder Lamp Book", chapters: ch(["Placeholder Courtyard Gate", "Placeholder Night Market"]) }),
+    w({ slug: "y", title: "Placeholder Stone Book", chapters: ch(["Placeholder Threshold"]) }),
+  ];
+  it("finds a work by a chapter title, and says which chapter", () => {
+    expect(searchShelves(shelf, halls, "night market").map((x) => x.slug)).toEqual(["x"]);
+    expect(chapterHits(shelf[0], halls, "night market")).toEqual([{ position: 2, title: "Placeholder Night Market" }]);
+  });
+  it("never searches chapter text", () => {
+    expect(searchShelves(shelf, halls, "lighthouse")).toEqual([]);
+  });
+  it("words can be split between the work and a chapter title; only the chapter-word is shown as a hit", () => {
+    expect(searchShelves(shelf, halls, "lamp courtyard").map((x) => x.slug)).toEqual(["x"]);
+    expect(chapterHits(shelf[0], halls, "lamp courtyard").map((c) => c.position)).toEqual([1]);
+  });
+  it("no chapter hits when the work matched on its own details", () => {
+    expect(chapterHits(shelf[0], halls, "placeholder")).toEqual([]);
+    expect(chapterHits(shelf[1], halls, "stone")).toEqual([]);
+  });
+  it("at most three hits per work", () => {
+    const many = w({ slug: "z", title: "Placeholder Z", chapters: ch(["Yard one", "Yard two", "Yard three", "Yard four"]) });
+    expect(chapterHits(many, halls, "yard")).toHaveLength(3);
   });
 });

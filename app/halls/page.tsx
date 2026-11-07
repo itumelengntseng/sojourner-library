@@ -6,7 +6,7 @@ import { loadCatalogue } from "@/lib/catalogueServer";
 import { ShelfEmpty } from "@/components/ShelfEmpty";
 import { canonView } from "@/lib/canonServer";
 import { CANON_LABEL, filterByCanon, workStats } from "@/lib/workStats";
-import { cleanQuery, resultLine, searchShelves } from "@/lib/shelfSearch";
+import { chapterHits, cleanQuery, resultLine, searchShelves } from "@/lib/shelfSearch";
 import { parseSort, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
 import { myOpenLoans } from "@/lib/loanStore";
 import { loansBySlug } from "@/lib/loanDesk";
@@ -101,6 +101,20 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
               )}
               <div className="h-3 rounded-b-sm bg-timber" aria-hidden="true" />
             </div>
+            {query && (() => {
+              const hits = shelf.flatMap((w) => chapterHits(w, halls, query).map((c) => ({ w, c })));
+              if (hits.length === 0) return null;
+              return (
+                <ul aria-label={`Chapter titles matching “${query}” in ${hall.name}`} className="mt-3 space-y-1 font-sans text-xs text-sandstone">
+                  {hits.map(({ w, c }) => (
+                    <li key={`${w.slug}-${c.position}`}>
+                      <Link href={`/works/${w.slug}`} className="text-paper underline underline-offset-2 hover:text-lamplight">{w.title}</Link>
+                      {" "}· chapter: {c.title}
+                    </li>
+                  ))}
+                </ul>
+              );
+            })()}
           </section>
         );
       })}

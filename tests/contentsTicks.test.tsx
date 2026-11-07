@@ -27,3 +27,22 @@ describe("contents drawer ticks (C47)", () => {
     expect(html).not.toContain(", read<");
   });
 });
+
+describe("Go to your bookmark in Contents (C52)", () => {
+  const nav = (html: string) => html.slice(html.indexOf('aria-label="Contents"'), html.indexOf("</nav>"));
+  it("in the bookmark's chapter: a button that jumps to it", () => {
+    const n = nav(renderToStaticMarkup(<ReaderView slug="w" data={data} wpm={230} minutesPerDay={30} />));
+    expect(n).toMatch(/<button[^>]*>Go to your bookmark/);
+    expect(n).toContain("· this chapter");
+  });
+  it("in another chapter: a link to the reading room, which resumes at the bookmark, naming its chapter", () => {
+    const n = nav(renderToStaticMarkup(<ReaderView slug="w" data={{ ...data, bookmark: { position: 3, wordsIntoChapter: 10 } }} wpm={230} minutesPerDay={30} />));
+    expect(n).toMatch(/<a [^>]*href="\/works\/w\/read"[^>]*>Go to your bookmark/);
+    expect(n).toContain("· Placeholder chapter 3");
+  });
+  it("nothing without a bookmark, and nothing in the proof copy", () => {
+    expect(nav(renderToStaticMarkup(<ReaderView slug="w" data={{ ...data, bookmark: null }} wpm={230} minutesPerDay={30} />))).not.toContain("Go to your bookmark");
+    expect(nav(renderToStaticMarkup(<ReaderView slug="w" data={{ ...data, mode: "proof" as never }} wpm={230} minutesPerDay={30} />))).not.toContain("Go to your bookmark");
+  });
+});
+
