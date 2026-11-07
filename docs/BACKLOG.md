@@ -220,7 +220,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C153 Work page: under the loan desk, "You've borrowed this N times" when the reader has borrowed this work more than once (own loans only; first loan → nothing).
 - [x] C154 (already covered — the card has shown "Issued <date>" from `readers.created_at` since B3; preview has no card, so nothing to add) Card page: "Member since <month year>" on the membership card (library: `readers.created_at`; preview: the earliest cookie loan, or nothing).
 - [x] QA48 QA pass after C152–C154.
-- [ ] C155 Work page: the "You've borrowed this N times" line adds "· first on <date>" (the reader's earliest own loan of this work, SA date).
-- [ ] C156 Card page "Recently returned": a book the reader has borrowed more than once adds "· borrowed N times" to its line (own loans; preview from the cookie desk).
-- [ ] C157 Ledger "Hours per book": an "Order: Most hours / Recently read" GET toggle (works without JavaScript; default stays as now).
-- [ ] QA49 QA pass after C155–C157.
+- [x] C155 Work page: the "You've borrowed this N times" line adds "· first on <date>" (the reader's earliest own loan of this work, SA date).
+- [x] C156 Card page "Recently returned": a book the reader has borrowed more than once adds "· borrowed N times" to its line (own loans; preview from the cookie desk).
+- [x] C157 Ledger "Hours per book": an "Order: Most hours / Recently read" GET toggle (works without JavaScript; default stays as now).
+- [x] QA49 QA pass after C155–C157.
+- [ ] C158 Ledger Borrowing history: the "Show all" / "Show the last 10" links keep the Hours per book order (`hours=most`) so switching one doesn't reset the other.
+- [ ] C159 Work page: the "You've borrowed this N times" line links to the ledger's Borrowing history (`/ledger#history`).
+- [ ] C160 Ledger Hours per book, "Most hours" order: a thin timber bar under each row's time, scaled to the top book (aria-hidden; the time stays in text).
+- [ ] QA50 QA pass after C158–C160.

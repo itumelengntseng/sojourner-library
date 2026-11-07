@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 11 — C140–C154, QA44–QA48; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 11 — C140–C157, QA44–QA49; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -225,10 +225,14 @@ _Last updated: 2026-11-07 (scheduled build run 11 — C140–C154, QA44–QA48; 
 - C153 — Work page: under the loan desk, "You've borrowed this twice" / "… 3 times" from the reader's own loans of this work (first loan → nothing; `borrowedTimesLine()`). The desk reads the last 20 loans per work, so the count tops out at 20. Unit-tested + swept.
 - C154 — Already covered: the reader card has shown "Issued <date>" from `readers.created_at` since B3, and preview mode has no card. No change.
 - QA48 (2026-11-07, after C152–C154): `npm run qa` all clear — a fresh browser now returns and re-borrows a book, and the sweep requires the work page's "You've borrowed this twice" and the ledger's "2 loans in the last 30 days · 1 handed back before it was due". Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 593 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA48).
+- C155 — Work page: the borrowed-times line adds "· first on 05 Nov 2026" (earliest own loan of the work, SA date in the Finished stamp's format). Unit-tested + swept.
+- C156 — Card page Recently returned: a book borrowed more than once adds "· borrowed 3 times" to its Out/returned line (`Returned.times`, counted over the loans the desk keeps — library last 60, preview last 20). Unit-tested + swept.
+- C157 — Ledger Hours per book: "Order: Recently read / Most hours" (GET `?hours=most`, no JavaScript; shown with two or more books; keeps `history=all`; `orderHours()`/`hoursHref()`). Unit-tested + swept.
+- QA49 (2026-11-07, after C155–C157): `npm run qa` all clear — the fresh-browser flow now also requires the work page's "· first on <date>" and, after a second return, the card's "· borrowed 2 times" (axe clean); the main sweep opens the ledger ordered by Most hours at 375px + 1280px (axe clean, current link marked). Preview e2e 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 598 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA49).
 
 ## Next task
-C155 — work page "· first on <date>" after the borrowed-times line (BACKLOG.md → FOLLOW-UPS), then C156, C157, QA49. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C158 — ledger "Show all / Show the last 10" links keep the Hours per book order (BACKLOG.md → FOLLOW-UPS), then C159, C160, QA50. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
@@ -300,3 +304,4 @@ C155 — work page "· first on <date>" after the borrowed-times line (BACKLOG.m
 - The halls' lamplight ✓ (C132/C142) marks only books handed back within the hour; a book borrowed within the hour already wears "out" on its spine, so it gets no extra mark there.
 - The front hall's Just borrowed line (C143) treats a loan with no bookmark yet as "not opened" (the bookmark moves once a paragraph is read past); it gives way to the Continue reading card and the Just returned line.
 - The work page's loan desk says "Start reading" until the reader's first bookmark, then "Resume at your bookmark" (C149).
+- Ledger Hours per book defaults to "Recently read"; "Most hours" is opt-in via `?hours=most` (C157), like the halls' `?sort=`.

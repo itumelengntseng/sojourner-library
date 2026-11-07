@@ -542,6 +542,13 @@ for (const width of WIDTHS) {
   if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/· [123] renewals? left/).count())) { failures++; console.log(`✗ ${width}px ledger: no open loan with renewals left`); }
   // QA39 (C127): the book handed back this run reads "Just returned" in Borrowing history, stamp kept for screen readers.
   if (!(await page.getByRole("region", { name: "Borrowing history" }).locator(".sr-only", { hasText: /^Just returned, / }).count())) { failures++; console.log(`✗ ${width}px ledger Borrowing history without "Just returned"`); }
+  // QA49 (C157): the Hours per book order toggle (two or more books read this run).
+  if ((await page.locator("#hours ~ table tbody tr, section[aria-labelledby='hours'] tbody tr").count()) > 1) {
+    await page.goto(`${BASE}/ledger?hours=most#hours`);
+    if (!(await page.getByRole("navigation", { name: "Order hours per book" }).getByRole("link", { name: "Most hours" }).getAttribute("aria-current"))) { failures++; console.log(`✗ ${width}px ledger: Most hours order not current`); }
+    await axeCheck(`${width}px ledger ordered by most hours`);
+    await page.goto(`${BASE}/ledger`);
+  }
   // QA44 (C141): this run's open loans were taken out within the hour — "just borrowed", stamp spoken.
   if (!(await page.getByRole("region", { name: "Borrowing history" }).locator(".sr-only", { hasText: /^Just borrowed, / }).count())) { failures++; console.log(`✗ ${width}px ledger Borrowing history without "just borrowed"`); }
   // QA37 (C120): Hours per book marks the book due within the day.
@@ -656,6 +663,19 @@ await axeCheck("375px reading room gate just returned");
   if (!(await fp.getByText("You've borrowed this twice").count())) { failures++; console.log("✗ work page doesn't count a second loan"); }
   await fp.goto(`${BASE}/ledger`);
   if (!(await fp.getByText("2 loans in the last 30 days · 1 handed back before it was due").count())) { failures++; console.log("✗ ledger Borrowing history without the 30-day line"); }
+  // QA49 (C155, C156): the work page dates the first loan; the card counts the loans of a returned book.
+  await fp.goto(`${BASE}/works/placeholder-work-two`);
+  if (!(await fp.getByText(/^You've borrowed this twice · first on \d{2} \w{3} \d{4}$/).count())) { failures++; console.log("✗ work page borrowed-times line without its first date"); }
+  await fp.getByRole("button", { name: "Return to shelf" }).click();
+  await fp.getByRole("button", { name: "Borrow this work" }).waitFor();
+  await fp.goto(`${BASE}/card`);
+  if (!(await fp.getByRole("region", { name: "Recently returned" }).getByText(/ · borrowed 2 times/).count())) { failures++; console.log("✗ card Recently returned without 'borrowed 2 times'"); }
+  await fp.evaluate(axeSource);
+  {
+    const r = await fp.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] })); // eslint-disable-line no-undef
+    const v = r.violations.filter((x) => ["serious", "critical"].includes(x.impact));
+    if (v.length) { failures++; console.log(`✗ 375px card borrowed twice\n${v.map((x) => `    axe ${x.impact}: ${x.id}`).join("\n")}`); } else console.log("✓ 375px card borrowed twice");
+  }
   await fresh.close();
 }
 
