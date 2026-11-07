@@ -120,7 +120,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C78 Work page loan desk: "About N min left in this book" under "Resume at your bookmark" (reuse `bookLeftLine`).
 - [x] C79 Halls: a book on loan's spine screen-reader text adds the time left in the book ("…due Fri 6 Nov, 14:00; about 25 min left in this book").
 - [x] QA23 QA pass after C77–C79.
-- [ ] C80 Front hall "Due back soon" slip: add the time left in the book ("Due back soon: <title> · <time> · about 25 min left in this book"), reusing `myBookLeft`.
-- [ ] C81 Notes export file names carry the export date in SA time ("sojourner-notes-2026-11-07.md", "sojourner-notes-<slug>-2026-11-07.md") so repeat downloads don't overwrite each other; library route and preview button alike.
-- [ ] C82 Work page: the "You finished this · …" stamp links to the ledger's "Read to the end" section (`/ledger#finished`).
-- [ ] QA24 QA pass after C80–C82.
+- [x] C80 Front hall "Due back soon" slip: add the time left in the book ("Due back soon: <title> · <time> · about 25 min left in this book"), reusing `myBookLeft`.
+- [x] C81 Notes export file names carry the export date in SA time ("sojourner-notes-2026-11-07.md", "sojourner-notes-<slug>-2026-11-07.md") so repeat downloads don't overwrite each other; library route and preview button alike.
+- [x] C82 Work page: the "You finished this · …" stamp links to the ledger's "Read to the end" section (`/ledger#finished`).
+- [x] QA24 QA pass after C80–C82.
+- [ ] C83 QA script: put a loan due within the day that is NOT the Continue reading book on the front hall, so the sweep sees the "Due back soon" slip (and its C80 time-left line) instead of skipping it.
+- [ ] C84 Card page: "Recently returned" rows for finished books link "Notes for this book" (own notes only; reuse the C29 per-book export — library route or preview button).
+- [ ] C85 Ledger "Read to the end": each finished book shows how long it took from first to last session ("over 9 days"), from the reader's own sessions (C13 rule for the end).
+- [ ] QA25 QA pass after C83–C85.

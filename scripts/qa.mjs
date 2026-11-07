@@ -364,6 +364,25 @@ for (const width of WIDTHS) {
   await axeCheck(`${width}px halls with the time left spoken on a spine`);
 }
 
+// QA24: the front hall's due-soon slip with the time left in the book (C80, when the slip shows),
+// and the work page's finished stamp leading to the ledger's Read to the end shelf (C82).
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/`);
+  const slip = page.getByRole("complementary", { name: "Due back soon" });
+  if (await slip.count()) {
+    if (!(await slip.getByText(/left in this book|At the end of this book/).count())) { failures++; console.log(`✗ ${width}px due-soon slip without the time left in the book`); }
+  }
+  await axeCheck(`${width}px front hall (due-soon slip ${await slip.count() ? "shown" : "not shown"})`);
+  errors.length = 0;
+  await page.goto(`${BASE}/works/placeholder-work-one`);
+  await page.getByRole("link", { name: /You finished this/ }).click();
+  await page.waitForURL(/\/ledger#finished$/);
+  await page.getByRole("heading", { name: "Read to the end" }).waitFor();
+  await axeCheck(`${width}px finished stamp → ledger Read to the end`);
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);
