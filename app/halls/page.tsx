@@ -12,7 +12,9 @@ import { parseSort, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
 import { myOpenLoans } from "@/lib/loanStore";
 import { loansBySlug } from "@/lib/loanDesk";
 import { myFinishes } from "@/lib/ledgerStore";
-import { finishedDate, finishedStamp } from "@/lib/ledger";
+import { myBookLeft } from "@/lib/bookLeftStore";
+import { spokenSpine } from "@/lib/spine";
+import { finishedStamp } from "@/lib/ledger";
 
 export const metadata: Metadata = { title: "The halls" };
 
@@ -26,7 +28,9 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
   const sort = parseSort(params.sort);
   const works = sortShelf(searchShelves(filterByCanon(catalogue.works, view), halls, query), sort);
   const canonParam = typeof params.canon === "string" ? params.canon : undefined;
-  const [out, pace, done] = await Promise.all([myOpenLoans().then(loansBySlug), myPace(), myFinishes(works.map((w) => w.slug))]);
+  const [loansNow, pace, done] = await Promise.all([myOpenLoans(), myPace(), myFinishes(works.map((w) => w.slug))]);
+  const out = loansBySlug(loansNow);
+  const bookLeft = await myBookLeft(loansNow); // C79: spoken on the spines of books on loan
 
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16">
@@ -111,7 +115,7 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
                           {done[w.slug] !== undefined && <span aria-hidden="true" title={finishedStamp(done[w.slug])} className="mt-1 w-full rounded-[1px] border border-lamplight py-0.5 text-center font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-lamplight">read</span>}
                           {w.canonStatus !== "canon" && <span aria-hidden="true" title="Not canon" className="mt-1 h-2 w-2 rounded-full bg-ember" />}
                           <span className="sr-only">
-                            by {w.author}. {CANON_LABEL[w.canonStatus]}. {s.readingTime} to read.{loan ? ` On loan to you, due ${loan.due}.` : ""}{done[w.slug] !== undefined ? ` You read this to the end on ${finishedDate(done[w.slug])}.` : ""}
+                            {spokenSpine({ author: w.author, canon: CANON_LABEL[w.canonStatus], readingTime: s.readingTime, due: loan?.due, bookLeft: bookLeft[w.slug], finished: done[w.slug] })}
                           </span>
                         </Link>
                       </li>
