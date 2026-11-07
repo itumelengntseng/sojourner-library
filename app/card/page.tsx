@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { MembershipCard } from "@/components/MembershipCard";
 import { OnLoanNow } from "@/components/OnLoanNow";
-import { myLoanWords, myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
-import { bookLeftLine } from "@/lib/loanDesk";
-import { myPace } from "@/lib/sessionStore";
+import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
+import { myBookLeft } from "@/lib/bookLeftStore";
 import { RecentlyReturned } from "@/components/RecentlyReturned";
 import { ContinueReading } from "@/components/ContinueReading";
 import { myContinueBySlug, myContinueReading } from "@/lib/continueStore";
@@ -30,13 +29,8 @@ function Desk({ eyebrow, title, children }: { eyebrow: string; title: string; ch
 
 /** "On loan now", each with the time left in the book at the reader's pace (C74). */
 async function LoanShelf() {
-  const [loans, continueAt, pace] = await Promise.all([myOpenLoans(), myContinueBySlug(), myPace()]);
-  const words = await myLoanWords(loans);
-  const bookLeft: Record<string, string> = {};
-  for (const l of loans) {
-    const line = bookLeftLine(words[l.slug] ?? 0, l.bookmark, pace.wpm);
-    if (line) bookLeft[l.slug] = line;
-  }
+  const [loans, continueAt] = await Promise.all([myOpenLoans(), myContinueBySlug()]);
+  const bookLeft = await myBookLeft(loans);
   return <OnLoanNow loans={loans} continueAt={continueAt} bookLeft={bookLeft} />;
 }
 

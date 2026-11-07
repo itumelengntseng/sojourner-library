@@ -6,6 +6,7 @@ import { finishedBooks, finishedStamp, formatHours, historyPage } from "@/lib/le
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
 import { myContinueBySlug } from "@/lib/continueStore";
+import { inline, myBookLeft } from "@/lib/bookLeftStore";
 import { chapterLabel } from "@/lib/continueReading";
 import { stampDate } from "@/lib/loanDesk";
 import { AUTHOR } from "@/lib/site";
@@ -26,7 +27,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
   }
   const title = (k: string) => l.titles[k] ?? "A work no longer on the shelves";
   // C63: books out on loan now carry "Continue at <chapter>" in Hours per book.
-  const continueAt = await myContinueBySlug();
+  const [continueAt, bookLeft] = await Promise.all([myContinueBySlug(), myBookLeft()]);
   const link = (k: string) => (l.slugs[k] ? `/works/${l.slugs[k]}` : null);
   const tiles = [
     { label: "Current run", value: `${l.streaks.current} day${l.streaks.current === 1 ? "" : "s"}`, note: l.streaks.readToday ? "read today" : l.streaks.current ? "read today to keep it" : "start one today" },
@@ -77,6 +78,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
                         <p className="mt-0.5 font-sans text-xs text-paper/80">
                           Continue at <Link href={c.href} className="text-lamplight underline underline-offset-2">{chapterLabel(c)}<span className="sr-only"> of {title(h.workKey)}</span></Link>
                           <span className="text-sandstone"> · {c.left}</span>
+                          {bookLeft[l.slugs[h.workKey]] && <span className="text-sandstone"> · {inline(bookLeft[l.slugs[h.workKey]])}</span>}
                         </p>
                       );
                     })()}
