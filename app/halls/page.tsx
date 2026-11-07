@@ -78,7 +78,8 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
       {works.some((w) => out[w.slug]) && (
         <p className="mt-3 font-sans text-xs text-sandstone">
           <span aria-hidden="true" className="mr-1 rounded-[1px] bg-paper px-1 font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-ink">out</span>
-          marks the books you have on loan — renew or return them at the <Link href="/card" className="underline underline-offset-2 hover:text-lamplight">front desk</Link>.
+          {/* C118: how many are out. */}
+          marks the {works.filter((w) => out[w.slug]).length === 1 ? "book" : `${works.filter((w) => out[w.slug]).length} books`} out to you — renew or return {works.filter((w) => out[w.slug]).length === 1 ? "it" : "them"} at the <Link href="/card" className="underline underline-offset-2 hover:text-lamplight">front desk</Link>.
         </p>
       )}
       {/* C103: the "due soon" band explained, only when one shows. */}

@@ -15,3 +15,11 @@ describe("halls: a legend for the due-soon band (C103)", () => {
     expect(src).toContain("{loan && soon.has(w.slug) && <span");
   });
 });
+
+describe("halls: the out legend says how many (C118)", () => {
+  const src = readFileSync("app/halls/page.tsx", "utf8");
+  it("counts the books out to the reader on the shelves shown, singular or plural", () => {
+    expect(src).toContain('marks the {works.filter((w) => out[w.slug]).length === 1 ? "book" : `${works.filter((w) => out[w.slug]).length} books`} out to you');
+    expect(src).toContain('renew or return {works.filter((w) => out[w.slug]).length === 1 ? "it" : "them"} at the');
+  });
+});
