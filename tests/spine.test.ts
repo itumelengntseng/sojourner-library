@@ -36,3 +36,15 @@ describe("due soon on the halls spine (C99)", () => {
     expect(src).toMatch(/\{loan && soon\.has\(w\.slug\) && <span aria-hidden="true"[^>]*>due soon<\/span>\}/);
   });
 });
+
+describe("spine: no renewals left (C108)", () => {
+  it("is said after the due time once every renewal is used", () => {
+    const s = spokenSpine({ author: "Itumeleng Ntseng", canon: "Canon", readingTime: "40 min", due: "Sat 7 Nov, 14:00", dueSoon: true, noRenewals: true, bookLeft: "About 25 min left in this book" });
+    expect(s).toBe("by Itumeleng Ntseng. Canon. 40 min to read. On loan to you, due Sat 7 Nov, 14:00 — due back within the day, no renewals left; about 25 min left in this book.");
+    expect(spokenSpine({ author: "Itumeleng Ntseng", canon: "Canon", readingTime: "40 min", noRenewals: true })).not.toContain("renewals");
+  });
+  it("the halls pass C104's rule for each loan", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("app/halls/page.tsx", "utf8")).toContain("noRenewals: loan ? noRenewalsLeft(loan) : false");
+  });
+});

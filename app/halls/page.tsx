@@ -10,7 +10,7 @@ import { myPace } from "@/lib/sessionStore";
 import { chapterHits, cleanQuery, resultLine, searchShelves } from "@/lib/shelfSearch";
 import { parseSort, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
 import { myOpenLoans } from "@/lib/loanStore";
-import { dueBackSoon, loansBySlug } from "@/lib/loanDesk";
+import { dueBackSoon, loansBySlug, noRenewalsLeft } from "@/lib/loanDesk";
 import { myFinishes } from "@/lib/ledgerStore";
 import { myBookLeft } from "@/lib/bookLeftStore";
 import { spokenSpine } from "@/lib/spine";
@@ -125,7 +125,7 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
                           {done[w.slug] !== undefined && <span aria-hidden="true" title={finishedStamp(done[w.slug])} className="mt-1 w-full rounded-[1px] border border-lamplight py-0.5 text-center font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-lamplight">read</span>}
                           {w.canonStatus !== "canon" && <span aria-hidden="true" title="Not canon" className="mt-1 h-2 w-2 rounded-full bg-ember" />}
                           <span className="sr-only">
-                            {spokenSpine({ author: w.author, canon: CANON_LABEL[w.canonStatus], readingTime: s.readingTime, due: loan?.due, dueSoon: soon.has(w.slug), bookLeft: bookLeft[w.slug], finished: done[w.slug] })}
+                            {spokenSpine({ author: w.author, canon: CANON_LABEL[w.canonStatus], readingTime: s.readingTime, due: loan?.due, dueSoon: soon.has(w.slug), noRenewals: loan ? noRenewalsLeft(loan) : false, bookLeft: bookLeft[w.slug], finished: done[w.slug] })}
                           </span>
                         </Link>
                       </li>
