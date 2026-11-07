@@ -38,6 +38,10 @@ export function LoanDesk({ desk, slug, title, now, continueAt = null, totalWords
             )}
             <ContinueHere card={continueAt?.slug === slug ? continueAt : null} />
             <LoanActions slug={slug} loanId={open.id} canRenew={slip.canRenew} canReturn={slip.canReturn} />
+            {/* C110: why Renew is greyed out, and what to do instead. */}
+            {slip.renewalsLeft === 0 && (
+              <p className="-mt-1 font-sans text-xs text-sandstone">No renewals left — return it by {slip.due} and borrow it again; your bookmark is kept.</p>
+            )}
           </>
         ) : (
           <BorrowForm slug={slug} periods={PERIODS} />

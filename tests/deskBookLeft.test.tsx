@@ -27,3 +27,13 @@ describe("time left in the book at the loan desk (C78)", () => {
     expect(renderToStaticMarkup(<LoanDesk desk={desk([loan(9200)])} slug="w" title="T" now={NOW} totalWords={9200} wpm={230} />)).toContain("At the end of this book");
   });
 });
+
+describe("a spent loan explained at the desk (C110)", () => {
+  it("says what to do once every renewal is used, and only then", () => {
+    const spent = { ...loan(0), renewals: 3 };
+    const html = renderToStaticMarkup(<LoanDesk desk={desk([spent])} slug="w" title="T" now={NOW} />);
+    expect(html).toMatch(/No renewals left — return it by .+ and borrow it again; your bookmark is kept\./);
+    expect(renderToStaticMarkup(<LoanDesk desk={desk([{ ...loan(0), renewals: 2 }])} slug="w" title="T" now={NOW} />)).not.toContain("return it by");
+    expect(renderToStaticMarkup(<LoanDesk desk={desk([{ ...spent, returnedAt: NOW - 1000 }])} slug="w" title="T" now={NOW} />)).not.toContain("return it by");
+  });
+});
