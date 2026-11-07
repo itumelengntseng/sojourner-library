@@ -14,7 +14,7 @@ import { loansBySlug } from "@/lib/loanDesk";
 import { myFinishes } from "@/lib/ledgerStore";
 import { myBookLeft } from "@/lib/bookLeftStore";
 import { spokenSpine } from "@/lib/spine";
-import { finishedStamp } from "@/lib/ledger";
+import { FINISHED_SHELF, finishedStamp } from "@/lib/ledger";
 
 export const metadata: Metadata = { title: "The halls" };
 
@@ -82,7 +82,7 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
       {works.some((w) => done[w.slug] !== undefined) && (
         <p className="mt-1 font-sans text-xs text-sandstone">
           <span aria-hidden="true" className="mr-1 rounded-[1px] border border-lamplight px-1 font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-lamplight">read</span>
-          marks the books you have read to the end.
+          marks the books you have <Link href={FINISHED_SHELF} className="underline underline-offset-2 hover:text-lamplight">read to the end</Link>.
         </p>
       )}
       {halls.map((hall) => {

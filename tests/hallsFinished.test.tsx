@@ -59,3 +59,12 @@ describe("work page finished stamp links to the ledger (C82)", () => {
     expect(readFileSync("app/works/[slug]/page.tsx", "utf8")).toMatch(/<Link href=\{FINISHED_SHELF\}[^>]*>\s*\{finishedStampLine\(finished, firstRead\)\}/);
   });
 });
+
+describe("halls legend leads to Read to the end (C90)", () => {
+  it("links 'read to the end' in the read-mark legend to the ledger shelf", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync("app/halls/page.tsx", "utf8");
+    expect(src).toMatch(/marks the books you have <Link href=\{FINISHED_SHELF\}[^>]*>read to the end<\/Link>\./);
+    expect(FINISHED_SHELF).toBe("/ledger#finished");
+  });
+});
