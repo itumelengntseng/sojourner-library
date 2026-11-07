@@ -10,6 +10,7 @@ import { freshOnShelves } from "@/lib/catalogueRows";
 import { DESK_TIME_ZONE, dueBackSoon, splitDueSoon } from "@/lib/loanDesk";
 import { myOpenLoans } from "@/lib/loanStore";
 import { DueSoonSlip } from "@/components/DueSoonSlip";
+import { myBookLeft } from "@/lib/bookLeftStore";
 import { ContinueReading } from "@/components/ContinueReading";
 import { FrontHallSearch } from "@/components/FrontHallSearch";
 import { myPace } from "@/lib/sessionStore";
@@ -33,7 +34,7 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
         <div className="threshold mt-8 w-48" aria-hidden="true" />
       </header>
       <ContinueReading card={cont} due={onCard} />
-      <DueSoonSlip loans={onSlip} />
+      <DueSoonSlip loans={onSlip} bookLeft={onSlip.length ? await myBookLeft(onSlip) : {}} />
 
       <section aria-labelledby="on-the-wall" className="mt-12">
         <h2 id="on-the-wall" className="sr-only">On the wall</h2>

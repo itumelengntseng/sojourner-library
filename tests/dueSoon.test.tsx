@@ -35,3 +35,12 @@ describe("loans by slug (C38)", () => {
     expect(loansBySlug([])).toEqual({});
   });
 });
+
+describe("due-soon slip names the time left in the book (C80)", () => {
+  it("adds the line under the due time only for books that have one", () => {
+    const html = renderToStaticMarkup(<DueSoonSlip loans={[loan("work-one", 4 * H), loan("work-two", 2 * H)]} bookLeft={{ "work-one": "About 25 min left in this book" }} />);
+    expect(html.match(/left in this book/g)).toHaveLength(1);
+    expect(html.indexOf("About 25 min left in this book")).toBeGreaterThan(html.indexOf("Placeholder work-one"));
+    expect(html.indexOf("About 25 min left in this book")).toBeLessThan(html.indexOf("Placeholder work-two"));
+  });
+});
