@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
-import { finishedBooks, finishedDuring, finishedStamp, formatHours, historyPage, historySummary, hoursHref, orderHours, parseHoursOrder, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
+import { finishedBooks, finishedDuring, finishedStamp, formatHours, historyHref, historyPage, historySummary, hoursHref, orderHours, parseHoursOrder, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
 import { myOpenLoans } from "@/lib/loanStore";
@@ -174,10 +174,10 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
           </>
         )}
         {historyPage(l.history, showAll).hidden > 0 && (
-          <p className="mt-2 font-sans text-xs"><Link href="/ledger?history=all#history" className="text-lamplight underline underline-offset-2">Show all {l.history.length} loans</Link> <span className="text-sandstone">({historyPage(l.history, showAll).hidden} older)</span></p>
+          <p className="mt-2 font-sans text-xs"><Link href={historyHref(true, hoursOrder)} className="text-lamplight underline underline-offset-2">Show all {l.history.length} loans</Link> <span className="text-sandstone">({historyPage(l.history, showAll).hidden} older)</span></p>
         )}
         {showAll && l.history.length > 10 && (
-          <p className="mt-2 font-sans text-xs"><Link href="/ledger#history" className="text-lamplight underline underline-offset-2">Show the last 10</Link></p>
+          <p className="mt-2 font-sans text-xs"><Link href={historyHref(false, hoursOrder)} className="text-lamplight underline underline-offset-2">Show the last 10</Link></p>
         )}
       </section>
 

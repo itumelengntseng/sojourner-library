@@ -333,3 +333,9 @@ export function hoursHref(order: HoursOrder, showAll: boolean): string {
   const q = [order === "most" ? "hours=most" : "", showAll ? "history=all" : ""].filter(Boolean).join("&");
   return `/ledger${q ? `?${q}` : ""}#hours`;
 }
+
+/** C158: the Borrowing history links, keeping the Hours per book order. */
+export function historyHref(showAll: boolean, order: HoursOrder): string {
+  const q = [order === "most" ? "hours=most" : "", showAll ? "history=all" : ""].filter(Boolean).join("&");
+  return `/ledger${q ? `?${q}` : ""}#history`;
+}

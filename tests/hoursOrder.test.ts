@@ -27,3 +27,18 @@ describe("ledger Hours per book — order toggle (C157)", () => {
     expect(src).toContain("{orderHours(l.hours, hoursOrder).map((h) => (");
   });
 });
+
+describe("ledger Borrowing history links keep the hours order (C158)", () => {
+  it("builds the links with or without the Most hours order", async () => {
+    const { historyHref } = await import("@/lib/ledger");
+    expect(historyHref(true, "recent")).toBe("/ledger?history=all#history");
+    expect(historyHref(false, "recent")).toBe("/ledger#history");
+    expect(historyHref(true, "most")).toBe("/ledger?hours=most&history=all#history");
+    expect(historyHref(false, "most")).toBe("/ledger?hours=most#history");
+  });
+  it("the ledger uses them", () => {
+    const src = readFileSync("app/ledger/page.tsx", "utf8");
+    expect(src).toContain("<Link href={historyHref(true, hoursOrder)}");
+    expect(src).toContain("<Link href={historyHref(false, hoursOrder)}");
+  });
+});
