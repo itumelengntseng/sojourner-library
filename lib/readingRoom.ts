@@ -22,6 +22,8 @@ export interface ReadingData {
   dueAt: number;
   /** C106: renewals still allowed on the open loan (missing = unknown, treated as renewable). */
   renewalsLeft?: number;
+  /** C147: when the open loan was taken out (missing in the proof copy). */
+  borrowedAt?: number;
   title: string;
   author: string;
   canonStatus: "canon" | "draft" | "apocrypha";
@@ -50,7 +52,7 @@ async function libraryLoan(supabase: Sb, slug: string, readerId: string) {
   const { data: work } = await supabase.from("works").select("id, title, author, canon_status").eq("slug", slug).maybeSingle();
   if (!work) return null;
   await supabase.rpc("return_expired_loans");
-  const { data: loan } = await supabase.from("loans").select("id, due_at, bookmark_offset, renewals")
+  const { data: loan } = await supabase.from("loans").select("id, due_at, bookmark_offset, renewals, borrowed_at")
     .eq("work_id", work.id).eq("reader_id", readerId).is("returned_at", null).gt("due_at", new Date().toISOString()).maybeSingle();
   return { work, loan };
 }
@@ -74,7 +76,7 @@ export async function loadReading(slug: string, position: number): Promise<Loade
     return {
       ok: true,
       data: {
-        mode: "preview", loanId: loan.id, dueAt: loan.dueAt, renewalsLeft: Math.max(0, MAX_RENEWALS - loan.renewals), title: work.title, author: work.author, canonStatus: work.canonStatus,
+        mode: "preview", loanId: loan.id, dueAt: loan.dueAt, borrowedAt: loan.borrowedAt, renewalsLeft: Math.max(0, MAX_RENEWALS - loan.renewals), title: work.title, author: work.author, canonStatus: work.canonStatus,
         chapter: { position: ch.position, title: ch.title, body: ch.body }, chapters,
         bookmark: hasBookmark ? locateBookmark(chapters, loan.bookmark.wordOffset) : null,
         notes: [], highlights: [],
@@ -102,6 +104,7 @@ export async function loadReading(slug: string, position: number): Promise<Loade
     data: {
       mode: "library", loanId: found.loan.id as string, dueAt: Date.parse(found.loan.due_at as string),
       renewalsLeft: Math.max(0, MAX_RENEWALS - ((found.loan.renewals as number | undefined) ?? 0)),
+      borrowedAt: found.loan.borrowed_at ? Date.parse(found.loan.borrowed_at as string) : undefined,
       title: found.work.title as string, author: found.work.author as string,
       canonStatus: found.work.canon_status as ReadingData["canonStatus"],
       chapter: { position: ch.position, title: ch.title, body: (text?.body_md as string | undefined) ?? "" },

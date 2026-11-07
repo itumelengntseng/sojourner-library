@@ -19,6 +19,7 @@ import { outsideCanonNote } from "@/lib/canon";
 import { EndOfChapter } from "./EndOfChapter";
 import { ChapterProgress } from "./ChapterProgress";
 import { DueWithinHour } from "./DueWithinHour";
+import { JustBorrowedLine } from "./JustBorrowedLine";
 import { stampDate } from "@/lib/loanDesk";
 
 const SETTINGS_KEY = "soj:reader-settings";
@@ -288,6 +289,8 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
 
       <main id="main" data-ring="" style={{ ["--ring" as string]: FOCUS_RING[settings.theme] }} className="mx-auto max-w-3xl px-5 pb-24 pt-8">
         {!proof && <DueWithinHour slug={slug} dueAt={data.dueAt} renewalsLeft={data.renewalsLeft} />}
+        {/* C147: a fresh loan, not yet bookmarked — when it was taken out and when it's due. */}
+        {!proof && <JustBorrowedLine borrowedAt={data.borrowedAt} dueAt={data.dueAt} hasBookmark={!!data.bookmark} />}
         <p className="font-sans text-xs uppercase tracking-[0.25em] opacity-80">{data.author}</p>
         <h1 className="mt-1 text-2xl">{chapter.title}</h1>
         <p className="mt-1 font-sans text-xs opacity-80">
