@@ -311,3 +311,11 @@ export function finishedStampLine(finished: number, firstRead?: number): string 
 
 /** Where the ledger's "Read to the end" shelf lives (C82; the shelf's heading carries id="finished"). */
 export const FINISHED_SHELF = "/ledger#finished";
+
+/** C152: "3 loans in the last 30 days · 2 handed back before they were due" (null when none in 30 days). */
+export function historySummary(rows: Pick<HistoryRow, "borrowedAt" | "open" | "onTime">[], now: number): string | null {
+  const recent = rows.filter((r) => r.borrowedAt <= now && now - r.borrowedAt < 30 * 86_400_000);
+  if (!recent.length) return null;
+  const back = recent.filter((r) => !r.open && r.onTime).length;
+  return `${recent.length} loan${recent.length === 1 ? "" : "s"} in the last 30 days${back ? ` · ${back} handed back before ${back === 1 ? "it was" : "they were"} due` : ""}`;
+}

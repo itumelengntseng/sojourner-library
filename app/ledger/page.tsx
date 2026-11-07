@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
-import { finishedBooks, finishedDuring, finishedStamp, formatHours, historyPage, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
+import { finishedBooks, finishedDuring, finishedStamp, formatHours, historyPage, historySummary, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
 import { myOpenLoans } from "@/lib/loanStore";
@@ -130,6 +130,9 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
         {l.history.length === 0 ? (
           <p className="mt-3 font-sans text-sm text-sandstone">Nothing borrowed yet. <Link href="/halls" className="text-lamplight underline">Visit the halls.</Link></p>
         ) : (
+          <>
+          {/* C152: the last 30 days at a glance (own loans). */}
+          {historySummary(l.history, now) && <p className="mt-2 font-sans text-xs text-sandstone">{historySummary(l.history, now)}</p>}
           <ol className="mt-4 divide-y divide-timber-dark/70 border-y border-timber-dark/70">
             {historyPage(l.history, showAll).rows.map((r) => (
               <li key={r.id} className="flex flex-wrap items-baseline justify-between gap-2 py-3">
@@ -156,6 +159,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
               </li>
             ))}
           </ol>
+          </>
         )}
         {historyPage(l.history, showAll).hidden > 0 && (
           <p className="mt-2 font-sans text-xs"><Link href="/ledger?history=all#history" className="text-lamplight underline underline-offset-2">Show all {l.history.length} loans</Link> <span className="text-sandstone">({historyPage(l.history, showAll).hidden} older)</span></p>
