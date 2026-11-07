@@ -81,6 +81,13 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
           marks the books you have on loan — renew or return them at the <Link href="/card" className="underline underline-offset-2 hover:text-lamplight">front desk</Link>.
         </p>
       )}
+      {/* C103: the "due soon" band explained, only when one shows. */}
+      {works.some((w) => out[w.slug] && soon.has(w.slug)) && (
+        <p className="mt-1 font-sans text-xs text-sandstone">
+          <span aria-hidden="true" className="mr-1 rounded-[1px] bg-ember px-1 font-mono text-[0.5rem] font-semibold uppercase tracking-wider text-ink">due soon</span>
+          marks books due back within the day — renew them at the <Link href="/card" className="underline underline-offset-2 hover:text-lamplight">front desk</Link>.
+        </p>
+      )}
       {works.some((w) => done[w.slug] !== undefined) && (
         <p className="mt-1 font-sans text-xs text-sandstone">
           <span aria-hidden="true" className="mr-1 rounded-[1px] border border-lamplight px-1 font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-lamplight">read</span>
