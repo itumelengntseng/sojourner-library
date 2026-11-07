@@ -319,3 +319,17 @@ export function historySummary(rows: Pick<HistoryRow, "borrowedAt" | "open" | "o
   const back = recent.filter((r) => !r.open && r.onTime).length;
   return `${recent.length} loan${recent.length === 1 ? "" : "s"} in the last 30 days${back ? ` · ${back} handed back before ${back === 1 ? "it was" : "they were"} due` : ""}`;
 }
+
+/** C157: Hours per book order — "recent" (last read first, the default) or "most" (most time first, then most recent). */
+export type HoursOrder = "recent" | "most";
+export function parseHoursOrder(v: unknown): HoursOrder {
+  return v === "most" ? "most" : "recent";
+}
+export function orderHours<T extends Pick<WorkHours, "activeMs" | "lastRead">>(hours: T[], order: HoursOrder): T[] {
+  return [...hours].sort((a, b) => (order === "most" ? b.activeMs - a.activeMs || b.lastRead - a.lastRead : b.lastRead - a.lastRead));
+}
+/** The toggle's link, keeping the Borrowing history choice. */
+export function hoursHref(order: HoursOrder, showAll: boolean): string {
+  const q = [order === "most" ? "hours=most" : "", showAll ? "history=all" : ""].filter(Boolean).join("&");
+  return `/ledger${q ? `?${q}` : ""}#hours`;
+}

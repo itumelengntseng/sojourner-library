@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
-import { finishedBooks, finishedDuring, finishedStamp, formatHours, historyPage, historySummary, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
+import { finishedBooks, finishedDuring, finishedStamp, formatHours, historyPage, historySummary, hoursHref, orderHours, parseHoursOrder, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
 import { myOpenLoans } from "@/lib/loanStore";
@@ -16,7 +16,10 @@ export const metadata: Metadata = { title: "Your ledger" };
 
 // A bound ledger on the librarian's desk: what you borrowed, how long you read, your run of days.
 export default async function Ledger({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const showAll = (await searchParams).history === "all";
+  const sp = await searchParams;
+  const showAll = sp.history === "all";
+  // C157: Hours per book order (GET, works without JavaScript).
+  const hoursOrder = parseHoursOrder(sp.hours);
   const l = await loadLedger();
   if (l.mode === "signed-out") {
     return (
@@ -82,6 +85,15 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
 
       <section aria-labelledby="hours" className="mt-12">
         <h2 id="hours" className="text-xl text-paper">Hours per book</h2>
+        {l.hours.length > 1 && (
+          <nav aria-label="Order hours per book" className="mt-2 flex flex-wrap items-center gap-x-3 font-sans text-xs text-sandstone">
+            <span>Order:</span>
+            {([["recent", "Recently read"], ["most", "Most hours"]] as const).map(([id, label]) => (
+              <Link key={id} href={hoursHref(id, showAll)} aria-current={hoursOrder === id ? "true" : undefined}
+                className={hoursOrder === id ? "text-lamplight underline underline-offset-4" : "hover:text-lamplight"}>{label}</Link>
+            ))}
+          </nav>
+        )}
         {l.hours.length === 0 ? (
           <p className="mt-3 font-sans text-sm text-sandstone">No reading recorded yet. Time spent in the reading room is entered here.</p>
         ) : (
@@ -90,7 +102,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
               <tr><th className="py-2 font-normal">Work</th><th className="py-2 font-normal">Time</th><th className="hidden py-2 font-normal sm:table-cell">Words</th><th className="py-2 text-right font-normal">Last read</th></tr>
             </thead>
             <tbody className="divide-y divide-timber-dark/70 border-y border-timber-dark/70">
-              {l.hours.map((h) => (
+              {orderHours(l.hours, hoursOrder).map((h) => (
                 <tr key={h.workKey}>
                   <td className="py-3 pr-2">{link(h.workKey) ? <Link href={link(h.workKey)!} className="hover:text-lamplight">{title(h.workKey)}</Link> : title(h.workKey)}{h.finishedAt !== undefined && <span className="ml-2 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">{finishedStamp(h.finishedAt)}</span>}
                     {l.slugs[h.workKey] && dueSoonBy[l.slugs[h.workKey]] && (
