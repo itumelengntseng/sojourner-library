@@ -38,9 +38,17 @@ export function OnLoanNow({ loans, continueAt = {}, bookLeft = {}, dueSoon = [] 
                 </p>
               )}
             </div>
-            <Link href={`/works/${l.slug}/read`} className="rounded bg-timber px-3 py-1.5 font-sans text-xs font-semibold text-paper hover:bg-ochre">
-              {l.resume ? "Resume" : "Open"}
-            </Link>
+            <div className="flex items-center gap-2">
+              {/* C100: a loan due back within the day offers the way to renew it at the work's loan desk. */}
+              {dueSoon.includes(l.slug) && (
+                <Link href={`/works/${l.slug}#desk`} className="rounded border border-ember px-3 py-1.5 font-sans text-xs font-semibold text-ember hover:bg-ember hover:text-ink">
+                  Renew<span className="sr-only"> {l.title} at the loan desk</span>
+                </Link>
+              )}
+              <Link href={`/works/${l.slug}/read`} className="rounded bg-timber px-3 py-1.5 font-sans text-xs font-semibold text-paper hover:bg-ochre">
+                {l.resume ? "Resume" : "Open"}
+              </Link>
+            </div>
           </li>
         ))}
       </ul>

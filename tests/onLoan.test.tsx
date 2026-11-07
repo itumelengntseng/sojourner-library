@@ -58,3 +58,19 @@ describe("Due soon mark on On loan now (C96)", () => {
     expect(renderToStaticMarkup(<OnLoanNow loans={loans} />)).not.toContain("Due soon");
   });
 });
+
+describe("Renew on a Due soon loan (C100)", () => {
+  const on = (slug: string): import("@/lib/loanDesk").OnLoan => ({ workKey: slug, slug, title: `Placeholder ${slug}`, due: "SAT 7 NOV, 14:00", timeLeft: "3 h", dueSoon: false, resume: false, dueAt: 0, bookmark: 0 });
+  it("links the due-soon loan to its work page's loan desk, naming the book", async () => {
+    const { OnLoanNow } = await import("@/components/OnLoanNow");
+    const html = renderToStaticMarkup(<OnLoanNow loans={[on("soon"), on("later")]} dueSoon={["soon"]} />);
+    expect(html.match(/>Renew<span/g)).toHaveLength(1);
+    expect(html).toContain('href="/works/soon#desk"');
+    expect(html).toContain('<span class="sr-only"> Placeholder soon at the loan desk</span>');
+    expect(html).not.toContain("/works/later#desk");
+  });
+  it("the work page's desk heading carries the anchor", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("app/works/[slug]/page.tsx", "utf8")).toContain('<h2 id="desk"');
+  });
+});
