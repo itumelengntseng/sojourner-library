@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 11 — C140–C148, QA44–QA46; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 11 — C140–C151, QA44–QA47; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -217,10 +217,14 @@ _Last updated: 2026-11-07 (scheduled build run 11 — C140–C148, QA44–QA46; 
 - C147 — Reading room: on a loan taken out within the hour with no bookmark yet, "Just borrowed · due back <stamp>" under the toolbar (spoken with the borrow stamp; checked after mount and each minute; gives way to C102's due-within-the-hour line; not in the proof copy). The room's loader now also reads the loan's `borrowed_at` (library) / `borrowedAt` (preview). Unit-tested + swept.
 - C148 — Card page On loan now: with two or more loans taken out within the hour, "2 borrowed in the last hour" (lamplight) under the heading. Unit-tested; the sweep requires it whenever two Just borrowed marks show.
 - QA46 (2026-11-07, after C146–C148): `npm run qa` all clear (run twice) — now also requires, in a fresh browser that borrows without reading, the ledger tile's "· 1 just borrowed" and the reading room's Just borrowed line (axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (the room reads one more column of the reader's own loan).
-- Tests: 584 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA46).
+- C149 — Work page loan desk: on an open loan with no bookmark yet the link reads "Start reading" (spoken "Start reading: <title>"); "Resume at your bookmark" unchanged. QA and e2e scripts look for the new words (e2e still accepts the old ones). Unit-tested + swept.
+- C150 — Halls: the "out" legend notes fresh loans — "marks the 3 books out to you (1 just borrowed) — renew or return them at the front desk" ("(just borrowed)" for a single book; `outLegend()` in `lib/spine.ts`). Unit-tested + swept.
+- C151 — Writer's Room loans tile: checked how it reads — the note and its ember due part sit in one `dd`, in order (open · borrowed · returned · due), and the words carry the meaning (ember is colour only), so no sr-only summary was needed. A test pins the order.
+- QA47 (2026-11-07, after C149–C151): `npm run qa` all clear — the sweep now finds the desk's "Start reading" and requires the halls legend's "(just borrowed)" (375px + 1280px). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 588 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA47).
 
 ## Next task
-C149 — work page loan desk "Start reading" on a fresh, unbookmarked loan (BACKLOG.md → FOLLOW-UPS), then C150, C151, QA47. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C152 — ledger Borrowing history summary line (BACKLOG.md → FOLLOW-UPS), then C153, C154, QA48. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
@@ -291,3 +295,4 @@ C149 — work page loan desk "Start reading" on a fresh, unbookmarked loan (BACK
 - "Last backed up" is remembered per browser (localStorage), so a backup made on another device doesn't show; reminder after 30 days.
 - The halls' lamplight ✓ (C132/C142) marks only books handed back within the hour; a book borrowed within the hour already wears "out" on its spine, so it gets no extra mark there.
 - The front hall's Just borrowed line (C143) treats a loan with no bookmark yet as "not opened" (the bookmark moves once a paragraph is read past); it gives way to the Continue reading card and the Just returned line.
+- The work page's loan desk says "Start reading" until the reader's first bookmark, then "Resume at your bookmark" (C149).

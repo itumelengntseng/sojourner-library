@@ -212,7 +212,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C147 Reading room: on a loan taken out within the hour with no bookmark yet, one quiet line under the toolbar — "Just borrowed · due back <stamp>" (not in the proof copy; gives way to the C102 due-within-the-hour line).
 - [x] C148 Card page "On loan now": with two or more loans taken out within the hour, a line under the heading — "2 borrowed in the last hour" (like C116's due line).
 - [x] QA46 QA pass after C146–C148.
-- [ ] C149 Work page loan desk: on an open loan with no bookmark yet, the "Open the reading room" link reads "Start reading" (spoken with the title); "Resume at your bookmark" unchanged.
-- [ ] C150 Halls: the "out" legend notes fresh loans — "… 2 books out to you (1 just borrowed) — renew or return them at the front desk" (own loans; `justBorrowed()`).
-- [ ] C151 Writer's Room glance: the "Out on loan now" tile's spoken label reads the whole note as one sentence (check the ember due part and the borrowed/returned counts are announced in order; add an sr-only summary if not).
-- [ ] QA47 QA pass after C149–C151.
+- [x] C149 Work page loan desk: on an open loan with no bookmark yet, the "Open the reading room" link reads "Start reading" (spoken with the title); "Resume at your bookmark" unchanged.
+- [x] C150 Halls: the "out" legend notes fresh loans — "… 2 books out to you (1 just borrowed) — renew or return them at the front desk" (own loans; `justBorrowed()`).
+- [x] C151 Writer's Room glance: the "Out on loan now" tile's spoken label reads the whole note as one sentence (check the ember due part and the borrowed/returned counts are announced in order; add an sr-only summary if not).
+- [x] QA47 QA pass after C149–C151.
+- [ ] C152 Ledger Borrowing history: one line above the list — "N loans in the last 30 days · M handed back before they were due" (own loans; SA time; nothing when no loans in 30 days).
+- [ ] C153 Work page: under the loan desk, "You've borrowed this N times" when the reader has borrowed this work more than once (own loans only; first loan → nothing).
+- [ ] C154 Card page: "Member since <month year>" on the membership card (library: `readers.created_at`; preview: the earliest cookie loan, or nothing).
+- [ ] QA48 QA pass after C152–C154.
