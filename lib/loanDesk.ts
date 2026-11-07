@@ -333,6 +333,12 @@ export function justBorrowedNote(loans: Pick<OnLoan, "borrowedAt">[], now: numbe
   return n ? ` · ${n} just borrowed` : "";
 }
 
+/** C153: "You've borrowed this 3 times" — own loans of this work; nothing for a first (or no) loan. */
+export function borrowedTimesLine(loans: Pick<Loan, "workId" | "readerId">[], workId: string, readerId: string): string | null {
+  const n = loans.filter((l) => l.workId === workId && l.readerId === readerId).length;
+  return n > 1 ? `You've borrowed this ${n === 2 ? "twice" : `${n} times`}` : null;
+}
+
 // ── Time left in each book on loan (C74) ────────────────────────────────────
 
 /** "About 1 h 2 min left in this book" from the bookmark at the reader's pace; "At the end of this book" when nothing's left. */

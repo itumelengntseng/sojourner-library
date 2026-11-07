@@ -1,4 +1,4 @@
-import { justBorrowed, justReturnedLoan, openLoan, stampDate } from "@/lib/loanDesk";
+import { borrowedTimesLine, justBorrowed, justReturnedLoan, openLoan, stampDate } from "@/lib/loanDesk";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -110,6 +110,10 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
           <p role="status" className="mb-4 font-sans text-sm text-lamplight">Returned to the shelf. Your bookmark is kept — borrow it again any time.</p>
         )}
         <LoanDesk desk={desk} slug={work.slug} title={work.title} now={now} continueAt={continueAt} totalWords={facts.totalWords} wpm={pace.wpm} />
+        {/* C153: a returning borrower (own loans of this work). */}
+        {desk.mode !== "signed-out" && desk.mode !== "not-shelved" && borrowedTimesLine(desk.loans, desk.workId, desk.readerId) && (
+          <p className="mt-3 font-sans text-xs text-sandstone">{borrowedTimesLine(desk.loans, desk.workId, desk.readerId)}</p>
+        )}
       </section>
 
       <div className="mt-8"><AskLibrarian facts={facts} title={work.title} /></div>
