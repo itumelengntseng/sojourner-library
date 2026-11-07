@@ -16,10 +16,16 @@ describe("halls: a legend for the due-soon band (C103)", () => {
   });
 });
 
-describe("halls: the out legend says how many (C118)", () => {
+describe("halls: the out legend says how many (C118) and how many are fresh (C150)", () => {
   const src = readFileSync("app/halls/page.tsx", "utf8");
-  it("counts the books out to the reader on the shelves shown, singular or plural", () => {
-    expect(src).toContain('marks the {works.filter((w) => out[w.slug]).length === 1 ? "book" : `${works.filter((w) => out[w.slug]).length} books`} out to you');
-    expect(src).toContain('renew or return {works.filter((w) => out[w.slug]).length === 1 ? "it" : "them"} at the');
+  it("counts the books out to the reader on the shelves shown, and the ones taken out within the hour", () => {
+    expect(src).toContain("marks {outLegend(works.filter((w) => out[w.slug]).length, works.filter((w) => out[w.slug] && justBorrowed(out[w.slug], nowMs)).length)} at the <Link");
+  });
+  it("words singular, plural and fresh loans", async () => {
+    const { outLegend } = await import("@/lib/spine");
+    expect(outLegend(1)).toBe("the book out to you — renew or return it");
+    expect(outLegend(2)).toBe("the 2 books out to you — renew or return them");
+    expect(outLegend(1, 1)).toBe("the book out to you (just borrowed) — renew or return it");
+    expect(outLegend(3, 1)).toBe("the 3 books out to you (1 just borrowed) — renew or return them");
   });
 });

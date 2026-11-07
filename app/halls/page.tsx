@@ -13,7 +13,7 @@ import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
 import { dueBackSoon, justBorrowed, justReturned, loansBySlug, noRenewalsLeft } from "@/lib/loanDesk";
 import { myFinishes } from "@/lib/ledgerStore";
 import { myBookLeft } from "@/lib/bookLeftStore";
-import { justBackLegend, spokenSpine } from "@/lib/spine";
+import { justBackLegend, outLegend, spokenSpine } from "@/lib/spine";
 import { FINISHED_SHELF, finishedStamp } from "@/lib/ledger";
 
 export const metadata: Metadata = { title: "The halls" };
@@ -82,7 +82,8 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
         <p className="mt-3 font-sans text-xs text-sandstone">
           <span aria-hidden="true" className="mr-1 rounded-[1px] bg-paper px-1 font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-ink">out</span>
           {/* C118: how many are out. */}
-          marks the {works.filter((w) => out[w.slug]).length === 1 ? "book" : `${works.filter((w) => out[w.slug]).length} books`} out to you — renew or return {works.filter((w) => out[w.slug]).length === 1 ? "it" : "them"} at the <Link href="/card" className="underline underline-offset-2 hover:text-lamplight">front desk</Link>.
+          {/* C150: and how many of them were taken out within the hour. */}
+          marks {outLegend(works.filter((w) => out[w.slug]).length, works.filter((w) => out[w.slug] && justBorrowed(out[w.slug], nowMs)).length)} at the <Link href="/card" className="underline underline-offset-2 hover:text-lamplight">front desk</Link>.
         </p>
       )}
       {/* C103: the "due soon" band explained, only when one shows. */}

@@ -533,7 +533,7 @@ for (const width of WIDTHS) {
   await page.goto(`${BASE}/halls`);
   const spent = await page.locator("a[href='/works/placeholder-work-two'] .sr-only").first().textContent();
   // QA36 (C118): the out legend says how many.
-  if (!(await page.getByText(/marks the (book|\d+ books) out to you — renew or return (it|them) at the/).count())) { failures++; console.log(`✗ ${width}px halls: the out legend doesn't count the books`); }
+  if (!(await page.getByText(/marks the (book|\d+ books) out to you( \((\d+ )?just borrowed\))? — renew or return (it|them) at the/).count())) { failures++; console.log(`✗ ${width}px halls: the out legend doesn't count the books`); }
   if (!/no renewals left/.test(spent ?? "")) { failures++; console.log(`✗ ${width}px halls: the spent loan's spine doesn't say no renewals left (${spent})`); }
   await page.goto(`${BASE}/ledger`);
   if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/· no renewals left/).count())) { failures++; console.log(`✗ ${width}px ledger: the open loan's row doesn't say no renewals left`); }

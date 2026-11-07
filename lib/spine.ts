@@ -20,3 +20,10 @@ export function spokenSpine(a: { author: string; canon: string; readingTime: str
 export function justBackLegend(n: number): string {
   return n === 1 ? "a book you returned in the last hour — borrow it again any time." : `the ${n} books you returned in the last hour — borrow them again any time.`;
 }
+
+/** C118 + C150: the "out" key — how many books are out to the reader, and how many were taken out within the hour. */
+export function outLegend(n: number, fresh = 0): string {
+  const what = n === 1 ? "the book" : `the ${n} books`;
+  const note = fresh > 0 ? (n === 1 ? " (just borrowed)" : ` (${fresh} just borrowed)`) : "";
+  return `${what} out to you${note} — renew or return ${n === 1 ? "it" : "them"}`;
+}
