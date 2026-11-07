@@ -15,7 +15,11 @@ export function OnLoanNow({ loans, continueAt = {}, bookLeft = {}, dueSoon = [] 
   }
   return (
     <section aria-labelledby="on-loan" className="w-full max-w-md text-left">
-      <h2 id="on-loan" className="font-sans text-xs uppercase tracking-[0.25em] text-sandstone">On loan now</h2>
+      {/* C116: the count, and how many are due back within the day when it's more than one. */}
+      <h2 id="on-loan" className="font-sans text-xs uppercase tracking-[0.25em] text-sandstone">On loan now · {loans.length}</h2>
+      {loans.filter((l) => dueSoon.includes(l.slug)).length > 1 && (
+        <p className="mt-1 font-sans text-xs text-ember">{loans.filter((l) => dueSoon.includes(l.slug)).length} due back within the day</p>
+      )}
       <ul className="mt-2 divide-y divide-timber-dark/60 rounded-sm border border-timber-dark bg-ink/40">
         {loans.map((l) => (
           <li key={l.workKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">

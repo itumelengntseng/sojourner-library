@@ -102,3 +102,15 @@ describe("no renewals left on a loan not yet due soon (C111)", () => {
     expect(html).toContain("No renewals left — return by MON 9 NOV, 14:00");
   });
 });
+
+describe("count on the On loan now heading (C116)", () => {
+  const on = (slug: string): import("@/lib/loanDesk").OnLoan => ({ workKey: slug, slug, title: `Placeholder ${slug}`, due: "SAT 7 NOV, 14:00", timeLeft: "3 h", dueSoon: false, resume: false, dueAt: 0, bookmark: 0 });
+  it("counts the loans, and says how many are due within the day when more than one", async () => {
+    const { OnLoanNow } = await import("@/components/OnLoanNow");
+    const three = renderToStaticMarkup(<OnLoanNow loans={[on("a"), on("b"), on("c")]} dueSoon={["a", "b"]} />);
+    expect(three.replace(/<!-- -->/g, "")).toContain(">On loan now · 3</h2>");
+    expect(three.replace(/<!-- -->/g, "")).toContain("2 due back within the day");
+    const one = renderToStaticMarkup(<OnLoanNow loans={[on("a"), on("b")]} dueSoon={["a"]} />);
+    expect(one).not.toContain("due back within the day");
+  });
+});
