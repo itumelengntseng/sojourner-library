@@ -117,3 +117,20 @@ describe("On loan tile (C113)", () => {
     spy.mockRestore();
   });
 });
+
+describe("On loan tile due within the day (C117)", () => {
+  it("says so in ember when the soonest loan is due back within the day", async () => {
+    hours = [];
+    const mod = await import("@/lib/loanStore");
+    const soon = Date.now() + 3 * 3600_000;
+    const spy = vi.spyOn(mod, "myOpenLoans").mockResolvedValue([{ slug: "a", due: "Sat, 07 Nov, 14:00", dueAt: soon }] as never);
+    const html = await render();
+    expect(html).toContain("due back within the day · Sat, 07 Nov, 14:00");
+    expect(html).toMatch(/class="text-ember underline/);
+    spy.mockResolvedValue([{ slug: "a", due: "Mon, 16 Nov, 14:00", dueAt: Date.now() + 9 * 86_400_000 }] as never);
+    const later = await render();
+    expect(later).toContain("next due Mon, 16 Nov, 14:00");
+    expect(later).not.toContain("within the day");
+    spy.mockRestore();
+  });
+});
