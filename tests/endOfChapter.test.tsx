@@ -48,3 +48,17 @@ describe("return from the reading room (C40)", () => {
     expect(renderToStaticMarkup(<EndOfChapter slug="w" title="T" chapters={CH2} position={1} wpm={230} base="/works/w/read" proof={false} />)).not.toContain("Return to shelf");
   });
 });
+
+describe("Finished stamp on the end-of-book card (C75)", () => {
+  const at = Date.parse("2026-11-04T23:30:00Z");
+  it("shows on the reader's last page once they've read the book to the end", () => {
+    const html = renderToStaticMarkup(<EndOfChapter slug="w" title="Placeholder Work" chapters={CH} position={2} wpm={230} base="/works/w/read" proof={false} finishedAt={at} />);
+    expect(html).toMatch(/Finished 0?5 Nov 2026/);
+    expect(html).toContain(`dateTime="${new Date(at).toISOString()}"`);
+  });
+  it("never shows in the proof copy, before the last chapter, or before finishing", () => {
+    expect(renderToStaticMarkup(<EndOfChapter slug="w" title="P" chapters={CH} position={2} wpm={230} base="/works/w/proof" proof finishedAt={at} />)).not.toContain("Finished");
+    expect(renderToStaticMarkup(<EndOfChapter slug="w" title="P" chapters={CH} position={1} wpm={230} base="/works/w/read" proof={false} finishedAt={at} />)).not.toContain("Finished");
+    expect(renderToStaticMarkup(<EndOfChapter slug="w" title="P" chapters={CH} position={2} wpm={230} base="/works/w/read" proof={false} />)).not.toContain("Finished");
+  });
+});
