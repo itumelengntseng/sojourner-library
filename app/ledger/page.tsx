@@ -5,6 +5,7 @@ import { ReadingByMonth } from "@/components/ReadingByMonth";
 import { finishedBooks, finishedStamp, formatHours, historyPage } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
+import { myOpenLoans } from "@/lib/loanStore";
 import { myContinueBySlug } from "@/lib/continueStore";
 import { inline, myBookLeft } from "@/lib/bookLeftStore";
 import { chapterLabel } from "@/lib/continueReading";
@@ -27,7 +28,11 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
   }
   const title = (k: string) => l.titles[k] ?? "A work no longer on the shelves";
   // C63: books out on loan now carry "Continue at <chapter>" in Hours per book.
-  const [continueAt, bookLeft] = await Promise.all([myContinueBySlug(), myBookLeft()]);
+  const open = await myOpenLoans();
+  const [continueAt, bookLeft] = await Promise.all([myContinueBySlug(), myBookLeft(open)]);
+  // C92: "Borrow again" on the Read to the end shelf for books still on the shelves and not on loan now.
+  const onLoan = new Set(open.map((o) => o.slug));
+  const borrowAgain = (k: string) => (l.slugs[k] && !onLoan.has(l.slugs[k]) ? `/works/${l.slugs[k]}` : null);
   const link = (k: string) => (l.slugs[k] ? `/works/${l.slugs[k]}` : null);
   const finished = finishedBooks(l.hours);
   const tiles: { label: string; value: string; note?: string; href?: string }[] = [
@@ -60,7 +65,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
 
       {l.totalMs > 0 && l.months.length > 0 && <ReadingByMonth months={l.months} />}
 
-      <FinishedShelf items={finished} title={title} href={link} slug={(k) => l.slugs[k] ?? null} notes={l.mode === "preview" ? "preview" : "library"} />
+      <FinishedShelf items={finished} title={title} href={link} slug={(k) => l.slugs[k] ?? null} notes={l.mode === "preview" ? "preview" : "library"} borrowAgain={borrowAgain} />
 
       <section aria-labelledby="hours" className="mt-12">
         <h2 id="hours" className="text-xl text-paper">Hours per book</h2>

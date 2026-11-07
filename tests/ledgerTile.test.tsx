@@ -11,6 +11,8 @@ vi.mock("@/lib/ledgerStore", () => ({
   }),
 }));
 vi.mock("@/lib/continueStore", () => ({ myContinueBySlug: async () => ({}) }));
+let openSlugs: string[] = [];
+vi.mock("@/lib/loanStore", () => ({ myOpenLoans: async () => openSlugs.map((slug) => ({ slug })) }));
 vi.mock("@/lib/bookLeftStore", () => ({ myBookLeft: async () => ({}), inline: (s: string) => s }));
 
 import Ledger from "@/app/ledger/page";
@@ -32,5 +34,21 @@ describe("Read to the end tile (C91)", () => {
     expect(html).not.toContain(">Read to the end</dt>");
     expect(html).not.toContain('href="#finished"');
     expect(html).toContain("lg:grid-cols-6");
+  });
+});
+
+describe("Borrow again on Read to the end (C92)", () => {
+  it("offers Borrow again for a finished book that isn't on loan now", async () => {
+    hours = [{ workKey: "w", activeMs: 60_000, wordsRead: 100, sessions: 1, lastRead: 2, finishedAt: 2 }];
+    openSlugs = [];
+    const html = await render();
+    expect(html).toMatch(/<a [^>]*href="\/works\/placeholder-work-one"[^>]*>Borrow again<span class="sr-only">: Placeholder Work One<\/span><\/a>/);
+  });
+  it("leaves it out while the book is on loan, and for books no longer on the shelves", async () => {
+    hours = [{ workKey: "w", activeMs: 60_000, wordsRead: 100, sessions: 1, lastRead: 2, finishedAt: 2 }, { workKey: "gone", activeMs: 1, wordsRead: 1, sessions: 1, lastRead: 1, finishedAt: 1 }];
+    openSlugs = ["placeholder-work-one"];
+    expect(await render()).not.toContain("Borrow again");
+    openSlugs = [];
+    expect((await render()).match(/>Borrow again</g)).toHaveLength(1);
   });
 });
