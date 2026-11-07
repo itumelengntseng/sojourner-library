@@ -31,7 +31,7 @@ function writeLocal(key: string, value: string) {
 
 const btn = "rounded px-2.5 py-1.5 font-sans text-xs uppercase tracking-wider";
 
-export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [], finishedAt }: { slug: string; data: ReadingData; wpm: number; minutesPerDay: number; readPositions?: number[]; finishedAt?: number }) {
+export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [], finishedAt, firstRead }: { slug: string; data: ReadingData; wpm: number; minutesPerDay: number; readPositions?: number[]; finishedAt?: number; firstRead?: number }) {
   const { chapter, chapters } = data;
   const paras = useMemo(() => splitParagraphs(chapter.body), [chapter.body]);
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
@@ -350,7 +350,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
           </div>
         )}
 
-        <EndOfChapter slug={slug} title={data.title} chapters={chapters} position={chapter.position} wpm={wpm} base={base} proof={proof} loanId={data.loanId} finishedAt={finishedAt} />
+        <EndOfChapter slug={slug} title={data.title} chapters={chapters} position={chapter.position} wpm={wpm} base={base} proof={proof} loanId={data.loanId} finishedAt={finishedAt} firstRead={firstRead} />
 
         <div className="mt-10 rounded-sm bg-stone-wall text-paper">
           <AskLibrarian

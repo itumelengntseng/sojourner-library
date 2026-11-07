@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
 import { ReturnFromRoom } from "./ReturnFromRoom";
-import { finishedStamp } from "@/lib/ledger";
+import { finishedStamp, finishSpan } from "@/lib/ledger";
 
 export interface ChapterLink { position: number; title: string; words: number }
 
@@ -14,10 +14,12 @@ export function endOfChapter(chapters: ChapterLink[], position: number, wpm: num
   return { kind: "next" as const, position: next.position, title: next.title, minutes: minutesFor(next.words, wpm) };
 }
 
-export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof, loanId = "", finishedAt }: {
+export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof, loanId = "", finishedAt, firstRead }: {
   slug: string; title: string; chapters: ChapterLink[]; position: number; wpm: number; base: string; proof: boolean; loanId?: string;
   /** C75: when the reader read this book to the end (own sessions); never shown in the proof copy. */
   finishedAt?: number;
+  /** C87: end of the reader's first session in this book, for "Read over 9 days". */
+  firstRead?: number;
 }) {
   const end = endOfChapter(chapters, position, wpm);
   return (
@@ -40,6 +42,7 @@ export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof
               <time dateTime={new Date(finishedAt).toISOString()} className="inline-block -rotate-2 rounded-sm border border-current px-1.5 font-mono text-[0.7rem] uppercase tracking-wider">
                 {finishedStamp(finishedAt)}
               </time>
+              {finishSpan(firstRead, finishedAt) && <span className="ml-2 font-sans text-xs opacity-80">Read {finishSpan(firstRead, finishedAt)}</span>}
             </p>
           )}
           {proof ? (

@@ -62,3 +62,18 @@ describe("Finished stamp on the end-of-book card (C75)", () => {
     expect(renderToStaticMarkup(<EndOfChapter slug="w" title="P" chapters={CH} position={2} wpm={230} base="/works/w/read" proof={false} />)).not.toContain("Finished");
   });
 });
+
+describe("how long it took on the end-of-book card (C87)", () => {
+  const at = Date.parse("2026-11-09T10:00:00Z");
+  const first = Date.parse("2026-11-01T10:00:00Z");
+  it("adds 'Read over 9 days' under the Finished stamp when the first session is known", () => {
+    const html = renderToStaticMarkup(<EndOfChapter slug="w" title="P" chapters={CH} position={2} wpm={230} base="/works/w/read" proof={false} finishedAt={at} firstRead={first} />);
+    expect(html).toContain("Read over 9 days");
+    expect(html.indexOf("Read over 9 days")).toBeGreaterThan(html.indexOf("Finished"));
+    expect(renderToStaticMarkup(<EndOfChapter slug="w" title="P" chapters={CH} position={2} wpm={230} base="/works/w/read" proof={false} finishedAt={at} />)).not.toContain("Read ");
+  });
+  it("never in the proof copy or before finishing", () => {
+    expect(renderToStaticMarkup(<EndOfChapter slug="w" title="P" chapters={CH} position={2} wpm={230} base="/works/w/proof" proof finishedAt={at} firstRead={first} />)).not.toContain("Read over");
+    expect(renderToStaticMarkup(<EndOfChapter slug="w" title="P" chapters={CH} position={2} wpm={230} base="/works/w/read" proof={false} firstRead={first} />)).not.toContain("Read over");
+  });
+});
