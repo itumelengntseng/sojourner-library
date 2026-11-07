@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
-import { finishedBooks, formatHours, historyPage } from "@/lib/ledger";
+import { finishedBooks, finishedStamp, formatHours, historyPage } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
 import { myContinueBySlug } from "@/lib/continueStore";
@@ -70,7 +70,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
             <tbody className="divide-y divide-timber-dark/70 border-y border-timber-dark/70">
               {l.hours.map((h) => (
                 <tr key={h.workKey}>
-                  <td className="py-3 pr-2">{link(h.workKey) ? <Link href={link(h.workKey)!} className="hover:text-lamplight">{title(h.workKey)}</Link> : title(h.workKey)}{h.finishedAt !== undefined && <span className="ml-2 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">Finished {new Date(h.finishedAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" })}</span>}
+                  <td className="py-3 pr-2">{link(h.workKey) ? <Link href={link(h.workKey)!} className="hover:text-lamplight">{title(h.workKey)}</Link> : title(h.workKey)}{h.finishedAt !== undefined && <span className="ml-2 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">{finishedStamp(h.finishedAt)}</span>}
                     {l.slugs[h.workKey] && continueAt[l.slugs[h.workKey]] && (() => {
                       const c = continueAt[l.slugs[h.workKey]];
                       return (

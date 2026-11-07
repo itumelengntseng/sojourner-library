@@ -19,6 +19,7 @@ import { ChapterMarks } from "@/components/ChapterMarks";
 import { locateBookmark } from "@/lib/reader";
 import { paceNote } from "@/lib/sessions";
 import { CANON_LABEL, formatWords, workStats } from "@/lib/workStats";
+import { finishedDate } from "@/lib/ledger";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const work = await findWork((await params).slug);
@@ -59,7 +60,7 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
           <p className="mt-1 font-sans text-sm uppercase tracking-[0.2em] text-sandstone">by {work.author}</p>
           {finished !== undefined && (
             <p className="mt-3 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-2 py-0.5 font-mono text-xs uppercase tracking-wider text-lamplight">
-              You finished this · {new Date(finished).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" })}
+              You finished this · {finishedDate(finished)}
             </p>
           )}
           {outsideCanonNote(work.canonStatus) && (

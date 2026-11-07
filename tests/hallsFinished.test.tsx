@@ -28,3 +28,22 @@ describe("finished marks on the halls (C72)", () => {
     expect(finishedStamp(at)).toBe(`Finished ${finishedDate(at)}`);
   });
 });
+
+import { renderToStaticMarkup } from "react-dom/server";
+import { FinishedShelf } from "@/components/FinishedShelf";
+
+describe("one Finished stamp everywhere (C76)", () => {
+  it("the ledger's Read to the end shelf uses the shared stamp", () => {
+    const at = Date.parse("2026-11-04T23:30:00Z");
+    const html = renderToStaticMarkup(<FinishedShelf items={[{ workKey: "w", finishedAt: at }]} title={() => "Placeholder"} href={() => null} />);
+    expect(html).toContain(finishedStamp(at));
+  });
+  it("no page formats a Finished date by hand any more", async () => {
+    const { readFileSync } = await import("node:fs");
+    for (const f of ["app/ledger/page.tsx", "app/works/[slug]/page.tsx", "components/FinishedShelf.tsx", "components/RecentlyReturned.tsx", "components/EndOfChapter.tsx", "app/halls/page.tsx"]) {
+      const src = readFileSync(f, "utf8");
+      expect(src, f).not.toMatch(/Finished \{[^}]*toLocaleDateString/);
+      expect(src, f).not.toMatch(/finished this · \{new Date/);
+    }
+  });
+});

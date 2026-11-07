@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AUTHOR } from "@/lib/site";
+import { finishedStamp } from "@/lib/ledger";
 
 // C41: a short shelf of the books you've read to the end, newest first.
 export function FinishedShelf({ items, title, href }: {
@@ -20,7 +21,7 @@ export function FinishedShelf({ items, title, href }: {
             <li key={f.workKey} className="flex flex-wrap items-baseline justify-between gap-2 py-2">
               {to ? <Link href={to} className="hover:text-lamplight">{title(f.workKey)}</Link> : <span>{title(f.workKey)}</span>}
               <time dateTime={when.toISOString()} className="inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">
-                Finished {when.toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" })}
+                {finishedStamp(f.finishedAt)}
               </time>
             </li>
           );
