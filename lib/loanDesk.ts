@@ -327,6 +327,12 @@ export function justBorrowed(l: Pick<OnLoan, "borrowedAt">, now: number): boolea
   return l.borrowedAt !== undefined && l.borrowedAt <= now && now - l.borrowedAt < 3600_000;
 }
 
+/** C146: " · N just borrowed" for the loans taken out within the hour ("" when none). */
+export function justBorrowedNote(loans: Pick<OnLoan, "borrowedAt">[], now: number): string {
+  const n = loans.filter((l) => justBorrowed(l, now)).length;
+  return n ? ` · ${n} just borrowed` : "";
+}
+
 // ── Time left in each book on loan (C74) ────────────────────────────────────
 
 /** "About 1 h 2 min left in this book" from the bookmark at the reader's pace; "At the end of this book" when nothing's left. */

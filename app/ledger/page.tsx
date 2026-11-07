@@ -9,7 +9,7 @@ import { myOpenLoans } from "@/lib/loanStore";
 import { myContinueBySlug } from "@/lib/continueStore";
 import { inline, myBookLeft } from "@/lib/bookLeftStore";
 import { chapterLabel } from "@/lib/continueReading";
-import { dueBackSoon, justBorrowed, justReturned, stampDate } from "@/lib/loanDesk";
+import { dueBackSoon, justBorrowed, justBorrowedNote, justReturned, stampDate } from "@/lib/loanDesk";
 import { AUTHOR } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Your ledger" };
@@ -52,8 +52,9 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
     // C91: once a book is finished, a tile leading down to the Read to the end shelf.
     ...(finished.length ? [{ label: "Read to the end", value: `${finished.length} book${finished.length === 1 ? "" : "s"}`, note: "see the shelf", href: "#finished", spoken: ": the books you have read to the end" }] : []),
     // C113: what's out now (own loans, soonest due first), leading to the front desk.
+    // C146: "· N just borrowed" when any of them was taken out within the hour.
     // C117: when the soonest is due back within the day (the front hall slip's rule), the note says so in ember.
-    ...(open.length ? [{ label: "On loan", value: `${open.length} book${open.length === 1 ? "" : "s"}`, note: dueBackSoon(open, now).length ? `due back within the day · ${open[0].due}` : `next due ${open[0].due}`, href: "/card", spoken: " — renew or return at the front desk", urgent: dueBackSoon(open, now).length > 0 }] : []),
+    ...(open.length ? [{ label: "On loan", value: `${open.length} book${open.length === 1 ? "" : "s"}`, note: (dueBackSoon(open, now).length ? `due back within the day · ${open[0].due}` : `next due ${open[0].due}`) + justBorrowedNote(open, now), href: "/card", spoken: " — renew or return at the front desk", urgent: dueBackSoon(open, now).length > 0 }] : []),
     // C134: nothing out, but a book handed back within the hour — the tile says so and leads back to it.
     ...(!open.length && backNow ? [{ label: "On loan", value: "Nothing out", note: `just returned · ${title(backNow.workKey)}`, href: link(backNow.workKey)!, spoken: " — borrow it again from its page" }] : []),
   ];
