@@ -8,7 +8,7 @@ import { ContinueReading } from "@/components/ContinueReading";
 import { myContinueBySlug, myContinueReading } from "@/lib/continueStore";
 import { WeekLine } from "@/components/WeekLine";
 import { FinishedLine } from "@/components/FinishedLine";
-import { myFinishes, myWeek, myFinishedCount } from "@/lib/ledgerStore";
+import { myFinishes, myFirstReads, myWeek, myFinishedCount } from "@/lib/ledgerStore";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { ReaderCard } from "@/lib/membership";
 import { signOut } from "./actions";
@@ -39,7 +39,9 @@ async function LoanShelf() {
 async function ReturnedShelf({ notes = "preview" }: { notes?: "library" | "preview" }) {
   const items = await myRecentlyReturned();
   if (items.length === 0) return null;
-  return <RecentlyReturned items={items} finished={await myFinishes(items.map((r) => r.slug))} notes={notes} />;
+  const slugs = items.map((r) => r.slug);
+  const [finished, firstRead] = await Promise.all([myFinishes(slugs), myFirstReads(slugs)]);
+  return <RecentlyReturned items={items} finished={finished} notes={notes} firstRead={firstRead} />;
 }
 
 export default async function CardPage() {

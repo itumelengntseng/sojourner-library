@@ -182,6 +182,35 @@ export async function myFirstRead(slug: string): Promise<number | undefined> {
   return Number.isFinite(at) ? at : undefined;
 }
 
+/** C93: `myFirstRead` for several books in one pass — slug → end of the reader's first session in it (own sessions only). */
+export async function myFirstReads(slugs: string[]): Promise<Record<string, number>> {
+  const uniq = [...new Set(slugs)];
+  const out: Record<string, number> = {};
+  if (uniq.length === 0) return out;
+  const supabase = await supabaseServer();
+  if (!supabase) {
+    for (const s of parseStoredStats((await cookies()).get(PREVIEW_SESSIONS_COOKIE)?.value)) {
+      if (!s.slug || !uniq.includes(s.slug) || !Number.isFinite(s.endedAt)) continue;
+      out[s.slug] = Math.min(out[s.slug] ?? s.endedAt, s.endedAt);
+    }
+    return out;
+  }
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return out;
+  const { data: works } = await supabase.from("works").select("id, slug").in("slug", uniq);
+  if (!works?.length) return out;
+  const slugOf = new Map(works.map((w) => [w.id as string, w.slug as string]));
+  const { data: rows } = await supabase.from("sessions").select("work_id, started_at, ended_at")
+    .eq("reader_id", auth.user.id).in("work_id", [...slugOf.keys()]).order("started_at", { ascending: true }).limit(5000);
+  for (const r of rows ?? []) {
+    const slug = slugOf.get(r.work_id as string);
+    const at = Date.parse((r.ended_at ?? r.started_at) as string);
+    if (!slug || !Number.isFinite(at)) continue;
+    out[slug] = Math.min(out[slug] ?? at, at);
+  }
+  return out;
+}
+
 /** Positions of the chapters of `slug` the reader has read through, from their own sessions (C28). */
 export async function myChaptersRead(slug: string): Promise<number[]> {
   const supabase = await supabaseServer();

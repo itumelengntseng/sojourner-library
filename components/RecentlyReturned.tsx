@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Returned } from "@/lib/loanDesk";
-import { finishedStamp } from "@/lib/ledger";
+import { finishedStamp, finishSpan } from "@/lib/ledger";
 import { PreviewNotesExport } from "./PreviewNotesExport";
 
 /**
@@ -8,8 +8,9 @@ import { PreviewNotesExport } from "./PreviewNotesExport";
  * `finished` (slug → time, C70) marks the books the reader read to the end.
  * C84: a finished book also offers "Notes for this book" — the ledger's per-book export (own notes only):
  * the library route in library mode, built in this browser in preview mode.
+ * C93: the Finished mark adds how long it took, from `firstRead` (slug → the reader's first session in it).
  */
-export function RecentlyReturned({ items, finished = {}, notes = "preview" }: { items: Returned[]; finished?: Record<string, number>; notes?: "library" | "preview" }) {
+export function RecentlyReturned({ items, finished = {}, notes = "preview", firstRead = {} }: { items: Returned[]; finished?: Record<string, number>; notes?: "library" | "preview"; firstRead?: Record<string, number> }) {
   if (items.length === 0) return null;
   return (
     <section aria-labelledby="recently-returned" className="w-full max-w-md text-left">
@@ -24,6 +25,9 @@ export function RecentlyReturned({ items, finished = {}, notes = "preview" }: { 
                   <span className="ml-2 inline-block -rotate-2 rounded-sm border border-ochre px-1.5 py-0.5 align-middle font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">
                     {finishedStamp(finished[r.slug])}
                   </span>
+                )}
+                {finished[r.slug] !== undefined && finishSpan(firstRead[r.slug], finished[r.slug]) && (
+                  <span className="ml-2 font-sans text-xs text-sandstone">· read {finishSpan(firstRead[r.slug], finished[r.slug])}</span>
                 )}
               </p>
               <p className="font-mono text-[0.7rem] uppercase tracking-wider text-sandstone">
