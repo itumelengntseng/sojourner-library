@@ -18,6 +18,7 @@ import { wordsBeforeChapter } from "@/lib/reader";
 import { outsideCanonNote } from "@/lib/canon";
 import { EndOfChapter } from "./EndOfChapter";
 import { ChapterProgress } from "./ChapterProgress";
+import { DueWithinHour } from "./DueWithinHour";
 
 const SETTINGS_KEY = "soj:reader-settings";
 const annKey = (slug: string, pos: number) => `soj:ann:${slug}:${pos}`;
@@ -283,6 +284,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
       </header>
 
       <main id="main" data-ring="" style={{ ["--ring" as string]: FOCUS_RING[settings.theme] }} className="mx-auto max-w-3xl px-5 pb-24 pt-8">
+        {!proof && <DueWithinHour slug={slug} dueAt={data.dueAt} />}
         <p className="font-sans text-xs uppercase tracking-[0.25em] opacity-80">{data.author}</p>
         <h1 className="mt-1 text-2xl">{chapter.title}</h1>
         <p className="mt-1 font-sans text-xs opacity-80">
