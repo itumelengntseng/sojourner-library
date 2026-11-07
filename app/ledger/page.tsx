@@ -9,7 +9,7 @@ import { myOpenLoans } from "@/lib/loanStore";
 import { myContinueBySlug } from "@/lib/continueStore";
 import { inline, myBookLeft } from "@/lib/bookLeftStore";
 import { chapterLabel } from "@/lib/continueReading";
-import { dueBackSoon, justReturned, stampDate } from "@/lib/loanDesk";
+import { dueBackSoon, justBorrowed, justReturned, stampDate } from "@/lib/loanDesk";
 import { AUTHOR } from "@/lib/site";
 
 export const metadata: Metadata = { title: "Your ledger" };
@@ -141,7 +141,10 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
                   )}
                 </span>
                 <span className="font-mono text-xs text-ochre">
-                  {stampDate(r.borrowedAt)} → {r.open ? "on loan" : justReturned({ returnedAt: r.endedAt!, onTime: !!r.onTime }, now)
+                  {/* C141: an open loan taken out within the hour reads "just borrowed", its stamp kept for screen readers. */}
+                  {r.open && justBorrowed(r, now)
+                    ? <><span aria-hidden="true" className="text-lamplight">just borrowed</span><span className="sr-only">Just borrowed, {stampDate(r.borrowedAt)}</span></>
+                    : stampDate(r.borrowedAt)} → {r.open ? "on loan" : justReturned({ returnedAt: r.endedAt!, onTime: !!r.onTime }, now)
                     // C127: handed back within the hour — "Just returned", the stamp kept for screen readers.
                     ? <><span aria-hidden="true" className="text-lamplight">Just returned</span><span className="sr-only">Just returned, {stampDate(r.endedAt!)}</span></>
                     : stampDate(r.endedAt!)}
