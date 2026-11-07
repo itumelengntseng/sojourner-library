@@ -92,3 +92,13 @@ describe("No renewals left on a Due soon loan (C104)", () => {
     expect(m.renewalsLeft).toBe(2);
   });
 });
+
+describe("no renewals left on a loan not yet due soon (C111)", () => {
+  const on = (slug: string, renewalsLeft?: number): import("@/lib/loanDesk").OnLoan => ({ workKey: slug, slug, title: `Placeholder ${slug}`, due: "MON 9 NOV, 14:00", timeLeft: "2 days", dueSoon: false, resume: false, dueAt: 0, bookmark: 0, renewalsLeft });
+  it("adds a quiet note to the due line, and leaves the Due soon loan to its own wording", async () => {
+    const { OnLoanNow } = await import("@/components/OnLoanNow");
+    const html = renderToStaticMarkup(<OnLoanNow loans={[on("spent", 0), on("fresh", 1), on("soon", 0)]} dueSoon={["soon"]} />);
+    expect(html.match(/ · no renewals left/g)).toHaveLength(1);
+    expect(html).toContain("No renewals left — return by MON 9 NOV, 14:00");
+  });
+});

@@ -28,6 +28,8 @@ export function OnLoanNow({ loans, continueAt = {}, bookLeft = {}, dueSoon = [] 
               )}
               <p className={`font-mono text-[0.7rem] uppercase tracking-wider ${l.dueSoon ? "text-ember" : "text-sandstone"}`}>
                 Due {l.due} · {l.timeLeft} left
+                {/* C111: a spent loan not yet due soon (the Due soon one says so beside its title, C104). */}
+                {noRenewalsLeft(l) && !dueSoon.includes(l.slug) ? " · no renewals left" : ""}
               </p>
               {bookLeft[l.slug] && <p className="mt-0.5 font-sans text-xs text-sandstone">{bookLeft[l.slug]}</p>}
               {continueAt[l.slug] && (
