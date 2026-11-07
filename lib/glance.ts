@@ -2,7 +2,7 @@
 export interface GlanceTile { label: string; value: string; note?: string }
 
 /** "The library at a glance": counts only — never who read what. */
-export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number }[], setAside: number, cardHolders: number | null): GlanceTile[] {
+export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number }[], setAside: number, cardHolders: number | null, dueSoon = 0): GlanceTile[] {
   const shared = works.filter((w) => w.visibility === "members").length;
   const words = works.reduce((a, w) => a + w.words, 0);
   const loans = works.reduce((a, w) => a + w.openLoans, 0);
@@ -11,7 +11,8 @@ export function glance(works: { visibility: "owner" | "members"; words: number; 
     { label: "On the shelves", value: String(works.length), note: `${shared} shared · ${works.length - shared} only me${setAside ? ` · ${setAside} set aside` : ""}` },
     { label: "Words shelved", value: words.toLocaleString("en-ZA") },
     { label: "Card holders", value: cardHolders === null ? "—" : String(cardHolders), note: cardHolders === null ? "once the library is connected" : undefined },
-    { label: "Out on loan now", value: String(loans), note: loans ? plural(loans, "open loan") : "every book is in" },
+    // C122: how many of those are due back within the day — a count only, never who.
+    { label: "Out on loan now", value: String(loans), note: loans ? `${plural(loans, "open loan")}${dueSoon > 0 ? ` · ${Math.min(dueSoon, loans).toLocaleString("en-ZA")} due back within the day` : ""}` : "every book is in" },
   ];
   // C45: shown once the library can count it (finished_readers() answered for every work).
   if (works.length > 0 && works.every((w) => w.finished !== undefined)) {
