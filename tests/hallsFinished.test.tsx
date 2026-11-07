@@ -47,3 +47,15 @@ describe("one Finished stamp everywhere (C76)", () => {
     }
   });
 });
+
+import { FINISHED_SHELF } from "@/lib/ledger";
+
+describe("work page finished stamp links to the ledger (C82)", () => {
+  it("points at the Read to the end shelf, whose heading carries the anchor", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(FINISHED_SHELF).toBe("/ledger#finished");
+    const shelf = renderToStaticMarkup(<FinishedShelf items={[{ workKey: "w", finishedAt: 1 }]} title={() => "P"} href={() => null} />);
+    expect(shelf).toContain('id="finished"');
+    expect(readFileSync("app/works/[slug]/page.tsx", "utf8")).toMatch(/<Link href=\{FINISHED_SHELF\}[^>]*>\s*You finished this/);
+  });
+});

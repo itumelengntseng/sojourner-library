@@ -261,3 +261,6 @@ export function finishedStamp(ms: number): string {
 export function finishedDate(ms: number): string {
   return new Date(ms).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" });
 }
+
+/** Where the ledger's "Read to the end" shelf lives (C82; the shelf's heading carries id="finished"). */
+export const FINISHED_SHELF = "/ledger#finished";
