@@ -60,6 +60,6 @@ describe("spoken spine — just returned (C132)", () => {
     const src = readFileSync("app/halls/page.tsx", "utf8");
     expect(src).toContain("returnedNow.filter((r) => justReturned(r, nowMs))");
     expect(src).toContain('{!loan && backNow[w.slug] && <span aria-hidden="true" title="Just returned"');
-    expect(src).toContain("justReturned: backNow[w.slug] })}");
+    expect(src).toContain("justReturned: backNow[w.slug],");
   });
 });
