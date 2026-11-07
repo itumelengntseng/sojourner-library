@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 6 — C48–C67, QA13–QA19, preview-history fix; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 6 — C48–C67, QA13–QA19, preview-history fix; `preview` branch refreshed to c95f8a2; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
