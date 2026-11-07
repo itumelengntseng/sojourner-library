@@ -28,7 +28,7 @@ export default async function WritersRoom({ searchParams }: { searchParams: Prom
     );
   }
   const live = room.mode === "library";
-  const tiles = glance(room.works, live ? room.setAside.length : 0, live ? room.cardHolders : null, room.dueSoon);
+  const tiles = glance(room.works, live ? room.setAside.length : 0, live ? room.cardHolders : null, room.dueSoon, room.returnedHour);
   // C61: "Find a work" narrows the shelf list and the set-aside list (a GET form — no JavaScript needed).
   const shownWorks = filterByTitle(room.works, find);
   const shownAside = live ? filterByTitle(room.setAside, find) : [];

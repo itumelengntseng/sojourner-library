@@ -27,7 +27,7 @@ describe("Writer's Room loans tile — due back within the day (C122)", () => {
     expect(src).toMatch(/from\("loans"\)\.select\("id", \{ count: "exact", head: true \}\)\.is\("returned_at", null\)/);
     expect(src).toMatch(/\.gt\("due_at"[\s\S]*?\.lte\("due_at"/);
     expect(src).toMatch(/dueBackSoon\(out, Date\.now\(\)\)\.length/);
-    expect(readFileSync("app/writers-room/page.tsx", "utf8")).toMatch(/room\.dueSoon\)/);
+    expect(readFileSync("app/writers-room/page.tsx", "utf8")).toMatch(/room\.dueSoon[,)]/);
   });
 });
 
@@ -39,5 +39,19 @@ describe("Writer's Room loans tile — the due part in ember (C128)", () => {
   });
   it("the room shows it in ember after the note", () => {
     expect(readFileSync("app/writers-room/page.tsx", "utf8")).toMatch(/\{t\.urgentNote && <span className="text-ember"> · \{t\.urgentNote\}<\/span>\}/);
+  });
+});
+
+describe("Writer's Room loans tile — returned in the last hour (C136)", () => {
+  it("adds the count to the plain note, with or without loans out", () => {
+    expect(glance([w(2)], 0, 3, 0, 1).find((x) => x.label === "Out on loan now")!.note).toBe("2 open loans · 1 returned in the last hour");
+    expect(glance([w(0)], 0, 3, 0, 3).find((x) => x.label === "Out on loan now")!.note).toBe("every book is in · 3 returned in the last hour");
+    expect(glance([w(2)], 0, 3, 1, 1).find((x) => x.label === "Out on loan now")).toMatchObject({ note: "2 open loans · 1 returned in the last hour", urgentNote: "1 due back within the day" });
+  });
+  it("library mode reads return times only (no reader, no work) and keeps the handed-back rule", () => {
+    const src = readFileSync("lib/writersRoom.ts", "utf8");
+    expect(src).toContain('supabase.from("loans").select("returned_at, due_at").gte("returned_at"');
+    expect(src).toMatch(/justReturned\(\{ returnedAt: Date\.parse\(r\.returned_at\), onTime: Date\.parse\(r\.returned_at\) < Date\.parse\(r\.due_at\) \}, nowMs\)/);
+    expect(readFileSync("app/writers-room/page.tsx", "utf8")).toContain("room.dueSoon, room.returnedHour)");
   });
 });
