@@ -87,3 +87,21 @@ describe("pitch share links — opened just now (C138)", () => {
     expect(src).toContain('<span aria-hidden="true" className="text-lamplight">opened just now</span><span className="sr-only">opened just now, {lastOpened(l.lastViewedAt)}</span>');
   });
 });
+
+describe("pitch share links — opened in the last hour (C145)", () => {
+  const now = Date.parse("2026-11-07T10:00:00Z");
+  const l = (id: string, lastViewedAt: string | null, expiresAt = "2026-11-20T10:00:00Z", revoked = false) => ({ id, expiresAt, revoked, lastViewedAt });
+  it("counts open links opened within the hour only", async () => {
+    const { openedInHour } = await import("@/lib/pitch");
+    expect(openedInHour([
+      l("a", "2026-11-07T09:30:00Z"), l("b", "2026-11-07T09:01:00Z"), l("old", "2026-11-07T08:59:00Z"), l("never", null),
+      l("revoked", "2026-11-07T09:50:00Z", "2026-11-20T10:00:00Z", true), l("expired", "2026-11-07T09:50:00Z", "2026-11-07T09:55:00Z"),
+    ], now)).toBe(2);
+    expect(openedInHour([], now)).toBe(0);
+  });
+  it("the Pitch Room adds it in lamplight after the open count", () => {
+    const src = readFileSync("app/pitch-room/page.tsx", "utf8");
+    expect(src).toContain('openedInHour(mine, now) > 0 && <span className="text-lamplight"> · {openedInHour(mine, now)} opened in the last hour</span>}');
+    expect(src.indexOf("opened in the last hour</span>")).toBeLessThan(src.indexOf("today</span>}"));
+  });
+});

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RevokeLink, ShareForm } from "@/components/PitchForms";
-import { kitStatus, lastDayLabel, lastOpened, linkTimeLeft, loglineWarning, openedJustNow, orderLinks } from "@/lib/pitch";
+import { kitStatus, lastDayLabel, lastOpened, linkTimeLeft, loglineWarning, openedInHour, openedJustNow, orderLinks } from "@/lib/pitch";
 import { ownerPitchLinks, roomPitches } from "@/lib/pitchStore";
 import { AUTHOR } from "@/lib/site";
 import { cleanQuery, filterByTitle } from "@/lib/shelfSearch";
@@ -68,7 +68,7 @@ export default async function PitchRoom({ searchParams }: { searchParams: Promis
               <div className="threshold my-4 opacity-40" aria-hidden="true" />
               <ShareForm slug={k.slug} enabled={live} />
               {mine.length > 0 && (
-                <p className="mt-3 font-sans text-xs text-sandstone">{openLinks === 0 ? "No link open" : `${openLinks} open`}{closingToday > 0 && <span className="text-ember"> · {closingToday} close{closingToday === 1 ? "s" : ""} today</span>} · {mine.length} shared in all</p>
+                <p className="mt-3 font-sans text-xs text-sandstone">{openLinks === 0 ? "No link open" : `${openLinks} open`}{/* C145 */ openedInHour(mine, now) > 0 && <span className="text-lamplight"> · {openedInHour(mine, now)} opened in the last hour</span>}{closingToday > 0 && <span className="text-ember"> · {closingToday} close{closingToday === 1 ? "s" : ""} today</span>} · {mine.length} shared in all</p>
               )}
               {mine.length > 0 && (
                 <ul className="mt-1 divide-y divide-timber-dark/60 font-sans text-xs text-sandstone">

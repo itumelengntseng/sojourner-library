@@ -208,3 +208,8 @@ export function openedJustNow(iso: string | null, now: number): boolean {
   const t = iso ? Date.parse(iso) : NaN;
   return Number.isFinite(t) && t <= now && now - t < 3600_000;
 }
+
+/** C145: how many open share links were opened within the last hour. */
+export function openedInHour<T extends { expiresAt: string; revoked: boolean; lastViewedAt: string | null }>(links: T[], now: number): number {
+  return links.filter((l) => !l.revoked && linkTimeLeft(l.expiresAt, now) !== null && openedJustNow(l.lastViewedAt, now)).length;
+}
