@@ -34,3 +34,15 @@ describe("reading-room keys", () => {
     expect(src).toContain('aria-haspopup="dialog"');
   });
 });
+
+describe("C66 the keys card mentions the Contents extras", async () => {
+  const { shortcutsFor } = await import("@/lib/readerKeys");
+  it("outside the proof copy the C line names time left and Go to your bookmark", () => {
+    const c = shortcutsFor(false).find((s) => s.action === "contents")!;
+    expect(c.label).toContain("time left in the book");
+    expect(c.label).toContain("Go to your bookmark");
+  });
+  it("the proof copy's card doesn't mention bookmarks at all", () => {
+    expect(shortcutsFor(true).some((s) => /bookmark/i.test(s.label))).toBe(false);
+  });
+});

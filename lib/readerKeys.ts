@@ -16,7 +16,9 @@ export const SHORTCUTS: readonly Shortcut[] = [
 
 /** Shortcuts that apply here (the proof copy has no bookmark or notes). */
 export function shortcutsFor(proof: boolean): Shortcut[] {
-  return SHORTCUTS.filter((s) => !proof || s.proof);
+  // C66: outside the proof copy, Contents also holds the time left and "Go to your bookmark".
+  return SHORTCUTS.filter((s) => !proof || s.proof).map((s) =>
+    s.action === "contents" && !proof ? { ...s, label: "Open or close the contents — time left in the book, and Go to your bookmark" } : s);
 }
 
 /** Which action a key press means, or null. Ignores presses with Ctrl/Alt/Meta so browser shortcuts still work. */

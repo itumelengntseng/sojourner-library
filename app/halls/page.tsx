@@ -57,7 +57,16 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
           ))}
         </nav>
       )}
-      {query && <p role="status" className="mt-3 font-sans text-sm text-sandstone">{resultLine(works.length, query)}</p>}
+      {query && (
+        <p role="status" className="mt-3 font-sans text-sm text-sandstone">
+          {resultLine(works.length, query)}
+          {/* C67: an empty result offers the way out — and drafts, when the canon switch is hiding a match. */}
+          {works.length === 0 && view === "canon" && searchShelves(catalogue.works, halls, query).length > 0 && (
+            <> A draft matches — <Link href={sortHref(sort, query, "all")} className="text-lamplight underline underline-offset-2">search the drafts too</Link>.</>
+          )}
+          {works.length === 0 && <> <Link href={sortHref(sort, "", canonParam)} className="text-lamplight underline underline-offset-2">Clear the search</Link>.</>}
+        </p>
+      )}
       {works.some((w) => out[w.slug]) && (
         <p className="mt-3 font-sans text-xs text-sandstone">
           <span aria-hidden="true" className="mr-1 rounded-[1px] bg-paper px-1 font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-ink">out</span>

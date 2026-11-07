@@ -4,13 +4,17 @@ import { RevokeLink, ShareForm } from "@/components/PitchForms";
 import { kitStatus, lastOpened, loglineWarning } from "@/lib/pitch";
 import { ownerPitchLinks, roomPitches } from "@/lib/pitchStore";
 import { AUTHOR } from "@/lib/site";
+import { cleanQuery, filterByTitle } from "@/lib/shelfSearch";
 
 // Owner-only: always render per request (reads the session).
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Pitch Room" };
 
-export default async function PitchRoom() {
-  const [{ live, allowed, links }, { pitches }] = await Promise.all([ownerPitchLinks(), roomPitches()]);
+export default async function PitchRoom({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const [{ live, allowed, links }, { pitches: all }] = await Promise.all([ownerPitchLinks(), roomPitches()]);
+  // C65: "Find a kit" by work title (a GET form — no JavaScript needed).
+  const find = cleanQuery((await searchParams).find);
+  const pitches = filterByTitle(all.map((p) => ({ ...p, title: p.work.title })), find);
   if (!allowed) {
     return (
       <main id="main" className="mx-auto max-w-xl px-4 pt-24 text-center">
@@ -26,8 +30,19 @@ export default async function PitchRoom() {
       <p className="mt-1 font-sans text-sm text-sandstone">One sheet per work for agents, editors and producers — in {AUTHOR}&apos;s words, shared by private link.</p>
       {!live && <p className="mt-4 rounded-sm border border-ember/50 px-3 py-2 font-sans text-xs text-ember">Preview: sheets and one-pagers work now; private links start once the library is connected.</p>}
 
+      {(all.length > 1 || find) && (
+        <form role="search" action="/pitch-room" method="get" className="mt-6 flex max-w-md items-center gap-2 font-sans text-sm">
+          <label htmlFor="kit-find" className="sr-only">Find a kit</label>
+          <input id="kit-find" name="find" type="search" defaultValue={find} maxLength={80} autoComplete="off" placeholder="Find a kit by title…"
+            className="min-w-0 flex-1 rounded-sm border border-timber bg-stone-wall/70 px-3 py-2 text-paper placeholder:text-sandstone/70" />
+          <button type="submit" className="rounded-sm border border-lamplight/60 px-3 py-2 text-lamplight hover:bg-lamplight/10">Find</button>
+          {find && <Link href="/pitch-room" className="text-sandstone underline underline-offset-2 hover:text-lamplight">Clear</Link>}
+        </form>
+      )}
+      {find && <p role="status" className="mt-2 font-sans text-sm text-sandstone">{pitches.length === 0 ? `No kit’s title matches “${find}”.` : `Matching “${find}”: ${pitches.length} ${pitches.length === 1 ? "kit" : "kits"}.`}</p>}
+
       <ul className="mt-8 flex flex-col gap-4">
-        {pitches.length === 0 && <li className="font-sans text-sm text-sandstone">No works on the shelves yet — shelve a manuscript in the Writer&apos;s Room first.</li>}
+        {all.length === 0 && <li className="font-sans text-sm text-sandstone">No works on the shelves yet — shelve a manuscript in the Writer&apos;s Room first.</li>}
         {pitches.map((p) => {
           const k = p.kit;
           const st = kitStatus(k);

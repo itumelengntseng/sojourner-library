@@ -100,8 +100,12 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C63 Ledger "Hours per book": for a book the reader has out now, add "Continue at <chapter>" (reuse C50's per-loan cards).
 - [x] C64 A per-browser "Still covers" switch (front hall footer or card page) that stops the living covers' motion even when the device doesn't ask for reduced motion; remembered in localStorage.
 - [x] QA18 QA pass after C62–C64.
-- [ ] C65 Pitch Room: a "Find a kit" GET search over the kit list by work title (same rule as C61), shown with 2+ works.
-- [ ] C66 Reading room: the "Keys" card lists the new Contents items (Go to your bookmark, time left) in its help text — no new keys; keep the proof copy's card without bookmark lines.
-- [ ] C67 Halls: a "Clear search" link inside the "Nothing on the shelves matches" status, and the empty-result message suggests checking the canon switch when drafts are hidden ("Include drafts" link).
-- [ ] QA19 QA pass after C65–C67.
+- [x] C65 Pitch Room: a "Find a kit" GET search over the kit list by work title (same rule as C61), shown with 2+ works.
+- [x] C66 Reading room: the "Keys" card lists the new Contents items (Go to your bookmark, time left) in its help text — no new keys; keep the proof copy's card without bookmark lines.
+- [x] C67 Halls: a "Clear search" link inside the "Nothing on the shelves matches" status, and the empty-result message suggests checking the canon switch when drafts are hidden ("Include drafts" link).
+- [x] QA19 QA pass after C65–C67.
+- [ ] C68 Ledger notes export (Markdown): check every note/highlight sits under its chapter's title heading (not just the number) and the file opens with "Notes on the works of Itumeleng Ntseng" + export date; add tests for the per-book file too. Fix if not.
+- [ ] C69 Work page: "Ask the librarian" gains a suggested question "How long is left in this book?" when the reader has a bookmark (engine already answers remaining time — reuse, no new parser rules unless needed).
+- [ ] C70 Card page "Recently returned": show "Finished" beside a returned book the reader read to the end (C13 rule, own sessions).
+- [ ] QA20 QA pass after C68–C70.
 

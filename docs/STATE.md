@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 6 — C48–C64, QA13–QA18, preview-history fix; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 6 — C48–C67, QA13–QA19, preview-history fix; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -105,10 +105,14 @@ _Last updated: 2026-11-07 (scheduled build run 6 — C48–C64, QA13–QA18, pre
 - C63 — "Continue at" in the ledger's Hours per book (`/ledger`, reuses C50's `myContinueBySlug()`): a book out on loan now carries "Continue at Chapter 2 · about 9 min left in this chapter" under its title, linking into that chapter; returned books don't. Own loans and sessions only. Smoke-tested at 375px in preview.
 - C64 — "Hold the covers still" (`lib/stillCovers.ts`, `components/StillCoversToggle.tsx`, footer in `app/layout.tsx`, `html[data-still-covers]` rules in `app/globals.css`): a footer switch (aria-pressed) that stops the living covers' motion exactly as the reduced-motion setting does, remembered in this browser (localStorage). A tiny inline script in `<head>` applies it before first paint, so the covers never start moving for someone who asked; blocked storage is ignored safely. Unit-tested (the head script, storage errors, the CSS rule); smoke-tested at 375px: moving → held still → still after reload → moving again.
 - QA18 (2026-11-07, after C62–C64): `npm run qa` all clear — now also checks the front hall with the covers held still (stays still after a reload, axe clean). Found and fixed in the QA script itself: the pitch-sheet print check counted any `button` whose own `display` wasn't none, so the new footer button (inside the footer, which is hidden on paper) read as "visible" — it now counts only elements that are actually rendered (`getClientRects()`), which still catches a visible print button. Preview e2e 6/6. Performance (local prod build, curl): every page < 40 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 410 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA18).
+- C65 — "Find a kit" in the Pitch Room (`/pitch-room?find=`, reuses `filterByTitle()`): a GET search box over the kit list (shown with 2+ works) by work title; "Matching “two”: 1 kit." as a status; Clear returns to all. Works without JavaScript. Smoke-tested at 375px in preview.
+- C66 — The keys card names the Contents extras (`shortcutsFor()` in `lib/readerKeys.ts`): outside the proof copy, the C line reads "Open or close the contents — time left in the book, and Go to your bookmark"; the proof copy's card still mentions no bookmarks. No new keys. Unit-tested; the keys-card sweep stays clean at 375px.
+- C67 — A way out of an empty search on the halls (`/halls?q=`): "Nothing on the shelves matches “…”." now ends with "Clear the search." (a link), and when the canon switch is hiding a draft that would match, "A draft matches — search the drafts too." (links to the same search with drafts included). Smoke-tested at 375px: "three" (a draft) → offer → 1 work matches; "zzzz" → Clear the search → all shelves.
+- QA19 (2026-11-07, after C65–C67): `npm run qa` all clear — now also sweeps `/pitch-room?find=two` and `/halls?q=three` (the draft offer) at both widths; the keys card with the longer C line is in the existing sweep. Preview e2e 6/6. No migration → RLS audit unchanged.
+- Tests: 412 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA19).
 
 ## Next task
-C65 — "Find a kit" in the Pitch Room (BACKLOG.md → FOLLOW-UPS), then C66, C67, QA19. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C68 — ledger notes export names the chapter titles (BACKLOG.md → FOLLOW-UPS), then C69, C70, QA20. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
