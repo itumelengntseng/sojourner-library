@@ -28,3 +28,12 @@ describe("work page — Just returned (C129)", () => {
     expect(src.indexOf("borrow it again below")).toBeLessThan(src.indexOf('<h2 id="desk"'));
   });
 });
+
+describe("reading room gate — just returned (C135)", () => {
+  it("says the reader returned it just now, and the bookmark waits", () => {
+    const src = readFileSync("app/works/[slug]/read/page.tsx", "utf8");
+    expect(src).toContain('const desk = loaded.gate === "no-loan" ? await loadDesk(slug) : null;');
+    expect(src).toContain("justReturnedLoan(desk.loans, desk.workId, desk.readerId, Date.now())");
+    expect(src).toContain('backNow ? "You returned this just now — borrow it again to pick up at your bookmark."');
+  });
+});

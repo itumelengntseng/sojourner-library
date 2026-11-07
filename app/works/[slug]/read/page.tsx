@@ -5,6 +5,8 @@ import { ReaderView } from "@/components/ReaderView";
 import { loadReading } from "@/lib/readingRoom";
 import { myPace } from "@/lib/sessionStore";
 import { myChaptersRead, myFinish, myFirstRead } from "@/lib/ledgerStore";
+import { loadDesk } from "@/lib/loanStore";
+import { justReturnedLoan } from "@/lib/loanDesk";
 
 export const metadata: Metadata = { title: "Reading room" };
 
@@ -21,12 +23,16 @@ export default async function ReadingRoom({ params, searchParams }: Props) {
 
   if (!loaded.ok) {
     if (loaded.gate === "missing") notFound();
+    // C135: handed back within the hour — say so, and that the bookmark waits.
+    const desk = loaded.gate === "no-loan" ? await loadDesk(slug) : null;
+    const backNow = desk && desk.mode !== "signed-out" && desk.mode !== "not-shelved" ? justReturnedLoan(desk.loans, desk.workId, desk.readerId, Date.now()) : undefined;
     return (
       <main id="main" className="mx-auto max-w-xl px-4 pt-24 text-center">
         <h1 className="text-2xl text-lamplight">The reading room is closed to you for now</h1>
         <p className="mt-4 text-paper/90">
           {loaded.gate === "signed-out"
             ? "Show your reader card at the front desk, then borrow the work."
+            : backNow ? "You returned this just now — borrow it again to pick up at your bookmark."
             : "This work isn't on loan to you. Borrow it at the loan desk — your bookmark will be waiting."}
         </p>
         <Link href={loaded.gate === "signed-out" ? "/card" : `/works/${slug}`}
