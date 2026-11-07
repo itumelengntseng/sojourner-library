@@ -208,7 +208,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C144 Halls: a spine on loan taken out within the hour adds "just borrowed" to its spoken label (`justBorrowed()`; no new visual mark).
 - [x] C145 Pitch Room: the "N open · M shared in all" line adds "· N opened in the last hour" when any open link was opened within the hour (reuse `openedJustNow()`).
 - [x] QA45 QA pass after C143–C145.
-- [ ] C146 Ledger "On loan" tile: when any book out was taken out within the hour, the note adds "· N just borrowed" (own loans; `justBorrowed()`), after the due part.
-- [ ] C147 Reading room: on a loan taken out within the hour with no bookmark yet, one quiet line under the toolbar — "Just borrowed · due back <stamp>" (not in the proof copy; gives way to the C102 due-within-the-hour line).
-- [ ] C148 Card page "On loan now": with two or more loans taken out within the hour, a line under the heading — "2 borrowed in the last hour" (like C116's due line).
-- [ ] QA46 QA pass after C146–C148.
+- [x] C146 Ledger "On loan" tile: when any book out was taken out within the hour, the note adds "· N just borrowed" (own loans; `justBorrowed()`), after the due part.
+- [x] C147 Reading room: on a loan taken out within the hour with no bookmark yet, one quiet line under the toolbar — "Just borrowed · due back <stamp>" (not in the proof copy; gives way to the C102 due-within-the-hour line).
+- [x] C148 Card page "On loan now": with two or more loans taken out within the hour, a line under the heading — "2 borrowed in the last hour" (like C116's due line).
+- [x] QA46 QA pass after C146–C148.
+- [ ] C149 Work page loan desk: on an open loan with no bookmark yet, the "Open the reading room" link reads "Start reading" (spoken with the title); "Resume at your bookmark" unchanged.
+- [ ] C150 Halls: the "out" legend notes fresh loans — "… 2 books out to you (1 just borrowed) — renew or return them at the front desk" (own loans; `justBorrowed()`).
+- [ ] C151 Writer's Room glance: the "Out on loan now" tile's spoken label reads the whole note as one sentence (check the ember due part and the borrowed/returned counts are announced in order; add an sr-only summary if not).
+- [ ] QA47 QA pass after C149–C151.

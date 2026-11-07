@@ -510,6 +510,8 @@ for (const width of WIDTHS) {
   if (await onLoan.locator("a[href='/works/placeholder-work-two#desk']").count()) { failures++; console.log(`✗ ${width}px card: still offers Renew on the spent loan`); }
   // QA43 (C137): this run's loans were taken out within the hour.
   if (!(await onLoan.locator(".sr-only", { hasText: /^Just borrowed, / }).count())) { failures++; console.log(`✗ ${width}px card: no "Just borrowed" on a loan taken out this hour`); }
+  // QA46 (C148): with two or more fresh loans, the line under the heading counts them.
+  if ((await onLoan.locator(".sr-only", { hasText: /^Just borrowed, / }).count()) > 1 && !(await onLoan.getByText(/^\d+ borrowed in the last hour$/).count())) { failures++; console.log(`✗ ${width}px card: no "N borrowed in the last hour" line`); }
   // QA36 (C116): the heading carries the count.
   if (!(await page.getByRole("heading", { name: /^On loan now · \d+$/ }).count())) { failures++; console.log(`✗ ${width}px card: the On loan now heading has no count`); }
   // QA38 (C124): the book handed back earlier this run reads "Just returned", stamp kept for screen readers.
@@ -627,6 +629,18 @@ await axeCheck("375px reading room gate just returned");
   await fp.getByRole("button", { name: "Return to shelf" }).waitFor();
   await fp.goto(`${BASE}/`);
   if (!(await fp.locator("main a[href='/works/placeholder-work-two/read']", { hasText: /^open it in the reading room/ }).count()) || !(await fp.locator(".sr-only", { hasText: /^Just borrowed, / }).count())) { failures++; console.log("✗ front hall without the Just borrowed line"); }
+  // QA46 (C146, C147): the ledger tile counts the fresh loan; the reading room says so before the first bookmark.
+  await fp.goto(`${BASE}/ledger`);
+  if (!(await fp.locator("dl a[href='/card']", { hasText: / · 1 just borrowed/ }).count())) { failures++; console.log("✗ ledger On loan tile doesn't count the book just borrowed"); }
+  await fp.goto(`${BASE}/works/placeholder-work-two/read`);
+  if (!(await fp.getByText(/· due back /).filter({ has: fp.locator(".sr-only", { hasText: /^Just borrowed, / }) }).first().waitFor({ timeout: 5000 }).then(() => true, () => false))) { failures++; console.log("✗ reading room without the Just borrowed line"); }
+  await fp.evaluate(axeSource);
+  {
+    const r = await fp.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] })); // eslint-disable-line no-undef
+    const v = r.violations.filter((x) => ["serious", "critical"].includes(x.impact));
+    if (v.length) { failures++; console.log(`✗ 375px reading room just borrowed\n${v.map((x) => `    axe ${x.impact}: ${x.id}`).join("\n")}`); } else console.log("✓ 375px reading room just borrowed");
+  }
+  await fp.goto(`${BASE}/`);
   await fp.evaluate(axeSource);
   const res = await fp.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] })); // eslint-disable-line no-undef
   const bad = res.violations.filter((v) => ["serious", "critical"].includes(v.impact));

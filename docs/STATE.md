@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 11 — C140–C145, QA44–QA45; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 11 — C140–C148, QA44–QA46; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -213,10 +213,14 @@ _Last updated: 2026-11-07 (scheduled build run 11 — C140–C145, QA44–QA45; 
 - C144 — Halls: a spine on loan taken out within the hour adds "Just borrowed, <stamp>." to its spoken label, after the loan line. Unit-tested + swept.
 - C145 — Pitch Room: the open-link line adds "· N opened in the last hour" in lamplight (open links only; `openedInHour()`). Unit-tested (preview has no share links).
 - QA45 (2026-11-07, after C143–C145): `npm run qa` all clear — now also requires the halls spine's "Just borrowed" (375px + 1280px) and, in a fresh browser that borrows without reading, the front hall's Just borrowed line (axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 577 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA45).
+- C146 — Ledger "On loan" tile: the note adds "· N just borrowed" after the due part when loans were taken out within the hour (`justBorrowedNote()`). Unit-tested + swept.
+- C147 — Reading room: on a loan taken out within the hour with no bookmark yet, "Just borrowed · due back <stamp>" under the toolbar (spoken with the borrow stamp; checked after mount and each minute; gives way to C102's due-within-the-hour line; not in the proof copy). The room's loader now also reads the loan's `borrowed_at` (library) / `borrowedAt` (preview). Unit-tested + swept.
+- C148 — Card page On loan now: with two or more loans taken out within the hour, "2 borrowed in the last hour" (lamplight) under the heading. Unit-tested; the sweep requires it whenever two Just borrowed marks show.
+- QA46 (2026-11-07, after C146–C148): `npm run qa` all clear (run twice) — now also requires, in a fresh browser that borrows without reading, the ledger tile's "· 1 just borrowed" and the reading room's Just borrowed line (axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (the room reads one more column of the reader's own loan).
+- Tests: 584 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA46).
 
 ## Next task
-C146 — ledger On loan tile "· N just borrowed" (BACKLOG.md → FOLLOW-UPS), then C147, C148, QA46. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C149 — work page loan desk "Start reading" on a fresh, unbookmarked loan (BACKLOG.md → FOLLOW-UPS), then C150, C151, QA47. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
