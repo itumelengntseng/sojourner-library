@@ -44,3 +44,17 @@ describe("on loan now", () => {
     expect(html).toContain("about 2 min left in this chapter");
   });
 });
+
+describe("Due soon mark on On loan now (C96)", () => {
+  const on = (slug: string, dueAt: number): import("@/lib/loanDesk").OnLoan => ({ workKey: slug, slug, title: `Placeholder ${slug}`, due: "SAT 7 NOV, 14:00", timeLeft: "3 h", dueSoon: false, resume: false, dueAt, bookmark: 0 });
+  it("marks only the loans due back within the day, with the due time spoken", async () => {
+    const { OnLoanNow } = await import("@/components/OnLoanNow");
+    const { dueBackSoon } = await import("@/lib/loanDesk");
+    const now = Date.parse("2026-11-07T09:00:00Z");
+    const loans = [on("soon", now + 3 * 3600_000), on("later", now + 3 * 86_400_000)];
+    const html = renderToStaticMarkup(<OnLoanNow loans={loans} dueSoon={dueBackSoon(loans, now).map((l) => l.slug)} />);
+    expect(html.match(/Due soon<span class="sr-only">: back by SAT 7 NOV, 14:00<\/span>/g)).toHaveLength(1);
+    expect(html.indexOf("Due soon")).toBeLessThan(html.indexOf("Placeholder later"));
+    expect(renderToStaticMarkup(<OnLoanNow loans={loans} />)).not.toContain("Due soon");
+  });
+});
