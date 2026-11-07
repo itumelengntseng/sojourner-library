@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { chapterLabel, type ContinueCard } from "@/lib/continueReading";
 import type { OnLoan } from "@/lib/loanDesk";
 
 /** The reader's open loans at the front desk, each with its due-date stamp and a way back in. */
-export function OnLoanNow({ loans }: { loans: OnLoan[] }) {
+export function OnLoanNow({ loans, continueAt = {} }: { loans: OnLoan[]; continueAt?: Record<string, ContinueCard> }) {
   if (loans.length === 0) {
     return (
       <p className="font-sans text-sm text-sandstone">
@@ -21,6 +22,13 @@ export function OnLoanNow({ loans }: { loans: OnLoan[] }) {
               <p className={`font-mono text-[0.7rem] uppercase tracking-wider ${l.dueSoon ? "text-ember" : "text-sandstone"}`}>
                 Due {l.due} · {l.timeLeft} left
               </p>
+              {continueAt[l.slug] && (
+                <p className="mt-1 font-sans text-xs text-paper/80">
+                  Continue at{" "}
+                  <Link href={continueAt[l.slug].href} className="text-lamplight underline underline-offset-2 hover:text-ember">{chapterLabel(continueAt[l.slug])}</Link>
+                  <span className="text-sandstone"> · {continueAt[l.slug].left}</span>
+                </p>
+              )}
             </div>
             <Link href={`/works/${l.slug}/read`} className="rounded bg-timber px-3 py-1.5 font-sans text-xs font-semibold text-paper hover:bg-ochre">
               {l.resume ? "Resume" : "Open"}

@@ -11,7 +11,26 @@ import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
 import { myPace } from "./sessionStore";
 import { supabaseServer } from "./supabase/server";
 
+interface ContinueInputs { loans: ContinueLoan[]; sessions: WorkSession[]; chapters: Record<string, ContinueChapter[]>; wpm: number }
+
 export async function myContinueReading(onlySlug?: string): Promise<ContinueCard | null> {
+  const inputs = await loadInputs(onlySlug);
+  return inputs ? continueReading(inputs.loans, inputs.sessions, inputs.chapters, inputs.wpm) : null;
+}
+
+/** C50: one Continue card per open loan the reader has read in, keyed by slug (for "On loan now"). */
+export async function myContinueBySlug(): Promise<Record<string, ContinueCard>> {
+  const inputs = await loadInputs();
+  if (!inputs) return {};
+  const out: Record<string, ContinueCard> = {};
+  for (const loan of inputs.loans) {
+    const card = continueReading([loan], inputs.sessions, inputs.chapters, inputs.wpm);
+    if (card) out[card.slug] = card;
+  }
+  return out;
+}
+
+async function loadInputs(onlySlug?: string): Promise<ContinueInputs | null> {
   const now = Date.now();
   const supabase = await supabaseServer();
   if (!supabase) {
@@ -29,7 +48,7 @@ export async function myContinueReading(onlySlug?: string): Promise<ContinueCard
     const sessions: WorkSession[] = parseStoredStats(store.get(PREVIEW_SESSIONS_COOKIE)?.value)
       .filter((s) => s.slug)
       .map((s) => ({ ...s, workKey: s.slug!, ...(s.position ? { chapterKey: String(s.position) } : {}) }));
-    return continueReading(loans, sessions, chapters, (await myPace()).wpm);
+    return { loans, sessions, chapters, wpm: (await myPace()).wpm };
   }
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) return null;
@@ -58,5 +77,5 @@ export async function myContinueReading(onlySlug?: string): Promise<ContinueCard
     workKey: r.work_id as string, ...(r.chapter_id ? { chapterKey: r.chapter_id as string } : {}),
     wordsRead: r.words_read as number, activeMs: 0, endedAt: Date.parse((r.ended_at ?? r.started_at) as string),
   }));
-  return continueReading(loans, sessions, chapters, (await myPace()).wpm);
+  return { loans, sessions, chapters, wpm: (await myPace()).wpm };
 }

@@ -31,4 +31,16 @@ describe("on loan now", () => {
     expect(html).toMatch(/Due .*1 day left/);
     expect(renderToStaticMarkup(<OnLoanNow loans={[]} />)).toContain('href="/halls"');
   });
+  it("C50: a loan the reader has read in shows Continue at <chapter>; others don't", async () => {
+    const { continueReading } = await import("@/lib/continueReading");
+    const loans = onLoanNow([loan({ id: "a", workId: "w1" }), loan({ id: "b", workId: "w2" })], "r", works, now);
+    const card = continueReading([{ workKey: "placeholder-one", slug: "placeholder-one", title: "Placeholder One", bookmarkOffset: 0 }],
+      [{ workKey: "placeholder-one", chapterKey: "3", wordsRead: 100, activeMs: 60_000, endedAt: now }],
+      { "placeholder-one": [1, 2, 3].map((p) => ({ key: String(p), position: p, title: `Placeholder chapter ${p}`, words: 500 })) }, 200)!;
+    const html = renderToStaticMarkup(<OnLoanNow loans={loans} continueAt={{ "placeholder-one": card }} />);
+    expect(html.match(/Continue at/g)).toHaveLength(1);
+    expect(html).toContain('href="/works/placeholder-one/read?ch=3"');
+    expect(html).toContain("Chapter 3: Placeholder chapter 3");
+    expect(html).toContain("about 2 min left in this chapter");
+  });
 });

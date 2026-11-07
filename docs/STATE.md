@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 6 — in progress; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 6 — C48–C50, QA13 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -85,10 +85,11 @@ _Last updated: 2026-11-07 (scheduled build run 6 — in progress; C24 + 0013/001
 - C48 — Compact preview cookies (`packRecords`/`unpackRecords`/`readNum` in `lib/cookieBudget.ts`; codecs in `lib/loanDesk.ts` and `lib/sessions.ts`): preview loans and session summaries are now written as `v2.` + records joined by `!`, fields by `~`, times in base-36 ms, the bookmark left off when it's at the start — only characters the browser doesn't URL-encode, so a loan costs ~85 bytes instead of ~370. Preview now keeps its full 20-loan history and all 40 session summaries under the 3 800-byte budget (20 loans ≈ 1.8 KB). The older JSON cookies are still read (and rewritten compactly on the next change); malformed compact records are dropped, not trusted; anything that can't be written compactly falls back to JSON. Also fixed (found while testing): the preview history trim (20 loans) could drop a book still **out on loan** after twenty newer borrows of other books — `trimHistory()` now never trims an open loan. Tested (`tests/cookieBudget.test.ts`, +8) and in Chromium at 375px: a legacy JSON cookie with an open two-week loan → 24 borrow/return rounds of another book → every round sticks, 20 loans kept, the two-week loan still on the card, cookie 1.8 KB; `npm run qa` all clear; preview e2e 6/6.
 - C49 — "Continue at <chapter>" at the work page's loan desk (`components/ContinueHere.tsx`, `chapterLabel()` in `lib/continueReading.ts`, `myContinueReading(slug)` in `lib/continueStore.ts`): when the reader has the book out and has read in it, under Open/Resume: "Continue at Chapter 2 · about 11 min left in this chapter", linking into that chapter (or the bookmark when it sits there). Same rules as the front hall's C34 card, narrowed to this one work — own loans and sessions only, a chapter read through points to the next, never-opened loans show nothing. Titles and word counts only. Unit-tested (`tests/continueHere.test.tsx`); smoke-tested at 375px in preview: nothing before borrowing → nothing while unread → line after a session in chapter 2 → the link opens `?ch=2`; another work's desk shows nothing; no sideways scroll, no console errors.
 - QA13 (2026-11-07, after C48–C49): `npm run qa` all clear — now also sweeps the work page with the Continue at line (375px + 1280px). Preview e2e 6/6. Preview desk: 24 borrow/return rounds from a legacy cookie all stick, 20 loans kept, an older open loan survives. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 57 KB. No migration → RLS audit unchanged (the new loader reads only the signed-in reader's own loans and sessions, as C34).
-- Tests: 383 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA13).
+- C50 — "Continue at" in the card page's On loan now (`myContinueBySlug()` in `lib/continueStore.ts` — the C34/C49 loader shared, one card per open loan; `continueAt` prop on `components/OnLoanNow.tsx`): each loan the reader has read in now carries "Continue at Chapter 3 · about 9 min left in this chapter" under its due stamp, linking into that chapter; loans not yet opened show only the due stamp. Own loans and sessions only. Unit-tested (`tests/onLoan.test.tsx`); smoke-tested at 375px in preview: two loans, one read → only that one has the line, no sideways scroll, no errors.
+- Tests: 384 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA13).
 
 ## Next task
-C50 — "Continue at" on the card page's On loan now list (BACKLOG.md → FOLLOW-UPS), then C51, C52, QA14. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C51 — search matches chapter titles (BACKLOG.md → FOLLOW-UPS), then C52, QA14. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
