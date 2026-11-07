@@ -124,7 +124,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C81 Notes export file names carry the export date in SA time ("sojourner-notes-2026-11-07.md", "sojourner-notes-<slug>-2026-11-07.md") so repeat downloads don't overwrite each other; library route and preview button alike.
 - [x] C82 Work page: the "You finished this · …" stamp links to the ledger's "Read to the end" section (`/ledger#finished`).
 - [x] QA24 QA pass after C80–C82.
-- [ ] C83 QA script: put a loan due within the day that is NOT the Continue reading book on the front hall, so the sweep sees the "Due back soon" slip (and its C80 time-left line) instead of skipping it.
-- [ ] C84 Card page: "Recently returned" rows for finished books link "Notes for this book" (own notes only; reuse the C29 per-book export — library route or preview button).
-- [ ] C85 Ledger "Read to the end": each finished book shows how long it took from first to last session ("over 9 days"), from the reader's own sessions (C13 rule for the end).
-- [ ] QA25 QA pass after C83–C85.
+- [x] C83 QA script: put a loan due within the day that is NOT the Continue reading book on the front hall, so the sweep sees the "Due back soon" slip (and its C80 time-left line) instead of skipping it.
+- [x] C84 Card page: "Recently returned" rows for finished books link "Notes for this book" (own notes only; reuse the C29 per-book export — library route or preview button).
+- [x] C85 Ledger "Read to the end": each finished book shows how long it took from first to last session ("over 9 days"), from the reader's own sessions (C13 rule for the end).
+- [x] QA25 QA pass after C83–C85.
+- [ ] C86 Work page: the "You finished this · …" stamp adds how long it took ("· read over 9 days"), reusing `finishSpan()` (own sessions; keeps linking to `/ledger#finished`).
+- [ ] C87 Reading room end-of-book card: under the Finished stamp, "Read over 9 days" (reuse `finishSpan()`; not in the proof copy).
+- [ ] C88 Card page: under the week line, "N books read to the end · Read to the end" linking to `/ledger#finished` (own sessions; nothing finished → nothing shown).
+- [ ] QA26 QA pass after C86–C88.

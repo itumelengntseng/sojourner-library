@@ -311,6 +311,14 @@ for (const width of WIDTHS) {
   await page.goto(`${BASE}/card`);
   await page.getByRole("region", { name: "Recently returned" }).getByText(/^Finished /).waitFor();
   await axeCheck("card with a finished book in recently returned");
+  // QA25 (C84): the finished book offers its notes; in preview the file is built in the browser.
+  const notesBtn = page.getByRole("region", { name: "Recently returned" }).getByRole("button", { name: /Notes for this book/ });
+  if (!(await notesBtn.count())) { failures++; console.log("✗ card: no Notes for this book beside the finished returned book"); }
+  else {
+    const [dl] = await Promise.all([page.waitForEvent("download"), notesBtn.first().click()]);
+    if (!/^sojourner-notes-placeholder-work-one-\d{4}-\d{2}-\d{2}\.md$/.test(dl.suggestedFilename())) { failures++; console.log(`✗ card notes download named ${dl.suggestedFilename()}`); }
+    else console.log("✓ card: Notes for this book downloads " + dl.suggestedFilename());
+  }
 }
 
 // QA21: the halls with a book read to the end (the "read" mark and its legend, C72).
@@ -394,6 +402,8 @@ for (const width of WIDTHS) {
   await page.getByRole("link", { name: /You finished this/ }).click();
   await page.waitForURL(/\/ledger#finished$/);
   await page.getByRole("heading", { name: "Read to the end" }).waitFor();
+  // QA25 (C85): the finished book says how long it took.
+  if (!(await page.getByText(/· read (in a day|over \d+ days)/).count())) { failures++; console.log(`✗ ${width}px ledger Read to the end without how long it took`); }
   await axeCheck(`${width}px finished stamp → ledger Read to the end`);
 }
 
