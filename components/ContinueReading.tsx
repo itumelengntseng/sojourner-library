@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ContinueCard } from "@/lib/continueReading";
+import { chapterLabel, type ContinueCard } from "@/lib/continueReading";
 import type { OnLoan } from "@/lib/loanDesk";
 import { AUTHOR } from "@/lib/site";
 
@@ -13,7 +13,7 @@ export function ContinueReading({ card, className = "mx-auto mt-8", due }: { car
       <p className="mt-2 text-lg text-lamplight">{card.title}</p>
       <p className="font-sans text-xs text-sandstone">by {AUTHOR}</p>
       <p className="mt-2 text-paper/90">
-        {/^chapter\b/i.test(card.chapterTitle) ? card.chapterTitle : `Chapter ${card.chapterPosition}: ${card.chapterTitle}`}
+        {chapterLabel(card)}
       </p>
       {due && (
         <p className="mt-2 font-mono text-[0.7rem] uppercase tracking-wider text-ember">

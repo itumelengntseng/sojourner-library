@@ -208,6 +208,22 @@ for (const width of WIDTHS) {
   await axeCheck(`${width}px work page with read ticks`);
 }
 
+// C49: the loan desk's "Continue at <chapter>" line (book out, read partway into chapter 2).
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/works/placeholder-work-one`);
+  const borrow = page.getByRole("button", { name: "Borrow this work" });
+  if (await borrow.count()) {
+    await borrow.click();
+    await page.getByRole("button", { name: "Return to shelf" }).waitFor();
+  }
+  await ctx.addCookies([{ name: "soj_preview_sessions", value: encodeURIComponent(JSON.stringify([{ id: "qa-c", slug: "placeholder-work-one", position: 2, wordsRead: 50, activeMs: 600000, endedAt: Date.now() - 60000 }])), url: BASE }]);
+  await page.goto(`${BASE}/works/placeholder-work-one`);
+  await page.getByText("Continue at").first().waitFor();
+  await axeCheck(`${width}px work page with Continue at`);
+}
+
 // C41: the ledger with a book read to the end (a session through the last chapter).
 for (const width of WIDTHS) {
   await page.setViewportSize({ width, height: 900 });

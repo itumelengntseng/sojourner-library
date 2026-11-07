@@ -79,3 +79,8 @@ export function continueReading(
     href: atBookmark ? `/works/${loan.slug}/read` : `/works/${loan.slug}/read?ch=${ch.position}`,
   };
 }
+
+/** "Chapter 2: The title" — or the title alone when it already says "Chapter …". */
+export function chapterLabel(card: Pick<ContinueCard, "chapterPosition" | "chapterTitle">): string {
+  return /^chapter\b/i.test(card.chapterTitle) ? card.chapterTitle : `Chapter ${card.chapterPosition}: ${card.chapterTitle}`;
+}

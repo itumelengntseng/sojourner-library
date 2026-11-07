@@ -78,6 +78,10 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C47 Reading room: the Contents drawer shows the reader's own "✓ read" ticks (C28 data) beside chapters, matching the work page.
 - [x] QA12 QA pass after C46–C47.
 - [x] C48 Preview cookie compaction: store preview loans/sessions in a shorter shape (short keys, no empty bookmark) so preview keeps ~20 loans again under the 4 KB budget; must still read the current shape.
-- [ ] C49 Work page: when the reader has the book out, show "Continue at <chapter> · N min left" (the C34 card's logic for this one work) beside the loan desk's Open/Resume.
-- [ ] QA13 QA pass after C48–C49.
+- [x] C49 Work page: when the reader has the book out, show "Continue at <chapter> · N min left" (the C34 card's logic for this one work) beside the loan desk's Open/Resume.
+- [x] QA13 QA pass after C48–C49.
+- [ ] C50 Card page "On loan now": each loan the reader has read in gets "Continue at <chapter> · N min left" (C49's line, per loan; own sessions only), linking into that chapter.
+- [ ] C51 Search the shelves also matches chapter titles (titles only — never chapter text), showing "chapter: <title>" under the matching work.
+- [ ] C52 Reading room Contents drawer: a "Go to your bookmark" link at the top when the reader has one (not in the proof copy).
+- [ ] QA14 QA pass after C50–C52.
 

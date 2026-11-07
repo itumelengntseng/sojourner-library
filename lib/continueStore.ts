@@ -1,5 +1,6 @@
 import "server-only";
-// Loads "Continue reading" (C34) for the front hall: own open loans + own sessions only.
+// Loads "Continue reading" (C34) for the front hall — or, with a slug, for that one work's loan desk (C49).
+// Own open loans + own sessions only.
 import { cookies } from "next/headers";
 import { getWorks } from "./catalogue";
 import { countWords } from "./engine/readingTime";
@@ -10,13 +11,13 @@ import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
 import { myPace } from "./sessionStore";
 import { supabaseServer } from "./supabase/server";
 
-export async function myContinueReading(): Promise<ContinueCard | null> {
+export async function myContinueReading(onlySlug?: string): Promise<ContinueCard | null> {
   const now = Date.now();
   const supabase = await supabaseServer();
   if (!supabase) {
     const store = await cookies();
     const open = settleExpired(parsePreviewLoans(store.get(PREVIEW_COOKIE)?.value), now)
-      .filter((l) => l.readerId === PREVIEW_READER && l.returnedAt === null);
+      .filter((l) => l.readerId === PREVIEW_READER && l.returnedAt === null && (onlySlug === undefined || l.workId === onlySlug));
     if (open.length === 0) return null;
     const works = getWorks();
     const loans: ContinueLoan[] = open.flatMap((l) => {
@@ -46,8 +47,9 @@ export async function myContinueReading(): Promise<ContinueCard | null> {
   const byId = new Map(((works ?? []) as { id: string; slug: string; title: string }[]).map((w) => [w.id, w]));
   const loans: ContinueLoan[] = open.flatMap((l) => {
     const w = byId.get(l.workId);
-    return w ? [{ workKey: w.id, slug: w.slug, title: w.title, bookmarkOffset: l.bookmark.wordOffset }] : [];
+    return w && (onlySlug === undefined || w.slug === onlySlug) ? [{ workKey: w.id, slug: w.slug, title: w.title, bookmarkOffset: l.bookmark.wordOffset }] : [];
   });
+  if (loans.length === 0) return null;
   const chapters: Record<string, ContinueChapter[]> = {};
   for (const c of (chs ?? []) as { id: string; work_id: string; position: number; title: string; word_count: number }[]) {
     (chapters[c.work_id] ??= []).push({ key: c.id, position: c.position, title: c.title, words: c.word_count });

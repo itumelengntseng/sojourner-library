@@ -14,6 +14,7 @@ import { outsideCanonNote } from "@/lib/canon";
 import { myPace } from "@/lib/sessionStore";
 import { myAnnotationCount, myChaptersRead, myFinish } from "@/lib/ledgerStore";
 import { YourNotes } from "@/components/YourNotes";
+import { myContinueReading } from "@/lib/continueStore";
 import { ChapterMarks } from "@/components/ChapterMarks";
 import { locateBookmark } from "@/lib/reader";
 import { paceNote } from "@/lib/sessions";
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function WorkPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const work = await findWork((await params).slug);
   if (!work) notFound();
-  const [desk, pace, finished, readPositions, annotations] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug), myAnnotationCount(work.slug)]);
+  const [desk, pace, finished, readPositions, annotations, continueAt] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug), myAnnotationCount(work.slug), myContinueReading(work.slug)]);
   const stats = workStats(work, pace.wpm);
   const facts = librarianFacts({
     chapters: stats.chapters,
@@ -88,7 +89,7 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
         {(await searchParams).returned === "1" && !openLoan(desk.loans, desk.workId, desk.readerId, now) && (
           <p role="status" className="mb-4 font-sans text-sm text-lamplight">Returned to the shelf. Your bookmark is kept — borrow it again any time.</p>
         )}
-        <LoanDesk desk={desk} slug={work.slug} title={work.title} now={now} />
+        <LoanDesk desk={desk} slug={work.slug} title={work.title} now={now} continueAt={continueAt} />
       </section>
 
       <div className="mt-8"><AskLibrarian facts={facts} title={work.title} /></div>
