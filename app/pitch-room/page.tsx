@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RevokeLink, ShareForm } from "@/components/PitchForms";
-import { kitStatus, lastDayLabel, lastOpened, linkTimeLeft, loglineWarning } from "@/lib/pitch";
+import { kitStatus, lastDayLabel, lastOpened, linkTimeLeft, loglineWarning, orderLinks } from "@/lib/pitch";
 import { ownerPitchLinks, roomPitches } from "@/lib/pitchStore";
 import { AUTHOR } from "@/lib/site";
 import { cleanQuery, filterByTitle } from "@/lib/shelfSearch";
@@ -48,7 +48,8 @@ export default async function PitchRoom({ searchParams }: { searchParams: Promis
           const k = p.kit;
           const st = kitStatus(k);
           const warn = loglineWarning(k.logline);
-          const mine = links.filter((l) => l.slug === k.slug);
+          // C130: open links first (soonest closing first), then closed or expired ones.
+          const { links: mine, open: openLinks } = orderLinks(links.filter((l) => l.slug === k.slug), now);
           return (
             <li key={k.slug} className="rounded-sm border border-timber-dark bg-stone-floor/60 p-5">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -67,7 +68,10 @@ export default async function PitchRoom({ searchParams }: { searchParams: Promis
               <div className="threshold my-4 opacity-40" aria-hidden="true" />
               <ShareForm slug={k.slug} enabled={live} />
               {mine.length > 0 && (
-                <ul className="mt-3 divide-y divide-timber-dark/60 font-sans text-xs text-sandstone">
+                <p className="mt-3 font-sans text-xs text-sandstone">{openLinks === 0 ? "No link open" : `${openLinks} open`} · {mine.length} shared in all</p>
+              )}
+              {mine.length > 0 && (
+                <ul className="mt-1 divide-y divide-timber-dark/60 font-sans text-xs text-sandstone">
                   {mine.map((l) => (
                     <li key={l.id} className="flex flex-wrap justify-between gap-2 py-1.5">
                       <span>

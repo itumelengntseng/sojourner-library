@@ -40,3 +40,20 @@ describe("pitch share link — Last day mark (C125)", () => {
     expect(src).toMatch(/border-ember[^"]*text-ember">\s*Last day<span className="sr-only">/);
   });
 });
+
+describe("pitch share links — open first (C130)", () => {
+  const now = Date.parse("2026-11-07T10:00:00Z");
+  const l = (id: string, expiresAt: string, revoked = false) => ({ id, expiresAt, revoked });
+  it("lists open links soonest-closing first, then closed and expired ones in their given order", async () => {
+    const { orderLinks } = await import("@/lib/pitch");
+    const r = orderLinks([l("expired", "2026-11-01T00:00:00Z"), l("late", "2026-11-30T00:00:00Z"), l("closed", "2026-11-20T00:00:00Z", true), l("soon", "2026-11-09T00:00:00Z")], now);
+    expect(r.links.map((x) => x.id)).toEqual(["soon", "late", "expired", "closed"]);
+    expect(r.open).toBe(2);
+    expect(orderLinks([l("closed", "2026-11-20T00:00:00Z", true)], now).open).toBe(0);
+  });
+  it("the Pitch Room says how many are open before the list", () => {
+    const src = readFileSync("app/pitch-room/page.tsx", "utf8");
+    expect(src).toMatch(/orderLinks\(links\.filter\(\(l\) => l\.slug === k\.slug\), now\)/);
+    expect(src).toContain('{openLinks === 0 ? "No link open" : `${openLinks} open`} · {mine.length} shared in all');
+  });
+});

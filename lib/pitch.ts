@@ -193,3 +193,10 @@ export function lastDayLabel(expiresIso: string, now: number): string | null {
   const time = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "Africa/Johannesburg" }).format(new Date(Date.parse(expiresIso)));
   return `Last day: closes ${time}`;
 }
+
+/** C130: a kit's share links, open ones first (soonest closing first), then closed/expired (newest first, as given). */
+export function orderLinks<T extends { expiresAt: string; revoked: boolean }>(links: T[], now: number): { links: T[]; open: number } {
+  const isOpen = (l: T) => !l.revoked && linkTimeLeft(l.expiresAt, now) !== null;
+  const open = links.filter(isOpen).sort((a, b) => Date.parse(a.expiresAt) - Date.parse(b.expiresAt));
+  return { links: [...open, ...links.filter((l) => !isOpen(l))], open: open.length };
+}
