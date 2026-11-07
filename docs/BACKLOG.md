@@ -144,7 +144,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C96 Card page "On loan now": a loan due within 24 hours carries a small "Due soon" mark (same rule as the front hall slip, `dueBackSoon()`), with the due time in its spoken label.
 - [x] C97 Ledger "Borrowing history": a row whose book the reader has read to the end carries the small Finished stamp (reuse `finishedStamp()`; own sessions).
 - [x] QA29 QA pass after C95–C97.
-- [ ] C98 Ledger "Borrowing history": each title links to its work page when the work is still on the shelves (plain text otherwise, as now).
-- [ ] C99 Halls: a spine on loan due back within the day (same rule as the front hall slip) shows a small "due soon" band, and its spoken text says "due back within the day".
-- [ ] C100 Card page "On loan now": a Due soon loan offers "Renew" linking to its work page's loan desk (`/works/<slug>#loan-desk`; add that anchor to the desk).
-- [ ] QA30 QA pass after C98–C100.
+- [x] C98 Ledger "Borrowing history": each title links to its work page when the work is still on the shelves (plain text otherwise, as now).
+- [x] C99 Halls: a spine on loan due back within the day (same rule as the front hall slip) shows a small "due soon" band, and its spoken text says "due back within the day".
+- [x] C100 Card page "On loan now": a Due soon loan offers "Renew" linking to its work page's loan desk (`/works/<slug>#loan-desk`; add that anchor to the desk).
+- [x] QA30 QA pass after C98–C100.
+- [ ] C101 Front hall "Due back soon" slip: each line offers "Renew" linking to the work's loan desk (`/works/<slug>#desk`, as C100), with the title in its spoken label.
+- [ ] C102 Reading room: when the open loan is due back within the hour, one quiet line under the toolbar — "Due back at 14:00 · renew at the desk" (link to `/works/<slug>#desk`). Not in the proof copy.
+- [ ] C103 Halls: a legend line for the "due soon" band ("due soon marks books due back within the day — renew at the front desk") shown only when a band shows.
+- [ ] QA31 QA pass after C101–C103.

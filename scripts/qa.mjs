@@ -424,7 +424,23 @@ for (const width of WIDTHS) {
   errors.length = 0;
   await page.goto(`${BASE}/card`);
   if (!(await page.getByRole("region", { name: "On loan now" }).getByText("Due soon").count())) { failures++; console.log(`✗ ${width}px card: no Due soon mark on the loan due within the hour`); }
+  // QA30 (C100): the due-soon loan's Renew leads to its loan desk.
+  const renew = page.getByRole("region", { name: "On loan now" }).getByRole("link", { name: /^Renew/ });
+  if (!(await renew.count())) { failures++; console.log(`✗ ${width}px card: no Renew on the Due soon loan`); }
   await axeCheck(`${width}px card with a Due soon mark`);
+  if (await renew.count()) {
+    errors.length = 0;
+    await renew.first().click();
+    await page.waitForURL(/\/works\/placeholder-work-two#desk$/);
+    await page.getByRole("button", { name: "Renew" }).waitFor();
+    await axeCheck(`${width}px card Renew → the work's loan desk`);
+  }
+  // QA30 (C99): the halls spine of the loan due within the hour says so.
+  errors.length = 0;
+  await page.goto(`${BASE}/halls`);
+  const soonSpine = await page.locator("a[href='/works/placeholder-work-two'] .sr-only").first().textContent();
+  if (!/due back within the day/.test(soonSpine ?? "")) { failures++; console.log(`✗ ${width}px halls: the due-soon spine doesn't say so (${soonSpine})`); }
+  await axeCheck(`${width}px halls with a due-soon band`);
   errors.length = 0;
   await page.goto(`${BASE}/works/placeholder-work-one`);
   // QA26 (C86): the stamp says how long the book took.
@@ -432,6 +448,8 @@ for (const width of WIDTHS) {
   await page.getByRole("link", { name: /You finished this/ }).click();
   await page.waitForURL(/\/ledger#finished$/);
   await page.getByRole("heading", { name: "Read to the end" }).waitFor();
+  // QA30 (C98): history titles lead to their work pages.
+  if (!(await page.getByRole("region", { name: "Borrowing history" }).getByRole("link", { name: "Placeholder Work One" }).count())) { failures++; console.log(`✗ ${width}px ledger Borrowing history titles aren't links`); }
   // QA29 (C97): the loan during which the book was finished carries the stamp in Borrowing history.
   if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/^Finished /).count())) { failures++; console.log(`✗ ${width}px ledger Borrowing history without the Finished stamp`); }
   // QA27 (C89, C91): the shelf offers each book's notes, and the top tile counts the finished books.

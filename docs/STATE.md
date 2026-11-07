@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 8 — C83–C97, QA25–QA29; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 8 — C83–C100, QA25–QA30; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -149,10 +149,14 @@ _Last updated: 2026-11-07 (scheduled build run 8 — C83–C97, QA25–QA29; `pr
 - C96 — "Due soon" mark on the card's On loan now (`components/OnLoanNow.tsx` `dueSoon` prop, `LoanShelf` in `app/card/page.tsx` via `dueBackSoon()` — the front hall slip's rule, due within 24 h); spoken "Due soon: back by <due>". Unit-tested.
 - C97 — Ledger Borrowing history (`finishedDuring()` in `lib/ledger.ts`, `app/ledger/page.tsx`): the loan during which the reader read the book to the end carries the Finished stamp (later rereads don't). Unit-tested (`tests/ledgerTile.test.tsx`).
 - QA29 (2026-11-07, after C95–C97): `npm run qa` all clear — now also requires the Continue reading card's time left in the book, the card's Due soon mark (the hour-long loan from C83) and the Finished stamp in Borrowing history (375px + 1280px). Fixed in the QA script itself: the synthetic "read to the end" session was stamped a minute in the past, which could fall before the sweep's own borrow — it is now stamped a second ago, inside the open loan. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 481 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA29).
+- C98 — Ledger Borrowing history titles link to their work pages while the work is still on the shelves ("A work no longer on the shelves" stays plain text). Unit-tested.
+- C99 — Halls (`app/halls/page.tsx`, `spokenSpine({ dueSoon })` in `lib/spine.ts`): a spine on loan due back within the day (the front hall slip's `dueBackSoon()` rule) shows an ember "due soon" band under "out", and its spoken text adds "— due back within the day". Unit-tested.
+- C100 — Card On loan now (`components/OnLoanNow.tsx`): a Due soon loan offers "Renew" (spoken "Renew <title> at the loan desk") linking to `/works/<slug>#desk` — the work page's existing loan-desk heading, so no new anchor was needed. Unit-tested.
+- QA30 (2026-11-07, after C98–C100): `npm run qa` all clear — now also follows the card's Renew to the work's loan desk (Renew button present), checks the halls' due-soon spine text, and requires history titles as links (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (15/15).
+- Tests: 487 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA30).
 
 ## Next task
-C98 — Borrowing history titles link to their work pages (BACKLOG.md → FOLLOW-UPS), then C99, C100, QA30. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C101 — "Renew" on each line of the front hall's Due back soon slip (BACKLOG.md → FOLLOW-UPS), then C102, C103, QA31. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -210,6 +214,7 @@ C98 — Borrowing history titles link to their work pages (BACKLOG.md → FOLLOW
 - The borrow form's remembered period (C44) is per browser, like the reader settings.
 - "Hold the covers still" is per browser (localStorage), like the reader settings; the device's reduced-motion setting still applies on its own.
 - Notes downloads are named with the SA export date (C81).
+- "Renew" from the front desk (C100) links to the work page's loan desk (`#desk`, the existing heading) rather than renewing in place, so the reader sees the new due date stamped on the slip.
 - In Borrowing history the Finished stamp sits on the loan during which the finish happened (C97); a finish recorded outside any loan (e.g. the Keeper's proof copy, which isn't recorded anyway) stamps no row.
 - "How long it took" (C85) counts SA calendar days from the end of the reader's first session in the book to the finishing session ("in a day" when both fall on one day). In preview mode only the last 40 session summaries are kept, and the library-mode ledger reads the last 400 days, so a long-ago start may be counted from a later session (the work page and end card read the true first session in library mode).
 - The notes file is titled "Notes on the works of Itumeleng Ntseng" (C68); the reader's name and the export date follow on the next line.
