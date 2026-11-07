@@ -224,7 +224,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C156 Card page "Recently returned": a book the reader has borrowed more than once adds "· borrowed N times" to its line (own loans; preview from the cookie desk).
 - [x] C157 Ledger "Hours per book": an "Order: Most hours / Recently read" GET toggle (works without JavaScript; default stays as now).
 - [x] QA49 QA pass after C155–C157.
-- [ ] C158 Ledger Borrowing history: the "Show all" / "Show the last 10" links keep the Hours per book order (`hours=most`) so switching one doesn't reset the other.
-- [ ] C159 Work page: the "You've borrowed this N times" line links to the ledger's Borrowing history (`/ledger#history`).
-- [ ] C160 Ledger Hours per book, "Most hours" order: a thin timber bar under each row's time, scaled to the top book (aria-hidden; the time stays in text).
-- [ ] QA50 QA pass after C158–C160.
+- [x] C158 Ledger Borrowing history: the "Show all" / "Show the last 10" links keep the Hours per book order (`hours=most`) so switching one doesn't reset the other.
+- [x] C159 Work page: the "You've borrowed this N times" line links to the ledger's Borrowing history (`/ledger#history`).
+- [x] C160 Ledger Hours per book, "Most hours" order: a thin timber bar under each row's time, scaled to the top book (aria-hidden; the time stays in text).
+- [x] QA50 QA pass after C158–C160.
+- [ ] C161 Card page "Recently returned": the "· borrowed N times" part links to the ledger's Borrowing history (`/ledger#history`), like C159.
+- [ ] C162 Halls: an "Order: Most read by you" option (`?sort=read`) — the reader's own hours per work, most first, then series order (preview from the cookie summaries; unread works keep series order after them).
+- [ ] C163 Writer's Room glance: a "Loans this month" tile — how many loans were taken out in the last 30 days (a head count only, never who or what; preview from the cookie desk).
+- [ ] QA51 QA pass after C161–C163.

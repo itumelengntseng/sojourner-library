@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 11 — C140–C157, QA44–QA49; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 11 — C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -229,10 +229,14 @@ _Last updated: 2026-11-07 (scheduled build run 11 — C140–C157, QA44–QA49; 
 - C156 — Card page Recently returned: a book borrowed more than once adds "· borrowed 3 times" to its Out/returned line (`Returned.times`, counted over the loans the desk keeps — library last 60, preview last 20). Unit-tested + swept.
 - C157 — Ledger Hours per book: "Order: Recently read / Most hours" (GET `?hours=most`, no JavaScript; shown with two or more books; keeps `history=all`; `orderHours()`/`hoursHref()`). Unit-tested + swept.
 - QA49 (2026-11-07, after C155–C157): `npm run qa` all clear — the fresh-browser flow now also requires the work page's "· first on <date>" and, after a second return, the card's "· borrowed 2 times" (axe clean); the main sweep opens the ledger ordered by Most hours at 375px + 1280px (axe clean, current link marked). Preview e2e 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 598 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA49).
+- C158 — Ledger Borrowing history: "Show all" / "Show the last 10" keep the Hours per book order (`historyHref()`). Unit-tested + swept.
+- C159 — Work page: the borrowed-times line links to `/ledger#history` (spoken "— see your borrowing history"). Unit-tested + swept.
+- C160 — Ledger Hours per book, Most hours order: a thin timber bar under each row's time, scaled to the most-read book (4 % floor, aria-hidden; `barShare()`). Unit-tested + swept.
+- QA50 (2026-11-07, after C158–C160): `npm run qa` all clear — now also requires the Most hours bars and the history link keeping `hours=most` (375px + 1280px), and the work page's borrowed-times link. Found and fixed in the sweep itself: the QA49 first-date check was anchored at the end and broke once the line gained its spoken link text. Preview e2e 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 603 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA50).
 
 ## Next task
-C158 — ledger "Show all / Show the last 10" links keep the Hours per book order (BACKLOG.md → FOLLOW-UPS), then C159, C160, QA50. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C161 — card page "borrowed N times" links to the ledger's Borrowing history (BACKLOG.md → FOLLOW-UPS), then C162, C163, QA51. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.

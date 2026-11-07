@@ -546,6 +546,9 @@ for (const width of WIDTHS) {
   if ((await page.locator("#hours ~ table tbody tr, section[aria-labelledby='hours'] tbody tr").count()) > 1) {
     await page.goto(`${BASE}/ledger?hours=most#hours`);
     if (!(await page.getByRole("navigation", { name: "Order hours per book" }).getByRole("link", { name: "Most hours" }).getAttribute("aria-current"))) { failures++; console.log(`✗ ${width}px ledger: Most hours order not current`); }
+    // QA50 (C160, C158): the bars show under Most hours; history links keep the order.
+    if (!(await page.locator("section[aria-labelledby='hours'] tbody span.bg-timber[aria-hidden='true']").count())) { failures++; console.log(`✗ ${width}px ledger: no Most hours bars`); }
+    if (await page.locator("a[href*='history=all']").count() && !(await page.locator("a[href='/ledger?hours=most&history=all#history']").count())) { failures++; console.log(`✗ ${width}px ledger: Show all drops the hours order`); }
     await axeCheck(`${width}px ledger ordered by most hours`);
     await page.goto(`${BASE}/ledger`);
   }
@@ -665,7 +668,9 @@ await axeCheck("375px reading room gate just returned");
   if (!(await fp.getByText("2 loans in the last 30 days · 1 handed back before it was due").count())) { failures++; console.log("✗ ledger Borrowing history without the 30-day line"); }
   // QA49 (C155, C156): the work page dates the first loan; the card counts the loans of a returned book.
   await fp.goto(`${BASE}/works/placeholder-work-two`);
-  if (!(await fp.getByText(/^You've borrowed this twice · first on \d{2} \w{3} \d{4}$/).count())) { failures++; console.log("✗ work page borrowed-times line without its first date"); }
+  if (!(await fp.getByText(/^You've borrowed this twice · first on \d{2} \w{3} \d{4}/).count())) { failures++; console.log("✗ work page borrowed-times line without its first date"); }
+  // QA50 (C159): it leads to the ledger's Borrowing history.
+  if (!(await fp.locator("a[href='/ledger#history']", { hasText: /^You've borrowed this twice/ }).count())) { failures++; console.log("✗ work page borrowed-times line doesn't link to the history"); }
   await fp.getByRole("button", { name: "Return to shelf" }).click();
   await fp.getByRole("button", { name: "Borrow this work" }).waitFor();
   await fp.goto(`${BASE}/card`);
