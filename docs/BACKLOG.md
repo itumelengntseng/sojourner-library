@@ -196,7 +196,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C135 Reading room gate (no open loan): if the reader handed this book back within the hour, the gate says "You returned this just now — borrow it again to pick up at your bookmark."
 - [x] C136 Writer's Room glance: "Out on loan now" note adds "· N returned in the last hour" (counts only, never who; library mode a head count, preview the cookie desk).
 - [x] QA42 QA pass after C134–C136.
-- [ ] C137 Card page "On loan now": a loan borrowed within the last hour carries a quiet lamplight "Just borrowed" beside its title (spoken with the borrow stamp).
-- [ ] C138 Pitch Room: a share link opened within the last hour reads "opened just now" instead of the "last opened" stamp (stamp kept in its spoken label).
-- [ ] C139 Writer's Room glance: "Out on loan now" note adds "· N borrowed in the last hour" (counts only; library mode reads borrow times only, preview the cookie desk).
-- [ ] QA43 QA pass after C137–C139.
+- [x] C137 Card page "On loan now": a loan borrowed within the last hour carries a quiet lamplight "Just borrowed" beside its title (spoken with the borrow stamp).
+- [x] C138 Pitch Room: a share link opened within the last hour reads "opened just now" instead of the "last opened" stamp (stamp kept in its spoken label).
+- [x] C139 Writer's Room glance: "Out on loan now" note adds "· N borrowed in the last hour" (counts only; library mode reads borrow times only, preview the cookie desk).
+- [x] QA43 QA pass after C137–C139.
+- [ ] C140 Work page: the "On loan to you · due …" line starts "Just borrowed ·" for a loan taken out within the hour (reuse `justBorrowed()`).
+- [ ] C141 Ledger Borrowing history: an open loan taken out within the hour reads "just borrowed" in place of its borrow stamp (stamp kept in its spoken label).
+- [ ] C142 Halls legend: when a book was borrowed or returned within the hour, a one-line key for the lamplight ✓ ("✓ marks a book you returned in the last hour").
+- [ ] QA44 QA pass after C140–C142.

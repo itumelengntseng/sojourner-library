@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 10 — C122–C136, QA38–QA42; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 10 — C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -201,10 +201,14 @@ _Last updated: 2026-11-07 (scheduled build run 10 — C122–C136, QA38–QA42; 
 - C135 — Reading room gate: for a book the reader handed back within the hour, "You returned this just now — borrow it again to pick up at your bookmark." Unit-tested + swept.
 - C136 — Writer's Room loans tile: "· N returned in the last hour" (handed back by readers, same rule as `justReturned()`). Library mode reads only `returned_at, due_at` of the last hour's returns (no reader, no work) and counts them; preview counts the cookie desk. Unit-tested + swept.
 - QA42 (2026-11-07, after C134–C136): `npm run qa` all clear — now also requires the reading room gate's just-returned line, and in a fresh browser the ledger tile's "Nothing out · just returned" and the Writer's Room "every book is in · 1 returned in the last hour" (axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 556 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA42).
+- C137 — Card page On loan now: a loan taken out within the hour reads "Just borrowed" (lamplight) beside its title, spoken "Just borrowed, <stamp>"; open loans now carry `borrowedAt`/`borrowed`. Unit-tested + swept.
+- C138 — Pitch Room: a share link opened within the hour reads "opened just now" instead of "last opened …" (stamp in its spoken label; `openedJustNow()`). Unit-tested (preview has no share links).
+- C139 — Writer's Room loans tile: "· N borrowed in the last hour" before the returned count. Library mode: a head count of loans with `borrowed_at` in the last hour; preview: the cookie desk. Unit-tested + swept.
+- QA43 (2026-11-07, after C137–C139): `npm run qa` all clear — now also requires the card's "Just borrowed" (375px + 1280px) and the Writer's Room tile's borrowed-in-the-hour count. Preview e2e 6/6. Performance (local prod build, curl): every page < 30 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 563 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA43).
 
 ## Next task
-C137 — Card page "On loan now": a loan borrowed within the last hour shows "Just borrowed" beside its title (BACKLOG.md → FOLLOW-UPS), then C138, C139, QA43. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C140 — work page "Just borrowed" on the On loan to you line (BACKLOG.md → FOLLOW-UPS), then C141, C142, QA44. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.

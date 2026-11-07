@@ -504,6 +504,8 @@ for (const width of WIDTHS) {
   const onLoan = page.getByRole("region", { name: "On loan now" });
   if (!(await onLoan.getByText(/No renewals left — return by /).count())) { failures++; console.log(`✗ ${width}px card: no "No renewals left" on the spent loan`); }
   if (await onLoan.locator("a[href='/works/placeholder-work-two#desk']").count()) { failures++; console.log(`✗ ${width}px card: still offers Renew on the spent loan`); }
+  // QA43 (C137): this run's loans were taken out within the hour.
+  if (!(await onLoan.locator(".sr-only", { hasText: /^Just borrowed, / }).count())) { failures++; console.log(`✗ ${width}px card: no "Just borrowed" on a loan taken out this hour`); }
   // QA36 (C116): the heading carries the count.
   if (!(await page.getByRole("heading", { name: /^On loan now · \d+$/ }).count())) { failures++; console.log(`✗ ${width}px card: the On loan now heading has no count`); }
   // QA38 (C124): the book handed back earlier this run reads "Just returned", stamp kept for screen readers.
@@ -517,8 +519,8 @@ for (const width of WIDTHS) {
   // QA38 (C122): the Writer's Room loans tile counts the spent hour loan as due back within the day.
   errors.length = 0;
   await page.goto(`${BASE}/writers-room`);
-  // QA40 (C128): the due part sits in ember. QA42 (C136): the book handed back earlier this run is counted.
-  if (!(await page.getByText(/^\d+ open loans?( · \d+ returned in the last hour)? · \d+ due back within the day$/).count()) || !(await page.locator("dd span.text-ember", { hasText: /^ · \d+ due back within the day$/ }).count())) { failures++; console.log(`✗ ${width}px Writer's Room loans tile doesn't count the loans due back within the day (${await page.locator("dd", { hasText: /open loan/ }).first().textContent()})`); }
+  // QA40 (C128): the due part sits in ember. QA43 (C139): this run's borrowing is counted.
+  if (!(await page.getByText(/^\d+ open loans? · \d+ borrowed in the last hour( · \d+ returned in the last hour)? · \d+ due back within the day$/).count()) || !(await page.locator("dd span.text-ember", { hasText: /^ · \d+ due back within the day$/ }).count())) { failures++; console.log(`✗ ${width}px Writer's Room loans tile doesn't count the loans due back within the day (${await page.locator("dd", { hasText: /open loan/ }).first().textContent()})`); }
   await axeCheck(`${width}px Writer's Room with a loan due within the day`);
   // QA33 (C108, C109): the spine says so, and the ledger's history row too.
   errors.length = 0;
