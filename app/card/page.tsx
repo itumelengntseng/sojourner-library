@@ -35,7 +35,7 @@ async function LoanShelf() {
   const bookLeft = await myBookLeft(loans);
   // C96: loans due back within the day — the same rule as the front hall's slip.
   const dueSoon = dueBackSoon(loans, Date.now()).map((l) => l.slug);
-  return <OnLoanNow loans={loans} continueAt={continueAt} bookLeft={bookLeft} dueSoon={dueSoon} />;
+  return <OnLoanNow loans={loans} continueAt={continueAt} bookLeft={bookLeft} dueSoon={dueSoon} now={Date.now()} />;
 }
 
 // C37 + C95: the Continue reading card, with the time left in the book.

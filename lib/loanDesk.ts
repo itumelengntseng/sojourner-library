@@ -247,7 +247,9 @@ export function rowToLoan(r: LoanRow): Loan {
 
 export interface OnLoan { workKey: string; slug: string; title: string; due: string; timeLeft: string; dueSoon: boolean; resume: boolean; dueAt: number; bookmark: number;
   /** C104: renewals still allowed on this loan (MAX_RENEWALS − used); missing = unknown, treated as renewable. */
-  renewalsLeft?: number }
+  renewalsLeft?: number;
+  /** C137: when it was borrowed (ms) and its stamp — for "Just borrowed". */
+  borrowedAt?: number; borrowed?: string }
 
 /** The reader's open loans, soonest due first. `works` maps a loan's workId to the work's slug and title. */
 export function onLoanNow(loans: Loan[], readerId: string, works: Record<string, { slug: string; title: string }>, now: number): OnLoan[] {
@@ -256,7 +258,7 @@ export function onLoanNow(loans: Loan[], readerId: string, works: Record<string,
     .sort((a, b) => a.dueAt - b.dueAt)
     .map((l) => {
       const s = slipFor(l, now);
-      return { workKey: l.workId, slug: works[l.workId].slug, title: works[l.workId].title, due: s.due, timeLeft: s.timeLeft ?? "", dueSoon: s.status === "due_soon", resume: l.bookmark.wordOffset > 0, dueAt: l.dueAt, bookmark: l.bookmark.wordOffset, renewalsLeft: s.renewalsLeft };
+      return { workKey: l.workId, slug: works[l.workId].slug, title: works[l.workId].title, due: s.due, timeLeft: s.timeLeft ?? "", dueSoon: s.status === "due_soon", resume: l.bookmark.wordOffset > 0, dueAt: l.dueAt, bookmark: l.bookmark.wordOffset, renewalsLeft: s.renewalsLeft, borrowedAt: l.borrowedAt, borrowed: stampDate(l.borrowedAt) };
     });
 }
 
@@ -318,6 +320,11 @@ export function justReturnedLoan(loans: Loan[], workId: string, readerId: string
   const l = latestLoan(loans, workId, readerId);
   if (!l || l.returnedAt === null) return undefined;
   return justReturned({ returnedAt: l.returnedAt, onTime: l.returnedAt < l.dueAt }, now) ? l : undefined;
+}
+
+/** C137: borrowed within the last hour. */
+export function justBorrowed(l: Pick<OnLoan, "borrowedAt">, now: number): boolean {
+  return l.borrowedAt !== undefined && l.borrowedAt <= now && now - l.borrowedAt < 3600_000;
 }
 
 // ── Time left in each book on loan (C74) ────────────────────────────────────

@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { chapterLabel, type ContinueCard } from "@/lib/continueReading";
-import { noRenewalsLeft, type OnLoan } from "@/lib/loanDesk";
+import { justBorrowed, noRenewalsLeft, type OnLoan } from "@/lib/loanDesk";
 
 /** The reader's open loans at the front desk, each with its due-date stamp and a way back in. */
 /** `bookLeft` (slug → "About 1 h 2 min left in this book", C74) is shown under each due line. */
 /** `dueSoon` (slugs due back within the day — the front hall slip's rule, C96) get a small "Due soon" mark. */
-export function OnLoanNow({ loans, continueAt = {}, bookLeft = {}, dueSoon = [] }: { loans: OnLoan[]; continueAt?: Record<string, ContinueCard>; bookLeft?: Record<string, string>; dueSoon?: string[] }) {
+/** C137: with `now`, a loan borrowed within the hour reads "Just borrowed" beside its title (spoken with the stamp). */
+export function OnLoanNow({ loans, continueAt = {}, bookLeft = {}, dueSoon = [], now }: { loans: OnLoan[]; continueAt?: Record<string, ContinueCard>; bookLeft?: Record<string, string>; dueSoon?: string[]; now?: number }) {
   if (loans.length === 0) {
     return (
       <p className="font-sans text-sm text-sandstone">
@@ -25,6 +26,9 @@ export function OnLoanNow({ loans, continueAt = {}, bookLeft = {}, dueSoon = [] 
           <li key={l.workKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
             <div>
               <Link href={`/works/${l.slug}`} className="text-paper hover:text-lamplight">{l.title}</Link>
+              {now !== undefined && justBorrowed(l, now) && (
+                <span className="ml-2 font-sans text-xs text-lamplight"><span aria-hidden="true">Just borrowed</span><span className="sr-only">Just borrowed, {l.borrowed}</span></span>
+              )}
               {dueSoon.includes(l.slug) && (
                 <span className="ml-2 inline-block -rotate-2 rounded-sm border border-ember px-1.5 py-0.5 align-middle font-mono text-[0.65rem] uppercase tracking-wider text-ember">
                   Due soon<span className="sr-only">: back by {l.due}</span>
