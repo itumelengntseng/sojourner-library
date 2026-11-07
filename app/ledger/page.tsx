@@ -39,6 +39,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
   const finished = finishedBooks(l.hours);
   const finishAt: Record<string, number | undefined> = Object.fromEntries(finished.map((f) => [f.workKey, f.finishedAt]));
   const now = Date.now();
+  const backNow = l.history.find((r) => !r.open && link(r.workKey) && justReturned({ returnedAt: r.endedAt!, onTime: !!r.onTime }, now));
   // C94: preview downloads add the Finished line to finished books (library mode does it on the server).
   const finishMap: Record<string, FinishInfo> = Object.fromEntries(finished.flatMap((f) => (l.slugs[f.workKey] ? [[l.slugs[f.workKey], { at: f.finishedAt, firstRead: f.firstRead }]] : [])));
   const tiles: { label: string; value: string; note?: string; href?: string; spoken?: string; urgent?: boolean }[] = [
@@ -53,6 +54,8 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
     // C113: what's out now (own loans, soonest due first), leading to the front desk.
     // C117: when the soonest is due back within the day (the front hall slip's rule), the note says so in ember.
     ...(open.length ? [{ label: "On loan", value: `${open.length} book${open.length === 1 ? "" : "s"}`, note: dueBackSoon(open, now).length ? `due back within the day · ${open[0].due}` : `next due ${open[0].due}`, href: "/card", spoken: " — renew or return at the front desk", urgent: dueBackSoon(open, now).length > 0 }] : []),
+    // C134: nothing out, but a book handed back within the hour — the tile says so and leads back to it.
+    ...(!open.length && backNow ? [{ label: "On loan", value: "Nothing out", note: `just returned · ${title(backNow.workKey)}`, href: link(backNow.workKey)!, spoken: " — borrow it again from its page" }] : []),
   ];
 
   return (

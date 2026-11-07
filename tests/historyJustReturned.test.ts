@@ -31,3 +31,11 @@ describe("ledger Borrowing history — Just returned (C127)", () => {
     expect(src).toMatch(/<span aria-hidden="true" className="text-lamplight">Just returned<\/span><span className="sr-only">Just returned, \{stampDate\(r\.endedAt!\)\}<\/span>/);
   });
 });
+
+describe("ledger On loan tile — just returned (C134)", () => {
+  it("with nothing out, the tile names the book handed back within the hour and links to its page", () => {
+    const src = readFileSync("app/ledger/page.tsx", "utf8");
+    expect(src).toContain("const backNow = l.history.find((r) => !r.open && link(r.workKey) && justReturned({ returnedAt: r.endedAt!, onTime: !!r.onTime }, now));");
+    expect(src).toContain('...(!open.length && backNow ? [{ label: "On loan", value: "Nothing out", note: `just returned · ${title(backNow.workKey)}`, href: link(backNow.workKey)!');
+  });
+});

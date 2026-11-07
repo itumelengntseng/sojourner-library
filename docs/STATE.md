@@ -197,7 +197,7 @@ _Last updated: 2026-11-07 (scheduled build run 10 — C122–C133, QA38–QA41; 
 - C132 — Halls: a book handed back within the hour (and not out again) carries a lamplight ✓ on its spine and "Just returned, <stamp>." in its spoken label. Unit-tested + swept.
 - C133 — Pitch Room: the open-link line adds "· 1 closes today" in ember when an open link is on its last day. Unit-tested (preview has no share links).
 - QA41 (2026-11-07, after C131–C133): `npm run qa` all clear — now also requires the just-returned spine on the halls and, in a fresh browser with nothing on loan, the front hall's Just returned line (375px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 550 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA41).
+- Tests: 552 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA41).
 
 ## Next task
 C134 — ledger "On loan" tile: with nothing out but a book handed back within the hour, the tile says "Just returned · <title>" (BACKLOG.md → FOLLOW-UPS), then C135, C136, QA42. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
