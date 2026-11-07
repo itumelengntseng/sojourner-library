@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { getWorks } from "./catalogue";
 import { activeMs, countWords } from "./engine/readingTime";
-import { byMonth, thisWeek, type Week, chaptersRead, finishedAt, hoursByWork, loanHistory, notesMarkdown, streaks, withFinished, type ExportWork, type HistoryRow, type MonthRow, type Streaks, type WorkHours, type WorkSession } from "./ledger";
+import { byMonth, finishedBooks, thisWeek, type Week, chaptersRead, finishedAt, hoursByWork, loanHistory, notesMarkdown, streaks, withFinished, type ExportWork, type HistoryRow, type MonthRow, type Streaks, type WorkHours, type WorkSession } from "./ledger";
 import { parsePreviewLoans, PREVIEW_COOKIE, rowToLoan, type LoanRow } from "./loanDesk";
 import { splitParagraphs } from "./reader";
 import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
@@ -225,6 +225,11 @@ export async function myAnnotationCount(slug: string): Promise<{ notes: number; 
 }
 
 /** C60: the reader's own reading in the last 7 SA days, for the line on the card page. */
+/** C88: how many books the reader has read to the end — the same count as the ledger's Read to the end shelf. */
+export async function myFinishedCount(): Promise<number> {
+  return finishedBooks((await loadLedger()).hours).length;
+}
+
 export async function myWeek(): Promise<Week | null> {
   const now = Date.now();
   const supabase = await supabaseServer();
