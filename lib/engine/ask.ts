@@ -56,14 +56,21 @@ function parseSpanDays(q: string): number | null {
 export function ask(question: string, ctx: ReaderContext): Answer {
   const q = question.toLowerCase();
   const remaining = Math.max(0, ctx.totalWords - ctx.wordsRead);
+  // C73: at the very end there is nothing left to time — say so plainly rather than "About 0 min".
+  const atEnd = ctx.totalWords > 0 && remaining === 0;
+  const END = "You're at the end of this book.";
 
   if (/chapter/.test(q)) {
     const minutes = minutesFor(ctx.chapterWordsRemaining, ctx.wpm);
+    if (ctx.chapterWordsRemaining <= 0 && ctx.totalWords > 0) {
+      return { kind: "chapter_left", minutes: 0, text: atEnd ? END : "You're at the end of this chapter." };
+    }
     return { kind: "chapter_left", minutes, text: `About ${formatDuration(minutes)} left in this chapter.` };
   }
 
   if (/per day|a day|each day|daily/.test(q)) {
     const days = parseSpanDays(q);
+    if (days && atEnd) return { kind: "per_day", days, minutesPerDay: 0, text: END };
     if (days) {
       const plan = planFinish(remaining, ctx.wpm, days);
       return {
@@ -77,6 +84,7 @@ export function ask(question: string, ctx: ReaderContext): Answer {
 
   if (/\b(by|before|until)\b|can i finish/.test(q)) {
     const deadline = parseDeadline(q, ctx.now);
+    if (deadline && atEnd) return { kind: "deadline", possible: true, minutesPerDayNeeded: 0, text: END };
     if (deadline) {
       const r = canFinishBy(remaining, ctx.wpm, deadline, ctx.usualMinutesPerDay, ctx.now);
       const text = r.possible
@@ -87,6 +95,7 @@ export function ask(question: string, ctx: ReaderContext): Answer {
   }
 
   if (/how long|time left|finish|remaining|left/.test(q)) {
+    if (atEnd) return { kind: "time_left", minutes: 0, text: END };
     const minutes = minutesFor(remaining, ctx.wpm);
     return { kind: "time_left", minutes, text: `About ${formatDuration(minutes)} to finish at your pace of ${ctx.wpm} words a minute.` };
   }

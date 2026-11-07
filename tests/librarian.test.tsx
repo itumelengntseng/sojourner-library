@@ -79,3 +79,21 @@ describe("'How long is left in this book?' (C69)", () => {
     expect(html(0)).not.toContain(BOOK_LEFT_QUESTION);
   });
 });
+
+describe("the librarian at the end (C73)", () => {
+  const end = toReaderContext(librarianFacts({ chapters, bookmarkOffset: 9200, wpm: 230, usualMinutesPerDay: 30 }), now);
+  it("says the reader is at the end of the book instead of 'About 0 min'", () => {
+    for (const q of ["How long to finish?", "How long is left in this book?", "Can I finish by Friday?", "How much a day to finish in 2 weeks?", "Time left in this chapter?"]) {
+      expect(ask(q, end).text).toBe("You're at the end of this book.");
+    }
+  });
+  it("says the reader is at the end of a chapter when only the chapter is done", () => {
+    const ctx = { ...toReaderContext(librarianFacts({ chapters, bookmarkOffset: 3450, wpm: 230, usualMinutesPerDay: 30 }), now), chapterWordsRemaining: 0 };
+    expect(ask("Time left in this chapter?", ctx).text).toBe("You're at the end of this chapter.");
+    expect(ask("How long to finish?", ctx).text).toMatch(/25 min to finish/);
+  });
+  it("leaves an empty book's answers as they were", () => {
+    const empty = toReaderContext(librarianFacts({ chapters: [], bookmarkOffset: 0, wpm: 230, usualMinutesPerDay: 30 }), now);
+    expect(ask("How long to finish?", empty).text).not.toContain("end of this book");
+  });
+});
