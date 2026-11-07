@@ -200,7 +200,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C138 Pitch Room: a share link opened within the last hour reads "opened just now" instead of the "last opened" stamp (stamp kept in its spoken label).
 - [x] C139 Writer's Room glance: "Out on loan now" note adds "· N borrowed in the last hour" (counts only; library mode reads borrow times only, preview the cookie desk).
 - [x] QA43 QA pass after C137–C139.
-- [ ] C140 Work page: the "On loan to you · due …" line starts "Just borrowed ·" for a loan taken out within the hour (reuse `justBorrowed()`).
-- [ ] C141 Ledger Borrowing history: an open loan taken out within the hour reads "just borrowed" in place of its borrow stamp (stamp kept in its spoken label).
-- [ ] C142 Halls legend: when a book was borrowed or returned within the hour, a one-line key for the lamplight ✓ ("✓ marks a book you returned in the last hour").
-- [ ] QA44 QA pass after C140–C142.
+- [x] C140 Work page: the "On loan to you · due …" line starts "Just borrowed ·" for a loan taken out within the hour (reuse `justBorrowed()`).
+- [x] C141 Ledger Borrowing history: an open loan taken out within the hour reads "just borrowed" in place of its borrow stamp (stamp kept in its spoken label).
+- [x] C142 Halls legend: when a book was borrowed or returned within the hour, a one-line key for the lamplight ✓ ("✓ marks a book you returned in the last hour").
+- [x] QA44 QA pass after C140–C142.
+- [ ] C143 Front hall: with no Continue reading card and nothing just returned, a loan taken out within the hour that the reader hasn't opened yet shows one quiet line — "Just borrowed · <title> · open it in the reading room" (spoken with the borrow stamp).
+- [ ] C144 Halls: a spine on loan taken out within the hour adds "just borrowed" to its spoken label (`justBorrowed()`; no new visual mark).
+- [ ] C145 Pitch Room: the "N open · M shared in all" line adds "· N opened in the last hour" when any open link was opened within the hour (reuse `openedJustNow()`).
+- [ ] QA45 QA pass after C143–C145.

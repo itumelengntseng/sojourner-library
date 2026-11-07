@@ -494,7 +494,9 @@ for (const width of WIDTHS) {
   // QA34 (C110): the desk explains the greyed-out Renew.
   if (!(await page.getByText(/^No renewals left — return it by .+ and borrow it again; your bookmark is kept\.$/).count())) { failures++; console.log("✗ the desk doesn't explain a spent loan"); }
   // QA37 (C121): the line under the title says the book is out and leads to the desk.
-  if (!(await page.locator("a[href='#desk']", { hasText: /^On loan to you · due / }).count())) { failures++; console.log("✗ work page without the On loan to you line"); }
+  if (!(await page.locator("a[href='#desk']", { hasText: /On loan to you · due / }).count())) { failures++; console.log("✗ work page without the On loan to you line"); }
+  // QA44 (C140): this run's loan was taken out within the hour — the line leads with "Just borrowed ·", stamp spoken.
+  if (!(await page.locator("a[href='#desk']", { hasText: /^Just borrowed.* · On loan to you · due / }).locator(".sr-only", { hasText: /^Just borrowed, / }).count())) { failures++; console.log("✗ work page On loan line without Just borrowed"); }
   await axeCheck("375px work page desk with no renewals left");
 }
 for (const width of WIDTHS) {
@@ -534,6 +536,8 @@ for (const width of WIDTHS) {
   if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/· [123] renewals? left/).count())) { failures++; console.log(`✗ ${width}px ledger: no open loan with renewals left`); }
   // QA39 (C127): the book handed back this run reads "Just returned" in Borrowing history, stamp kept for screen readers.
   if (!(await page.getByRole("region", { name: "Borrowing history" }).locator(".sr-only", { hasText: /^Just returned, / }).count())) { failures++; console.log(`✗ ${width}px ledger Borrowing history without "Just returned"`); }
+  // QA44 (C141): this run's open loans were taken out within the hour — "just borrowed", stamp spoken.
+  if (!(await page.getByRole("region", { name: "Borrowing history" }).locator(".sr-only", { hasText: /^Just borrowed, / }).count())) { failures++; console.log(`✗ ${width}px ledger Borrowing history without "just borrowed"`); }
   // QA37 (C120): Hours per book marks the book due within the day.
   if (!(await page.getByText(/^Due soon/).filter({ has: page.locator(".sr-only", { hasText: /back by/ }) }).count())) { failures++; console.log(`✗ ${width}px ledger Hours per book without the Due soon mark`); }
   // QA36 (C117): the spent hour loan is due within the day, so the tile says so.
@@ -584,6 +588,8 @@ errors.length = 0;
 await page.goto(`${BASE}/halls`);
 const spine3 = page.locator("a[href='/works/placeholder-work-three']").first();
 if (!/Just returned, /.test((await spine3.locator(".sr-only").textContent()) ?? "") || !(await spine3.locator("span[title='Just returned']").count())) { failures++; console.log("✗ halls: the just-returned spine doesn't say so"); }
+// QA44 (C142): the ✓ has its key.
+if (!(await page.getByText(/marks (a book|the \d+ books) you returned in the last hour — borrow (it|them) again any time\./).count())) { failures++; console.log("✗ halls: no key for the just-returned ✓"); }
 await axeCheck("375px halls with a just-returned spine");
 // QA42 (C134, C135): the reading room gate and — with nothing else out — the ledger tile say it was just returned.
 errors.length = 0;

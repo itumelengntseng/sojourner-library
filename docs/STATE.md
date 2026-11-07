@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 10 — C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 11 — C140–C142, QA44; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -205,10 +205,14 @@ _Last updated: 2026-11-07 (scheduled build run 10 — C122–C139, QA38–QA43; 
 - C138 — Pitch Room: a share link opened within the hour reads "opened just now" instead of "last opened …" (stamp in its spoken label; `openedJustNow()`). Unit-tested (preview has no share links).
 - C139 — Writer's Room loans tile: "· N borrowed in the last hour" before the returned count. Library mode: a head count of loans with `borrowed_at` in the last hour; preview: the cookie desk. Unit-tested + swept.
 - QA43 (2026-11-07, after C137–C139): `npm run qa` all clear — now also requires the card's "Just borrowed" (375px + 1280px) and the Writer's Room tile's borrowed-in-the-hour count. Preview e2e 6/6. Performance (local prod build, curl): every page < 30 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 563 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA43).
+- C140 — Work page: the On loan to you line leads with a lamplight "Just borrowed ·" for a loan taken out within the hour (spoken "Just borrowed, <stamp>"; `justBorrowed()`). Unit-tested + swept.
+- C141 — Ledger Borrowing history: an open loan taken out within the hour reads "just borrowed" in place of its borrow stamp (stamp in its spoken label). Unit-tested + swept.
+- C142 — Halls: a key for the lamplight ✓ — "✓ marks a book you returned in the last hour — borrow it again any time." (plural for several; `justBackLegend()` in `lib/spine.ts`), shown only when a ✓ shows. Re-scoped: the halls mark only returns within the hour, not borrows (borrowed books already wear "out"). Unit-tested + swept.
+- QA44 (2026-11-07, after C140–C142): `npm run qa` all clear (run twice) — now also requires the work page's "Just borrowed · On loan to you" line, the ledger history's "just borrowed" (375px + 1280px) and the halls ✓ key. Preview e2e (`npm run e2e -- --preview`) 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 569 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA44).
 
 ## Next task
-C140 — work page "Just borrowed" on the On loan to you line (BACKLOG.md → FOLLOW-UPS), then C141, C142, QA44. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C143 — front hall "Just borrowed" line for an unopened loan taken out within the hour (BACKLOG.md → FOLLOW-UPS), then C144, C145, QA45. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
@@ -277,3 +281,4 @@ C140 — work page "Just borrowed" on the On loan to you line (BACKLOG.md → FO
 - The notes file is titled "Notes on the works of Itumeleng Ntseng" (C68); the reader's name and the export date follow on the next line.
 - A book counts as "read" on the halls by the same rule as the ledger's finished stamp (C13); the halls show the mark only to the reader who finished it.
 - "Last backed up" is remembered per browser (localStorage), so a backup made on another device doesn't show; reminder after 30 days.
+- The halls' lamplight ✓ (C132/C142) marks only books handed back within the hour; a book borrowed within the hour already wears "out" on its spine, so it gets no extra mark there.
