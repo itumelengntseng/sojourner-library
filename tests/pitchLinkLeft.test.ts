@@ -25,3 +25,18 @@ describe("pitch share link — time left (C123)", () => {
     expect(src).not.toMatch(/toLocaleDateString\("en-ZA", \{ timeZone/);
   });
 });
+
+describe("pitch share link — Last day mark (C125)", () => {
+  const now = Date.parse("2026-11-07T10:00:00Z");
+  it("names the closing time on the final day only", async () => {
+    const { lastDayLabel } = await import("@/lib/pitch");
+    expect(lastDayLabel("2026-11-07T16:30:00Z", now)).toBe("Last day: closes 18:30");
+    expect(lastDayLabel("2026-11-08T08:00:00Z", now)).toBeNull();
+    expect(lastDayLabel("2026-11-07T09:00:00Z", now)).toBeNull();
+  });
+  it("the Pitch Room marks open links on their last day, spoken with the time", () => {
+    const src = readFileSync("app/pitch-room/page.tsx", "utf8");
+    expect(src).toMatch(/!l\.revoked && lastDayLabel\(l\.expiresAt, now\)/);
+    expect(src).toMatch(/border-ember[^"]*text-ember">\s*Last day<span className="sr-only">/);
+  });
+});

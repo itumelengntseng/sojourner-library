@@ -186,3 +186,10 @@ export function linkTimeLeft(expiresIso: string, now: number): string | null {
   const until = `open until ${Number(parts.day)} ${parts.month}`;
   return `${until} · ${left <= 0 ? "last day" : `${left} day${left === 1 ? "" : "s"} left`}`;
 }
+
+/** C125: the closing time of a share link on its last day — "Last day: closes 18:30" (SA time); null on any other day. */
+export function lastDayLabel(expiresIso: string, now: number): string | null {
+  if (!linkTimeLeft(expiresIso, now)?.endsWith("· last day")) return null;
+  const time = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "Africa/Johannesburg" }).format(new Date(Date.parse(expiresIso)));
+  return `Last day: closes ${time}`;
+}

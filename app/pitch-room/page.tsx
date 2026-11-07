@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RevokeLink, ShareForm } from "@/components/PitchForms";
-import { kitStatus, lastOpened, linkTimeLeft, loglineWarning } from "@/lib/pitch";
+import { kitStatus, lastDayLabel, lastOpened, linkTimeLeft, loglineWarning } from "@/lib/pitch";
 import { ownerPitchLinks, roomPitches } from "@/lib/pitchStore";
 import { AUTHOR } from "@/lib/site";
 import { cleanQuery, filterByTitle } from "@/lib/shelfSearch";
@@ -70,7 +70,15 @@ export default async function PitchRoom({ searchParams }: { searchParams: Promis
                 <ul className="mt-3 divide-y divide-timber-dark/60 font-sans text-xs text-sandstone">
                   {mine.map((l) => (
                     <li key={l.id} className="flex flex-wrap justify-between gap-2 py-1.5">
-                      <span>{l.note || "Link"} · {l.views} view{l.views === 1 ? "" : "s"} · {lastOpened(l.lastViewedAt)}</span>
+                      <span>
+                        {l.note || "Link"} · {l.views} view{l.views === 1 ? "" : "s"} · {lastOpened(l.lastViewedAt)}
+                        {/* C125: the card's "Due soon" look, on a link's final day. */}
+                        {!l.revoked && lastDayLabel(l.expiresAt, now) && (
+                          <span className="ml-2 inline-block -rotate-2 rounded-sm border border-ember px-1.5 py-0.5 align-middle font-mono text-[0.65rem] uppercase tracking-wider text-ember">
+                            Last day<span className="sr-only">{lastDayLabel(l.expiresAt, now)!.slice("Last day".length)}</span>
+                          </span>
+                        )}
+                      </span>
                       <span>{l.revoked ? "closed" : linkTimeLeft(l.expiresAt, now) === null ? "expired" : <>{linkTimeLeft(l.expiresAt, now)} · <RevokeLink id={l.id} /></>}</span>
                     </li>
                   ))}
