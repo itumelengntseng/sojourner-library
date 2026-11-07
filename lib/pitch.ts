@@ -171,3 +171,18 @@ export function lastOpened(iso: string | null): string {
   const time = `${parts.hour}:${parts.minute}`;
   return `last opened ${date}, ${time}`;
 }
+
+/**
+ * C123: how long an open share link has left — "open until 21 Nov · 14 days left", counted in SA
+ * calendar days; "open until 21 Nov · last day" on its final day. Null once it has run out.
+ */
+export function linkTimeLeft(expiresIso: string, now: number): string | null {
+  const t = Date.parse(expiresIso);
+  if (!Number.isFinite(t) || t <= now) return null;
+  const day = (ms: number) => Math.floor((ms + 2 * 3600_000) / 86_400_000); // SAST is UTC+2, no DST
+  const left = day(t) - day(now);
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "Africa/Johannesburg" })
+    .formatToParts(new Date(t)).map((p) => [p.type, p.value]));
+  const until = `open until ${Number(parts.day)} ${parts.month}`;
+  return `${until} · ${left <= 0 ? "last day" : `${left} day${left === 1 ? "" : "s"} left`}`;
+}

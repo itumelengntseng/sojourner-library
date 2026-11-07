@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RevokeLink, ShareForm } from "@/components/PitchForms";
-import { kitStatus, lastOpened, loglineWarning } from "@/lib/pitch";
+import { kitStatus, lastOpened, linkTimeLeft, loglineWarning } from "@/lib/pitch";
 import { ownerPitchLinks, roomPitches } from "@/lib/pitchStore";
 import { AUTHOR } from "@/lib/site";
 import { cleanQuery, filterByTitle } from "@/lib/shelfSearch";
@@ -14,6 +14,7 @@ export default async function PitchRoom({ searchParams }: { searchParams: Promis
   const [{ live, allowed, links }, { pitches: all }] = await Promise.all([ownerPitchLinks(), roomPitches()]);
   // C65: "Find a kit" by work title (a GET form — no JavaScript needed).
   const find = cleanQuery((await searchParams).find);
+  const now = Date.now();
   const pitches = filterByTitle(all.map((p) => ({ ...p, title: p.work.title })), find);
   if (!allowed) {
     return (
@@ -70,7 +71,7 @@ export default async function PitchRoom({ searchParams }: { searchParams: Promis
                   {mine.map((l) => (
                     <li key={l.id} className="flex flex-wrap justify-between gap-2 py-1.5">
                       <span>{l.note || "Link"} · {l.views} view{l.views === 1 ? "" : "s"} · {lastOpened(l.lastViewedAt)}</span>
-                      <span>{l.revoked ? "closed" : new Date(l.expiresAt) < new Date() ? "expired" : <>open until {new Date(l.expiresAt).toLocaleDateString("en-ZA", { timeZone: "Africa/Johannesburg" })} · <RevokeLink id={l.id} /></>}</span>
+                      <span>{l.revoked ? "closed" : linkTimeLeft(l.expiresAt, now) === null ? "expired" : <>{linkTimeLeft(l.expiresAt, now)} · <RevokeLink id={l.id} /></>}</span>
                     </li>
                   ))}
                 </ul>
