@@ -320,7 +320,22 @@ for (const width of WIDTHS) {
     const [dl] = await Promise.all([page.waitForEvent("download"), notesBtn.first().click()]);
     if (!/^sojourner-notes-placeholder-work-one-\d{4}-\d{2}-\d{2}\.md$/.test(dl.suggestedFilename())) { failures++; console.log(`✗ card notes download named ${dl.suggestedFilename()}`); }
     else console.log("✓ card: Notes for this book downloads " + dl.suggestedFilename());
+    // QA28 (C94): a finished book's notes carry its Finished line under the byline.
+    const md = readFileSync(await dl.path(), "utf8");
+    if (md.includes("## Placeholder Work One") && !/^Finished .+ · read (in a day|over \d+ days)$/m.test(md)) { failures++; console.log("✗ card notes file: no Finished line for the finished book"); }
+    else console.log(`✓ card notes file ${md.includes("## Placeholder Work One") ? "has the Finished line" : "(no notes in this book yet)"}`);
   }
+  // QA28 (C93): the Finished mark says how long it took.
+  if (!(await page.getByRole("region", { name: "Recently returned" }).getByText(/· read (in a day|over \d+ days)/).count())) { failures++; console.log("✗ card: Recently returned Finished mark without how long it took"); }
+  // QA28 (C92): with the book back on the shelf, the ledger's Read to the end offers Borrow again.
+  for (const width of WIDTHS) {
+    await page.setViewportSize({ width, height: 900 });
+    errors.length = 0;
+    await page.goto(`${BASE}/ledger`);
+    if (!(await page.getByRole("region", { name: "Read to the end" }).getByRole("link", { name: /Borrow again/ }).count())) { failures++; console.log(`✗ ${width}px ledger Read to the end without Borrow again`); }
+    await axeCheck(`${width}px ledger Read to the end with Borrow again`);
+  }
+  await page.setViewportSize({ width: 375, height: 900 });
 }
 
 // QA21: the halls with a book read to the end (the "read" mark and its legend, C72).

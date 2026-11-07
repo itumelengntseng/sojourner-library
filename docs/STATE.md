@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 8 — C83–C91, QA25–QA27 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 8 — C83–C94, QA25–QA28; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -141,10 +141,14 @@ _Last updated: 2026-11-07 (scheduled build run 8 — C83–C91, QA25–QA27 so f
 - C90 — The halls' read-mark legend now links "read to the end" to `/ledger#finished`. Unit-tested (source check).
 - C91 — Ledger "Read to the end" tile (`app/ledger/page.tsx`): "1 book · see the shelf" (link to `#finished`), shown once a book is finished; the tile grid goes to 4 columns when there are 7 tiles. Unit-tested by rendering the page with a mocked ledger (`tests/ledgerTile.test.tsx`).
 - QA27 (2026-11-07, after C89–C91): `npm run qa` all clear — now also requires the shelf's Notes for this book button, the ledger tile link, and the halls legend link (375px + 1280px). Preview e2e 6/6. Performance (local prod build, curl): every page < 30 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 468 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA27).
+- C92 — "Borrow again" on the ledger's Read to the end shelf (`FinishedShelf` `borrowAgain` prop; `app/ledger/page.tsx` reads `myOpenLoans()` once and hands it to `myBookLeft()` too): shown for a finished book still on the shelves that isn't on loan to the reader now. Unit-tested (`tests/ledgerTile.test.tsx`).
+- C93 — Recently returned's Finished mark adds "· read over 9 days" (`myFirstReads(slugs)` in `lib/ledgerStore.ts` — one pass: the cookie once in preview, two queries in library mode; own sessions only). Unit-tested (`tests/returnedSpan.test.tsx`).
+- C94 — Notes export: a finished book's section opens with "Finished 5 Nov 2026 · read over 9 days" under its byline (`finishedNoteLine()`, `ExportWork.finished` in `lib/ledger.ts`). Library export computes it on the server from the reader's own sessions; preview downloads get it from the page (`finished` prop on `PreviewNotesExport`, passed by the ledger, the card, the Read to the end shelf and the work page's Your notes). Unfinished books get nothing. Unit-tested (`tests/notesFinished.test.tsx`).
+- QA28 (2026-11-07, after C92–C94): `npm run qa` all clear — now also opens the card's notes download and requires the Finished line in it, requires "· read …" on Recently returned, and returns the book then checks Borrow again on the ledger shelf (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (15/15; the new reads filter to the reader's own sessions and RLS enforces it).
+- Tests: 476 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA28).
 
 ## Next task
-C92 — "Borrow again" on the ledger's Read to the end shelf for books not on loan now (BACKLOG.md → FOLLOW-UPS), then C93, C94, QA28. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C95 — the front hall's Continue reading card adds the time left in the book (BACKLOG.md → FOLLOW-UPS), then C96, C97, QA29. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

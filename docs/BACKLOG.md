@@ -136,7 +136,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C90 Halls: the legend line "read marks the books you have read to the end." links "read to the end" to `/ledger#finished`.
 - [x] C91 Ledger top tiles: a "Read to the end" tile (count from `finishedBooks()`, linking to `#finished`), shown once a book is finished.
 - [x] QA27 QA pass after C89–C91.
-- [ ] C92 Ledger "Read to the end": a "Borrow again" link (to the work page) beside each finished book that isn't on loan to the reader now and is still on the shelves.
-- [ ] C93 Card page "Recently returned": the Finished mark adds how long it took ("· read over 9 days"), reusing `finishSpan()` with the reader's first session per book (own sessions; one pass for all rows).
-- [ ] C94 Notes export (Markdown): under a finished book's heading, one line "Finished 5 Nov 2026 · read over 9 days" (own sessions; full and per-book file alike; nothing for unfinished books).
-- [ ] QA28 QA pass after C92–C94.
+- [x] C92 Ledger "Read to the end": a "Borrow again" link (to the work page) beside each finished book that isn't on loan to the reader now and is still on the shelves.
+- [x] C93 Card page "Recently returned": the Finished mark adds how long it took ("· read over 9 days"), reusing `finishSpan()` with the reader's first session per book (own sessions; one pass for all rows).
+- [x] C94 Notes export (Markdown): under a finished book's heading, one line "Finished 5 Nov 2026 · read over 9 days" (own sessions; full and per-book file alike; nothing for unfinished books).
+- [x] QA28 QA pass after C92–C94.
+- [ ] C95 Front hall "Continue reading" card: add "· about N min left in this book" after the chapter's time left (reuse `myBookLeft` / `inline()`; own loan only).
+- [ ] C96 Card page "On loan now": a loan due within 24 hours carries a small "Due soon" mark (same rule as the front hall slip, `dueBackSoon()`), with the due time in its spoken label.
+- [ ] C97 Ledger "Borrowing history": a row whose book the reader has read to the end carries the small Finished stamp (reuse `finishedStamp()`; own sessions).
+- [ ] QA29 QA pass after C95–C97.
