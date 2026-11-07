@@ -29,13 +29,16 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
   // C63: books out on loan now carry "Continue at <chapter>" in Hours per book.
   const [continueAt, bookLeft] = await Promise.all([myContinueBySlug(), myBookLeft()]);
   const link = (k: string) => (l.slugs[k] ? `/works/${l.slugs[k]}` : null);
-  const tiles = [
+  const finished = finishedBooks(l.hours);
+  const tiles: { label: string; value: string; note?: string; href?: string }[] = [
     { label: "Current run", value: `${l.streaks.current} day${l.streaks.current === 1 ? "" : "s"}`, note: l.streaks.readToday ? "read today" : l.streaks.current ? "read today to keep it" : "start one today" },
     { label: "Longest run", value: `${l.streaks.longest} day${l.streaks.longest === 1 ? "" : "s"}` },
     { label: "Days read", value: String(l.streaks.days) },
     { label: "This week", value: l.week.ms > 0 ? formatHours(l.week.ms) : "0 min", note: l.week.days ? `on ${l.week.days} of the last 7 days` : "nothing in the last 7 days" },
     { label: "Time reading", value: formatHours(l.totalMs) },
     { label: "Words read", value: l.totalWords.toLocaleString("en-ZA").replace(/\s/g, "\u00a0"), note: "counted as you move past each paragraph" },
+    // C91: once a book is finished, a tile leading down to the Read to the end shelf.
+    ...(finished.length ? [{ label: "Read to the end", value: `${finished.length} book${finished.length === 1 ? "" : "s"}`, note: "see the shelf", href: "#finished" }] : []),
   ];
 
   return (
@@ -45,19 +48,19 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
       <p className="mt-1 font-sans text-sm text-sandstone">{l.readerName ? `${l.readerName} · ` : ""}Private to you. The works of {AUTHOR}.</p>
       {l.mode === "preview" && <p className="mt-1 font-sans text-[0.7rem] text-sandstone/70">Preview ledger: kept in this browser until the library is connected.</p>}
 
-      <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <dl className={`mt-8 grid grid-cols-2 gap-3 ${tiles.length > 6 ? "sm:grid-cols-4" : "sm:grid-cols-3 lg:grid-cols-6"}`}>
         {tiles.map((t) => (
           <div key={t.label} className="rounded-sm border border-timber-dark bg-ink/40 p-4">
             <dt className="font-sans text-[0.65rem] uppercase tracking-wider text-sandstone">{t.label}</dt>
             <dd className="mt-1 text-2xl text-paper">{t.value}</dd>
-            {t.note && <dd className="font-sans text-[0.65rem] text-sandstone/80">{t.note}</dd>}
+            {t.note && <dd className="font-sans text-[0.65rem] text-sandstone/80">{t.href ? <a href={t.href} className="text-lamplight underline underline-offset-2">{t.note}<span className="sr-only">: the books you have read to the end</span></a> : t.note}</dd>}
           </div>
         ))}
       </dl>
 
       {l.totalMs > 0 && l.months.length > 0 && <ReadingByMonth months={l.months} />}
 
-      <FinishedShelf items={finishedBooks(l.hours)} title={title} href={link} slug={(k) => l.slugs[k] ?? null} notes={l.mode === "preview" ? "preview" : "library"} />
+      <FinishedShelf items={finished} title={title} href={link} slug={(k) => l.slugs[k] ?? null} notes={l.mode === "preview" ? "preview" : "library"} />
 
       <section aria-labelledby="hours" className="mt-12">
         <h2 id="hours" className="text-xl text-paper">Hours per book</h2>
