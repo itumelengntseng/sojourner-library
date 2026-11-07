@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 10 — C122–C130, QA38–QA40; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 10 — C122–C133, QA38–QA41; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -193,10 +193,14 @@ _Last updated: 2026-11-07 (scheduled build run 10 — C122–C130, QA38–QA40; 
 - C129 — Work page: a book the reader handed back within the hour (and not out again) shows "Just returned · borrow it again below" under the title, linking to the desk; screen readers hear the return stamp (`justReturnedLoan()`). Unit-tested.
 - C130 — Pitch Room: each kit's share links list open ones first (soonest closing first), then closed/expired, under "2 open · 5 shared in all" (`orderLinks()`). Unit-tested (preview has no share links).
 - QA40 (2026-11-07, after C128–C130): `npm run qa` all clear — now also requires the ember due part on the Writer's Room tile and the work page's Just returned line (borrow → return → revisit at 375px, axe clean). Found and fixed: the returned slip's "Back on the shelf" status was 4.29:1 on paper (`text-ink/60` → `/75` in `DueDateSlip`). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 545 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA40).
+- C131 — Front hall: with no Continue reading card, the book the reader handed back within the hour shows as one quiet line, "Just returned · <title> · borrow it again" (to the work's desk; spoken with the return stamp). Re-scoped from the backlog wording: the Continue card only ever shows open loans. Unit-tested + swept.
+- C132 — Halls: a book handed back within the hour (and not out again) carries a lamplight ✓ on its spine and "Just returned, <stamp>." in its spoken label. Unit-tested + swept.
+- C133 — Pitch Room: the open-link line adds "· 1 closes today" in ember when an open link is on its last day. Unit-tested (preview has no share links).
+- QA41 (2026-11-07, after C131–C133): `npm run qa` all clear — now also requires the just-returned spine on the halls and, in a fresh browser with nothing on loan, the front hall's Just returned line (375px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 550 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA41).
 
 ## Next task
-C131 — front hall Continue reading card after a return within the hour (BACKLOG.md → FOLLOW-UPS), then C132, C133, QA41. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C134 — ledger "On loan" tile: with nothing out but a book handed back within the hour, the tile says "Just returned · <title>" (BACKLOG.md → FOLLOW-UPS), then C135, C136, QA42. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
@@ -243,6 +247,7 @@ C131 — front hall Continue reading card after a return within the hour (BACKLO
 - The Keeper's proof copy is read-only and unrecorded, so it never skews readership counts or the Keeper's own pace.
 - "Just returned" (C124) applies only to books the reader handed back, for one hour; loans that ran out keep their "back on the shelf when due" stamp.
 - In preview mode the Writer's Room loan counts come from the visitor's own cookie desk (the only loans that exist there).
+- "Just returned" everywhere (card, ledger history, work page, front hall, halls) uses one rule — `justReturned()`: handed back by the reader, within the last hour.
 - "Fresh on the shelves" uses a work's `updated_at`, so sharing a work or editing its description also brings it forward (60-day window, 3 works).
 - Setting a work aside also closes access for readers who have it on loan (their loan rows and notes are kept); restoring reopens it.
 - A book counts as finished at 90% of its last chapter's words (readers skim endings and the tracker is conservative); rereads keep the first finish date.

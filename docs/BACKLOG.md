@@ -189,6 +189,10 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C130 Pitch Room: each kit's share links list open links first (soonest closing first), then closed/expired, with "N open" before the list.
 - [x] QA40 QA pass after C128–C130.
 - [x] C131 Front hall: with no Continue reading card, the book the reader handed back within the hour shows as one quiet line — "Just returned · <title> · borrow it again" (re-scoped: the Continue card only ever shows open loans, so it never sees a returned book).
-- [ ] C132 Halls: a spine for a book the reader handed back within the hour carries a quiet "just returned" in its spoken label and a lamplight tick (no new data).
-- [ ] C133 Pitch Room: the "N open · M shared in all" line also says "1 closes today" when any open link is on its last day (reuse `lastDayLabel()`).
-- [ ] QA41 QA pass after C131–C133.
+- [x] C132 Halls: a spine for a book the reader handed back within the hour carries a quiet "just returned" in its spoken label and a lamplight tick (no new data).
+- [x] C133 Pitch Room: the "N open · M shared in all" line also says "1 closes today" when any open link is on its last day (reuse `lastDayLabel()`).
+- [x] QA41 QA pass after C131–C133.
+- [ ] C134 Ledger "On loan" tile: with nothing out but a book handed back within the hour, the tile reads "Nothing out" with the note "just returned · <title>" linking to its work page.
+- [ ] C135 Reading room gate (no open loan): if the reader handed this book back within the hour, the gate says "You returned this just now — borrow it again to pick up at your bookmark."
+- [ ] C136 Writer's Room glance: "Out on loan now" note adds "· N returned in the last hour" (counts only, never who; library mode a head count, preview the cookie desk).
+- [ ] QA42 QA pass after C134–C136.

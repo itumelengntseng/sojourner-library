@@ -577,6 +577,28 @@ await page.getByRole("button", { name: "Return to shelf" }).waitFor({ state: "de
 await page.goto(`${BASE}/works/placeholder-work-three`);
 if (!(await page.locator("a[href='#desk']", { hasText: /Just returned.*· borrow it again below$/ }).count())) { failures++; console.log("✗ work page without the Just returned line"); }
 await axeCheck("375px work page just returned");
+// QA41 (C132): its spine on the halls says so, with the lamplight tick.
+errors.length = 0;
+await page.goto(`${BASE}/halls`);
+const spine3 = page.locator("a[href='/works/placeholder-work-three']").first();
+if (!/Just returned, /.test((await spine3.locator(".sr-only").textContent()) ?? "") || !(await spine3.locator("span[title='Just returned']").count())) { failures++; console.log("✗ halls: the just-returned spine doesn't say so"); }
+await axeCheck("375px halls with a just-returned spine");
+// QA41 (C131): a fresh visitor with nothing on loan sees the Just returned line in the front hall.
+{
+  const fresh = await browser.newContext({ viewport: { width: 375, height: 900 } });
+  const fp = await fresh.newPage();
+  await fp.goto(`${BASE}/works/placeholder-work-three`);
+  await fp.getByRole("button", { name: "Borrow this work" }).click();
+  await fp.getByRole("button", { name: "Return to shelf" }).click();
+  await fp.getByRole("button", { name: "Return to shelf" }).waitFor({ state: "detached" });
+  await fp.goto(`${BASE}/`);
+  if (!(await fp.locator("main a[href='/works/placeholder-work-three#desk']", { hasText: /^borrow it again/ }).count()) || !(await fp.locator(".sr-only", { hasText: /^Just returned, / }).count())) { failures++; console.log("✗ front hall without the Just returned line"); }
+  await fp.evaluate(axeSource);
+  const res = await fp.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] })); // eslint-disable-line no-undef
+  const bad = res.violations.filter((v) => ["serious", "critical"].includes(v.impact));
+  if (bad.length) { failures++; console.log(`✗ 375px front hall just returned\n${bad.map((v) => `    axe ${v.impact}: ${v.id}`).join("\n")}`); } else console.log("✓ 375px front hall just returned");
+  await fresh.close();
+}
 
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
