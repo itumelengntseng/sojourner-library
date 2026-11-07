@@ -242,7 +242,9 @@ export function rowToLoan(r: LoanRow): Loan {
 
 // ── "On loan now" at the front desk ─────────────────────────────────────────
 
-export interface OnLoan { workKey: string; slug: string; title: string; due: string; timeLeft: string; dueSoon: boolean; resume: boolean; dueAt: number; bookmark: number }
+export interface OnLoan { workKey: string; slug: string; title: string; due: string; timeLeft: string; dueSoon: boolean; resume: boolean; dueAt: number; bookmark: number;
+  /** C104: renewals still allowed on this loan (MAX_RENEWALS − used); missing = unknown, treated as renewable. */
+  renewalsLeft?: number }
 
 /** The reader's open loans, soonest due first. `works` maps a loan's workId to the work's slug and title. */
 export function onLoanNow(loans: Loan[], readerId: string, works: Record<string, { slug: string; title: string }>, now: number): OnLoan[] {
@@ -251,8 +253,13 @@ export function onLoanNow(loans: Loan[], readerId: string, works: Record<string,
     .sort((a, b) => a.dueAt - b.dueAt)
     .map((l) => {
       const s = slipFor(l, now);
-      return { workKey: l.workId, slug: works[l.workId].slug, title: works[l.workId].title, due: s.due, timeLeft: s.timeLeft ?? "", dueSoon: s.status === "due_soon", resume: l.bookmark.wordOffset > 0, dueAt: l.dueAt, bookmark: l.bookmark.wordOffset };
+      return { workKey: l.workId, slug: works[l.workId].slug, title: works[l.workId].title, due: s.due, timeLeft: s.timeLeft ?? "", dueSoon: s.status === "due_soon", resume: l.bookmark.wordOffset > 0, dueAt: l.dueAt, bookmark: l.bookmark.wordOffset, renewalsLeft: s.renewalsLeft };
     });
+}
+
+/** C104: true when the desk can't renew this loan any more. */
+export function noRenewalsLeft(l: Pick<OnLoan, "renewalsLeft">): boolean {
+  return l.renewalsLeft === 0;
 }
 
 /** The reader's open loans keyed by work slug — for marking the spines on the halls (C38). */

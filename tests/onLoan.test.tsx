@@ -74,3 +74,21 @@ describe("Renew on a Due soon loan (C100)", () => {
     expect(readFileSync("app/works/[slug]/page.tsx", "utf8")).toContain('<h2 id="desk"');
   });
 });
+
+describe("No renewals left on a Due soon loan (C104)", () => {
+  const on = (slug: string, renewalsLeft?: number): import("@/lib/loanDesk").OnLoan => ({ workKey: slug, slug, title: `Placeholder ${slug}`, due: "SAT 7 NOV, 14:00", timeLeft: "3 h", dueSoon: false, resume: false, dueAt: 0, bookmark: 0, renewalsLeft });
+  it("says so instead of offering Renew once all three renewals are used", async () => {
+    const { OnLoanNow } = await import("@/components/OnLoanNow");
+    const html = renderToStaticMarkup(<OnLoanNow loans={[on("spent", 0), on("fresh", 2), on("old")]} dueSoon={["spent", "fresh", "old"]} />);
+    expect(html).toContain("No renewals left — return by SAT 7 NOV, 14:00");
+    expect(html).not.toContain("/works/spent#desk");
+    expect(html).toContain("/works/fresh#desk");
+    expect(html).toContain("/works/old#desk"); // unknown → still renewable
+  });
+  it("onLoanNow carries the renewals left from the slip", () => {
+    const [l] = onLoanNow([loan({ renewals: 3 })], "r", works, now);
+    expect(l.renewalsLeft).toBe(0);
+    const [m] = onLoanNow([loan({ renewals: 1 })], "r", works, now);
+    expect(m.renewalsLeft).toBe(2);
+  });
+});

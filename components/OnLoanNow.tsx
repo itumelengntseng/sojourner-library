@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { chapterLabel, type ContinueCard } from "@/lib/continueReading";
-import type { OnLoan } from "@/lib/loanDesk";
+import { noRenewalsLeft, type OnLoan } from "@/lib/loanDesk";
 
 /** The reader's open loans at the front desk, each with its due-date stamp and a way back in. */
 /** `bookLeft` (slug → "About 1 h 2 min left in this book", C74) is shown under each due line. */
@@ -40,7 +40,11 @@ export function OnLoanNow({ loans, continueAt = {}, bookLeft = {}, dueSoon = [] 
             </div>
             <div className="flex items-center gap-2">
               {/* C100: a loan due back within the day offers the way to renew it at the work's loan desk. */}
-              {dueSoon.includes(l.slug) && (
+              {/* C104: once every renewal is used, say so rather than send the reader to a desk that can't renew. */}
+              {dueSoon.includes(l.slug) && noRenewalsLeft(l) && (
+                <span className="font-sans text-xs text-ember">No renewals left — return by {l.due}</span>
+              )}
+              {dueSoon.includes(l.slug) && !noRenewalsLeft(l) && (
                 <Link href={`/works/${l.slug}#desk`} className="rounded border border-ember px-3 py-1.5 font-sans text-xs font-semibold text-ember hover:bg-ember hover:text-ink">
                   Renew<span className="sr-only"> {l.title} at the loan desk</span>
                 </Link>
