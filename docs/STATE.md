@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 11 — C140–C151, QA44–QA47; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 11 — C140–C154, QA44–QA48; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -221,10 +221,14 @@ _Last updated: 2026-11-07 (scheduled build run 11 — C140–C151, QA44–QA47; 
 - C150 — Halls: the "out" legend notes fresh loans — "marks the 3 books out to you (1 just borrowed) — renew or return them at the front desk" ("(just borrowed)" for a single book; `outLegend()` in `lib/spine.ts`). Unit-tested + swept.
 - C151 — Writer's Room loans tile: checked how it reads — the note and its ember due part sit in one `dd`, in order (open · borrowed · returned · due), and the words carry the meaning (ember is colour only), so no sr-only summary was needed. A test pins the order.
 - QA47 (2026-11-07, after C149–C151): `npm run qa` all clear — the sweep now finds the desk's "Start reading" and requires the halls legend's "(just borrowed)" (375px + 1280px). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 588 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA47).
+- C152 — Ledger Borrowing history: one line above the list, "3 loans in the last 30 days · 2 handed back before they were due" (the second part only when some were; nothing with no loans in 30 days; `historySummary()`). Unit-tested + swept.
+- C153 — Work page: under the loan desk, "You've borrowed this twice" / "… 3 times" from the reader's own loans of this work (first loan → nothing; `borrowedTimesLine()`). The desk reads the last 20 loans per work, so the count tops out at 20. Unit-tested + swept.
+- C154 — Already covered: the reader card has shown "Issued <date>" from `readers.created_at` since B3, and preview mode has no card. No change.
+- QA48 (2026-11-07, after C152–C154): `npm run qa` all clear — a fresh browser now returns and re-borrows a book, and the sweep requires the work page's "You've borrowed this twice" and the ledger's "2 loans in the last 30 days · 1 handed back before it was due". Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 593 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA48).
 
 ## Next task
-C152 — ledger Borrowing history summary line (BACKLOG.md → FOLLOW-UPS), then C153, C154, QA48. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C155 — work page "· first on <date>" after the borrowed-times line (BACKLOG.md → FOLLOW-UPS), then C156, C157, QA49. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.

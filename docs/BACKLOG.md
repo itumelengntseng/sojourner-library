@@ -216,7 +216,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C150 Halls: the "out" legend notes fresh loans — "… 2 books out to you (1 just borrowed) — renew or return them at the front desk" (own loans; `justBorrowed()`).
 - [x] C151 Writer's Room glance: the "Out on loan now" tile's spoken label reads the whole note as one sentence (check the ember due part and the borrowed/returned counts are announced in order; add an sr-only summary if not).
 - [x] QA47 QA pass after C149–C151.
-- [ ] C152 Ledger Borrowing history: one line above the list — "N loans in the last 30 days · M handed back before they were due" (own loans; SA time; nothing when no loans in 30 days).
-- [ ] C153 Work page: under the loan desk, "You've borrowed this N times" when the reader has borrowed this work more than once (own loans only; first loan → nothing).
-- [ ] C154 Card page: "Member since <month year>" on the membership card (library: `readers.created_at`; preview: the earliest cookie loan, or nothing).
-- [ ] QA48 QA pass after C152–C154.
+- [x] C152 Ledger Borrowing history: one line above the list — "N loans in the last 30 days · M handed back before they were due" (own loans; SA time; nothing when no loans in 30 days).
+- [x] C153 Work page: under the loan desk, "You've borrowed this N times" when the reader has borrowed this work more than once (own loans only; first loan → nothing).
+- [x] C154 (already covered — the card has shown "Issued <date>" from `readers.created_at` since B3; preview has no card, so nothing to add) Card page: "Member since <month year>" on the membership card (library: `readers.created_at`; preview: the earliest cookie loan, or nothing).
+- [x] QA48 QA pass after C152–C154.
+- [ ] C155 Work page: the "You've borrowed this N times" line adds "· first on <date>" (the reader's earliest own loan of this work, SA date).
+- [ ] C156 Card page "Recently returned": a book the reader has borrowed more than once adds "· borrowed N times" to its line (own loans; preview from the cookie desk).
+- [ ] C157 Ledger "Hours per book": an "Order: Most hours / Recently read" GET toggle (works without JavaScript; default stays as now).
+- [ ] QA49 QA pass after C155–C157.

@@ -647,6 +647,15 @@ await axeCheck("375px reading room gate just returned");
   const res = await fp.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] })); // eslint-disable-line no-undef
   const bad = res.violations.filter((v) => ["serious", "critical"].includes(v.impact));
   if (bad.length) { failures++; console.log(`✗ 375px front hall just borrowed\n${bad.map((v) => `    axe ${v.impact}: ${v.id}`).join("\n")}`); } else console.log("✓ 375px front hall just borrowed");
+  // QA48 (C152, C153): hand it back and borrow it again — the work page counts the loans, the ledger sums the month.
+  await fp.goto(`${BASE}/works/placeholder-work-two`);
+  await fp.getByRole("button", { name: "Return to shelf" }).click();
+  await fp.getByRole("button", { name: "Borrow this work" }).click();
+  await fp.getByRole("button", { name: "Return to shelf" }).waitFor();
+  await fp.goto(`${BASE}/works/placeholder-work-two`);
+  if (!(await fp.getByText("You've borrowed this twice").count())) { failures++; console.log("✗ work page doesn't count a second loan"); }
+  await fp.goto(`${BASE}/ledger`);
+  if (!(await fp.getByText("2 loans in the last 30 days · 1 handed back before it was due").count())) { failures++; console.log("✗ ledger Borrowing history without the 30-day line"); }
   await fresh.close();
 }
 
