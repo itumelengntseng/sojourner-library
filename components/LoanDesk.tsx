@@ -31,7 +31,8 @@ export function LoanDesk({ desk, slug, title, now, continueAt = null, totalWords
           <>
             <Link href={`/works/${slug}/read`}
               className="w-fit rounded bg-timber px-4 py-2 font-sans text-sm font-semibold text-paper hover:bg-ochre">
-              {open.bookmark.wordOffset > 0 ? "Resume at your bookmark" : "Open the reading room"}
+              {/* C149: a fresh loan starts; a bookmarked one resumes. */}
+              {open.bookmark.wordOffset > 0 ? "Resume at your bookmark" : <>Start reading<span className="sr-only">: {title}</span></>}
             </Link>
             {open.bookmark.wordOffset > 0 && wpm > 0 && bookLeftLine(totalWords, open.bookmark.wordOffset, wpm) && (
               <p className="-mt-1 font-sans text-xs text-sandstone">{bookLeftLine(totalWords, open.bookmark.wordOffset, wpm)}</p>

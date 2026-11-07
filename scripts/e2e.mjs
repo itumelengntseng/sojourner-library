@@ -95,7 +95,7 @@ if (!preview) {
 
 await step("borrow at the loan desk", async () => {
   await page.goto(`${BASE}/works/${SLUG}`);
-  const open = page.getByRole("link", { name: /Open the reading room|Resume at your bookmark/ });
+  const open = page.getByRole("link", { name: /Start reading|Open the reading room|Resume at your bookmark/ });
   if (!(await open.count())) {
     await page.getByRole("button", { name: "Borrow this work" }).click();
     await open.first().waitFor({ timeout: 10_000 });

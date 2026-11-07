@@ -20,7 +20,7 @@ page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
 // Borrow a book first so the reading room and a full ledger are reachable.
 await page.goto(`${BASE}/works/placeholder-work-one`);
 await page.getByRole("button", { name: "Borrow this work" }).click();
-await page.getByRole("link", { name: "Open the reading room" }).waitFor();
+await page.getByRole("link", { name: /^Start reading/ }).waitFor();
 
 const routes = ["/", "/halls", "/halls?canon=all", "/halls?q=two", "/halls?sort=title", "/halls?q=placeholder&sort=recent", "/halls?q=zzzz", "/halls?q=chapter+5", "/writers-room?find=two", "/pitch-room?find=two", "/halls?q=three", "/card", "/works/placeholder-work-one", "/works/placeholder-work-one/read",
   "/works/placeholder-work-three/read", "/works/placeholder-work-one/proof", "/works/placeholder-work-one/proof?ch=2", "/works/placeholder-work-one/read?ch=2", "/ledger", "/ledger?history=all", "/lineage", "/lineage?canon=all", "/timeline", "/timeline?canon=all", "/writers-room", "/writers-room/atlas", "/pitch-room", "/pitch-room/placeholder-work-one", "/pitch-room/placeholder-work-one/edit", "/p/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "/works/no-such-book"];
@@ -174,7 +174,7 @@ for (const width of WIDTHS) {
 await page.goto(`${BASE}/works/placeholder-work-one`);
 if (await page.getByRole("button", { name: "Borrow this work" }).count()) {
   await page.getByRole("button", { name: "Borrow this work" }).click();
-  await page.getByRole("link", { name: "Open the reading room" }).waitFor();
+  await page.getByRole("link", { name: /^Start reading/ }).waitFor();
 }
 for (const theme of ["dark", "sepia", "light"]) {
   await page.setViewportSize({ width: 375, height: 900 });
@@ -359,7 +359,7 @@ for (const width of WIDTHS) {
   await page.goto(`${BASE}/works/placeholder-work-one`);
   if (await page.getByRole("button", { name: "Borrow this work" }).count()) {
     await page.getByRole("button", { name: "Borrow this work" }).click();
-    await page.getByRole("link", { name: /Open the reading room|Resume at your bookmark/ }).waitFor();
+    await page.getByRole("link", { name: /Start reading|Open the reading room|Resume at your bookmark/ }).waitFor();
   }
   await page.goto(`${BASE}/card`);
   await page.getByRole("region", { name: "On loan now" }).getByText(/left in this book|At the end of this book/).first().waitFor();
@@ -403,7 +403,7 @@ for (const width of WIDTHS) {
   if (await page.getByRole("button", { name: "Borrow this work" }).count()) {
     await page.getByRole("radio", { name: "An hour" }).check();
     await page.getByRole("button", { name: "Borrow this work" }).click();
-    await page.getByRole("link", { name: /Open the reading room|Resume at your bookmark/ }).waitFor();
+    await page.getByRole("link", { name: /Start reading|Open the reading room|Resume at your bookmark/ }).waitFor();
   }
 }
 
