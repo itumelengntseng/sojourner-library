@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
-import { finishedBooks, finishedDuring, finishedStamp, formatHours, historyHref, historyPage, historySummary, hoursHref, orderHours, parseHoursOrder, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
+import { finishedBooks, finishedDuring, finishedStamp, formatHours, barShare, historyHref, historyPage, historySummary, hoursHref, orderHours, parseHoursOrder, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
 import { myOpenLoans } from "@/lib/loanStore";
@@ -127,7 +127,10 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
                         )}
                       </div>
                     )}</td>
-                  <td className="py-3 pr-2 font-sans text-sm">{formatHours(h.activeMs)}</td>
+                  <td className="py-3 pr-2 font-sans text-sm">{formatHours(h.activeMs)}
+                    {/* C160: under "Most hours", a timber bar scaled to the top book (the time stays in text). */}
+                    {hoursOrder === "most" && <span aria-hidden="true" className="mt-1 block h-1 rounded-full bg-timber" style={{ width: `${barShare(h.activeMs, l.hours)}%` }} />}
+                  </td>
                   <td className="hidden py-3 pr-2 font-sans text-sm sm:table-cell">{h.wordsRead.toLocaleString("en-ZA")}</td>
                   <td className="py-3 text-right font-mono text-xs text-ochre">{stampDate(h.lastRead)}</td>
                 </tr>

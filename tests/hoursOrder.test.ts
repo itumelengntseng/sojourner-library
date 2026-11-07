@@ -42,3 +42,18 @@ describe("ledger Borrowing history links keep the hours order (C158)", () => {
     expect(src).toContain("<Link href={historyHref(false, hoursOrder)}");
   });
 });
+
+describe("ledger Hours per book — Most hours bars (C160)", () => {
+  it("scales each book to the most-read one, with a visible floor", async () => {
+    const { barShare } = await import("@/lib/ledger");
+    const hs = [{ activeMs: 200 }, { activeMs: 100 }, { activeMs: 1 }];
+    expect(barShare(200, hs)).toBe(100);
+    expect(barShare(100, hs)).toBe(50);
+    expect(barShare(1, hs)).toBe(4);
+    expect(barShare(0, [{ activeMs: 0 }])).toBe(4);
+  });
+  it("shows only under Most hours, hidden from screen readers", () => {
+    const src = readFileSync("app/ledger/page.tsx", "utf8");
+    expect(src).toContain('{hoursOrder === "most" && <span aria-hidden="true" className="mt-1 block h-1 rounded-full bg-timber" style={{ width: `${barShare(h.activeMs, l.hours)}%` }} />}');
+  });
+});

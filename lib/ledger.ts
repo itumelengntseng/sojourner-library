@@ -339,3 +339,10 @@ export function historyHref(showAll: boolean, order: HoursOrder): string {
   const q = [order === "most" ? "hours=most" : "", showAll ? "history=all" : ""].filter(Boolean).join("&");
   return `/ledger${q ? `?${q}` : ""}#history`;
 }
+
+/** C160: a book's time as a share (4–100 %) of the most-read book's, for the Most hours bars. */
+export function barShare(ms: number, hours: Pick<WorkHours, "activeMs">[]): number {
+  const top = Math.max(0, ...hours.map((h) => h.activeMs));
+  if (!(top > 0)) return 4;
+  return Math.max(4, Math.round((Math.max(0, ms) / top) * 100));
+}
