@@ -18,3 +18,12 @@ describe("Renew on the front hall's Due back soon slip (C101)", () => {
     expect(renderToStaticMarkup(<DueSoonSlip loans={[]} />)).toBe("");
   });
 });
+
+describe("No renewals left on the slip (C105)", () => {
+  it("a loan with every renewal used says so instead of Renew", () => {
+    const html = renderToStaticMarkup(<DueSoonSlip loans={[{ ...on("spent"), renewalsLeft: 0 }, { ...on("fresh"), renewalsLeft: 1 }]} />);
+    expect(html).toContain("no renewals left");
+    expect(html).not.toContain('href="/works/spent#desk"');
+    expect(html).toContain('href="/works/fresh#desk"');
+  });
+});
