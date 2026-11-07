@@ -33,3 +33,16 @@ describe("card page — Just borrowed (C137)", () => {
     expect(readFileSync("app/card/page.tsx", "utf8")).toMatch(/<OnLoanNow [^>]*now=\{Date\.now\(\)\}/);
   });
 });
+
+describe("card page — N borrowed in the last hour (C148)", () => {
+  const W3 = { ...W, c: { slug: "work-c", title: "Placeholder C" } };
+  it("says how many with two or more taken out within the hour", () => {
+    const html = renderToStaticMarkup(<OnLoanNow loans={onLoanNow([loan("a", 10), loan("b", 30), loan("c", 120)], "me", W3, NOW)} now={NOW} />);
+    expect(html).toContain('<p class="mt-1 font-sans text-xs text-lamplight">2 borrowed in the last hour</p>');
+  });
+  it("says nothing for one, or without the clock", () => {
+    const loans = onLoanNow([loan("a", 10), loan("c", 120)], "me", W3, NOW);
+    expect(renderToStaticMarkup(<OnLoanNow loans={loans} now={NOW} />)).not.toContain("borrowed in the last hour");
+    expect(renderToStaticMarkup(<OnLoanNow loans={onLoanNow([loan("a", 10), loan("b", 30)], "me", W3, NOW)} />)).not.toContain("borrowed in the last hour");
+  });
+});

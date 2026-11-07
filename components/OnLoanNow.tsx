@@ -21,6 +21,10 @@ export function OnLoanNow({ loans, continueAt = {}, bookLeft = {}, dueSoon = [],
       {loans.filter((l) => dueSoon.includes(l.slug)).length > 1 && (
         <p className="mt-1 font-sans text-xs text-ember">{loans.filter((l) => dueSoon.includes(l.slug)).length} due back within the day</p>
       )}
+      {/* C148: two or more taken out within the hour. */}
+      {now !== undefined && loans.filter((l) => justBorrowed(l, now)).length > 1 && (
+        <p className="mt-1 font-sans text-xs text-lamplight">{loans.filter((l) => justBorrowed(l, now)).length} borrowed in the last hour</p>
+      )}
       <ul className="mt-2 divide-y divide-timber-dark/60 rounded-sm border border-timber-dark bg-ink/40">
         {loans.map((l) => (
           <li key={l.workKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
