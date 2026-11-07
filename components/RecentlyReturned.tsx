@@ -1,12 +1,15 @@
 import Link from "next/link";
 import type { Returned } from "@/lib/loanDesk";
 import { finishedStamp } from "@/lib/ledger";
+import { PreviewNotesExport } from "./PreviewNotesExport";
 
 /**
  * The reader's last few returns at the front desk, stamped, with a way to borrow again. Nothing returned → nothing shown.
  * `finished` (slug → time, C70) marks the books the reader read to the end.
+ * C84: a finished book also offers "Notes for this book" — the ledger's per-book export (own notes only):
+ * the library route in library mode, built in this browser in preview mode.
  */
-export function RecentlyReturned({ items, finished = {} }: { items: Returned[]; finished?: Record<string, number> }) {
+export function RecentlyReturned({ items, finished = {}, notes = "preview" }: { items: Returned[]; finished?: Record<string, number>; notes?: "library" | "preview" }) {
   if (items.length === 0) return null;
   return (
     <section aria-labelledby="recently-returned" className="w-full max-w-md text-left">
@@ -26,6 +29,13 @@ export function RecentlyReturned({ items, finished = {} }: { items: Returned[]; 
               <p className="font-mono text-[0.7rem] uppercase tracking-wider text-sandstone">
                 Out {r.borrowed} · {r.onTime ? "returned" : "back on the shelf when due"} {r.returned}
               </p>
+              {finished[r.slug] !== undefined && (
+                <p className="mt-0.5">
+                  {notes === "library" ? (
+                    <a href={`/ledger/notes?work=${encodeURIComponent(r.slug)}`} className="font-sans text-xs text-lamplight underline underline-offset-2">Notes for this book<span className="sr-only">: {r.title}</span></a>
+                  ) : <PreviewNotesExport slug={r.slug} title={r.title} />}
+                </p>
+              )}
             </div>
             <Link href={`/works/${r.slug}`} className="rounded border border-timber px-3 py-1.5 font-sans text-xs font-semibold text-paper hover:border-ochre hover:text-lamplight">
               Borrow again<span className="sr-only">: {r.title}</span>

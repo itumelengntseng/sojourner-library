@@ -35,10 +35,10 @@ async function LoanShelf() {
 }
 
 /** "Recently returned", with a Finished mark on books read to the end (C70). */
-async function ReturnedShelf() {
+async function ReturnedShelf({ notes = "preview" }: { notes?: "library" | "preview" }) {
   const items = await myRecentlyReturned();
   if (items.length === 0) return null;
-  return <RecentlyReturned items={items} finished={await myFinishes(items.map((r) => r.slug))} />;
+  return <RecentlyReturned items={items} finished={await myFinishes(items.map((r) => r.slug))} notes={notes} />;
 }
 
 export default async function CardPage() {
@@ -87,7 +87,7 @@ export default async function CardPage() {
       <WeekLine week={await myWeek()} />
       <ContinueReading card={await myContinueReading()} className="w-full" />
       <LoanShelf />
-      <ReturnedShelf />
+      <ReturnedShelf notes="library" />
       <PrefsForm name={card.display_name ?? ""} wpm={(card as ReaderCard & { wpm_override?: number | null }).wpm_override ?? null} />
       <form action={signOut}>
         <button className="font-sans text-sm text-sandstone underline underline-offset-4 hover:text-lamplight">Sign out</button>
