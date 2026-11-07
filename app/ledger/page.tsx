@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
-import { finishedBooks, finishedStamp, formatHours, historyPage } from "@/lib/ledger";
+import { finishedBooks, finishedStamp, formatHours, historyPage, type FinishInfo } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
 import { myOpenLoans } from "@/lib/loanStore";
@@ -35,6 +35,8 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
   const borrowAgain = (k: string) => (l.slugs[k] && !onLoan.has(l.slugs[k]) ? `/works/${l.slugs[k]}` : null);
   const link = (k: string) => (l.slugs[k] ? `/works/${l.slugs[k]}` : null);
   const finished = finishedBooks(l.hours);
+  // C94: preview downloads add the Finished line to finished books (library mode does it on the server).
+  const finishMap: Record<string, FinishInfo> = Object.fromEntries(finished.flatMap((f) => (l.slugs[f.workKey] ? [[l.slugs[f.workKey], { at: f.finishedAt, firstRead: f.firstRead }]] : [])));
   const tiles: { label: string; value: string; note?: string; href?: string }[] = [
     { label: "Current run", value: `${l.streaks.current} day${l.streaks.current === 1 ? "" : "s"}`, note: l.streaks.readToday ? "read today" : l.streaks.current ? "read today to keep it" : "start one today" },
     { label: "Longest run", value: `${l.streaks.longest} day${l.streaks.longest === 1 ? "" : "s"}` },
@@ -65,7 +67,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
 
       {l.totalMs > 0 && l.months.length > 0 && <ReadingByMonth months={l.months} />}
 
-      <FinishedShelf items={finished} title={title} href={link} slug={(k) => l.slugs[k] ?? null} notes={l.mode === "preview" ? "preview" : "library"} borrowAgain={borrowAgain} />
+      <FinishedShelf items={finished} title={title} href={link} slug={(k) => l.slugs[k] ?? null} notes={l.mode === "preview" ? "preview" : "library"} borrowAgain={borrowAgain} finishInfo={finishMap} />
 
       <section aria-labelledby="hours" className="mt-12">
         <h2 id="hours" className="text-xl text-paper">Hours per book</h2>
@@ -92,7 +94,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
                     })()}
                     {l.slugs[h.workKey] && (
                       <div className="mt-0.5">
-                        {l.mode === "preview" ? <PreviewNotesExport slug={l.slugs[h.workKey]} title={title(h.workKey)} /> : (
+                        {l.mode === "preview" ? <PreviewNotesExport slug={l.slugs[h.workKey]} title={title(h.workKey)} finished={finishMap} /> : (
                           <a href={`/ledger/notes?work=${encodeURIComponent(l.slugs[h.workKey])}`} className="font-sans text-xs text-lamplight underline underline-offset-2">Notes for this book<span className="sr-only">: {title(h.workKey)}</span></a>
                         )}
                       </div>
@@ -136,7 +138,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
         <h2 id="export" className="text-xl text-paper">Your notes</h2>
         <p className="mt-2 font-sans text-sm text-sandstone">Take your margin notes and highlights with you as a Markdown file.</p>
         <div className="mt-4">
-          {l.mode === "preview" ? <PreviewNotesExport /> : (
+          {l.mode === "preview" ? <PreviewNotesExport finished={finishMap} /> : (
             <a href="/ledger/notes" className="inline-block rounded bg-lamplight px-4 py-2 font-sans text-sm font-semibold text-ink hover:bg-ember">Export my notes (Markdown)</a>
           )}
         </div>

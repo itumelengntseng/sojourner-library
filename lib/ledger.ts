@@ -222,6 +222,16 @@ export interface ExportWork {
   title: string;
   author: string;
   chapters: ExportChapter[];
+  /** C94: when the reader read it to the end (and their first session in it), from their own sessions. */
+  finished?: FinishInfo;
+}
+
+export interface FinishInfo { at: number; firstRead?: number }
+
+/** C94: "Finished 5 Nov 2026 · read over 9 days" — the line under a finished book's heading in the notes file. */
+export function finishedNoteLine(f: FinishInfo): string {
+  const span = finishSpan(f.firstRead, f.at);
+  return `${finishedStamp(f.at)}${span ? ` · read ${span}` : ""}`;
 }
 
 const quote = (t: string) => t.split("\n").map((l) => `> ${l}`).join("\n");
@@ -244,6 +254,7 @@ export function notesMarkdown(works: ExportWork[], exportedAt: number, readerNam
   if (withContent.length === 0) out.push("_No notes or highlights yet._", "");
   for (const w of withContent) {
     out.push(`## ${w.title}`, ``, `_by ${w.author.trim() || AUTHOR}_`, ``);
+    if (w.finished && Number.isFinite(w.finished.at)) out.push(finishedNoteLine(w.finished), ``);
     for (const c of [...w.chapters].sort((a, b) => a.position - b.position)) {
       if (!c.notes.length && !c.highlights.length) continue;
       out.push(`### ${chapterHeading(c)}`, ``);

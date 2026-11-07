@@ -110,12 +110,16 @@ export async function exportNotes(slug?: string): Promise<string | null> {
   const [{ data: chapters }, { data: texts }, { data: works }] = await Promise.all([
     supabase.from("chapters").select("id, work_id, position, title").in("id", chapterIds),
     supabase.from("chapter_texts").select("chapter_id, body_md").in("chapter_id", chapterIds), // only books on loan
-    supabase.from("works").select("id, title, author").in("id", workIds),
+    supabase.from("works").select("id, slug, title, author").in("id", workIds),
   ]);
+  // C94: a finished book's heading carries its Finished line (own sessions only).
+  const workSlugs = (works ?? []).map((w) => w.slug as string);
+  const [finishes, firsts] = await Promise.all([myFinishes(workSlugs), myFirstReads(workSlugs)]);
   const body = new Map((texts ?? []).map((t) => [t.chapter_id as string, t.body_md as string]));
   const out: ExportWork[] = (works ?? []).map((w) => ({
     title: w.title as string,
     author: w.author as string,
+    ...(finishes[w.slug as string] !== undefined ? { finished: { at: finishes[w.slug as string], firstRead: firsts[w.slug as string] } } : {}),
     chapters: (chapters ?? []).filter((c) => c.work_id === w.id).map((c) => {
       const text = body.get(c.id as string);
       const paras = text ? splitParagraphs(text) : [];

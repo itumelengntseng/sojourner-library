@@ -1,14 +1,16 @@
 "use client";
 
 import { getWorks } from "@/lib/catalogue";
-import { notesFilename, notesMarkdown, type ExportWork } from "@/lib/ledger";
+import { notesFilename, notesMarkdown, type ExportWork, type FinishInfo } from "@/lib/ledger";
 import { splitParagraphs, type Highlight, type MarginNote } from "@/lib/reader";
 
 /** Preview mode: notes live in this browser, so the export is built here too. */
-export function buildPreviewExport(read: (key: string) => string | null, now: number, slug?: string): string {
+// C94: `finished` (slug → finish, from the server's read of this browser's sessions) adds the Finished line.
+export function buildPreviewExport(read: (key: string) => string | null, now: number, slug?: string, finished: Record<string, FinishInfo> = {}): string {
   const works: ExportWork[] = getWorks().filter((w) => !slug || w.slug === slug).map((w) => ({
     title: w.title,
     author: w.author,
+    ...(finished[w.slug] ? { finished: finished[w.slug] } : {}),
     chapters: w.chapters.map((c) => {
       let saved: { notes?: MarginNote[]; highlights?: Highlight[] } = {};
       try { saved = JSON.parse(read(`soj:ann:${w.slug}:${c.position}`) ?? "{}"); } catch { /* skip damaged */ }
@@ -29,9 +31,9 @@ export function buildPreviewExport(read: (key: string) => string | null, now: nu
   return notesMarkdown(works, now);
 }
 
-export function PreviewNotesExport({ slug, title }: { slug?: string; title?: string } = {}) {
+export function PreviewNotesExport({ slug, title, finished }: { slug?: string; title?: string; finished?: Record<string, FinishInfo> } = {}) {
   const download = () => {
-    const md = buildPreviewExport((k) => { try { return localStorage.getItem(k); } catch { return null; } }, Date.now(), slug);
+    const md = buildPreviewExport((k) => { try { return localStorage.getItem(k); } catch { return null; } }, Date.now(), slug, finished);
     const url = URL.createObjectURL(new Blob([md], { type: "text/markdown" }));
     const a = Object.assign(document.createElement("a"), { href: url, download: notesFilename(slug, Date.now()) });
     a.click();

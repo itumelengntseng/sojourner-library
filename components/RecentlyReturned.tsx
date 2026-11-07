@@ -37,7 +37,7 @@ export function RecentlyReturned({ items, finished = {}, notes = "preview", firs
                 <p className="mt-0.5">
                   {notes === "library" ? (
                     <a href={`/ledger/notes?work=${encodeURIComponent(r.slug)}`} className="font-sans text-xs text-lamplight underline underline-offset-2">Notes for this book<span className="sr-only">: {r.title}</span></a>
-                  ) : <PreviewNotesExport slug={r.slug} title={r.title} />}
+                  ) : <PreviewNotesExport slug={r.slug} title={r.title} finished={{ [r.slug]: { at: finished[r.slug], firstRead: firstRead[r.slug] } }} />}
                 </p>
               )}
             </div>

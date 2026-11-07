@@ -82,7 +82,7 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
               <dd className="font-sans text-[0.65rem] text-sandstone/80">{paceNote(pace)}</dd>
             </div>
           </dl>
-          <YourNotes slug={work.slug} title={work.title} positions={work.chapters.map((c) => c.position)} counts={annotations} />
+          <YourNotes slug={work.slug} title={work.title} positions={work.chapters.map((c) => c.position)} counts={annotations} finished={finished !== undefined ? { at: finished, firstRead } : undefined} />
           {work.isPlaceholder && (
             <p className="mt-4 font-sans text-xs text-sandstone/80">Placeholder text — the manuscript has not arrived yet.</p>
           )}
