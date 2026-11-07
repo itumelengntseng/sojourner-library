@@ -163,6 +163,25 @@ export async function myFinish(slug: string): Promise<number | undefined> {
   return finishedAt(sessions, { key: last.id as string, words: last.word_count as number });
 }
 
+/** C86: when the reader's first session in `slug` ended (own sessions only) — the start of "read over N days". */
+export async function myFirstRead(slug: string): Promise<number | undefined> {
+  const supabase = await supabaseServer();
+  if (!supabase) {
+    const times = parseStoredStats((await cookies()).get(PREVIEW_SESSIONS_COOKIE)?.value)
+      .filter((s) => s.slug === slug && Number.isFinite(s.endedAt)).map((s) => s.endedAt);
+    return times.length ? Math.min(...times) : undefined;
+  }
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return undefined;
+  const { data: work } = await supabase.from("works").select("id").eq("slug", slug).maybeSingle();
+  if (!work) return undefined;
+  const { data: first } = await supabase.from("sessions").select("started_at, ended_at")
+    .eq("reader_id", auth.user.id).eq("work_id", work.id).order("started_at", { ascending: true }).limit(1).maybeSingle();
+  if (!first) return undefined;
+  const at = Date.parse((first.ended_at ?? first.started_at) as string);
+  return Number.isFinite(at) ? at : undefined;
+}
+
 /** Positions of the chapters of `slug` the reader has read through, from their own sessions (C28). */
 export async function myChaptersRead(slug: string): Promise<number[]> {
   const supabase = await supabaseServer();

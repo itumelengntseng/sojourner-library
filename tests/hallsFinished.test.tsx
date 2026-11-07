@@ -56,6 +56,6 @@ describe("work page finished stamp links to the ledger (C82)", () => {
     expect(FINISHED_SHELF).toBe("/ledger#finished");
     const shelf = renderToStaticMarkup(<FinishedShelf items={[{ workKey: "w", finishedAt: 1 }]} title={() => "P"} href={() => null} />);
     expect(shelf).toContain('id="finished"');
-    expect(readFileSync("app/works/[slug]/page.tsx", "utf8")).toMatch(/<Link href=\{FINISHED_SHELF\}[^>]*>\s*You finished this/);
+    expect(readFileSync("app/works/[slug]/page.tsx", "utf8")).toMatch(/<Link href=\{FINISHED_SHELF\}[^>]*>\s*\{finishedStampLine\(finished, firstRead\)\}/);
   });
 });

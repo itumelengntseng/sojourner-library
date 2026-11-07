@@ -277,5 +277,11 @@ export function finishedDate(ms: number): string {
   return new Date(ms).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" });
 }
 
+/** C86: the work page's stamp — "You finished this · 5 Nov 2026 · read over 9 days" (span only when the first session is known). */
+export function finishedStampLine(finished: number, firstRead?: number): string {
+  const span = finishSpan(firstRead, finished);
+  return `You finished this · ${finishedDate(finished)}${span ? ` · read ${span}` : ""}`;
+}
+
 /** Where the ledger's "Read to the end" shelf lives (C82; the shelf's heading carries id="finished"). */
 export const FINISHED_SHELF = "/ledger#finished";

@@ -12,14 +12,14 @@ import { latestLoan } from "@/lib/loanDesk";
 import { loadDesk } from "@/lib/loanStore";
 import { outsideCanonNote } from "@/lib/canon";
 import { myPace } from "@/lib/sessionStore";
-import { myAnnotationCount, myChaptersRead, myFinish } from "@/lib/ledgerStore";
+import { myAnnotationCount, myChaptersRead, myFinish, myFirstRead } from "@/lib/ledgerStore";
 import { YourNotes } from "@/components/YourNotes";
 import { myContinueReading } from "@/lib/continueStore";
 import { ChapterMarks } from "@/components/ChapterMarks";
 import { locateBookmark } from "@/lib/reader";
 import { paceNote } from "@/lib/sessions";
 import { CANON_LABEL, formatWords, workStats } from "@/lib/workStats";
-import { finishedDate, FINISHED_SHELF } from "@/lib/ledger";
+import { FINISHED_SHELF, finishedStampLine } from "@/lib/ledger";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const work = await findWork((await params).slug);
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function WorkPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const work = await findWork((await params).slug);
   if (!work) notFound();
-  const [desk, pace, finished, readPositions, annotations, continueAt] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug), myAnnotationCount(work.slug), myContinueReading(work.slug)]);
+  const [desk, pace, finished, readPositions, annotations, continueAt, firstRead] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug), myAnnotationCount(work.slug), myContinueReading(work.slug), myFirstRead(work.slug)]);
   const stats = workStats(work, pace.wpm);
   const facts = librarianFacts({
     chapters: stats.chapters,
@@ -60,9 +60,9 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
           <p className="mt-1 font-sans text-sm uppercase tracking-[0.2em] text-sandstone">by {work.author}</p>
           {finished !== undefined && (
             <p className="mt-3">
-              {/* C82: the stamp leads to the ledger's "Read to the end" shelf. */}
+              {/* C82: the stamp leads to the ledger's "Read to the end" shelf; C86: it says how long the book took. */}
               <Link href={FINISHED_SHELF} className="inline-block -rotate-2 rounded-sm border border-lamplight/70 px-2 py-0.5 font-mono text-xs uppercase tracking-wider text-lamplight hover:border-ember hover:text-ember">
-                You finished this · {finishedDate(finished)}<span className="sr-only"> — see it in your ledger</span>
+                {finishedStampLine(finished, firstRead)}<span className="sr-only"> — see it in your ledger</span>
               </Link>
             </p>
           )}
