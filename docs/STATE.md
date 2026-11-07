@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 10 — C122–C127, QA38–QA39; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 10 — C122–C130, QA38–QA40; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -189,10 +189,14 @@ _Last updated: 2026-11-07 (scheduled build run 10 — C122–C127, QA38–QA39; 
 - C126 — Card page: "Recently returned · 3" with two or more lines (one line keeps the plain heading). Unit-tested.
 - C127 — Ledger Borrowing history: a loan the reader handed back within the hour reads "Just returned" (stamp in its spoken label); history rows now carry `onTime`. Loans that ran out keep their stamp. Unit-tested.
 - QA39 (2026-11-07, after C125–C127): `npm run qa` all clear — now also requires the ledger history's "Just returned" and the card heading's count when Recently returned has two or more lines (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 40 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 538 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA39).
+- C128 — Writer's Room loans tile: the "· N due back within the day" part sits in ember after the plain note (`urgentNote` on the glance tile). Unit-tested.
+- C129 — Work page: a book the reader handed back within the hour (and not out again) shows "Just returned · borrow it again below" under the title, linking to the desk; screen readers hear the return stamp (`justReturnedLoan()`). Unit-tested.
+- C130 — Pitch Room: each kit's share links list open ones first (soonest closing first), then closed/expired, under "2 open · 5 shared in all" (`orderLinks()`). Unit-tested (preview has no share links).
+- QA40 (2026-11-07, after C128–C130): `npm run qa` all clear — now also requires the ember due part on the Writer's Room tile and the work page's Just returned line (borrow → return → revisit at 375px, axe clean). Found and fixed: the returned slip's "Back on the shelf" status was 4.29:1 on paper (`text-ink/60` → `/75` in `DueDateSlip`). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 545 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA40).
 
 ## Next task
-C128 — Writer's Room loans tile: the "due back within the day" part in ember (BACKLOG.md → FOLLOW-UPS), then C129, C130, QA40. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C131 — front hall Continue reading card after a return within the hour (BACKLOG.md → FOLLOW-UPS), then C132, C133, QA41. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.

@@ -5,7 +5,7 @@ import type { Slip } from "@/lib/loanDesk";
 export function DueDateSlip({ slip, title }: { slip: Slip; title: string }) {
   const tone =
     slip.status === "due_soon" ? "text-ember" :
-    slip.status === "active" ? "text-timber" : "text-ink/60";
+    slip.status === "active" ? "text-timber" : "text-ink/75";
   const stamps: { label: string; value: string }[] = [
     { label: "Borrowed", value: slip.borrowed },
     ...(slip.renewals > 0 ? [{ label: "Renewed", value: `${slip.renewals}×` }] : []),

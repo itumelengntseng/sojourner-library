@@ -184,7 +184,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C126 Card page "Recently returned": with two or more lines, the heading carries the count ("Recently returned · 3"), like C116/C119.
 - [x] C127 Ledger Borrowing history: a loan the reader returned within the last hour reads "Just returned" (reuse `justReturned()`), stamp kept in its spoken label.
 - [x] QA39 QA pass after C125–C127.
-- [ ] C128 Writer's Room glance: when some loans are due back within the day, that part of the "Out on loan now" note turns ember (the ledger tile's urgent look), counts only.
-- [ ] C129 Work page: a book the reader handed back within the hour shows "Just returned · borrow it again below" under the title (reuse `justReturned()`), linking to the desk.
-- [ ] C130 Pitch Room: each kit's share links list open links first (soonest closing first), then closed/expired, with "N open" before the list.
-- [ ] QA40 QA pass after C128–C130.
+- [x] C128 Writer's Room glance: when some loans are due back within the day, that part of the "Out on loan now" note turns ember (the ledger tile's urgent look), counts only.
+- [x] C129 Work page: a book the reader handed back within the hour shows "Just returned · borrow it again below" under the title (reuse `justReturned()`), linking to the desk.
+- [x] C130 Pitch Room: each kit's share links list open links first (soonest closing first), then closed/expired, with "N open" before the list.
+- [x] QA40 QA pass after C128–C130.
+- [ ] C131 Front hall "Continue reading": if the reader returned the Continue book within the hour, the card says "Just returned — borrow it again to keep reading" instead of the reading-room link.
+- [ ] C132 Halls: a spine for a book the reader handed back within the hour carries a quiet "just returned" in its spoken label and a lamplight tick (no new data).
+- [ ] C133 Pitch Room: the "N open · M shared in all" line also says "1 closes today" when any open link is on its last day (reuse `lastDayLabel()`).
+- [ ] QA41 QA pass after C131–C133.

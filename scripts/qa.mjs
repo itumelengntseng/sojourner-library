@@ -564,6 +564,20 @@ for (const width of WIDTHS) {
   await p2.close();
 }
 
+// QA40 (C129): a book handed back this hour says so under its title, pointing to the desk.
+await page.setViewportSize({ width: 375, height: 900 });
+errors.length = 0;
+await page.goto(`${BASE}/works/placeholder-work-three`);
+if (await page.getByRole("button", { name: "Borrow this work" }).count()) {
+  await page.getByRole("button", { name: "Borrow this work" }).click();
+  await page.getByRole("button", { name: "Return to shelf" }).waitFor();
+}
+await page.getByRole("button", { name: "Return to shelf" }).click();
+await page.getByRole("button", { name: "Return to shelf" }).waitFor({ state: "detached" });
+await page.goto(`${BASE}/works/placeholder-work-three`);
+if (!(await page.locator("a[href='#desk']", { hasText: /Just returned.*· borrow it again below$/ }).count())) { failures++; console.log("✗ work page without the Just returned line"); }
+await axeCheck("375px work page just returned");
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);
