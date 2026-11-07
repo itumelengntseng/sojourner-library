@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 8 — C83–C94, QA25–QA28; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 8 — C83–C97, QA25–QA29; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -145,10 +145,14 @@ _Last updated: 2026-11-07 (scheduled build run 8 — C83–C94, QA25–QA28; `pr
 - C93 — Recently returned's Finished mark adds "· read over 9 days" (`myFirstReads(slugs)` in `lib/ledgerStore.ts` — one pass: the cookie once in preview, two queries in library mode; own sessions only). Unit-tested (`tests/returnedSpan.test.tsx`).
 - C94 — Notes export: a finished book's section opens with "Finished 5 Nov 2026 · read over 9 days" under its byline (`finishedNoteLine()`, `ExportWork.finished` in `lib/ledger.ts`). Library export computes it on the server from the reader's own sessions; preview downloads get it from the page (`finished` prop on `PreviewNotesExport`, passed by the ledger, the card, the Read to the end shelf and the work page's Your notes). Unfinished books get nothing. Unit-tested (`tests/notesFinished.test.tsx`).
 - QA28 (2026-11-07, after C92–C94): `npm run qa` all clear — now also opens the card's notes download and requires the Finished line in it, requires "· read …" on Recently returned, and returns the book then checks Borrow again on the ledger shelf (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (15/15; the new reads filter to the reader's own sessions and RLS enforces it).
-- Tests: 476 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA28).
+- C95 — Continue reading card (`components/ContinueReading.tsx` `bookLeft` prop; front hall and the card page's new `ContinueShelf`): "Chapter 2 · 9 min left in this chapter · about 25 min left in this book". The front hall now reads `myBookLeft()` once for both the card and the due-soon slip. Unit-tested.
+- C96 — "Due soon" mark on the card's On loan now (`components/OnLoanNow.tsx` `dueSoon` prop, `LoanShelf` in `app/card/page.tsx` via `dueBackSoon()` — the front hall slip's rule, due within 24 h); spoken "Due soon: back by <due>". Unit-tested.
+- C97 — Ledger Borrowing history (`finishedDuring()` in `lib/ledger.ts`, `app/ledger/page.tsx`): the loan during which the reader read the book to the end carries the Finished stamp (later rereads don't). Unit-tested (`tests/ledgerTile.test.tsx`).
+- QA29 (2026-11-07, after C95–C97): `npm run qa` all clear — now also requires the Continue reading card's time left in the book, the card's Due soon mark (the hour-long loan from C83) and the Finished stamp in Borrowing history (375px + 1280px). Fixed in the QA script itself: the synthetic "read to the end" session was stamped a minute in the past, which could fall before the sweep's own borrow — it is now stamped a second ago, inside the open loan. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 481 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA29).
 
 ## Next task
-C95 — the front hall's Continue reading card adds the time left in the book (BACKLOG.md → FOLLOW-UPS), then C96, C97, QA29. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C98 — Borrowing history titles link to their work pages (BACKLOG.md → FOLLOW-UPS), then C99, C100, QA30. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -206,6 +210,7 @@ C95 — the front hall's Continue reading card adds the time left in the book (B
 - The borrow form's remembered period (C44) is per browser, like the reader settings.
 - "Hold the covers still" is per browser (localStorage), like the reader settings; the device's reduced-motion setting still applies on its own.
 - Notes downloads are named with the SA export date (C81).
+- In Borrowing history the Finished stamp sits on the loan during which the finish happened (C97); a finish recorded outside any loan (e.g. the Keeper's proof copy, which isn't recorded anyway) stamps no row.
 - "How long it took" (C85) counts SA calendar days from the end of the reader's first session in the book to the finishing session ("in a day" when both fall on one day). In preview mode only the last 40 session summaries are kept, and the library-mode ledger reads the last 400 days, so a long-ago start may be counted from a later session (the work page and end card read the true first session in library mode).
 - The notes file is titled "Notes on the works of Itumeleng Ntseng" (C68); the reader's name and the export date follow on the next line.
 - A book counts as "read" on the halls by the same rule as the ledger's finished stamp (C13); the halls show the mark only to the reader who finished it.

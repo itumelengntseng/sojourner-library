@@ -140,7 +140,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C93 Card page "Recently returned": the Finished mark adds how long it took ("· read over 9 days"), reusing `finishSpan()` with the reader's first session per book (own sessions; one pass for all rows).
 - [x] C94 Notes export (Markdown): under a finished book's heading, one line "Finished 5 Nov 2026 · read over 9 days" (own sessions; full and per-book file alike; nothing for unfinished books).
 - [x] QA28 QA pass after C92–C94.
-- [ ] C95 Front hall "Continue reading" card: add "· about N min left in this book" after the chapter's time left (reuse `myBookLeft` / `inline()`; own loan only).
-- [ ] C96 Card page "On loan now": a loan due within 24 hours carries a small "Due soon" mark (same rule as the front hall slip, `dueBackSoon()`), with the due time in its spoken label.
-- [ ] C97 Ledger "Borrowing history": a row whose book the reader has read to the end carries the small Finished stamp (reuse `finishedStamp()`; own sessions).
-- [ ] QA29 QA pass after C95–C97.
+- [x] C95 Front hall "Continue reading" card: add "· about N min left in this book" after the chapter's time left (reuse `myBookLeft` / `inline()`; own loan only).
+- [x] C96 Card page "On loan now": a loan due within 24 hours carries a small "Due soon" mark (same rule as the front hall slip, `dueBackSoon()`), with the due time in its spoken label.
+- [x] C97 Ledger "Borrowing history": a row whose book the reader has read to the end carries the small Finished stamp (reuse `finishedStamp()`; own sessions).
+- [x] QA29 QA pass after C95–C97.
+- [ ] C98 Ledger "Borrowing history": each title links to its work page when the work is still on the shelves (plain text otherwise, as now).
+- [ ] C99 Halls: a spine on loan due back within the day (same rule as the front hall slip) shows a small "due soon" band, and its spoken text says "due back within the day".
+- [ ] C100 Card page "On loan now": a Due soon loan offers "Renew" linking to its work page's loan desk (`/works/<slug>#loan-desk`; add that anchor to the desk).
+- [ ] QA30 QA pass after C98–C100.

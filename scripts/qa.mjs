@@ -274,11 +274,11 @@ for (const width of WIDTHS) {
   }
 }
 
-// C41: the ledger with a book read to the end (a session through the last chapter).
+// C41: the ledger with a book read to the end (a session through the last chapter, just now — during the open loan, C97).
 for (const width of WIDTHS) {
   await page.setViewportSize({ width, height: 900 });
   errors.length = 0;
-  await ctx.addCookies([{ name: "soj_preview_sessions", value: encodeURIComponent(JSON.stringify([{ id: "qa-f", slug: "placeholder-work-one", position: 6, wordsRead: 99999, activeMs: 600000, endedAt: Date.now() - 60000 }])), url: BASE }]);
+  await ctx.addCookies([{ name: "soj_preview_sessions", value: encodeURIComponent(JSON.stringify([{ id: "qa-f", slug: "placeholder-work-one", position: 6, wordsRead: 99999, activeMs: 600000, endedAt: Date.now() - 1000 }])), url: BASE }]);
   await page.goto(`${BASE}/ledger`);
   await page.getByRole("region", { name: "Read to the end" }).waitFor();
   await axeCheck(`${width}px ledger with a finished book`);
@@ -417,7 +417,14 @@ for (const width of WIDTHS) {
     if (!(await slip.getByRole("link", { name: "Placeholder Work Two" }).count())) { failures++; console.log(`✗ ${width}px due-soon slip doesn't list the book due within the hour`); }
     if (!(await slip.getByText(/left in this book|At the end of this book/).count())) { failures++; console.log(`✗ ${width}px due-soon slip without the time left in the book`); }
   }
+  // QA29 (C95): the Continue reading card adds the time left in the book.
+  if (!(await page.getByRole("region", { name: "Continue reading" }).getByText(/left in this book|at the end of this book/).count())) { failures++; console.log(`✗ ${width}px Continue reading card without the time left in the book`); }
   await axeCheck(`${width}px front hall with the due-soon slip`);
+  // QA29 (C96): the front desk marks the loan due back within the hour.
+  errors.length = 0;
+  await page.goto(`${BASE}/card`);
+  if (!(await page.getByRole("region", { name: "On loan now" }).getByText("Due soon").count())) { failures++; console.log(`✗ ${width}px card: no Due soon mark on the loan due within the hour`); }
+  await axeCheck(`${width}px card with a Due soon mark`);
   errors.length = 0;
   await page.goto(`${BASE}/works/placeholder-work-one`);
   // QA26 (C86): the stamp says how long the book took.
@@ -425,6 +432,8 @@ for (const width of WIDTHS) {
   await page.getByRole("link", { name: /You finished this/ }).click();
   await page.waitForURL(/\/ledger#finished$/);
   await page.getByRole("heading", { name: "Read to the end" }).waitFor();
+  // QA29 (C97): the loan during which the book was finished carries the stamp in Borrowing history.
+  if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/^Finished /).count())) { failures++; console.log(`✗ ${width}px ledger Borrowing history without the Finished stamp`); }
   // QA27 (C89, C91): the shelf offers each book's notes, and the top tile counts the finished books.
   if (!(await page.getByRole("region", { name: "Read to the end" }).getByRole("button", { name: /Notes for this book/ }).count())) { failures++; console.log(`✗ ${width}px ledger Read to the end without Notes for this book`); }
   if (!(await page.locator("a[href='#finished']").count())) { failures++; console.log(`✗ ${width}px ledger without the Read to the end tile`); }
