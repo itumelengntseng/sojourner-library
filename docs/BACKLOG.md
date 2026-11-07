@@ -84,8 +84,12 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C51 Search the shelves also matches chapter titles (titles only — never chapter text), showing "chapter: <title>" under the matching work.
 - [x] C52 Reading room Contents drawer: a "Go to your bookmark" link at the top when the reader has one (not in the proof copy).
 - [x] QA14 QA pass after C50–C52.
-- [ ] C53 Front hall: a small "Search the shelves" box (plain GET form to `/halls?q=`, works without JavaScript; keeps the canon choice).
-- [ ] C54 Work page Contents: when the reader has the book out, each chapter title links straight into the reading room at that chapter (`/read?ch=N`); otherwise plain text as now.
-- [ ] C55 Halls: under each hall's name, "N works · about H h to read at your pace" (what the reader can see, canon switch respected).
-- [ ] QA15 QA pass after C53–C55.
+- [x] C53 Front hall: a small "Search the shelves" box (plain GET form to `/halls?q=`, works without JavaScript; keeps the canon choice).
+- [x] C54 Work page Contents: when the reader has the book out, each chapter title links straight into the reading room at that chapter (`/read?ch=N`); otherwise plain text as now.
+- [x] C55 Halls: under each hall's name, "N works · about H h to read at your pace" (what the reader can see, canon switch respected).
+- [x] QA15 QA pass after C53–C55.
+- [ ] C56 Ledger: a "This week" tile — minutes read in the last 7 SA days and on how many of them (own sessions; no new data).
+- [ ] C57 Reading room Contents: a line at the top "About N left in this book" at the reader's pace (this chapter's remaining minutes + the chapters after it). Not in the proof copy.
+- [ ] C58 Family wall: a "Find a person" box filtering the plaques by name (client-side over what's shown; respects the canon switch; no new data).
+- [ ] QA16 QA pass after C56–C58.
 

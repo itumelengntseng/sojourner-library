@@ -51,3 +51,19 @@ describe("halls table", () => {
     await db.query(`insert into works (slug, title, hall) values ('placeholder-h', 'H', 'placeholder-east')`);
   });
 });
+
+describe("C55 hall summary", async () => {
+  const { hallSummary } = await import("@/lib/workStats");
+  const { getWorks } = await import("@/lib/catalogue");
+  const works = getWorks();
+  it("counts works and reading time at the given pace", () => {
+    const one = hallSummary(works.slice(0, 1), 230);
+    expect(one).toMatch(/^1 work · about .+ to read at a usual pace$/);
+    expect(hallSummary(works, 230, true)).toMatch(new RegExp(`^${works.length} works · about .+ at your pace$`));
+  });
+  it("a faster pace means less time; empty shelf says nothing", () => {
+    const mins = (s: string) => { const m = s.match(/about (?:(\d+) h)? ?(?:(\d+) min)?/)!; return Number(m[1] ?? 0) * 60 + Number(m[2] ?? 0); };
+    expect(mins(hallSummary(works, 460))).toBeLessThan(mins(hallSummary(works, 230)));
+    expect(hallSummary([], 230)).toBe("");
+  });
+});

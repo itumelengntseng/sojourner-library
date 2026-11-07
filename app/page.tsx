@@ -11,6 +11,7 @@ import { DESK_TIME_ZONE, dueBackSoon, splitDueSoon } from "@/lib/loanDesk";
 import { myOpenLoans } from "@/lib/loanStore";
 import { DueSoonSlip } from "@/components/DueSoonSlip";
 import { ContinueReading } from "@/components/ContinueReading";
+import { FrontHallSearch } from "@/components/FrontHallSearch";
 import { myContinueReading } from "@/lib/continueStore";
 
 // The front hall: you step over the threshold and the covers are lit along the wall.
@@ -68,6 +69,8 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
           </ul>
         </section>
       )}
+
+      {works.length > 0 && <FrontHallSearch />}
 
       <div className="mt-12 flex flex-wrap justify-center gap-4">
         <Link href="/halls" className="rounded border border-sandstone/50 px-5 py-2 font-sans text-sm text-paper hover:border-lamplight">

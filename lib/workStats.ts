@@ -45,3 +45,10 @@ export const CANON_LABEL: Record<CanonStatus, string> = {
 export function formatWords(n: number): string {
   return `${n.toLocaleString("en-ZA").replace(/ /g, " ")} words`;
 }
+
+/** C55: "2 works · about 3 h 10 min to read at your pace" for a hall's shelf; "" when it's empty. */
+export function hallSummary(works: Work[], wpm = DEFAULT_WPM, learned = false): string {
+  if (works.length === 0) return "";
+  const words = works.reduce((s, w) => s + workStats(w, wpm).words, 0);
+  return `${works.length} ${works.length === 1 ? "work" : "works"} · about ${formatDuration(minutesFor(words, wpm))} to read ${learned ? "at your pace" : "at a usual pace"}`;
+}

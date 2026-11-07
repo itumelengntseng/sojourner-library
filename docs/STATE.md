@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 6 — C48–C52, QA13–QA14 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 6 — C48–C55, QA13–QA15 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -89,10 +89,14 @@ _Last updated: 2026-11-07 (scheduled build run 6 — C48–C52, QA13–QA14 so f
 - C51 — Search matches chapter titles (`searchShelves()` + `chapterHits()` in `lib/shelfSearch.ts`, `/halls?q=`): the halls search now also looks in a work's chapter titles (never chapter text). Under each hall's shelf, works found through a chapter title get a line "<work> · chapter: <title>" (up to 3 per work), shown only for the words the work's own details don't already match — so "placeholder" doesn't list every "Chapter 1". Unit-tested (titles yes, text no, split words, cap 3); smoke-tested at 375px: "chapter 5" → 1 work, "Placeholder Work One · chapter: Chapter 5"; no sideways scroll, no errors.
 - C52 — "Go to your bookmark" in the reading room's Contents (`showBookmark` in `components/ReaderView.tsx`): at the top of the drawer when the reader has a bookmark — in the bookmark's chapter a button that closes the drawer and turns/scrolls to it (paged or scroll); in any other chapter a link to the reading room (which resumes at the bookmark), naming the chapter. Not in the proof copy, nothing without a bookmark. Unit-tested (`tests/contentsTicks.test.tsx`); smoke-tested at 375px in preview: bookmark in chapter 2 → from chapter 1 the link opens chapter 2 at the bookmark → the button brings it back after scrolling away; no errors.
 - QA14 (2026-11-07, after C50–C52): `npm run qa` all clear — now also sweeps `/halls?q=chapter+5` (chapter-title hits) and the reading room with Contents open and Go to your bookmark (375px + 1280px); the card page with Continue at lines is covered by the existing card sweep. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 57 KB. No migration → RLS audit unchanged.
-- Tests: 392 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA14).
+- C53 — Search from the front hall (`components/FrontHallSearch.tsx`): a labelled "Search the shelves" box above the hall links (plain GET form to `/halls?q=`, works without JavaScript, canon choice follows by its cookie); shown when there are works on the wall. The halls' placeholder text now says "Search titles, chapters, halls…". Smoke-tested at 375px: type "chapter 5" + Enter → halls with "1 work matches".
+- C54 — Chapter links on the work page (`app/works/[slug]/page.tsx`): when the reader has the book out, each chapter title in Contents links straight into the reading room at that chapter (`/read?ch=N`, spoken "— open in the reading room"); otherwise plain text as before. Smoke-tested at 375px: no links before borrowing → 6 links after → chapter 4 opens `?ch=4`; swept by `npm run qa` (work page with the book out, both widths).
+- C55 — Hall summary (`hallSummary()` in `lib/workStats.ts`, `/halls`): under each hall's name, "2 works · about 1 h 37 min to read at a usual pace" — "at your pace" once the library has learned it (or the reader set one); counts what's on that shelf as shown (canon switch and search respected). The spines' spoken reading time now uses the reader's pace too. Unit-tested.
+- QA15 (2026-11-07, after C53–C55): `npm run qa` all clear (front hall with the search box, halls with summaries, work page with chapter links — both widths). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 58 KB. No migration → RLS audit unchanged.
+- Tests: 395 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA15).
 
 ## Next task
-C53 — search box on the front hall (BACKLOG.md → FOLLOW-UPS), then C54, C55, QA15. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C56 — "This week" tile in the ledger (BACKLOG.md → FOLLOW-UPS), then C57, C58, QA16. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

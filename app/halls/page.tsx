@@ -5,7 +5,8 @@ import { hallsFor, seedOf } from "@/lib/catalogue";
 import { loadCatalogue } from "@/lib/catalogueServer";
 import { ShelfEmpty } from "@/components/ShelfEmpty";
 import { canonView } from "@/lib/canonServer";
-import { CANON_LABEL, filterByCanon, workStats } from "@/lib/workStats";
+import { CANON_LABEL, filterByCanon, hallSummary, workStats } from "@/lib/workStats";
+import { myPace } from "@/lib/sessionStore";
 import { chapterHits, cleanQuery, resultLine, searchShelves } from "@/lib/shelfSearch";
 import { parseSort, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
 import { myOpenLoans } from "@/lib/loanStore";
@@ -23,7 +24,7 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
   const sort = parseSort(params.sort);
   const works = sortShelf(searchShelves(filterByCanon(catalogue.works, view), halls, query), sort);
   const canonParam = typeof params.canon === "string" ? params.canon : undefined;
-  const out = loansBySlug(await myOpenLoans());
+  const [out, pace] = await Promise.all([myOpenLoans().then(loansBySlug), myPace()]);
 
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16">
@@ -39,7 +40,7 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
           <label htmlFor="shelf-q" className="sr-only">Search the shelves</label>
           <input
             id="shelf-q" name="q" type="search" defaultValue={query} maxLength={80} autoComplete="off"
-            placeholder="Search titles, series, halls…"
+            placeholder="Search titles, chapters, halls…"
             className="min-w-0 flex-1 rounded-sm border border-timber bg-stone-wall/70 px-3 py-2 text-paper placeholder:text-sandstone/70"
           />
           <button type="submit" className="rounded-sm border border-lamplight/60 px-3 py-2 text-lamplight hover:bg-lamplight/10">Search</button>
@@ -69,6 +70,7 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
         return (
           <section key={hall.id} aria-labelledby={`hall-${hall.id}`} className="mt-10">
             <h2 id={`hall-${hall.id}`} className="text-xl text-paper">{hall.name}</h2>
+            {shelf.length > 0 && <p className="font-sans text-xs text-sandstone">{hallSummary(shelf, pace.wpm, pace.source !== "default")}</p>}
             {hall.note && <p className="font-sans text-xs text-sandstone/80">{hall.note}</p>}
             <div className="mt-4 rounded-sm bg-timber-dark/60 px-3 pt-6 shadow-inner">
               {shelf.length === 0 ? (
@@ -76,7 +78,7 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
               ) : (
                 <ul className="flex items-end gap-2 overflow-x-auto pb-0">
                   {shelf.map((w) => {
-                    const s = workStats(w);
+                    const s = workStats(w, pace.wpm);
                     const height = 230 + Math.min(60, Math.round(s.words / 500));
                     const loan = out[w.slug];
                     return (
