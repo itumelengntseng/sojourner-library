@@ -7,9 +7,10 @@ import { loadCatalogue } from "@/lib/catalogueServer";
 import { AUTHOR, SITE_NAME } from "@/lib/site";
 import { ShelfEmpty } from "@/components/ShelfEmpty";
 import { freshOnShelves } from "@/lib/catalogueRows";
-import { DESK_TIME_ZONE, dueBackSoon, splitDueSoon } from "@/lib/loanDesk";
+import { DESK_TIME_ZONE, dueBackSoon, justReturned, splitDueSoon } from "@/lib/loanDesk";
 import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
 import { JustReturnedNote } from "@/components/JustReturnedNote";
+import { JustBorrowedNote } from "@/components/JustBorrowedNote";
 import { DueSoonSlip } from "@/components/DueSoonSlip";
 import { myBookLeft } from "@/lib/bookLeftStore";
 import { ContinueReading } from "@/components/ContinueReading";
@@ -41,6 +42,8 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
       <ContinueReading card={cont} due={onCard} bookLeft={cont ? bookLeft[cont.slug] : undefined} />
       <DueSoonSlip loans={onSlip} bookLeft={bookLeft} />
       {!cont && <JustReturnedNote items={returned} now={now} />}
+      {/* C143: nothing to continue, nothing just handed back — a book borrowed within the hour, not yet opened. */}
+      {!cont && !returned.some((r) => justReturned(r, now)) && <JustBorrowedNote loans={open} now={now} />}
 
       <section aria-labelledby="on-the-wall" className="mt-12">
         <h2 id="on-the-wall" className="sr-only">On the wall</h2>
