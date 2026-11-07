@@ -95,6 +95,13 @@ describe("due soon on the continue card (C42)", () => {
     expect(html).toContain('href="/card"');
     expect(renderToStaticMarkup(<ContinueReading card={card} />)).not.toContain("Due back");
   });
+  it("C114: with no renewals left the stamp offers only the return", () => {
+    const card = continueReading([loan("a", 1250)], [sess("a", "2", 100, T)], chapters, 200);
+    const spent = renderToStaticMarkup(<ContinueReading card={card} due={{ ...on("a", 4 * H), renewalsLeft: 0 }} />);
+    expect(spent.replace(/<!-- -->/g, "")).toMatch(/no renewals left · <a [^>]*href="\/card"[^>]*>return<\/a>/);
+    expect(spent).not.toContain("renew or return");
+    expect(renderToStaticMarkup(<ContinueReading card={card} due={{ ...on("a", 4 * H), renewalsLeft: 1 }} />)).toContain("renew or return");
+  });
 });
 
 describe("time left in the book on the Continue reading card (C95)", () => {

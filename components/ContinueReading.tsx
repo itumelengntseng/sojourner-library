@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { chapterLabel, type ContinueCard } from "@/lib/continueReading";
-import type { OnLoan } from "@/lib/loanDesk";
+import { noRenewalsLeft, type OnLoan } from "@/lib/loanDesk";
 import { AUTHOR } from "@/lib/site";
 
 // One lamplit card by the front-hall door: the book you were last reading, and the way back in.
@@ -18,7 +18,8 @@ export function ContinueReading({ card, className = "mx-auto mt-8", due, bookLef
       </p>
       {due && (
         <p className="mt-2 font-mono text-[0.7rem] uppercase tracking-wider text-ember">
-          Due back {due.due}{due.timeLeft ? ` · ${due.timeLeft} left` : ""} · <Link href="/card" className="underline underline-offset-2">renew or return</Link>
+          Due back {due.due}{due.timeLeft ? ` · ${due.timeLeft} left` : ""} · {/* C114: once every renewal is used, only the return is left. */}
+          {noRenewalsLeft(due) ? <>no renewals left · <Link href="/card" className="underline underline-offset-2">return</Link></> : <Link href="/card" className="underline underline-offset-2">renew or return</Link>}
         </p>
       )}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
