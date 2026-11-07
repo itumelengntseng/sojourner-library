@@ -112,7 +112,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C72 Halls: a small "Finished" mark on a shelf entry the reader has read to the end (own sessions, C13 rule; reuse `myFinishes`).
 - [x] C73 Librarian at the end of a book: time-left questions answer "You're at the end of this book." instead of "About 0 min to finish" (answer text only, no new parser rules); chapter question likewise at the end of a chapter with nothing left.
 - [x] QA21 QA pass after C71–C73.
-- [ ] C74 Card page "On loan now": each loan shows "About N min left in this book" from the reader's bookmark at their pace (reuse the librarian facts; "At the end" when nothing's left).
-- [ ] C75 Reading room end-of-book card: when the reader has read this book to the end, it carries the "Finished <date>" stamp (reuse `myFinish`; not in the proof copy).
-- [ ] C76 Use one date helper for every Finished stamp (`finishedStamp()` in FinishedShelf, the ledger table and the work page) so they can never drift apart; tests pin the format.
-- [ ] QA22 QA pass after C74–C76.
+- [x] C74 Card page "On loan now": each loan shows "About N min left in this book" from the reader's bookmark at their pace (reuse the librarian facts; "At the end" when nothing's left).
+- [x] C75 Reading room end-of-book card: when the reader has read this book to the end, it carries the "Finished <date>" stamp (reuse `myFinish`; not in the proof copy).
+- [x] C76 Use one date helper for every Finished stamp (`finishedStamp()` in FinishedShelf, the ledger table and the work page) so they can never drift apart; tests pin the format.
+- [x] QA22 QA pass after C74–C76.
+- [ ] C77 Ledger "Hours per book": a book out on loan also shows "About N min left in this book" beside its Continue at line (reuse `bookLeftLine`; own loan only).
+- [ ] C78 Work page loan desk: "About N min left in this book" under "Resume at your bookmark" (reuse `bookLeftLine`).
+- [ ] C79 Halls: a book on loan's spine screen-reader text adds the time left in the book ("…due Fri 6 Nov, 14:00; about 25 min left in this book").
+- [ ] QA23 QA pass after C77–C79.

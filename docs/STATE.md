@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 7 — C68–C73, QA20–QA21; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 7 — C68–C76, QA20–QA22; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -117,10 +117,14 @@ _Last updated: 2026-11-07 (scheduled build run 7 — C68–C73, QA20–QA21; C24
 - C72 — "read" mark on the halls (`app/halls/page.tsx`, `myFinishes()` now one pass for any number of works — preview reads the cookie once, library mode makes three queries): a small lamplit "read" band on the spine of each book the reader has read to the end, a legend line "read marks the books you have read to the end." when any show, and the spine's screen-reader text adds "You read this to the end on 05 Nov 2026." Own sessions only. Unit-tested (no cap, partly-read book left unmarked).
 - C73 — The librarian at the end (`lib/engine/ask.ts`): with nothing left, time-left / by-a-date / per-day / chapter questions answer "You're at the end of this book." (and "You're at the end of this chapter." when only the chapter is done) instead of "About 0 min…". Answer text only; no new parser rules. Unit-tested.
 - QA21 (2026-11-07, after C71–C73): `npm run qa` all clear — now also sweeps the halls with a book read to the end (legend, spoken spine text, axe at 375px + 1280px); the dated Finished mark on the card is in the QA20 sweep. Preview e2e 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 426 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA21).
+- C74 — "About N min left in this book" at the front desk (`bookLeftLine()` in `lib/loanDesk.ts`, `myLoanWords()` in `lib/loanStore.ts`, `LoanShelf` in `app/card/page.tsx`, `components/OnLoanNow.tsx`): each loan under On loan now carries the time left in the whole book from its bookmark at the reader's pace ("At the end of this book" when nothing's left). Open loans now carry their bookmark offset. Own loans only; library mode reads chapter word counts (no text). Unit-tested.
+- C75 — Finished stamp on the end-of-book card (`components/EndOfChapter.tsx`, `ReaderView` `finishedAt`, `app/works/[slug]/read/page.tsx` via `myFinish`): on the last chapter, a reader who has read the book to the end sees "Finished 05 Nov 2026" under "The end of …". Never in the proof copy. Unit-tested.
+- C76 — One Finished stamp everywhere: the ledger table, the Read to the end shelf, the work page ("You finished this · …"), the card, the halls and the end card all use `finishedStamp()` / `finishedDate()` from `lib/ledger.ts`; a test fails if a page formats a Finished date by hand again.
+- QA22 (2026-11-07, after C74–C76): `npm run qa` all clear — now also borrows again and checks the card's "left in this book" line, and the end-of-book card with the Finished stamp at 375px + 1280px (fixed the QA script's own wait: a re-borrow with a bookmark shows "Resume at your bookmark", not "Open the reading room"). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 434 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA22).
 
 ## Next task
-C74 — "About N min left in this book" on the card's On loan now (BACKLOG.md → FOLLOW-UPS), then C75, C76, QA22. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C77 — "About N min left in this book" in the ledger's Hours per book (BACKLOG.md → FOLLOW-UPS), then C78, C79, QA23. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

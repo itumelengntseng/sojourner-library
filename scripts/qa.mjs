@@ -324,6 +324,28 @@ for (const width of WIDTHS) {
   await axeCheck(`${width}px halls with a book read to the end`);
 }
 
+// QA22: borrow again → the card's "left in this book" line (C74), and the end-of-book card with the
+// Finished stamp (C75; the sessions cookie above has the last chapter read through).
+{
+  await page.setViewportSize({ width: 375, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/works/placeholder-work-one`);
+  if (await page.getByRole("button", { name: "Borrow this work" }).count()) {
+    await page.getByRole("button", { name: "Borrow this work" }).click();
+    await page.getByRole("link", { name: /Open the reading room|Resume at your bookmark/ }).waitFor();
+  }
+  await page.goto(`${BASE}/card`);
+  await page.getByRole("region", { name: "On loan now" }).getByText(/left in this book|At the end of this book/).first().waitFor();
+  await axeCheck("card with time left in the book on loan");
+}
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/works/placeholder-work-one/read?ch=6`);
+  await page.getByRole("region", { name: "End of the chapter" }).getByText(/^Finished /).waitFor();
+  await axeCheck(`${width}px end-of-book card with the Finished stamp`);
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);
