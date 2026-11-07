@@ -3,7 +3,10 @@ import { describe, expect, it } from "vitest";
 import { glance } from "@/lib/glance";
 
 const w = (openLoans: number) => ({ visibility: "members" as const, words: 10, openLoans });
-const loansTile = (t: ReturnType<typeof glance>) => t.find((x) => x.label === "Out on loan now")!;
+const loansTile = (t: ReturnType<typeof glance>) => {
+  const x = t.find((y) => y.label === "Out on loan now")!;
+  return { ...x, note: x.urgentNote ? `${x.note} · ${x.urgentNote}` : x.note };
+};
 
 describe("Writer's Room loans tile — due back within the day (C122)", () => {
   it("adds the count after the open loans", () => {
@@ -25,5 +28,16 @@ describe("Writer's Room loans tile — due back within the day (C122)", () => {
     expect(src).toMatch(/\.gt\("due_at"[\s\S]*?\.lte\("due_at"/);
     expect(src).toMatch(/dueBackSoon\(out, Date\.now\(\)\)\.length/);
     expect(readFileSync("app/writers-room/page.tsx", "utf8")).toMatch(/room\.dueSoon\)/);
+  });
+});
+
+describe("Writer's Room loans tile — the due part in ember (C128)", () => {
+  it("keeps the due count apart from the plain note", () => {
+    const t = glance([w(3)], 0, 3, 2).find((x) => x.label === "Out on loan now")!;
+    expect(t).toMatchObject({ note: "3 open loans", urgentNote: "2 due back within the day" });
+    expect(glance([w(3)], 0, 3, 0).find((x) => x.label === "Out on loan now")!.urgentNote).toBeUndefined();
+  });
+  it("the room shows it in ember after the note", () => {
+    expect(readFileSync("app/writers-room/page.tsx", "utf8")).toMatch(/\{t\.urgentNote && <span className="text-ember"> · \{t\.urgentNote\}<\/span>\}/);
   });
 });

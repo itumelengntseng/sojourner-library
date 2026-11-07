@@ -517,7 +517,8 @@ for (const width of WIDTHS) {
   // QA38 (C122): the Writer's Room loans tile counts the spent hour loan as due back within the day.
   errors.length = 0;
   await page.goto(`${BASE}/writers-room`);
-  if (!(await page.getByText(/^\d+ open loans? · \d+ due back within the day$/).count())) { failures++; console.log(`✗ ${width}px Writer's Room loans tile doesn't count the loans due back within the day`); }
+  // QA40 (C128): the due part sits in ember.
+  if (!(await page.getByText(/^\d+ open loans? · \d+ due back within the day$/).count()) || !(await page.locator("dd span.text-ember", { hasText: /^ · \d+ due back within the day$/ }).count())) { failures++; console.log(`✗ ${width}px Writer's Room loans tile doesn't count the loans due back within the day`); }
   await axeCheck(`${width}px Writer's Room with a loan due within the day`);
   // QA33 (C108, C109): the spine says so, and the ledger's history row too.
   errors.length = 0;

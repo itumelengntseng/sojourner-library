@@ -1,5 +1,7 @@
 // The Writer's Room "library at a glance" — pure, so it can be tested without a server.
-export interface GlanceTile { label: string; value: string; note?: string }
+export interface GlanceTile { label: string; value: string; note?: string;
+  /** C128: the part of the note that needs the Keeper's eye (shown in ember after the note). */
+  urgentNote?: string }
 
 /** "The library at a glance": counts only — never who read what. */
 export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number }[], setAside: number, cardHolders: number | null, dueSoon = 0): GlanceTile[] {
@@ -12,7 +14,8 @@ export function glance(works: { visibility: "owner" | "members"; words: number; 
     { label: "Words shelved", value: words.toLocaleString("en-ZA") },
     { label: "Card holders", value: cardHolders === null ? "—" : String(cardHolders), note: cardHolders === null ? "once the library is connected" : undefined },
     // C122: how many of those are due back within the day — a count only, never who.
-    { label: "Out on loan now", value: String(loans), note: loans ? `${plural(loans, "open loan")}${dueSoon > 0 ? ` · ${Math.min(dueSoon, loans).toLocaleString("en-ZA")} due back within the day` : ""}` : "every book is in" },
+    { label: "Out on loan now", value: String(loans), note: loans ? plural(loans, "open loan") : "every book is in",
+      ...(loans && dueSoon > 0 ? { urgentNote: `${Math.min(dueSoon, loans).toLocaleString("en-ZA")} due back within the day` } : {}) },
   ];
   // C45: shown once the library can count it (finished_readers() answered for every work).
   if (works.length > 0 && works.every((w) => w.finished !== undefined)) {

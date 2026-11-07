@@ -46,7 +46,7 @@ export default async function WritersRoom({ searchParams }: { searchParams: Prom
             <div key={t.label} className="rounded-sm border border-timber-dark bg-ink/40 p-4">
               <dt className="font-sans text-[0.65rem] uppercase tracking-wider text-sandstone">{t.label}</dt>
               <dd className="mt-1 text-2xl text-paper">{t.value}</dd>
-              {t.note && <dd className="font-sans text-[0.65rem] text-sandstone/80">{t.note}</dd>}
+              {t.note && <dd className="font-sans text-[0.65rem] text-sandstone/80">{t.note}{t.urgentNote && <span className="text-ember"> · {t.urgentNote}</span>}</dd>}
             </div>
           ))}
         </dl>
