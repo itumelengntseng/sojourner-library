@@ -333,10 +333,17 @@ export function justBorrowedNote(loans: Pick<OnLoan, "borrowedAt">[], now: numbe
   return n ? ` · ${n} just borrowed` : "";
 }
 
-/** C153: "You've borrowed this 3 times" — own loans of this work; nothing for a first (or no) loan. */
-export function borrowedTimesLine(loans: Pick<Loan, "workId" | "readerId">[], workId: string, readerId: string): string | null {
-  const n = loans.filter((l) => l.workId === workId && l.readerId === readerId).length;
-  return n > 1 ? `You've borrowed this ${n === 2 ? "twice" : `${n} times`}` : null;
+/**
+ * C153: "You've borrowed this 3 times" — own loans of this work; nothing for a first (or no) loan.
+ * C155: "· first on 5 Nov 2026" — the earliest of those loans (SA date, the Finished stamp's format).
+ */
+export function borrowedTimesLine(loans: (Pick<Loan, "workId" | "readerId"> & { borrowedAt?: number })[], workId: string, readerId: string): string | null {
+  const mine = loans.filter((l) => l.workId === workId && l.readerId === readerId);
+  const n = mine.length;
+  if (n < 2) return null;
+  const firsts = mine.map((l) => l.borrowedAt).filter((t): t is number => typeof t === "number" && Number.isFinite(t));
+  const first = firsts.length ? new Date(Math.min(...firsts)).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: DESK_TIME_ZONE }) : null;
+  return `You've borrowed this ${n === 2 ? "twice" : `${n} times`}${first ? ` · first on ${first}` : ""}`;
 }
 
 // ── Time left in each book on loan (C74) ────────────────────────────────────

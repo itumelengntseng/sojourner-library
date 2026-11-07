@@ -17,3 +17,14 @@ describe("work page — You've borrowed this N times (C153)", () => {
     expect(src.indexOf("borrowedTimesLine(desk.loans")).toBeGreaterThan(src.indexOf("<LoanDesk desk={desk}"));
   });
 });
+
+describe("work page — first on <date> (C155)", () => {
+  it("adds the earliest own loan's SA date", async () => {
+    const { finishedDate } = await import("@/lib/ledger");
+    const a = Date.parse("2026-11-04T23:30:00Z"); // 5 Nov in SA
+    const b = Date.parse("2026-11-07T08:00:00Z");
+    const line = borrowedTimesLine([{ workId: "w", readerId: "me", borrowedAt: b }, { workId: "w", readerId: "me", borrowedAt: a }, { workId: "w", readerId: "you", borrowedAt: 0 }], "w", "me");
+    expect(line).toBe("You've borrowed this twice · first on 05 Nov 2026");
+    expect(line).toContain(finishedDate(a));
+  });
+});
