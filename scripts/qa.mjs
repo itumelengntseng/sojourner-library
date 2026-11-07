@@ -517,8 +517,8 @@ for (const width of WIDTHS) {
   // QA38 (C122): the Writer's Room loans tile counts the spent hour loan as due back within the day.
   errors.length = 0;
   await page.goto(`${BASE}/writers-room`);
-  // QA40 (C128): the due part sits in ember.
-  if (!(await page.getByText(/^\d+ open loans? · \d+ due back within the day$/).count()) || !(await page.locator("dd span.text-ember", { hasText: /^ · \d+ due back within the day$/ }).count())) { failures++; console.log(`✗ ${width}px Writer's Room loans tile doesn't count the loans due back within the day`); }
+  // QA40 (C128): the due part sits in ember. QA42 (C136): the book handed back earlier this run is counted.
+  if (!(await page.getByText(/^\d+ open loans?( · \d+ returned in the last hour)? · \d+ due back within the day$/).count()) || !(await page.locator("dd span.text-ember", { hasText: /^ · \d+ due back within the day$/ }).count())) { failures++; console.log(`✗ ${width}px Writer's Room loans tile doesn't count the loans due back within the day (${await page.locator("dd", { hasText: /open loan/ }).first().textContent()})`); }
   await axeCheck(`${width}px Writer's Room with a loan due within the day`);
   // QA33 (C108, C109): the spine says so, and the ledger's history row too.
   errors.length = 0;
@@ -583,6 +583,11 @@ await page.goto(`${BASE}/halls`);
 const spine3 = page.locator("a[href='/works/placeholder-work-three']").first();
 if (!/Just returned, /.test((await spine3.locator(".sr-only").textContent()) ?? "") || !(await spine3.locator("span[title='Just returned']").count())) { failures++; console.log("✗ halls: the just-returned spine doesn't say so"); }
 await axeCheck("375px halls with a just-returned spine");
+// QA42 (C134, C135): the reading room gate and — with nothing else out — the ledger tile say it was just returned.
+errors.length = 0;
+await page.goto(`${BASE}/works/placeholder-work-three/read`);
+if (!(await page.getByText("You returned this just now — borrow it again to pick up at your bookmark.").count())) { failures++; console.log("✗ reading room gate doesn't say the book was just returned"); }
+await axeCheck("375px reading room gate just returned");
 // QA41 (C131): a fresh visitor with nothing on loan sees the Just returned line in the front hall.
 {
   const fresh = await browser.newContext({ viewport: { width: 375, height: 900 } });
@@ -591,6 +596,10 @@ await axeCheck("375px halls with a just-returned spine");
   await fp.getByRole("button", { name: "Borrow this work" }).click();
   await fp.getByRole("button", { name: "Return to shelf" }).click();
   await fp.getByRole("button", { name: "Return to shelf" }).waitFor({ state: "detached" });
+  await fp.goto(`${BASE}/writers-room`);
+  if (!(await fp.getByText(/^every book is in · 1 returned in the last hour$/).count())) { failures++; console.log("✗ Writer's Room loans tile doesn't count the book returned in the last hour"); }
+  await fp.goto(`${BASE}/ledger`);
+  if (!(await fp.locator("dl a[href='/works/placeholder-work-three']", { hasText: /^just returned · / }).count()) || !(await fp.locator("dd", { hasText: /^Nothing out$/ }).count())) { failures++; console.log("✗ ledger On loan tile doesn't say just returned"); }
   await fp.goto(`${BASE}/`);
   if (!(await fp.locator("main a[href='/works/placeholder-work-three#desk']", { hasText: /^borrow it again/ }).count()) || !(await fp.locator(".sr-only", { hasText: /^Just returned, / }).count())) { failures++; console.log("✗ front hall without the Just returned line"); }
   await fp.evaluate(axeSource);

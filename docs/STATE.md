@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 10 — C122–C133, QA38–QA41; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 10 — C122–C136, QA38–QA42; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -197,10 +197,14 @@ _Last updated: 2026-11-07 (scheduled build run 10 — C122–C133, QA38–QA41; 
 - C132 — Halls: a book handed back within the hour (and not out again) carries a lamplight ✓ on its spine and "Just returned, <stamp>." in its spoken label. Unit-tested + swept.
 - C133 — Pitch Room: the open-link line adds "· 1 closes today" in ember when an open link is on its last day. Unit-tested (preview has no share links).
 - QA41 (2026-11-07, after C131–C133): `npm run qa` all clear — now also requires the just-returned spine on the halls and, in a fresh browser with nothing on loan, the front hall's Just returned line (375px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 552 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA41).
+- C134 — Ledger "On loan" tile: with nothing out but a book handed back within the hour, it reads "Nothing out" with "just returned · <title>" linking to the work page. Unit-tested + swept.
+- C135 — Reading room gate: for a book the reader handed back within the hour, "You returned this just now — borrow it again to pick up at your bookmark." Unit-tested + swept.
+- C136 — Writer's Room loans tile: "· N returned in the last hour" (handed back by readers, same rule as `justReturned()`). Library mode reads only `returned_at, due_at` of the last hour's returns (no reader, no work) and counts them; preview counts the cookie desk. Unit-tested + swept.
+- QA42 (2026-11-07, after C134–C136): `npm run qa` all clear — now also requires the reading room gate's just-returned line, and in a fresh browser the ledger tile's "Nothing out · just returned" and the Writer's Room "every book is in · 1 returned in the last hour" (axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 556 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA42).
 
 ## Next task
-C134 — ledger "On loan" tile: with nothing out but a book handed back within the hour, the tile says "Just returned · <title>" (BACKLOG.md → FOLLOW-UPS), then C135, C136, QA42. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C137 — Card page "On loan now": a loan borrowed within the last hour shows "Just borrowed" beside its title (BACKLOG.md → FOLLOW-UPS), then C138, C139, QA43. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.

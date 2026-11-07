@@ -192,7 +192,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C132 Halls: a spine for a book the reader handed back within the hour carries a quiet "just returned" in its spoken label and a lamplight tick (no new data).
 - [x] C133 Pitch Room: the "N open · M shared in all" line also says "1 closes today" when any open link is on its last day (reuse `lastDayLabel()`).
 - [x] QA41 QA pass after C131–C133.
-- [ ] C134 Ledger "On loan" tile: with nothing out but a book handed back within the hour, the tile reads "Nothing out" with the note "just returned · <title>" linking to its work page.
-- [ ] C135 Reading room gate (no open loan): if the reader handed this book back within the hour, the gate says "You returned this just now — borrow it again to pick up at your bookmark."
-- [ ] C136 Writer's Room glance: "Out on loan now" note adds "· N returned in the last hour" (counts only, never who; library mode a head count, preview the cookie desk).
-- [ ] QA42 QA pass after C134–C136.
+- [x] C134 Ledger "On loan" tile: with nothing out but a book handed back within the hour, the tile reads "Nothing out" with the note "just returned · <title>" linking to its work page.
+- [x] C135 Reading room gate (no open loan): if the reader handed this book back within the hour, the gate says "You returned this just now — borrow it again to pick up at your bookmark."
+- [x] C136 Writer's Room glance: "Out on loan now" note adds "· N returned in the last hour" (counts only, never who; library mode a head count, preview the cookie desk).
+- [x] QA42 QA pass after C134–C136.
+- [ ] C137 Card page "On loan now": a loan borrowed within the last hour carries a quiet lamplight "Just borrowed" beside its title (spoken with the borrow stamp).
+- [ ] C138 Pitch Room: a share link opened within the last hour reads "opened just now" instead of the "last opened" stamp (stamp kept in its spoken label).
+- [ ] C139 Writer's Room glance: "Out on loan now" note adds "· N borrowed in the last hour" (counts only; library mode reads borrow times only, preview the cookie desk).
+- [ ] QA43 QA pass after C137–C139.
