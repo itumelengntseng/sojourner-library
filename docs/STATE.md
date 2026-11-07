@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 9 — C101–C118, QA31–QA36; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 9 — C101–C121, QA31–QA37; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -177,10 +177,14 @@ _Last updated: 2026-11-07 (scheduled build run 9 — C101–C118, QA31–QA36; C
 - C117 — Ledger On loan tile: when the soonest loan is due within the day (`dueBackSoon()`), the note reads "due back within the day · <stamp>" in ember (axe contrast clean). Unit-tested.
 - C118 — Halls "out" legend: "out marks the book out to you — renew or return it at the front desk" / "the 2 books … them", counted over the shelves shown. Unit-tested (source check).
 - QA36 (2026-11-07, after C116–C118): `npm run qa` all clear — now also requires the count on the card's heading, the ledger tile's "due back within the day" for the hour loan, and the counted halls legend (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 517 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA36).
+- C119 — Front hall Due back soon slip: "Due back soon · 2" with two or more lines (one line keeps the plain heading). Unit-tested.
+- C120 — Ledger Hours per book: a book on loan due back within the day carries the card's ember "Due soon" mark (spoken "Due soon: back by <due>"). Unit-tested.
+- C121 — Work page: with the book out, "On loan to you · due Sat, 07 Nov, 14:00" under the byline, linking down to the loan desk (`#desk`). Unit-tested (source check).
+- QA37 (2026-11-07, after C119–C121): `npm run qa` all clear — now also requires the work page's On loan to you line and the ledger's Due soon mark (375px + 1280px, axe clean). The slip's count is unit-tested only (the sweep's slip has one line). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 520 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA37).
 
 ## Next task
-C119 — a count on the front hall's "Due back soon" slip (BACKLOG.md → FOLLOW-UPS), then C120, C121, QA37. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C122 — "due back within the day" count on the Writer's Room loans tile (BACKLOG.md → FOLLOW-UPS), then C123, C124, QA38. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -238,6 +242,7 @@ C119 — a count on the front hall's "Due back soon" slip (BACKLOG.md → FOLLOW
 - The borrow form's remembered period (C44) is per browser, like the reader settings.
 - "Hold the covers still" is per browser (localStorage), like the reader settings; the device's reduced-motion setting still applies on its own.
 - Notes downloads are named with the SA export date (C81).
+- Loan reminders (C101–C121) all use one rule each: "due soon" = due back within 24 h (`dueBackSoon()`), "within the hour" = the last hour (reading room line, work-page slip), and the engine's own "Due back very soon" for the last 15 min; "no renewals left" = 3 renewals used. Wherever Renew can't work, the library says "return" instead.
 - "Renew" from the front desk (C100) links to the work page's loan desk (`#desk`, the existing heading) rather than renewing in place, so the reader sees the new due date stamped on the slip.
 - In Borrowing history the Finished stamp sits on the loan during which the finish happened (C97); a finish recorded outside any loan (e.g. the Keeper's proof copy, which isn't recorded anyway) stamps no row.
 - "How long it took" (C85) counts SA calendar days from the end of the reader's first session in the book to the finishing session ("in a day" when both fall on one day). In preview mode only the last 40 session summaries are kept, and the library-mode ledger reads the last 400 days, so a long-ago start may be counted from a later session (the work page and end card read the true first session in library mode).

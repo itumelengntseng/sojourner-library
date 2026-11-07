@@ -172,7 +172,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C117 Ledger "On loan" tile: when the soonest loan is due within the day (`dueBackSoon()`), its note turns ember and reads "due back within the day · <stamp>".
 - [x] C118 Halls: the "out" legend line says how many ("2 books out to you — renew or return them at the front desk").
 - [x] QA36 QA pass after C116–C118.
-- [ ] C119 Front hall "Due back soon" slip: with two or more lines, the heading carries the count ("Due back soon · 2").
-- [ ] C120 Ledger "Hours per book": a book on loan due back within the day carries a small "Due soon" mark (same look and spoken label as the card's C96).
-- [ ] C121 Work page: when the reader has the book out, a quiet line under the title — "On loan to you · due <stamp>" — linking to the loan desk (`#desk`).
-- [ ] QA37 QA pass after C119–C121.
+- [x] C119 Front hall "Due back soon" slip: with two or more lines, the heading carries the count ("Due back soon · 2").
+- [x] C120 Ledger "Hours per book": a book on loan due back within the day carries a small "Due soon" mark (same look and spoken label as the card's C96).
+- [x] C121 Work page: when the reader has the book out, a quiet line under the title — "On loan to you · due <stamp>" — linking to the loan desk (`#desk`).
+- [x] QA37 QA pass after C119–C121.
+- [ ] C122 Writer's Room glance: the "Loans out now" tile adds "· N due back within the day" (counts only, never who; library mode from the same count query family, preview from the cookie desk).
+- [ ] C123 Pitch Room: each open share link says how long it has left ("open until 21 Nov · 14 days left"), SA time; "last day" on its final day.
+- [ ] C124 Card page "Recently returned": a book returned within the last hour shows "Just returned" instead of the stamp, with the stamp kept in its spoken label.
+- [ ] QA38 QA pass after C122–C124.

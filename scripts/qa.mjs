@@ -493,6 +493,8 @@ for (const width of WIDTHS) {
   if (await page.getByRole("button", { name: "Renew", exact: true }).isEnabled()) { failures++; console.log("✗ the desk still offers Renew after three renewals"); }
   // QA34 (C110): the desk explains the greyed-out Renew.
   if (!(await page.getByText(/^No renewals left — return it by .+ and borrow it again; your bookmark is kept\.$/).count())) { failures++; console.log("✗ the desk doesn't explain a spent loan"); }
+  // QA37 (C121): the line under the title says the book is out and leads to the desk.
+  if (!(await page.locator("a[href='#desk']", { hasText: /^On loan to you · due / }).count())) { failures++; console.log("✗ work page without the On loan to you line"); }
   await axeCheck("375px work page desk with no renewals left");
 }
 for (const width of WIDTHS) {
@@ -515,6 +517,8 @@ for (const width of WIDTHS) {
   await page.goto(`${BASE}/ledger`);
   if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/· no renewals left/).count())) { failures++; console.log(`✗ ${width}px ledger: the open loan's row doesn't say no renewals left`); }
   if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/· [123] renewals? left/).count())) { failures++; console.log(`✗ ${width}px ledger: no open loan with renewals left`); }
+  // QA37 (C120): Hours per book marks the book due within the day.
+  if (!(await page.getByText(/^Due soon/).filter({ has: page.locator(".sr-only", { hasText: /back by/ }) }).count())) { failures++; console.log(`✗ ${width}px ledger Hours per book without the Due soon mark`); }
   // QA36 (C117): the spent hour loan is due within the day, so the tile says so.
   if (!(await page.locator("dl a[href='/card']", { hasText: /^due back within the day · / }).count())) { failures++; console.log(`✗ ${width}px ledger On loan tile doesn't say due back within the day`); }
   // QA35 (C113): the On loan tile leads to the front desk.
