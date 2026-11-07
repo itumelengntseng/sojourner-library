@@ -6,7 +6,7 @@ import { RecentlyReturned } from "@/components/RecentlyReturned";
 import { ContinueReading } from "@/components/ContinueReading";
 import { myContinueBySlug, myContinueReading } from "@/lib/continueStore";
 import { WeekLine } from "@/components/WeekLine";
-import { myWeek } from "@/lib/ledgerStore";
+import { myFinishes, myWeek } from "@/lib/ledgerStore";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { ReaderCard } from "@/lib/membership";
 import { signOut } from "./actions";
@@ -26,6 +26,13 @@ function Desk({ eyebrow, title, children }: { eyebrow: string; title: string; ch
   );
 }
 
+/** "Recently returned", with a Finished mark on books read to the end (C70). */
+async function ReturnedShelf() {
+  const items = await myRecentlyReturned();
+  if (items.length === 0) return null;
+  return <RecentlyReturned items={items} finished={await myFinishes(items.map((r) => r.slug))} />;
+}
+
 export default async function CardPage() {
   const supabase = await supabaseServer();
   if (!supabase) {
@@ -37,7 +44,7 @@ export default async function CardPage() {
         <WeekLine week={await myWeek()} />
         <ContinueReading card={await myContinueReading()} className="w-full" />
         <OnLoanNow loans={await myOpenLoans()} continueAt={await myContinueBySlug()} />
-        <RecentlyReturned items={await myRecentlyReturned()} />
+        <ReturnedShelf />
       </Desk>
     );
   }
@@ -72,7 +79,7 @@ export default async function CardPage() {
       <WeekLine week={await myWeek()} />
       <ContinueReading card={await myContinueReading()} className="w-full" />
       <OnLoanNow loans={await myOpenLoans()} continueAt={await myContinueBySlug()} />
-      <RecentlyReturned items={await myRecentlyReturned()} />
+      <ReturnedShelf />
       <PrefsForm name={card.display_name ?? ""} wpm={(card as ReaderCard & { wpm_override?: number | null }).wpm_override ?? null} />
       <form action={signOut}>
         <button className="font-sans text-sm text-sandstone underline underline-offset-4 hover:text-lamplight">Sign out</button>

@@ -220,3 +220,10 @@ export async function myWeek(): Promise<Week | null> {
     endedAt: Date.parse((r.ended_at ?? r.started_at) as string),
   })), now);
 }
+
+/** C70: which of these works the reader has read to the end (C13 rule, own sessions only) — slug → finish time. */
+export async function myFinishes(slugs: string[]): Promise<Record<string, number>> {
+  const uniq = [...new Set(slugs)].slice(0, 10);
+  const stamps = await Promise.all(uniq.map((s) => myFinish(s).catch(() => undefined)));
+  return Object.fromEntries(uniq.flatMap((s, i) => (stamps[i] === undefined ? [] : [[s, stamps[i] as number]])));
+}

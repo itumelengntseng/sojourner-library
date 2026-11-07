@@ -1,8 +1,11 @@
 import Link from "next/link";
 import type { Returned } from "@/lib/loanDesk";
 
-/** The reader's last few returns at the front desk, stamped, with a way to borrow again. Nothing returned → nothing shown. */
-export function RecentlyReturned({ items }: { items: Returned[] }) {
+/**
+ * The reader's last few returns at the front desk, stamped, with a way to borrow again. Nothing returned → nothing shown.
+ * `finished` (slug → time, C70) marks the books the reader read to the end.
+ */
+export function RecentlyReturned({ items, finished = {} }: { items: Returned[]; finished?: Record<string, number> }) {
   if (items.length === 0) return null;
   return (
     <section aria-labelledby="recently-returned" className="w-full max-w-md text-left">
@@ -11,7 +14,14 @@ export function RecentlyReturned({ items }: { items: Returned[] }) {
         {items.map((r) => (
           <li key={r.workKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
             <div>
-              <p className="text-paper">{r.title}</p>
+              <p className="text-paper">
+                {r.title}
+                {finished[r.slug] !== undefined && (
+                  <span className="ml-2 inline-block -rotate-2 rounded-sm border border-ochre px-1.5 py-0.5 align-middle font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">
+                    Finished
+                  </span>
+                )}
+              </p>
               <p className="font-mono text-[0.7rem] uppercase tracking-wider text-sandstone">
                 Out {r.borrowed} · {r.onTime ? "returned" : "back on the shelf when due"} {r.returned}
               </p>
