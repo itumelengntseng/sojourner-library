@@ -39,3 +39,12 @@ describe("card page — Just returned (C124)", () => {
     expect(readFileSync("app/card/page.tsx", "utf8")).toMatch(/<RecentlyReturned [^>]*now=\{Date\.now\(\)\}/);
   });
 });
+
+describe("card page — Recently returned count (C126)", () => {
+  it("carries the count with two or more lines, plain with one", () => {
+    const one = renderToStaticMarkup(<RecentlyReturned items={[item(90)]} now={NOW} />);
+    expect(one).toMatch(/>Recently returned<\/h2>/);
+    const two = renderToStaticMarkup(<RecentlyReturned items={[item(90), { ...item(200), workKey: "w2", slug: "work-b" }, { ...item(300), workKey: "w3", slug: "work-c" }]} now={NOW} />);
+    expect(two).toMatch(/>Recently returned · 3<\/h2>/);
+  });
+});

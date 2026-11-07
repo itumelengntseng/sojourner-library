@@ -15,7 +15,8 @@ export function RecentlyReturned({ items, finished = {}, notes = "preview", firs
   if (items.length === 0) return null;
   return (
     <section aria-labelledby="recently-returned" className="w-full max-w-md text-left">
-      <h2 id="recently-returned" className="font-sans text-xs uppercase tracking-[0.25em] text-sandstone">Recently returned</h2>
+      {/* C126: with two or more lines the heading carries the count (as C116/C119). */}
+      <h2 id="recently-returned" className="font-sans text-xs uppercase tracking-[0.25em] text-sandstone">Recently returned{items.length > 1 ? ` · ${items.length}` : ""}</h2>
       <ul className="mt-2 divide-y divide-timber-dark/60 rounded-sm border border-timber-dark bg-ink/40">
         {items.map((r) => (
           <li key={r.workKey} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
