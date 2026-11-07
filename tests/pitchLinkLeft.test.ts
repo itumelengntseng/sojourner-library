@@ -54,6 +54,21 @@ describe("pitch share links — open first (C130)", () => {
   it("the Pitch Room says how many are open before the list", () => {
     const src = readFileSync("app/pitch-room/page.tsx", "utf8");
     expect(src).toMatch(/orderLinks\(links\.filter\(\(l\) => l\.slug === k\.slug\), now\)/);
-    expect(src).toContain('{openLinks === 0 ? "No link open" : `${openLinks} open`} · {mine.length} shared in all');
+    expect(src).toContain('{openLinks === 0 ? "No link open" : `${openLinks} open`}');
+    expect(src).toContain(' · {mine.length} shared in all</p>');
+  });
+});
+
+describe("pitch share links — closes today (C133)", () => {
+  const now = Date.parse("2026-11-07T10:00:00Z");
+  const l = (id: string, expiresAt: string, revoked = false) => ({ id, expiresAt, revoked });
+  it("counts open links on their last day only", async () => {
+    const { orderLinks } = await import("@/lib/pitch");
+    expect(orderLinks([l("a", "2026-11-07T15:00:00Z"), l("b", "2026-11-07T20:00:00Z"), l("c", "2026-11-09T00:00:00Z"), l("x", "2026-11-07T15:00:00Z", true), l("old", "2026-11-07T09:00:00Z")], now).closingToday).toBe(2);
+    expect(orderLinks([l("c", "2026-11-09T00:00:00Z")], now).closingToday).toBe(0);
+  });
+  it("the Pitch Room adds it in ember to the open count", () => {
+    const src = readFileSync("app/pitch-room/page.tsx", "utf8");
+    expect(src).toContain('{closingToday > 0 && <span className="text-ember"> · {closingToday} close{closingToday === 1 ? "s" : ""} today</span>}');
   });
 });

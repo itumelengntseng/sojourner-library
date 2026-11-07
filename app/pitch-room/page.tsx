@@ -49,7 +49,7 @@ export default async function PitchRoom({ searchParams }: { searchParams: Promis
           const st = kitStatus(k);
           const warn = loglineWarning(k.logline);
           // C130: open links first (soonest closing first), then closed or expired ones.
-          const { links: mine, open: openLinks } = orderLinks(links.filter((l) => l.slug === k.slug), now);
+          const { links: mine, open: openLinks, closingToday } = orderLinks(links.filter((l) => l.slug === k.slug), now);
           return (
             <li key={k.slug} className="rounded-sm border border-timber-dark bg-stone-floor/60 p-5">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -68,7 +68,7 @@ export default async function PitchRoom({ searchParams }: { searchParams: Promis
               <div className="threshold my-4 opacity-40" aria-hidden="true" />
               <ShareForm slug={k.slug} enabled={live} />
               {mine.length > 0 && (
-                <p className="mt-3 font-sans text-xs text-sandstone">{openLinks === 0 ? "No link open" : `${openLinks} open`} · {mine.length} shared in all</p>
+                <p className="mt-3 font-sans text-xs text-sandstone">{openLinks === 0 ? "No link open" : `${openLinks} open`}{closingToday > 0 && <span className="text-ember"> · {closingToday} close{closingToday === 1 ? "s" : ""} today</span>} · {mine.length} shared in all</p>
               )}
               {mine.length > 0 && (
                 <ul className="mt-1 divide-y divide-timber-dark/60 font-sans text-xs text-sandstone">

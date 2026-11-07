@@ -195,8 +195,10 @@ export function lastDayLabel(expiresIso: string, now: number): string | null {
 }
 
 /** C130: a kit's share links, open ones first (soonest closing first), then closed/expired (newest first, as given). */
-export function orderLinks<T extends { expiresAt: string; revoked: boolean }>(links: T[], now: number): { links: T[]; open: number } {
+export function orderLinks<T extends { expiresAt: string; revoked: boolean }>(links: T[], now: number): { links: T[]; open: number; closingToday: number } {
   const isOpen = (l: T) => !l.revoked && linkTimeLeft(l.expiresAt, now) !== null;
   const open = links.filter(isOpen).sort((a, b) => Date.parse(a.expiresAt) - Date.parse(b.expiresAt));
-  return { links: [...open, ...links.filter((l) => !isOpen(l))], open: open.length };
+  // C133: how many open links are on their last day.
+  const closingToday = open.filter((l) => lastDayLabel(l.expiresAt, now) !== null).length;
+  return { links: [...open, ...links.filter((l) => !isOpen(l))], open: open.length, closingToday };
 }
