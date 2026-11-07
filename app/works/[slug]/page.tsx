@@ -1,4 +1,4 @@
-import { justReturnedLoan, openLoan, stampDate } from "@/lib/loanDesk";
+import { justBorrowed, justReturnedLoan, openLoan, stampDate } from "@/lib/loanDesk";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -61,10 +61,10 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
           </p>
           <h1 className="mt-3 text-3xl text-lamplight sm:text-4xl">{work.title}</h1>
           <p className="mt-1 font-sans text-sm uppercase tracking-[0.2em] text-sandstone">by {work.author}</p>
-          {/* C121: the book is out to this reader — when it's due, and the way to the desk. */}
+          {/* C121: the book is out to this reader — when it's due, and the way to the desk. C140: "Just borrowed ·" within the hour. */}
           {openNow && (
             <p className="mt-2 font-sans text-xs text-sandstone">
-              <Link href="#desk" className="underline underline-offset-2 hover:text-lamplight">On loan to you · due {stampDate(openNow.dueAt)}</Link>
+              <Link href="#desk" className="underline underline-offset-2 hover:text-lamplight">{justBorrowed(openNow, now) && (<><span aria-hidden="true" className="text-lamplight">Just borrowed</span><span className="sr-only">Just borrowed, {stampDate(openNow.borrowedAt)}</span>{" · "}</>)}On loan to you · due {stampDate(openNow.dueAt)}</Link>
             </p>
           )}
           {backNow && (
