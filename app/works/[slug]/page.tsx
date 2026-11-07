@@ -1,4 +1,4 @@
-import { openLoan } from "@/lib/loanDesk";
+import { openLoan, stampDate } from "@/lib/loanDesk";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -42,7 +42,8 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
   const here = bookmarkWords > 0 ? locateBookmark(stats.chapters, bookmarkWords).position : null;
   const read = new Set(readPositions);
   // C54: with the book out, each chapter in Contents opens the reading room at that chapter.
-  const out = desk.mode !== "signed-out" && desk.mode !== "not-shelved" && !!openLoan(desk.loans, desk.workId, desk.readerId, now);
+  const openNow = desk.mode !== "signed-out" && desk.mode !== "not-shelved" ? openLoan(desk.loans, desk.workId, desk.readerId, now) : undefined;
+  const out = !!openNow;
 
   return (
     <main id="main" className="mx-auto max-w-4xl px-4 pt-16">
@@ -58,6 +59,12 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
           </p>
           <h1 className="mt-3 text-3xl text-lamplight sm:text-4xl">{work.title}</h1>
           <p className="mt-1 font-sans text-sm uppercase tracking-[0.2em] text-sandstone">by {work.author}</p>
+          {/* C121: the book is out to this reader — when it's due, and the way to the desk. */}
+          {openNow && (
+            <p className="mt-2 font-sans text-xs text-sandstone">
+              <Link href="#desk" className="underline underline-offset-2 hover:text-lamplight">On loan to you · due {stampDate(openNow.dueAt)}</Link>
+            </p>
+          )}
           {finished !== undefined && (
             <p className="mt-3">
               {/* C82: the stamp leads to the ledger's "Read to the end" shelf; C86: it says how long the book took. */}
