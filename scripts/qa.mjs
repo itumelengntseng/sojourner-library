@@ -329,6 +329,8 @@ for (const width of WIDTHS) {
   errors.length = 0;
   await page.goto(`${BASE}/halls`);
   await page.getByText("marks the books you have read to the end.").waitFor();
+  // QA27 (C90): the legend leads to the ledger's Read to the end shelf.
+  if (!(await page.getByRole("link", { name: "read to the end" }).count())) { failures++; console.log(`✗ ${width}px halls legend without the Read to the end link`); }
   const spoken = await page.locator("a[href='/works/placeholder-work-one'] .sr-only").first().textContent();
   if (!/read this to the end on/.test(spoken ?? "")) { failures++; console.log(`✗ ${width}px halls: the finished book's spine doesn't say so to screen readers`); }
   await axeCheck(`${width}px halls with a book read to the end`);
@@ -408,6 +410,9 @@ for (const width of WIDTHS) {
   await page.getByRole("link", { name: /You finished this/ }).click();
   await page.waitForURL(/\/ledger#finished$/);
   await page.getByRole("heading", { name: "Read to the end" }).waitFor();
+  // QA27 (C89, C91): the shelf offers each book's notes, and the top tile counts the finished books.
+  if (!(await page.getByRole("region", { name: "Read to the end" }).getByRole("button", { name: /Notes for this book/ }).count())) { failures++; console.log(`✗ ${width}px ledger Read to the end without Notes for this book`); }
+  if (!(await page.locator("a[href='#finished']").count())) { failures++; console.log(`✗ ${width}px ledger without the Read to the end tile`); }
   // QA25 (C85): the finished book says how long it took.
   if (!(await page.getByText(/· read (in a day|over \d+ days)/).count())) { failures++; console.log(`✗ ${width}px ledger Read to the end without how long it took`); }
   await axeCheck(`${width}px finished stamp → ledger Read to the end`);

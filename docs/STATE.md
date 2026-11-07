@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 8 — C83–C88, QA25–QA26 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 8 — C83–C91, QA25–QA27 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -137,10 +137,14 @@ _Last updated: 2026-11-07 (scheduled build run 8 — C83–C88, QA25–QA26 so f
 - C87 — End-of-book card (`components/EndOfChapter.tsx`, `firstRead` via `ReaderView` from the read page): "Read over 9 days" beside the Finished stamp. Never in the proof copy. Unit-tested.
 - C88 — Front desk line (`components/FinishedLine.tsx`, `myFinishedCount()`): "2 books read to the end · Read to the end" under the week line, linking to the ledger shelf; the count is the ledger's own (`finishedBooks(loadLedger().hours)`), so they always agree. Nothing finished → nothing shown. Unit-tested (`tests/finishedLine.test.tsx`).
 - QA26 (2026-11-07, after C86–C88): `npm run qa` all clear — now also requires "read …" on the work page stamp and "Read …" on the end-of-book card (375px + 1280px), and the card's read-to-the-end line with its link. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (`myFirstRead()` filters to the reader's own sessions; RLS enforces it too).
-- Tests: 462 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA26).
+- C89 — "Notes for this book" on the ledger's Read to the end shelf (`components/FinishedShelf.tsx` `slug`/`notes` props, from `app/ledger/page.tsx`): library route in library mode, in-browser download in preview; own notes only. Unit-tested (`tests/finishedShelfNotes.test.tsx`).
+- C90 — The halls' read-mark legend now links "read to the end" to `/ledger#finished`. Unit-tested (source check).
+- C91 — Ledger "Read to the end" tile (`app/ledger/page.tsx`): "1 book · see the shelf" (link to `#finished`), shown once a book is finished; the tile grid goes to 4 columns when there are 7 tiles. Unit-tested by rendering the page with a mocked ledger (`tests/ledgerTile.test.tsx`).
+- QA27 (2026-11-07, after C89–C91): `npm run qa` all clear — now also requires the shelf's Notes for this book button, the ledger tile link, and the halls legend link (375px + 1280px). Preview e2e 6/6. Performance (local prod build, curl): every page < 30 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 468 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA27).
 
 ## Next task
-C89 — "Notes for this book" on each book of the ledger's Read to the end shelf (BACKLOG.md → FOLLOW-UPS), then C90, C91, QA27. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C92 — "Borrow again" on the ledger's Read to the end shelf for books not on loan now (BACKLOG.md → FOLLOW-UPS), then C93, C94, QA28. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
