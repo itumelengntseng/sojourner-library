@@ -77,3 +77,19 @@ describe("how long it took on the end-of-book card (C87)", () => {
     expect(renderToStaticMarkup(<EndOfChapter slug="w" title="P" chapters={CH} position={2} wpm={230} base="/works/w/read" proof={false} firstRead={first} />)).not.toContain("Read over");
   });
 });
+
+describe("no renewals left on the end-of-book card (C115)", () => {
+  it("adds the note beside Return to shelf only when the loan is spent", () => {
+    const spent = renderToStaticMarkup(<EndOfChapter slug="w" title="Placeholder Work" chapters={CH} position={2} wpm={230} base="/works/w/read" proof={false} loanId="l1" noRenewals />);
+    expect(spent).toContain("Return to shelf");
+    expect(spent).toContain("No renewals left on this loan.");
+    const fresh = renderToStaticMarkup(<EndOfChapter slug="w" title="Placeholder Work" chapters={CH} position={2} wpm={230} base="/works/w/read" proof={false} loanId="l1" />);
+    expect(fresh).not.toContain("No renewals left");
+    const proof = renderToStaticMarkup(<EndOfChapter slug="w" title="Placeholder Work" chapters={CH} position={2} wpm={230} base="/works/w/proof" proof noRenewals />);
+    expect(proof).not.toContain("No renewals left");
+  });
+  it("the reading room passes the loan's renewals left", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("components/ReaderView.tsx", "utf8")).toContain("noRenewals={data.renewalsLeft === 0}");
+  });
+});

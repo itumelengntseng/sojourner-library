@@ -6,7 +6,8 @@ import { returnFromRoomAction, type DeskState } from "@/app/works/[slug]/actions
 const initial: DeskState = { ok: false, message: "" };
 
 /** C40: hand the book back from the end-of-book card; on success the desk walks you back to the work page. */
-export function ReturnFromRoom({ slug, loanId, title }: { slug: string; loanId: string; title: string }) {
+// C115: `noRenewals` adds a plain note when the loan can't be renewed any more.
+export function ReturnFromRoom({ slug, loanId, title, noRenewals = false }: { slug: string; loanId: string; title: string; noRenewals?: boolean }) {
   const [state, action, pending] = useActionState(returnFromRoomAction, initial);
   const [saving, setSaving] = useState(false);
   const busy = pending || saving;
@@ -29,7 +30,7 @@ export function ReturnFromRoom({ slug, loanId, title }: { slug: string; loanId: 
       <button type="submit" disabled={busy} className="rounded border border-current px-4 py-2 disabled:opacity-50">
         {busy ? "Stamping…" : "Return to shelf"}<span className="sr-only">: {title}</span>
       </button>
-      <p className="mt-1 text-xs opacity-80">Your bookmark is kept if you borrow it again.</p>
+      <p className="mt-1 text-xs opacity-80">Your bookmark is kept if you borrow it again.{noRenewals && " No renewals left on this loan."}</p>
       {state.message && <p role="status" className="mt-1">{state.message}</p>}
     </form>
   );

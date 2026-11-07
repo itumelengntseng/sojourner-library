@@ -14,8 +14,10 @@ export function endOfChapter(chapters: ChapterLink[], position: number, wpm: num
   return { kind: "next" as const, position: next.position, title: next.title, minutes: minutesFor(next.words, wpm) };
 }
 
-export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof, loanId = "", finishedAt, firstRead }: {
+export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof, loanId = "", noRenewals = false, finishedAt, firstRead }: {
   slug: string; title: string; chapters: ChapterLink[]; position: number; wpm: number; base: string; proof: boolean; loanId?: string;
+  /** C115: the open loan has no renewals left. */
+  noRenewals?: boolean;
   /** C75: when the reader read this book to the end (own sessions); never shown in the proof copy. */
   finishedAt?: number;
   /** C87: end of the reader's first session in this book, for "Read over 9 days". */
@@ -51,7 +53,7 @@ export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof
             <Link href="/ledger" className="mt-3 inline-block rounded bg-lamplight px-4 py-2 text-ink">See it in your ledger</Link>
           )}
           <p className="mt-3"><Link href={`/works/${slug}`} className="underline">Back to the desk</Link></p>
-          {!proof && loanId && <ReturnFromRoom slug={slug} loanId={loanId} title={title} />}
+          {!proof && loanId && <ReturnFromRoom slug={slug} loanId={loanId} title={title} noRenewals={noRenewals} />}
         </>
       )}
     </section>

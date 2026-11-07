@@ -355,7 +355,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
           </div>
         )}
 
-        <EndOfChapter slug={slug} title={data.title} chapters={chapters} position={chapter.position} wpm={wpm} base={base} proof={proof} loanId={data.loanId} finishedAt={finishedAt} firstRead={firstRead} />
+        <EndOfChapter slug={slug} title={data.title} chapters={chapters} position={chapter.position} wpm={wpm} base={base} proof={proof} loanId={data.loanId} noRenewals={data.renewalsLeft === 0} finishedAt={finishedAt} firstRead={firstRead} />
 
         <div className="mt-10 rounded-sm bg-stone-wall text-paper">
           <AskLibrarian
