@@ -12,6 +12,7 @@ import { RecentlyReturned } from "@/components/RecentlyReturned";
 import { getWork } from "@/lib/catalogue";
 import { countWords } from "@/lib/engine/readingTime";
 import type { Returned } from "@/lib/loanDesk";
+import { finishedStamp } from "@/lib/ledger";
 
 const item = (slug: string, title: string): Returned => ({ workKey: slug, slug, title, borrowed: "1 NOV 2026", returned: "5 NOV 2026", returnedAt: 1, onTime: true });
 
@@ -36,5 +37,11 @@ describe("Finished on Recently returned (C70)", () => {
     expect(html.indexOf("Finished")).toBeGreaterThan(html.indexOf("Placeholder A"));
     expect(html.indexOf("Finished")).toBeLessThan(html.indexOf("Placeholder B"));
     expect(renderToStaticMarkup(<RecentlyReturned items={[item("a", "Placeholder A")]} />)).not.toContain("Finished");
+  });
+  it("dates the Finished mark in SA time (C71)", () => {
+    const at = Date.parse("2026-11-04T23:30:00Z"); // already 5 Nov in Johannesburg
+    const html = renderToStaticMarkup(<RecentlyReturned items={[item("a", "Placeholder A")]} finished={{ a: at }} />);
+    expect(html).toMatch(/Finished 0?5 Nov 2026/); // en-ZA pads the day on some ICU builds
+    expect(finishedStamp(at)).toMatch(/^Finished 0?5 Nov 2026$/);
   });
 });

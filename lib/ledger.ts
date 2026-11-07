@@ -247,3 +247,8 @@ export function notesFilename(slug?: string): string {
   const clean = (slug ?? "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 80);
   return clean ? `sojourner-notes-${clean}.md` : "sojourner-notes.md";
 }
+
+/** "Finished 5 Nov 2026" in SA time — the stamp used beside books read to the end (C71). */
+export function finishedStamp(ms: number): string {
+  return `Finished ${new Date(ms).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" })}`;
+}

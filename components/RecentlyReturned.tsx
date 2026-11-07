@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Returned } from "@/lib/loanDesk";
+import { finishedStamp } from "@/lib/ledger";
 
 /**
  * The reader's last few returns at the front desk, stamped, with a way to borrow again. Nothing returned → nothing shown.
@@ -18,7 +19,7 @@ export function RecentlyReturned({ items, finished = {} }: { items: Returned[]; 
                 {r.title}
                 {finished[r.slug] !== undefined && (
                   <span className="ml-2 inline-block -rotate-2 rounded-sm border border-ochre px-1.5 py-0.5 align-middle font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">
-                    Finished
+                    {finishedStamp(finished[r.slug])}
                   </span>
                 )}
               </p>
