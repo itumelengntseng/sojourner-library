@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 10 — C122–C124, QA38; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 10 — C122–C127, QA38–QA39; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -185,12 +185,17 @@ _Last updated: 2026-11-07 (scheduled build run 10 — C122–C124, QA38; `previe
 - C123 — Pitch Room: each open share link reads "open until 21 Nov · 14 days left" (SA calendar days), "· last day" on its final day; expired/closed unchanged (`linkTimeLeft()` in `lib/pitch.ts`). Unit-tested (preview has no share links, so the sweep can't see it).
 - C124 — Card page Recently returned: a book the reader handed back within the last hour reads "Just returned" (lamplight) instead of the stamp; screen readers hear "Just returned, <stamp>". Loans the desk settled on expiry keep "back on the shelf when due". Unit-tested.
 - QA38 (2026-11-07, after C122–C124): `npm run qa` all clear — now also requires the Writer's Room tile's "due back within the day" count and the card's "Just returned" (with its spoken stamp) at 375px + 1280px, axe clean. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 532 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA38).
+- C125 — Pitch Room: an open share link on its final day carries the card's ember "Last day" mark, spoken "Last day: closes 18:30" (`lastDayLabel()`). Unit-tested (preview has no share links).
+- C126 — Card page: "Recently returned · 3" with two or more lines (one line keeps the plain heading). Unit-tested.
+- C127 — Ledger Borrowing history: a loan the reader handed back within the hour reads "Just returned" (stamp in its spoken label); history rows now carry `onTime`. Loans that ran out keep their stamp. Unit-tested.
+- QA39 (2026-11-07, after C125–C127): `npm run qa` all clear — now also requires the ledger history's "Just returned" and the card heading's count when Recently returned has two or more lines (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 40 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 538 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA39).
 
 ## Next task
-C125 — Pitch Room "Last day" mark on a share link's final day (BACKLOG.md → FOLLOW-UPS), then C126, C127, QA39. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C128 — Writer's Room loans tile: the "due back within the day" part in ember (BACKLOG.md → FOLLOW-UPS), then C129, C130, QA40. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
+- QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
 - Library-mode (Supabase) code paths are verified against PGlite (schema, RLS, RPCs) and by typecheck, but not yet end-to-end against a real Supabase project — after NEEDS ITU 1, run NEEDS ITU 4 (the e2e script).
 - Minor: the final session beacon can arrive just after you navigate straight to the ledger, so the newest few seconds of reading may appear only on the next load.

@@ -508,6 +508,8 @@ for (const width of WIDTHS) {
   if (!(await page.getByRole("heading", { name: /^On loan now · \d+$/ }).count())) { failures++; console.log(`✗ ${width}px card: the On loan now heading has no count`); }
   // QA38 (C124): the book handed back earlier this run reads "Just returned", stamp kept for screen readers.
   const back = page.getByRole("region", { name: "Recently returned" });
+  // QA39 (C126): with two or more lines the heading carries the count.
+  if ((await back.locator("li").count()) > 1 && !(await page.getByRole("heading", { name: /^Recently returned · \d+$/ }).count())) { failures++; console.log(`✗ ${width}px card: Recently returned heading has no count`); }
   if (await back.count()) {
     if (!(await back.locator("span[aria-hidden='true']", { hasText: /^Just returned$/ }).count()) || !(await back.locator(".sr-only", { hasText: /^Just returned, / }).count())) { failures++; console.log(`✗ ${width}px card: a book returned this hour doesn't read "Just returned"`); }
   }
@@ -527,6 +529,8 @@ for (const width of WIDTHS) {
   await page.goto(`${BASE}/ledger`);
   if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/· no renewals left/).count())) { failures++; console.log(`✗ ${width}px ledger: the open loan's row doesn't say no renewals left`); }
   if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/· [123] renewals? left/).count())) { failures++; console.log(`✗ ${width}px ledger: no open loan with renewals left`); }
+  // QA39 (C127): the book handed back this run reads "Just returned" in Borrowing history, stamp kept for screen readers.
+  if (!(await page.getByRole("region", { name: "Borrowing history" }).locator(".sr-only", { hasText: /^Just returned, / }).count())) { failures++; console.log(`✗ ${width}px ledger Borrowing history without "Just returned"`); }
   // QA37 (C120): Hours per book marks the book due within the day.
   if (!(await page.getByText(/^Due soon/).filter({ has: page.locator(".sr-only", { hasText: /back by/ }) }).count())) { failures++; console.log(`✗ ${width}px ledger Hours per book without the Due soon mark`); }
   // QA36 (C117): the spent hour loan is due within the day, so the tile says so.

@@ -180,7 +180,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C123 Pitch Room: each open share link says how long it has left ("open until 21 Nov · 14 days left"), SA time; "last day" on its final day.
 - [x] C124 Card page "Recently returned": a book returned within the last hour shows "Just returned" instead of the stamp, with the stamp kept in its spoken label.
 - [x] QA38 QA pass after C122–C124.
-- [ ] C125 Pitch Room: a share link on its last day carries a small ember "Last day" mark (same look as the card's "Due soon"), spoken "Last day: closes <time>".
-- [ ] C126 Card page "Recently returned": with two or more lines, the heading carries the count ("Recently returned · 3"), like C116/C119.
-- [ ] C127 Ledger Borrowing history: a loan the reader returned within the last hour reads "Just returned" (reuse `justReturned()`), stamp kept in its spoken label.
-- [ ] QA39 QA pass after C125–C127.
+- [x] C125 Pitch Room: a share link on its last day carries a small ember "Last day" mark (same look as the card's "Due soon"), spoken "Last day: closes <time>".
+- [x] C126 Card page "Recently returned": with two or more lines, the heading carries the count ("Recently returned · 3"), like C116/C119.
+- [x] C127 Ledger Borrowing history: a loan the reader returned within the last hour reads "Just returned" (reuse `justReturned()`), stamp kept in its spoken label.
+- [x] QA39 QA pass after C125–C127.
+- [ ] C128 Writer's Room glance: when some loans are due back within the day, that part of the "Out on loan now" note turns ember (the ledger tile's urgent look), counts only.
+- [ ] C129 Work page: a book the reader handed back within the hour shows "Just returned · borrow it again below" under the title (reuse `justReturned()`), linking to the desk.
+- [ ] C130 Pitch Room: each kit's share links list open links first (soonest closing first), then closed/expired, with "N open" before the list.
+- [ ] QA40 QA pass after C128–C130.
