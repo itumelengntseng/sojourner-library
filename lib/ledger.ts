@@ -154,6 +154,21 @@ export function streaks(sessions: SessionStats[], now: number): Streaks {
   return { current, longest, readToday: set.has(today), days: days.length };
 }
 
+export interface Week { ms: number; days: number }
+
+/** C56: reading time in the last 7 SA days (today included) and on how many of them (a minute counts a day). */
+export function thisWeek(sessions: SessionStats[], now: number): Week {
+  const today = dayKey(now);
+  const perDay = new Map<number, number>();
+  for (const s of sessions) {
+    const d = dayKey(s.endedAt);
+    if (d > today || d <= today - 7) continue;
+    perDay.set(d, (perDay.get(d) ?? 0) + s.activeMs);
+  }
+  const ms = [...perDay.values()].reduce((a, b) => a + b, 0);
+  return { ms, days: [...perDay.values()].filter((v) => v >= STREAK_MIN_MS).length };
+}
+
 export interface HistoryRow {
   id: string;
   workKey: string;

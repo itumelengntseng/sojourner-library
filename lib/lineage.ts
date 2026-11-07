@@ -147,3 +147,10 @@ export function describeConnection(people: Person[], path: Step[]): string {
 export function peopleInWork(people: Person[], slug: string): Person[] {
   return people.filter((p) => p.appearsIn.includes(slug));
 }
+
+/** C58: "Find a person" — every word of the query starts a word of the name (case and accents ignored). */
+export function findPeople(people: Person[], query: string): Set<string> {
+  const fold = (s: string) => s.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  const words = fold(query).split(" ").filter(Boolean);
+  return new Set(people.filter((p) => { const n = ` ${fold(p.name)} `; return words.every((w) => n.includes(` ${w}`)); }).map((p) => p.id));
+}

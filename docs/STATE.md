@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 6 — C48–C55, QA13–QA15 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 6 — C48–C58, QA13–QA16 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -93,10 +93,14 @@ _Last updated: 2026-11-07 (scheduled build run 6 — C48–C55, QA13–QA15 so f
 - C54 — Chapter links on the work page (`app/works/[slug]/page.tsx`): when the reader has the book out, each chapter title in Contents links straight into the reading room at that chapter (`/read?ch=N`, spoken "— open in the reading room"); otherwise plain text as before. Smoke-tested at 375px: no links before borrowing → 6 links after → chapter 4 opens `?ch=4`; swept by `npm run qa` (work page with the book out, both widths).
 - C55 — Hall summary (`hallSummary()` in `lib/workStats.ts`, `/halls`): under each hall's name, "2 works · about 1 h 37 min to read at a usual pace" — "at your pace" once the library has learned it (or the reader set one); counts what's on that shelf as shown (canon switch and search respected). The spines' spoken reading time now uses the reader's pace too. Unit-tested.
 - QA15 (2026-11-07, after C53–C55): `npm run qa` all clear (front hall with the search box, halls with summaries, work page with chapter links — both widths). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 58 KB. No migration → RLS audit unchanged.
-- Tests: 395 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA15).
+- C56 — "This week" in the ledger (`thisWeek()` in `lib/ledger.ts`, `week` on the ledger loader, `/ledger`): a sixth tile — time read in the last 7 SA days (today included) and "on N of the last 7 days" (a day counts after a minute, as the streaks do); "0 min · nothing in the last 7 days" otherwise. Own sessions only, no new data; tiles now 2 → 3 → 6 across. Unit-tested (SA day edges); smoke-tested at 375px: empty → "0 min"; sessions today, 3 days ago and 20 days ago → "35 min · on 2 of the last 7 days".
+- C57 — Time left in the book (Contents drawer, `components/ReaderView.tsx`): the drawer opens with "About 1 h 2 min left in this book" — the rest of this chapter (paragraphs read past, as the "min left" line) plus every later chapter, at the reader's pace; "You're at the end of this book" when nothing's left. Not in the proof copy. Unit-tested; smoke-tested at 375px (chapter 1 → 1 h 2 min, chapter 5 → 21 min).
+- C58 — "Find a person" on the family wall (`findPeople()` in `lib/lineage.ts`, `components/LineageWall.tsx`): a labelled search box above the plaques; each typed word must start a word of the name (case and accents ignored); generations with no match are hidden; "3 people match “C”." / "No one on the wall matches …" announced as a status; Clear resets. Over what's shown only (canon switch respected); no new data. Unit-tested; smoke-tested at 375px.
+- QA16 (2026-11-07, after C56–C58): `npm run qa` all clear — now also sweeps the family wall with a name typed (375px + 1280px); the ledger (six tiles) and the reading room's Contents (time left line) are in the existing sweeps. Preview e2e 6/6. Performance unchanged (every page < 20 ms locally). No migration → RLS audit unchanged.
+- Tests: 401 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA16).
 
 ## Next task
-C56 — "This week" tile in the ledger (BACKLOG.md → FOLLOW-UPS), then C57, C58, QA16. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C59 — "Find an event" on the Harlem timeline (BACKLOG.md → FOLLOW-UPS), then C60, C61, QA17. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

@@ -47,6 +47,8 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [] 
   const behind = useSessionTracker({ slug, position: chapter.position, paras, textRef, record: !proof });
   const chapterWords = chapters.find((c) => c.position === chapter.position)?.words ?? 0;
   const left = minutesFor(Math.max(0, chapterWords - behind), wpm);
+  // C57: what's left of the whole book — the rest of this chapter plus every chapter after it.
+  const bookLeft = minutesFor(Math.max(0, chapterWords - behind) + chapters.filter((c) => c.position > chapter.position).reduce((a, c) => a + c.words, 0), wpm);
 
   // Settings and (in preview) annotations live in this browser.
   useEffect(() => {
@@ -222,6 +224,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [] 
           <details ref={contentsRef} className="font-sans text-xs">
             <summary className={`${btn} cursor-pointer list-none border border-sandstone/40 text-paper`}>Contents</summary>
             <nav aria-label="Contents" className="absolute inset-x-3 top-full z-30 mt-1 max-h-[60dvh] overflow-auto sm:inset-x-auto sm:w-80 rounded-sm border border-timber-dark bg-stone-wall p-2 shadow-lg">
+              {!proof && <p className="mb-1 px-2 py-1 text-sandstone">{bookLeft > 0 ? `About ${formatDuration(bookLeft)} left in this book` : "You're at the end of this book"}</p>}
               {!proof && data.bookmark && (
                 data.bookmark.position === chapter.position ? (
                   <button type="button" onClick={() => { if (contentsRef.current) contentsRef.current.open = false; showBookmark(); }}

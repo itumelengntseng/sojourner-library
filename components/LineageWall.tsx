@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { connection, describeConnection, generations, relativesOf, type Person } from "@/lib/lineage";
+import { connection, describeConnection, findPeople, generations, relativesOf, type Person } from "@/lib/lineage";
 
 // Stone plaques set into a courtyard wall, one row per generation.
 export function LineageWall({ people, works }: { people: Person[]; works: Record<string, string> }) {
@@ -13,6 +13,9 @@ export function LineageWall({ people, works }: { people: Person[]; works: Record
   const me = people.find((p) => p.id === selected);
   const rel = relativesOf(people, selected);
   const path = a && b ? connection(people, a, b) : null;
+  const [query, setQuery] = useState("");
+  const found = useMemo(() => findPeople(people, query), [people, query]);
+  const searching = query.trim() !== "";
 
   const plaque = (p: Person) => {
     const on = p.id === selected;
@@ -33,13 +36,27 @@ export function LineageWall({ people, works }: { people: Person[]; works: Record
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
       <div className="overflow-x-auto rounded-sm border border-timber-dark bg-stone-wall/60 p-4">
-        {rows.map((row, i) => (
-          <section key={i} aria-label={`Generation ${i + 1}`} className="mb-4 last:mb-0">
-            <p className="font-sans text-[0.6rem] uppercase tracking-[0.3em] text-sandstone">Generation {i + 1}</p>
-            <ul className="mt-2 flex flex-wrap gap-2">{row.map(plaque)}</ul>
-            {i < rows.length - 1 && <div className="threshold mt-4 opacity-40" aria-hidden="true" />}
-          </section>
-        ))}
+        <div role="search" className="mb-4 flex flex-wrap items-center gap-2 font-sans text-sm">
+          <label htmlFor="find-person" className="sr-only">Find a person</label>
+          <input id="find-person" type="search" value={query} onChange={(e) => setQuery(e.target.value)} maxLength={60} autoComplete="off"
+            placeholder="Find a person…"
+            className="min-w-0 flex-1 rounded-sm border border-timber bg-stone-floor/80 px-3 py-1.5 text-paper placeholder:text-sandstone/70" />
+          {searching && <button type="button" onClick={() => setQuery("")} className="text-sandstone underline underline-offset-2 hover:text-lamplight">Clear</button>}
+          <p role="status" className="w-full text-xs text-sandstone">
+            {searching ? (found.size === 0 ? `No one on the wall matches “${query.trim()}”.` : `${found.size} ${found.size === 1 ? "person matches" : "people match"} “${query.trim()}”.`) : ""}
+          </p>
+        </div>
+        {rows.map((row, i) => {
+          const shown = searching ? row.filter((p) => found.has(p.id)) : row;
+          if (shown.length === 0) return null;
+          return (
+            <section key={i} aria-label={`Generation ${i + 1}`} className="mb-4 last:mb-0">
+              <p className="font-sans text-[0.6rem] uppercase tracking-[0.3em] text-sandstone">Generation {i + 1}</p>
+              <ul className="mt-2 flex flex-wrap gap-2">{shown.map(plaque)}</ul>
+              {!searching && i < rows.length - 1 && <div className="threshold mt-4 opacity-40" aria-hidden="true" />}
+            </section>
+          );
+        })}
       </div>
 
       <aside className="flex flex-col gap-6">

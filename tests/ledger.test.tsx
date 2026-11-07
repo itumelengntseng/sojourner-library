@@ -156,3 +156,24 @@ describe("borrowing history paging (C46)", () => {
     expect(historyPage([], false)).toEqual({ rows: [], hidden: 0 });
   });
 });
+
+describe("C56 this week", async () => {
+  const { thisWeek } = await import("@/lib/ledger");
+  const now = Date.parse("2026-11-07T10:00:00Z"); // Sat, 12:00 SAST
+  const s = (endedAt: number, activeMs: number) => ({ wordsRead: 100, activeMs, endedAt });
+  it("sums the last 7 SA days, today included, and counts days with a minute or more", () => {
+    const w = thisWeek([
+      s(now - 1000, 10 * 60_000),                          // today
+      s(now - 2 * 86_400_000, 5 * 60_000),                 // Thursday
+      s(now - 2 * 86_400_000 + 1000, 30_000),              // same day, adds time
+      s(Date.parse("2026-11-01T00:30:00Z"), 20 * 60_000),  // Sun 1 Nov 02:30 SAST — 7th day back, inside
+      s(Date.parse("2026-10-31T21:30:00Z"), 60 * 60_000),  // Sat 31 Oct 23:30 SAST — outside
+      s(now - 3 * 86_400_000, 20_000),                     // under a minute: time counts, the day doesn't
+    ], now);
+    expect(w.ms).toBe((10 + 5 + 0.5 + 20) * 60_000 + 20_000);
+    expect(w.days).toBe(3);
+  });
+  it("nothing read → zero", () => {
+    expect(thisWeek([], now)).toEqual({ ms: 0, days: 0 });
+  });
+});

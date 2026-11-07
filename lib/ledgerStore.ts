@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { getWorks } from "./catalogue";
 import { activeMs, countWords } from "./engine/readingTime";
-import { byMonth, chaptersRead, finishedAt, hoursByWork, loanHistory, notesMarkdown, streaks, withFinished, type ExportWork, type HistoryRow, type MonthRow, type Streaks, type WorkHours, type WorkSession } from "./ledger";
+import { byMonth, thisWeek, type Week, chaptersRead, finishedAt, hoursByWork, loanHistory, notesMarkdown, streaks, withFinished, type ExportWork, type HistoryRow, type MonthRow, type Streaks, type WorkHours, type WorkSession } from "./ledger";
 import { parsePreviewLoans, PREVIEW_COOKIE, rowToLoan, type LoanRow } from "./loanDesk";
 import { splitParagraphs } from "./reader";
 import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
@@ -19,6 +19,7 @@ export interface LedgerView {
   totalMs: number;
   totalWords: number;
   months: MonthRow[];
+  week: Week;
 }
 
 const EMPTY: Streaks = { current: 0, longest: 0, readToday: false, days: 0 };
@@ -40,11 +41,11 @@ export async function loadLedger(): Promise<LedgerView> {
     return {
       mode: "preview", readerName: "", titles, slugs,
       history: loanHistory(loans, now), hours: withFinished(hoursByWork(sessions.filter((s) => s.workKey !== "unknown")), sessions, lastChapters),
-      streaks: streaks(stats, now), totalMs: stats.reduce((a, s) => a + s.activeMs, 0), totalWords: stats.reduce((a, s) => a + s.wordsRead, 0), months: byMonth(stats, now),
+      streaks: streaks(stats, now), totalMs: stats.reduce((a, s) => a + s.activeMs, 0), totalWords: stats.reduce((a, s) => a + s.wordsRead, 0), months: byMonth(stats, now), week: thisWeek(stats, now),
     };
   }
   const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) return { mode: "signed-out", readerName: "", titles: {}, slugs: {}, history: [], hours: [], streaks: EMPTY, totalMs: 0, totalWords: 0, months: [] };
+  if (!auth.user) return { mode: "signed-out", readerName: "", titles: {}, slugs: {}, history: [], hours: [], streaks: EMPTY, totalMs: 0, totalWords: 0, months: [], week: { ms: 0, days: 0 } };
   const uid = auth.user.id;
   const since = new Date(now - 400 * 86_400_000).toISOString();
   const [{ data: me }, { data: loans }, { data: rows }, { data: works }] = await Promise.all([
@@ -79,6 +80,7 @@ export async function loadLedger(): Promise<LedgerView> {
     totalMs: sessions.reduce((a, s) => a + s.activeMs, 0),
     totalWords: sessions.reduce((a, s) => a + s.wordsRead, 0),
     months: byMonth(sessions, now),
+    week: thisWeek(sessions, now),
   };
 }
 

@@ -66,3 +66,20 @@ describe("the wall", () => {
     expect(html).toContain("How are they connected?");
   });
 });
+
+describe("C58 find a person", async () => {
+  const { findPeople } = await import("@/lib/lineage");
+  const p = (id: string, name: string) => ({ id, name, isPlaceholder: true, parents: [], partners: [], appearsIn: [] });
+  const people = [p("a", "Placeholder Élder Mosa"), p("b", "Placeholder Child Two"), p("c", "Placeholder Child One")];
+  it("matches every word of the name, ignoring case and accents", () => {
+    expect([...findPeople(people, "elder")]).toEqual(["a"]);
+    expect([...findPeople(people, "CHILD one")]).toEqual(["c"]);
+    expect(findPeople(people, "child").size).toBe(2);
+    expect(findPeople(people, "nobody").size).toBe(0);
+    expect([...findPeople(people, "mo")]).toEqual(["a"]); // word starts…
+    expect(findPeople(people, "osa").size).toBe(0);       // …not the middle of a word
+  });
+  it("an empty query matches everyone", () => {
+    expect(findPeople(people, "  ").size).toBe(3);
+  });
+});

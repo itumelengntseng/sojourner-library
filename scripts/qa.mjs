@@ -224,6 +224,16 @@ for (const width of WIDTHS) {
   await axeCheck(`${width}px work page with Continue at`);
 }
 
+// C58: the family wall with a name typed into "Find a person".
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/lineage`);
+  await page.fill("#find-person", "placeholder");
+  await page.getByRole("status").filter({ hasText: /match/ }).waitFor();
+  await axeCheck(`${width}px family wall with Find a person`);
+}
+
 // C52: the reading room's Contents open with "Go to your bookmark" (book out from the C49 check; bookmark in chapter 2).
 {
   await page.setViewportSize({ width: 375, height: 900 });

@@ -46,3 +46,16 @@ describe("Go to your bookmark in Contents (C52)", () => {
   });
 });
 
+describe("C57 time left in the book (Contents)", () => {
+  const nav = (html: string) => html.slice(html.indexOf('aria-label="Contents"'), html.indexOf("</nav>"));
+  it("this chapter plus the chapters after it, at the reader's pace", () => {
+    // chapter 2 of 3, nothing read yet: 300 + 300 words at 200 wpm = 3 min
+    const n = nav(renderToStaticMarkup(<ReaderView slug="w" data={data} wpm={200} minutesPerDay={30} />));
+    expect(n).toContain("About 3 min left in this book");
+  });
+  it("not in the proof copy", () => {
+    const n = nav(renderToStaticMarkup(<ReaderView slug="w" data={{ ...data, mode: "proof" as never }} wpm={200} minutesPerDay={30} />));
+    expect(n).not.toContain("left in this book");
+  });
+});
+
