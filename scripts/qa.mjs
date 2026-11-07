@@ -491,6 +491,9 @@ for (const width of WIDTHS) {
     await page.getByText(/^(\d renewals? left|No renewals left)$/).filter({ hasText: i === 2 ? "No renewals left" : `${2 - i} renewal` }).waitFor({ timeout: 10000 }).catch(() => {});
   }
   if (await page.getByRole("button", { name: "Renew", exact: true }).isEnabled()) { failures++; console.log("✗ the desk still offers Renew after three renewals"); }
+  // QA34 (C110): the desk explains the greyed-out Renew.
+  if (!(await page.getByText(/^No renewals left — return it by .+ and borrow it again; your bookmark is kept\.$/).count())) { failures++; console.log("✗ the desk doesn't explain a spent loan"); }
+  await axeCheck("375px work page desk with no renewals left");
 }
 for (const width of WIDTHS) {
   await page.setViewportSize({ width, height: 900 });
@@ -517,6 +520,9 @@ for (const width of WIDTHS) {
   await p2.goto(`${BASE}/works/placeholder-work-two/read`);
   try { await p2.getByText(/no renewals left/).waitFor({ timeout: 5000 }); } catch { failures++; console.log(`✗ ${width}px reading room: the due line doesn't say no renewals left`); }
   if (!(await p2.locator("main a[href='/works/placeholder-work-two#desk']").getByText("return at the desk").count())) { failures++; console.log(`✗ ${width}px reading room: no "return at the desk" link`); }
+  // QA34 (C112): Contents stamps the loan's due time.
+  await p2.getByText("Contents", { exact: true }).click();
+  if (!(await p2.getByRole("navigation", { name: "Contents" }).getByText(/^Due back /).count())) { failures++; console.log(`✗ ${width}px reading room Contents without the due stamp`); }
   await p2.close();
 }
 

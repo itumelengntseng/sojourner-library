@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 9 — C101–C109, QA31–QA33 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 9 — C101–C112, QA31–QA34 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -165,10 +165,14 @@ _Last updated: 2026-11-07 (scheduled build run 9 — C101–C109, QA31–QA33 so
 - C108 — Halls spoken spine (`noRenewals` in `lib/spine.ts`): a book on loan with every renewal used adds ", no renewals left" after its due time. Unit-tested.
 - C109 — Ledger Borrowing history (`renewalsLeftLine()` in `lib/ledger.ts`): an open loan's row adds "· 3 renewals left" / "· 1 renewal left" / "· no renewals left"; returned loans unchanged. Unit-tested (`tests/historyRenewals.test.ts`).
 - QA33 (2026-11-07, after C107–C109): `npm run qa` all clear — now also requires "Due back within the hour" on the work page slip (the hour loan, via the card's Renew), and after the three renewals the spine's "no renewals left" and the ledger rows' "no renewals left" / "N renewals left" (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 506 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA33).
+- C110 — Work page loan desk (`components/LoanDesk.tsx`): with every renewal used, under the greyed-out Renew: "No renewals left — return it by <due> and borrow it again; your bookmark is kept." Unit-tested (`tests/deskBookLeft.test.tsx`).
+- C111 — Card On loan now: a spent loan that isn't due soon adds "· no renewals left" to its due line (the Due soon one keeps C104's wording beside its title). Unit-tested only — in the QA sweep the spent loan is always due within the day.
+- C112 — Reading room Contents drawer: "Due back Sat, 07 Nov, 12:00" (the slip's SA stamp) under the time left in the book; not in the proof copy. Unit-tested (`tests/contentsTicks.test.tsx`).
+- QA34 (2026-11-07, after C110–C112): `npm run qa` all clear — now also requires the desk's spent-loan line after the three renewals (axe clean) and the due stamp in the reading room's Contents (375px + 1280px). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 510 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA34).
 
 ## Next task
-C110 — the work page's loan desk explains a spent loan ("No renewals left — return it…") (BACKLOG.md → FOLLOW-UPS), then C111, C112, QA34. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C113 — an "On loan" tile in the ledger (BACKLOG.md → FOLLOW-UPS), then C114, C115, QA35. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

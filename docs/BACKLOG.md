@@ -160,7 +160,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C108 Halls: a spine on loan with no renewals left adds "no renewals left" to its spoken text (C104's rule).
 - [x] C109 Ledger Borrowing history: an open loan's row shows "N renewals left" / "No renewals left" beside its renewals count (own loans).
 - [x] QA33 QA pass after C107–C109.
-- [ ] C110 Work page loan desk: with no renewals left, a line under the (disabled) Renew button — "No renewals left — return it by <due> and borrow it again; your bookmark is kept."
-- [ ] C111 Card page "On loan now": a loan that isn't due soon but has no renewals left gets a quiet "· no renewals left" in its due line (C104's rule).
-- [ ] C112 Reading room Contents drawer: a line "Due back <stamp>" under the time left in the book (open loan only; not in the proof copy).
-- [ ] QA34 QA pass after C110–C112.
+- [x] C110 Work page loan desk: with no renewals left, a line under the (disabled) Renew button — "No renewals left — return it by <due> and borrow it again; your bookmark is kept."
+- [x] C111 Card page "On loan now": a loan that isn't due soon but has no renewals left gets a quiet "· no renewals left" in its due line (C104's rule).
+- [x] C112 Reading room Contents drawer: a line "Due back <stamp>" under the time left in the book (open loan only; not in the proof copy).
+- [x] QA34 QA pass after C110–C112.
+- [ ] C113 Ledger top tiles: an "On loan" tile — how many books the reader has out now and the soonest due stamp, linking to the front desk (`/card`); shown only when something is out (own loans).
+- [ ] C114 Front hall Continue reading card: when its due stamp shows (C42) and the loan has no renewals left, the stamp reads "… · no renewals left · return" instead of "renew or return".
+- [ ] C115 Reading room end-of-book card: when the loan has no renewals left, the Return to shelf note adds "No renewals left on this loan." (not in the proof copy).
+- [ ] QA35 QA pass after C113–C115.
