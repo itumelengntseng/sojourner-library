@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 9 — C101–C112, QA31–QA34 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 9 — C101–C115, QA31–QA35 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -169,10 +169,14 @@ _Last updated: 2026-11-07 (scheduled build run 9 — C101–C112, QA31–QA34 so
 - C111 — Card On loan now: a spent loan that isn't due soon adds "· no renewals left" to its due line (the Due soon one keeps C104's wording beside its title). Unit-tested only — in the QA sweep the spent loan is always due within the day.
 - C112 — Reading room Contents drawer: "Due back Sat, 07 Nov, 12:00" (the slip's SA stamp) under the time left in the book; not in the proof copy. Unit-tested (`tests/contentsTicks.test.tsx`).
 - QA34 (2026-11-07, after C110–C112): `npm run qa` all clear — now also requires the desk's spent-loan line after the three renewals (axe clean) and the due stamp in the reading room's Contents (375px + 1280px). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 510 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA34).
+- C113 — Ledger "On loan" tile (`app/ledger/page.tsx`): "2 books · next due Sat, 07 Nov, 14:00" (soonest first, own open loans — the list the page already reads), the note linking to the front desk (spoken "— renew or return at the front desk"); shown only when something is out. Tile links now carry their own spoken text. Unit-tested (`tests/ledgerTile.test.tsx`).
+- C114 — Front hall Continue reading card: when it carries the due stamp (C42) and the loan has no renewals left, the stamp ends "· no renewals left · return" instead of "renew or return". Unit-tested.
+- C115 — Reading room end-of-book card: beside Return to shelf, "Your bookmark is kept if you borrow it again. No renewals left on this loan." when the loan is spent; never in the proof copy. Unit-tested (`tests/endOfChapter.test.tsx`).
+- QA35 (2026-11-07, after C113–C115): `npm run qa` all clear — now also requires the ledger's On loan tile, the front hall's Continue card saying no renewals left (and not "renew or return") for the spent loan, and the end-of-book note (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 514 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA35).
 
 ## Next task
-C113 — an "On loan" tile in the ledger (BACKLOG.md → FOLLOW-UPS), then C114, C115, QA35. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C116 — the count on the card's "On loan now" heading (BACKLOG.md → FOLLOW-UPS), then C117, C118, QA36. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

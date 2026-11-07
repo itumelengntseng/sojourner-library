@@ -164,7 +164,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C111 Card page "On loan now": a loan that isn't due soon but has no renewals left gets a quiet "· no renewals left" in its due line (C104's rule).
 - [x] C112 Reading room Contents drawer: a line "Due back <stamp>" under the time left in the book (open loan only; not in the proof copy).
 - [x] QA34 QA pass after C110–C112.
-- [ ] C113 Ledger top tiles: an "On loan" tile — how many books the reader has out now and the soonest due stamp, linking to the front desk (`/card`); shown only when something is out (own loans).
-- [ ] C114 Front hall Continue reading card: when its due stamp shows (C42) and the loan has no renewals left, the stamp reads "… · no renewals left · return" instead of "renew or return".
-- [ ] C115 Reading room end-of-book card: when the loan has no renewals left, the Return to shelf note adds "No renewals left on this loan." (not in the proof copy).
-- [ ] QA35 QA pass after C113–C115.
+- [x] C113 Ledger top tiles: an "On loan" tile — how many books the reader has out now and the soonest due stamp, linking to the front desk (`/card`); shown only when something is out (own loans).
+- [x] C114 Front hall Continue reading card: when its due stamp shows (C42) and the loan has no renewals left, the stamp reads "… · no renewals left · return" instead of "renew or return".
+- [x] C115 Reading room end-of-book card: when the loan has no renewals left, the Return to shelf note adds "No renewals left on this loan." (not in the proof copy).
+- [x] QA35 QA pass after C113–C115.
+- [ ] C116 Card page "On loan now": the heading carries the count ("On loan now · 2"), and with two or more due within the day a line under it, "2 due back within the day".
+- [ ] C117 Ledger "On loan" tile: when the soonest loan is due within the day (`dueBackSoon()`), its note turns ember and reads "due back within the day · <stamp>".
+- [ ] C118 Halls: the "out" legend line says how many ("2 books out to you — renew or return them at the front desk").
+- [ ] QA36 QA pass after C116–C118.

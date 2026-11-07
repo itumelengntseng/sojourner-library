@@ -511,7 +511,20 @@ for (const width of WIDTHS) {
   await page.goto(`${BASE}/ledger`);
   if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/· no renewals left/).count())) { failures++; console.log(`✗ ${width}px ledger: the open loan's row doesn't say no renewals left`); }
   if (!(await page.getByRole("region", { name: "Borrowing history" }).getByText(/· [123] renewals? left/).count())) { failures++; console.log(`✗ ${width}px ledger: no open loan with renewals left`); }
+  // QA35 (C113): the On loan tile leads to the front desk.
+  if (!(await page.locator("dt", { hasText: /^On loan$/ }).count()) || !(await page.locator("dl a[href='/card']").count())) { failures++; console.log(`✗ ${width}px ledger without the On loan tile`); }
   await axeCheck(`${width}px ledger with renewals left on open loans`);
+  // QA35 (C114): the spent loan is the Continue reading book — its stamp offers only the return.
+  errors.length = 0;
+  await page.goto(`${BASE}/`);
+  const cont = page.getByRole("region", { name: "Continue reading" });
+  if (!(await cont.getByText(/no renewals left/i).count()) || (await cont.getByText(/renew or return/i).count())) { failures++; console.log(`✗ ${width}px front hall Continue card doesn't say no renewals left`); }
+  await axeCheck(`${width}px front hall with a spent Continue reading loan`);
+  // QA35 (C115): the end-of-book card says the loan can't be renewed.
+  errors.length = 0;
+  await page.goto(`${BASE}/works/placeholder-work-two/read?ch=4`);
+  if (!(await page.getByText(/No renewals left on this loan\./).count())) { failures++; console.log(`✗ ${width}px end-of-book card without "No renewals left on this loan."`); }
+  await axeCheck(`${width}px end-of-book card with no renewals left`);
   // The reading room's line is worked out in the browser, so move the page's clock into the loan's last hour.
   const p2 = await page.context().newPage();
   p2.on("pageerror", (e) => errors.push(String(e)));
