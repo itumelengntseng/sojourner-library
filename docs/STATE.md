@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 9 — C101–C103, QA31 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 9 — C101–C106, QA31–QA32 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -157,10 +157,14 @@ _Last updated: 2026-11-07 (scheduled build run 9 — C101–C103, QA31 so far; C
 - C102 — Reading room due line (`components/DueWithinHour.tsx`, `lib/dueNotice.ts`): when the open loan is due back within the hour, one quiet line at the top of the page under the toolbar — "Due back at 14:00 · renew at the desk" (SA clock; link to `/works/<slug>#desk`). Read after mount and re-checked every minute (no server/client clock mismatch; it appears as the last hour begins and goes when the loan runs out). Not in the proof copy. Unit-tested (`tests/dueNotice.test.tsx`).
 - C103 — Halls legend for the due-soon band: "due soon marks books due back within the day — renew them at the front desk", shown only while a band shows (same condition as the band). Unit-tested (`tests/hallsDueLegend.test.ts`).
 - QA31 (2026-11-07, after C101–C103): `npm run qa` all clear — now also requires Renew on the front hall slip, the halls' due-soon legend, and (in its own sweep after the front hall, since opening the book makes it the Continue reading book) the reading room's "Due back at" line linking to the desk (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 495 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA31).
+- C104 — Card On loan now (`renewalsLeft` on `OnLoan` from the slip, `noRenewalsLeft()` in `lib/loanDesk.ts`, `components/OnLoanNow.tsx`): a Due soon loan with all three renewals used says "No renewals left — return by <due>" instead of offering Renew. Loans built without the field are treated as renewable (as before). Unit-tested.
+- C105 — Front hall Due back soon slip: the same rule — "no renewals left" in place of Renew. Unit-tested.
+- C106 — Reading room due line (C102): with no renewals left it reads "Due back at 14:00 · no renewals left — return at the desk". The reading-room loader now carries `renewalsLeft` (preview from the cookie loan; library selects the loan's `renewals` — the reader's own row, already readable under RLS). Unit-tested.
+- QA32 (2026-11-07, after C104–C106): `npm run qa` all clear — now also renews the hour loan three times at its desk (Renew then disabled), requires "No renewals left — return by" and no Renew link on the card, and opens the reading room with the browser clock moved into the loan's last hour to require "no renewals left — return at the desk" (375px + 1280px, axe clean). The slip's rule is unit-tested only: by then the spent loan is the Continue reading book, which (C42) leaves the slip. Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 500 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA32).
 
 ## Next task
-C104 — "no renewals left" on the card's On loan now (BACKLOG.md → FOLLOW-UPS), then C105, C106, QA32. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C107 — the work page's loan desk says "Due back within the hour" (BACKLOG.md → FOLLOW-UPS), then C108, C109, QA33. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

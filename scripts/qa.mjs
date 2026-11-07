@@ -477,6 +477,38 @@ for (const width of WIDTHS) {
   await axeCheck(`${width}px reading room with the due-within-the-hour line`);
 }
 
+// QA32 (C104–C106): use every renewal on the hour loan, then the front desk and the reading room
+// say "no renewals left" instead of sending the reader to renew.
+{
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto(`${BASE}/works/placeholder-work-two#desk`);
+  for (let i = 0; i < 3; i++) {
+    const btn = page.getByRole("button", { name: "Renew", exact: true });
+    if (!(await btn.isEnabled())) break;
+    await btn.click();
+    await page.getByText(/^(\d renewals? left|No renewals left)$/).filter({ hasText: i === 2 ? "No renewals left" : `${2 - i} renewal` }).waitFor({ timeout: 10000 }).catch(() => {});
+  }
+  if (await page.getByRole("button", { name: "Renew", exact: true }).isEnabled()) { failures++; console.log("✗ the desk still offers Renew after three renewals"); }
+}
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/card`);
+  const onLoan = page.getByRole("region", { name: "On loan now" });
+  if (!(await onLoan.getByText(/No renewals left — return by /).count())) { failures++; console.log(`✗ ${width}px card: no "No renewals left" on the spent loan`); }
+  if (await onLoan.locator("a[href='/works/placeholder-work-two#desk']").count()) { failures++; console.log(`✗ ${width}px card: still offers Renew on the spent loan`); }
+  await axeCheck(`${width}px card with no renewals left`);
+  // The reading room's line is worked out in the browser, so move the page's clock into the loan's last hour.
+  const p2 = await page.context().newPage();
+  p2.on("pageerror", (e) => errors.push(String(e)));
+  await p2.clock.setFixedTime(Date.now() + 3 * 3600_000 + 40 * 60_000);
+  await p2.setViewportSize({ width, height: 900 });
+  await p2.goto(`${BASE}/works/placeholder-work-two/read`);
+  try { await p2.getByText(/no renewals left/).waitFor({ timeout: 5000 }); } catch { failures++; console.log(`✗ ${width}px reading room: the due line doesn't say no renewals left`); }
+  if (!(await p2.locator("main a[href='/works/placeholder-work-two#desk']").getByText("return at the desk").count())) { failures++; console.log(`✗ ${width}px reading room: no "return at the desk" link`); }
+  await p2.close();
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);

@@ -152,7 +152,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C102 Reading room: when the open loan is due back within the hour, one quiet line under the toolbar — "Due back at 14:00 · renew at the desk" (link to `/works/<slug>#desk`). Not in the proof copy.
 - [x] C103 Halls: a legend line for the "due soon" band ("due soon marks books due back within the day — renew at the front desk") shown only when a band shows.
 - [x] QA31 QA pass after C101–C103.
-- [ ] C104 Card page "On loan now": a loan with no renewals left (3 used) says "No renewals left — return by <due>" instead of offering Renew on a Due soon loan (needs `renewalsLeft` on `OnLoan`).
-- [ ] C105 Front hall "Due back soon" slip: same rule — a loan with no renewals left says "no renewals left" instead of Renew.
-- [ ] C106 Reading room due line (C102): with no renewals left it reads "Due back at 14:00 · no renewals left — return at the desk".
-- [ ] QA32 QA pass after C104–C106.
+- [x] C104 Card page "On loan now": a loan with no renewals left (3 used) says "No renewals left — return by <due>" instead of offering Renew on a Due soon loan (needs `renewalsLeft` on `OnLoan`).
+- [x] C105 Front hall "Due back soon" slip: same rule — a loan with no renewals left says "no renewals left" instead of Renew.
+- [x] C106 Reading room due line (C102): with no renewals left it reads "Due back at 14:00 · no renewals left — return at the desk".
+- [x] QA32 QA pass after C104–C106.
+- [ ] C107 Work page loan desk: when the open loan is due back within the hour, the slip carries one ember line "Due back within the hour" (C102's rule, worked out in the browser; not in the proof copy).
+- [ ] C108 Halls: a spine on loan with no renewals left adds "no renewals left" to its spoken text (C104's rule).
+- [ ] C109 Ledger Borrowing history: an open loan's row shows "N renewals left" / "No renewals left" beside its renewals count (own loans).
+- [ ] QA33 QA pass after C107–C109.
