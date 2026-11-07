@@ -32,6 +32,8 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
   const [continueAt, bookLeft] = await Promise.all([myContinueBySlug(), myBookLeft(open)]);
   // C92: "Borrow again" on the Read to the end shelf for books still on the shelves and not on loan now.
   const onLoan = new Set(open.map((o) => o.slug));
+  // C120: books due back within the day carry a "Due soon" mark in Hours per book (the card's C96 look).
+  const dueSoonBy: Record<string, string> = Object.fromEntries(dueBackSoon(open, Date.now()).map((o) => [o.slug, o.due]));
   const borrowAgain = (k: string) => (l.slugs[k] && !onLoan.has(l.slugs[k]) ? `/works/${l.slugs[k]}` : null);
   const link = (k: string) => (l.slugs[k] ? `/works/${l.slugs[k]}` : null);
   const finished = finishedBooks(l.hours);
@@ -87,6 +89,11 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
               {l.hours.map((h) => (
                 <tr key={h.workKey}>
                   <td className="py-3 pr-2">{link(h.workKey) ? <Link href={link(h.workKey)!} className="hover:text-lamplight">{title(h.workKey)}</Link> : title(h.workKey)}{h.finishedAt !== undefined && <span className="ml-2 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">{finishedStamp(h.finishedAt)}</span>}
+                    {l.slugs[h.workKey] && dueSoonBy[l.slugs[h.workKey]] && (
+                      <span className="ml-2 inline-block -rotate-2 rounded-sm border border-ember px-1.5 py-0.5 align-middle font-mono text-[0.65rem] uppercase tracking-wider text-ember">
+                        Due soon<span className="sr-only">: back by {dueSoonBy[l.slugs[h.workKey]]}</span>
+                      </span>
+                    )}
                     {l.slugs[h.workKey] && continueAt[l.slugs[h.workKey]] && (() => {
                       const c = continueAt[l.slugs[h.workKey]];
                       return (

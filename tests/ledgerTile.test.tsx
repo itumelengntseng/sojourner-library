@@ -134,3 +134,16 @@ describe("On loan tile due within the day (C117)", () => {
     spy.mockRestore();
   });
 });
+
+describe("Due soon mark in Hours per book (C120)", () => {
+  it("marks a book on loan due back within the day, with the due time spoken", async () => {
+    hours = [{ workKey: "w", activeMs: 60_000, wordsRead: 100, sessions: 1, lastRead: 2 }];
+    const mod = await import("@/lib/loanStore");
+    const spy = vi.spyOn(mod, "myOpenLoans").mockResolvedValue([{ slug: "placeholder-work-one", due: "Sat, 07 Nov, 14:00", dueAt: Date.now() + 2 * 3600_000 }] as never);
+    const html = await render();
+    expect(html).toContain('Due soon<span class="sr-only">: back by Sat, 07 Nov, 14:00</span>');
+    spy.mockResolvedValue([{ slug: "placeholder-work-one", due: "Mon, 16 Nov, 14:00", dueAt: Date.now() + 9 * 86_400_000 }] as never);
+    expect(await render()).not.toContain("Due soon<span");
+    spy.mockRestore();
+  });
+});
