@@ -285,7 +285,9 @@ export function dueBackSoon(loans: OnLoan[], now: number, windowMs = 24 * 3600_0
 
 // ── "Recently returned" at the front desk ───────────────────────────────────
 
-export interface Returned { workKey: string; slug: string; title: string; borrowed: string; returned: string; returnedAt: number; onTime: boolean }
+export interface Returned { workKey: string; slug: string; title: string; borrowed: string; returned: string; returnedAt: number; onTime: boolean;
+  /** C156: how many times the reader has borrowed this work (in the loans the desk keeps). */
+  times?: number }
 
 /**
  * The reader's most recently returned works, newest return first — one line per work (its latest
@@ -304,6 +306,7 @@ export function recentlyReturned(loans: Loan[], readerId: string, works: Record<
     out.push({
       workKey: l.workId, slug: works[l.workId].slug, title: works[l.workId].title,
       borrowed: stampDate(l.borrowedAt), returned: stampDate(l.returnedAt!), returnedAt: l.returnedAt!, onTime: l.returnedAt! < l.dueAt,
+      times: settled.filter((x) => x.workId === l.workId).length,
     });
     if (out.length >= limit) break;
   }

@@ -36,6 +36,8 @@ export function RecentlyReturned({ items, finished = {}, notes = "preview", firs
                 Out {r.borrowed} · {now !== undefined && justReturned(r, now)
                   ? <><span aria-hidden="true" className="text-lamplight">Just returned</span><span className="sr-only">Just returned, {r.returned}</span></>
                   : <>{r.onTime ? "returned" : "back on the shelf when due"} {r.returned}</>}
+                {/* C156: a book borrowed more than once says how often. */}
+                {(r.times ?? 0) > 1 && <> · borrowed {r.times} times</>}
               </p>
               {finished[r.slug] !== undefined && (
                 <p className="mt-0.5">

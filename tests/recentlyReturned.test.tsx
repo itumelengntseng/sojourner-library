@@ -41,3 +41,14 @@ describe("recently returned", () => {
     expect(html).toContain("returned");
   });
 });
+
+describe("recently returned — borrowed N times (C156)", () => {
+  it("counts the reader's own loans of the work and says so from the second", () => {
+    const loans = [loan("1", "a", 50, 40), loan("2", "a", 30, 20), loan("3", "a", 10, 5), loan("4", "b", 30, 2), loan("x", "a", 30, 1, "someone-else")];
+    const out = recentlyReturned(loans, "me", W, NOW);
+    expect(out.find((r) => r.workKey === "a")!.times).toBe(3);
+    expect(out.find((r) => r.workKey === "b")!.times).toBe(1);
+    const html = renderToStaticMarkup(<RecentlyReturned items={out} />);
+    expect(html.match(/ · borrowed \d+ times/g)).toEqual([" · borrowed 3 times"]);
+  });
+});
