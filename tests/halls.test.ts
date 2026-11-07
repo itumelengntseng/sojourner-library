@@ -67,3 +67,13 @@ describe("C55 hall summary", async () => {
     expect(hallSummary([], 230)).toBe("");
   });
 });
+
+describe("C62 library summary", async () => {
+  const { librarySummary } = await import("@/lib/workStats");
+  const { getWorks } = await import("@/lib/catalogue");
+  it("names the shelves and keeps the pace wording", () => {
+    expect(librarySummary(getWorks().slice(0, 1), 230)).toMatch(/^1 work on the shelves · about .+ at a usual pace$/);
+    expect(librarySummary(getWorks(), 230, true)).toMatch(/^\d+ works on the shelves · about .+ at your pace$/);
+    expect(librarySummary([], 230)).toBe("");
+  });
+});

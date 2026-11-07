@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CanonToggle } from "@/components/CanonToggle";
 import { SceneCover } from "@/components/SceneCover";
 import { canonView } from "@/lib/canonServer";
-import { filterByCanon } from "@/lib/workStats";
+import { filterByCanon, librarySummary } from "@/lib/workStats";
 import { loadCatalogue } from "@/lib/catalogueServer";
 import { AUTHOR, SITE_NAME } from "@/lib/site";
 import { ShelfEmpty } from "@/components/ShelfEmpty";
@@ -12,6 +12,7 @@ import { myOpenLoans } from "@/lib/loanStore";
 import { DueSoonSlip } from "@/components/DueSoonSlip";
 import { ContinueReading } from "@/components/ContinueReading";
 import { FrontHallSearch } from "@/components/FrontHallSearch";
+import { myPace } from "@/lib/sessionStore";
 import { myContinueReading } from "@/lib/continueStore";
 
 // The front hall: you step over the threshold and the covers are lit along the wall.
@@ -21,7 +22,7 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
   const works = filterByCanon(catalogue.works, view);
   const now = Date.now();
   const fresh = freshOnShelves(works, now);
-  const [open, cont] = await Promise.all([myOpenLoans(), myContinueReading()]);
+  const [open, cont, pace] = await Promise.all([myOpenLoans(), myContinueReading(), myPace()]);
   const { onCard, onSlip } = splitDueSoon(dueBackSoon(open, now), cont?.slug);
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16 sm:pt-24">
@@ -46,6 +47,9 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
             </li>
           ))}
         </ul>
+        {works.length > 0 && (
+          <p className="mt-6 text-center font-sans text-xs text-sandstone">{librarySummary(works, pace.wpm, pace.source !== "default")}</p>
+        )}
         {works.length === 0 && <ShelfEmpty catalogue={catalogue} />}
         {works.some((w) => w.isPlaceholder) && (
           <p className="mt-8 text-center font-sans text-xs text-sandstone/80">

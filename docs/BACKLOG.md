@@ -96,8 +96,12 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C60 Card page: a one-line "This week: 35 min on 2 days · Your ledger" under the card (reuse C56; nothing read → "Nothing read this week yet").
 - [x] C61 Writer's Room: a "Find a work" box over the shelf list, filtering by title (client-side; set-aside list included), for when the shelves grow.
 - [x] QA17 QA pass after C59–C61.
-- [ ] C62 Front hall: one quiet line under the wall — "N works on the shelves · about H to read at your pace" (reuse C55's summary over what the reader can see; canon switch respected).
-- [ ] C63 Ledger "Hours per book": for a book the reader has out now, add "Continue at <chapter>" (reuse C50's per-loan cards).
-- [ ] C64 A per-browser "Still covers" switch (front hall footer or card page) that stops the living covers' motion even when the device doesn't ask for reduced motion; remembered in localStorage.
-- [ ] QA18 QA pass after C62–C64.
+- [x] C62 Front hall: one quiet line under the wall — "N works on the shelves · about H to read at your pace" (reuse C55's summary over what the reader can see; canon switch respected).
+- [x] C63 Ledger "Hours per book": for a book the reader has out now, add "Continue at <chapter>" (reuse C50's per-loan cards).
+- [x] C64 A per-browser "Still covers" switch (front hall footer or card page) that stops the living covers' motion even when the device doesn't ask for reduced motion; remembered in localStorage.
+- [x] QA18 QA pass after C62–C64.
+- [ ] C65 Pitch Room: a "Find a kit" GET search over the kit list by work title (same rule as C61), shown with 2+ works.
+- [ ] C66 Reading room: the "Keys" card lists the new Contents items (Go to your bookmark, time left) in its help text — no new keys; keep the proof copy's card without bookmark lines.
+- [ ] C67 Halls: a "Clear search" link inside the "Nothing on the shelves matches" status, and the empty-result message suggests checking the canon switch when drafts are hidden ("Include drafts" link).
+- [ ] QA19 QA pass after C65–C67.
 

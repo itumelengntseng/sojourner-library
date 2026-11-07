@@ -77,7 +77,7 @@ for (const settings of [{ theme: "sepia" }, { theme: "light" }, { theme: "dark",
 {
   await page.goto(`${BASE}/pitch-room/placeholder-work-one`);
   await page.emulateMedia({ media: "print" });
-  const shown = await page.evaluate(() => [...document.querySelectorAll("nav, footer, button")].filter((el) => getComputedStyle(el).display !== "none").map((el) => el.tagName.toLowerCase()));
+  const shown = await page.evaluate(() => [...document.querySelectorAll("nav, footer, button")].filter((el) => el.getClientRects().length > 0).map((el) => el.tagName.toLowerCase())); // rendered at all (a hidden parent hides it too)
   const pdf = await page.pdf({ format: "A4", printBackground: true });
   const pages = (pdf.toString("latin1").match(/\/Type\s*\/Page[^s]/g) ?? []).length;
   await page.emulateMedia({ media: "screen" });
@@ -242,6 +242,20 @@ for (const width of WIDTHS) {
   await page.fill("#find-event", "placeholder");
   await page.getByRole("status").filter({ hasText: /match/ }).waitFor();
   await axeCheck(`${width}px timeline with Find an event`);
+}
+
+// C64: "Hold the covers still" — the covers stop moving, and stay still after a reload.
+{
+  await page.setViewportSize({ width: 375, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/`);
+  await page.getByRole("button", { name: "Hold the covers still" }).click();
+  await page.reload();
+  await page.getByRole("button", { name: "Covers held still" }).waitFor();
+  const still = await page.evaluate(() => getComputedStyle(document.querySelector(".scene-cover .scene-harlem")).animationName === "none");
+  if (!still) { failures++; console.log("✗ covers held still after reload"); }
+  await axeCheck("375px front hall with the covers held still");
+  await page.getByRole("button", { name: "Covers held still" }).click();
 }
 
 // C52: the reading room's Contents open with "Go to your bookmark" (book out from the C49 check; bookmark in chapter 2).

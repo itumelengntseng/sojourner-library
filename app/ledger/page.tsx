@@ -5,6 +5,8 @@ import { ReadingByMonth } from "@/components/ReadingByMonth";
 import { finishedBooks, formatHours, historyPage } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
+import { myContinueBySlug } from "@/lib/continueStore";
+import { chapterLabel } from "@/lib/continueReading";
 import { stampDate } from "@/lib/loanDesk";
 import { AUTHOR } from "@/lib/site";
 
@@ -23,6 +25,8 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
     );
   }
   const title = (k: string) => l.titles[k] ?? "A work no longer on the shelves";
+  // C63: books out on loan now carry "Continue at <chapter>" in Hours per book.
+  const continueAt = await myContinueBySlug();
   const link = (k: string) => (l.slugs[k] ? `/works/${l.slugs[k]}` : null);
   const tiles = [
     { label: "Current run", value: `${l.streaks.current} day${l.streaks.current === 1 ? "" : "s"}`, note: l.streaks.readToday ? "read today" : l.streaks.current ? "read today to keep it" : "start one today" },
@@ -67,6 +71,15 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
               {l.hours.map((h) => (
                 <tr key={h.workKey}>
                   <td className="py-3 pr-2">{link(h.workKey) ? <Link href={link(h.workKey)!} className="hover:text-lamplight">{title(h.workKey)}</Link> : title(h.workKey)}{h.finishedAt !== undefined && <span className="ml-2 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">Finished {new Date(h.finishedAt).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" })}</span>}
+                    {l.slugs[h.workKey] && continueAt[l.slugs[h.workKey]] && (() => {
+                      const c = continueAt[l.slugs[h.workKey]];
+                      return (
+                        <p className="mt-0.5 font-sans text-xs text-paper/80">
+                          Continue at <Link href={c.href} className="text-lamplight underline underline-offset-2">{chapterLabel(c)}<span className="sr-only"> of {title(h.workKey)}</span></Link>
+                          <span className="text-sandstone"> · {c.left}</span>
+                        </p>
+                      );
+                    })()}
                     {l.slugs[h.workKey] && (
                       <div className="mt-0.5">
                         {l.mode === "preview" ? <PreviewNotesExport slug={l.slugs[h.workKey]} title={title(h.workKey)} /> : (

@@ -52,3 +52,8 @@ export function hallSummary(works: Work[], wpm = DEFAULT_WPM, learned = false): 
   const words = works.reduce((s, w) => s + workStats(w, wpm).words, 0);
   return `${works.length} ${works.length === 1 ? "work" : "works"} · about ${formatDuration(minutesFor(words, wpm))} to read ${learned ? "at your pace" : "at a usual pace"}`;
 }
+
+/** C62: the front hall's line — "3 works on the shelves · about 2 h 20 min to read at your pace". */
+export function librarySummary(works: Work[], wpm = DEFAULT_WPM, learned = false): string {
+  return hallSummary(works, wpm, learned).replace(/^(\d+ works?)/, "$1 on the shelves");
+}
