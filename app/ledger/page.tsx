@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
-import { finishedBooks, finishedDuring, finishedStamp, formatHours, historyPage, type FinishInfo } from "@/lib/ledger";
+import { finishedBooks, finishedDuring, finishedStamp, formatHours, historyPage, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
 import { myOpenLoans } from "@/lib/loanStore";
@@ -130,6 +130,8 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
                 <span className="font-mono text-xs text-ochre">
                   {stampDate(r.borrowedAt)} → {r.open ? "on loan" : stampDate(r.endedAt!)}
                   {r.renewals > 0 ? ` · renewed ${r.renewals}×` : ""}
+                  {/* C109: an open loan says how many renewals are left. */}
+                  {r.open ? ` · ${renewalsLeftLine(r).toLowerCase()}` : ""}
                 </span>
               </li>
             ))}

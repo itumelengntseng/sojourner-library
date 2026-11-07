@@ -1,5 +1,5 @@
 // The reading ledger: history, hours per book, streaks and a notes export.
-import type { Loan } from "./engine/checkout";
+import { MAX_RENEWALS, type Loan } from "./engine/checkout";
 import type { SessionStats } from "./engine/readingTime";
 
 /** Decision: days roll over at midnight South African time (UTC+2, no daylight saving). */
@@ -191,6 +191,13 @@ export interface HistoryRow {
   endedAt: number | null; // returned (or expired) at
   open: boolean;
   renewals: number;
+}
+
+/** C109: for an open loan, "2 renewals left" / "1 renewal left" / "No renewals left"; nothing for a closed one. */
+export function renewalsLeftLine(row: Pick<HistoryRow, "open" | "renewals">): string {
+  if (!row.open) return "";
+  const left = Math.max(0, MAX_RENEWALS - row.renewals);
+  return left === 0 ? "No renewals left" : `${left} renewal${left === 1 ? "" : "s"} left`;
 }
 
 /** C97: whether the reader finished the book during this loan (the finish falls between borrowing and its end). */
