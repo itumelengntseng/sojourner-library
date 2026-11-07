@@ -39,7 +39,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
   const now = Date.now();
   // C94: preview downloads add the Finished line to finished books (library mode does it on the server).
   const finishMap: Record<string, FinishInfo> = Object.fromEntries(finished.flatMap((f) => (l.slugs[f.workKey] ? [[l.slugs[f.workKey], { at: f.finishedAt, firstRead: f.firstRead }]] : [])));
-  const tiles: { label: string; value: string; note?: string; href?: string }[] = [
+  const tiles: { label: string; value: string; note?: string; href?: string; spoken?: string }[] = [
     { label: "Current run", value: `${l.streaks.current} day${l.streaks.current === 1 ? "" : "s"}`, note: l.streaks.readToday ? "read today" : l.streaks.current ? "read today to keep it" : "start one today" },
     { label: "Longest run", value: `${l.streaks.longest} day${l.streaks.longest === 1 ? "" : "s"}` },
     { label: "Days read", value: String(l.streaks.days) },
@@ -47,7 +47,9 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
     { label: "Time reading", value: formatHours(l.totalMs) },
     { label: "Words read", value: l.totalWords.toLocaleString("en-ZA").replace(/\s/g, "\u00a0"), note: "counted as you move past each paragraph" },
     // C91: once a book is finished, a tile leading down to the Read to the end shelf.
-    ...(finished.length ? [{ label: "Read to the end", value: `${finished.length} book${finished.length === 1 ? "" : "s"}`, note: "see the shelf", href: "#finished" }] : []),
+    ...(finished.length ? [{ label: "Read to the end", value: `${finished.length} book${finished.length === 1 ? "" : "s"}`, note: "see the shelf", href: "#finished", spoken: ": the books you have read to the end" }] : []),
+    // C113: what's out now (own loans, soonest due first), leading to the front desk.
+    ...(open.length ? [{ label: "On loan", value: `${open.length} book${open.length === 1 ? "" : "s"}`, note: `next due ${open[0].due}`, href: "/card", spoken: " — renew or return at the front desk" }] : []),
   ];
 
   return (
@@ -62,7 +64,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
           <div key={t.label} className="rounded-sm border border-timber-dark bg-ink/40 p-4">
             <dt className="font-sans text-[0.65rem] uppercase tracking-wider text-sandstone">{t.label}</dt>
             <dd className="mt-1 text-2xl text-paper">{t.value}</dd>
-            {t.note && <dd className="font-sans text-[0.65rem] text-sandstone/80">{t.href ? <a href={t.href} className="text-lamplight underline underline-offset-2">{t.note}<span className="sr-only">: the books you have read to the end</span></a> : t.note}</dd>}
+            {t.note && <dd className="font-sans text-[0.65rem] text-sandstone/80">{t.href ? <a href={t.href} className="text-lamplight underline underline-offset-2">{t.note}{t.spoken && <span className="sr-only">{t.spoken}</span>}</a> : t.note}</dd>}
           </div>
         ))}
       </dl>

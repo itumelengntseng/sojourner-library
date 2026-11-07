@@ -98,3 +98,22 @@ describe("Borrowing history titles link to the work (C98)", () => {
     history = [];
   });
 });
+
+describe("On loan tile (C113)", () => {
+  it("counts the books out now with the soonest due stamp, linking to the front desk", async () => {
+    hours = [];
+    openSlugs = [];
+    const none = await render();
+    expect(none).not.toContain(">On loan</dt>");
+    const mod = await import("@/lib/loanStore");
+    const spy = vi.spyOn(mod, "myOpenLoans").mockResolvedValue([
+      { slug: "a", due: "Sat, 07 Nov, 14:00" }, { slug: "b", due: "Mon, 09 Nov, 10:00" },
+    ] as never);
+    const html = await render();
+    expect(html).toMatch(/<dt[^>]*>On loan<\/dt><dd[^>]*>2 books<\/dd>/);
+    expect(html).toContain('href="/card"');
+    expect(html).toContain("next due Sat, 07 Nov, 14:00");
+    expect(html).toContain('<span class="sr-only"> — renew or return at the front desk</span>');
+    spy.mockRestore();
+  });
+});
