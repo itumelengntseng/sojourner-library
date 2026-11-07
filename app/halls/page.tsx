@@ -10,7 +10,7 @@ import { myPace } from "@/lib/sessionStore";
 import { chapterHits, cleanQuery, resultLine, searchShelves } from "@/lib/shelfSearch";
 import { parseSort, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
 import { myOpenLoans } from "@/lib/loanStore";
-import { loansBySlug } from "@/lib/loanDesk";
+import { dueBackSoon, loansBySlug } from "@/lib/loanDesk";
 import { myFinishes } from "@/lib/ledgerStore";
 import { myBookLeft } from "@/lib/bookLeftStore";
 import { spokenSpine } from "@/lib/spine";
@@ -30,6 +30,8 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
   const canonParam = typeof params.canon === "string" ? params.canon : undefined;
   const [loansNow, pace, done] = await Promise.all([myOpenLoans(), myPace(), myFinishes(works.map((w) => w.slug))]);
   const out = loansBySlug(loansNow);
+  // C99: books due back within the day (the front hall slip's rule) get a "due soon" band.
+  const soon = new Set(dueBackSoon(loansNow, Date.now()).map((l) => l.slug));
   const bookLeft = await myBookLeft(loansNow); // C79: spoken on the spines of books on loan
 
   return (
@@ -110,12 +112,13 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
                           className="flex w-16 flex-col items-center justify-between rounded-t-sm border border-b-0 border-timber-dark bg-gradient-to-r from-timber via-[#7d5233] to-timber px-1 py-3 text-paper transition-transform hover:-translate-y-2 focus-visible:-translate-y-2"
                         >
                           {loan && <span aria-hidden="true" title={`On loan to you · due ${loan.due}`} className="-mt-1 mb-1 w-full rounded-[1px] bg-paper py-0.5 text-center font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-ink">out</span>}
+                          {loan && soon.has(w.slug) && <span aria-hidden="true" title="Due back within the day" className="-mt-0.5 mb-1 w-full rounded-[1px] bg-ember py-0.5 text-center font-mono text-[0.5rem] font-semibold uppercase leading-tight tracking-wider text-ink">due soon</span>}
                           <span className="line-clamp-2 text-[0.75rem] leading-tight [writing-mode:vertical-rl] rotate-180">{w.title}</span>
                           <span className="font-sans text-[0.55rem] uppercase tracking-wider text-lamplight [writing-mode:vertical-rl] rotate-180">{w.author}</span>
                           {done[w.slug] !== undefined && <span aria-hidden="true" title={finishedStamp(done[w.slug])} className="mt-1 w-full rounded-[1px] border border-lamplight py-0.5 text-center font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-lamplight">read</span>}
                           {w.canonStatus !== "canon" && <span aria-hidden="true" title="Not canon" className="mt-1 h-2 w-2 rounded-full bg-ember" />}
                           <span className="sr-only">
-                            {spokenSpine({ author: w.author, canon: CANON_LABEL[w.canonStatus], readingTime: s.readingTime, due: loan?.due, bookLeft: bookLeft[w.slug], finished: done[w.slug] })}
+                            {spokenSpine({ author: w.author, canon: CANON_LABEL[w.canonStatus], readingTime: s.readingTime, due: loan?.due, dueSoon: soon.has(w.slug), bookLeft: bookLeft[w.slug], finished: done[w.slug] })}
                           </span>
                         </Link>
                       </li>
