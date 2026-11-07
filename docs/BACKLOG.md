@@ -148,7 +148,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C99 Halls: a spine on loan due back within the day (same rule as the front hall slip) shows a small "due soon" band, and its spoken text says "due back within the day".
 - [x] C100 Card page "On loan now": a Due soon loan offers "Renew" linking to its work page's loan desk (`/works/<slug>#loan-desk`; add that anchor to the desk).
 - [x] QA30 QA pass after C98–C100.
-- [ ] C101 Front hall "Due back soon" slip: each line offers "Renew" linking to the work's loan desk (`/works/<slug>#desk`, as C100), with the title in its spoken label.
-- [ ] C102 Reading room: when the open loan is due back within the hour, one quiet line under the toolbar — "Due back at 14:00 · renew at the desk" (link to `/works/<slug>#desk`). Not in the proof copy.
-- [ ] C103 Halls: a legend line for the "due soon" band ("due soon marks books due back within the day — renew at the front desk") shown only when a band shows.
-- [ ] QA31 QA pass after C101–C103.
+- [x] C101 Front hall "Due back soon" slip: each line offers "Renew" linking to the work's loan desk (`/works/<slug>#desk`, as C100), with the title in its spoken label.
+- [x] C102 Reading room: when the open loan is due back within the hour, one quiet line under the toolbar — "Due back at 14:00 · renew at the desk" (link to `/works/<slug>#desk`). Not in the proof copy.
+- [x] C103 Halls: a legend line for the "due soon" band ("due soon marks books due back within the day — renew at the front desk") shown only when a band shows.
+- [x] QA31 QA pass after C101–C103.
+- [ ] C104 Card page "On loan now": a loan with no renewals left (3 used) says "No renewals left — return by <due>" instead of offering Renew on a Due soon loan (needs `renewalsLeft` on `OnLoan`).
+- [ ] C105 Front hall "Due back soon" slip: same rule — a loan with no renewals left says "no renewals left" instead of Renew.
+- [ ] C106 Reading room due line (C102): with no renewals left it reads "Due back at 14:00 · no renewals left — return at the desk".
+- [ ] QA32 QA pass after C104–C106.

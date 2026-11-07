@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 8 — C83–C100, QA25–QA30; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 9 — C101–C103, QA31 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -153,10 +153,14 @@ _Last updated: 2026-11-07 (scheduled build run 8 — C83–C100, QA25–QA30; `p
 - C99 — Halls (`app/halls/page.tsx`, `spokenSpine({ dueSoon })` in `lib/spine.ts`): a spine on loan due back within the day (the front hall slip's `dueBackSoon()` rule) shows an ember "due soon" band under "out", and its spoken text adds "— due back within the day". Unit-tested.
 - C100 — Card On loan now (`components/OnLoanNow.tsx`): a Due soon loan offers "Renew" (spoken "Renew <title> at the loan desk") linking to `/works/<slug>#desk` — the work page's existing loan-desk heading, so no new anchor was needed. Unit-tested.
 - QA30 (2026-11-07, after C98–C100): `npm run qa` all clear — now also follows the card's Renew to the work's loan desk (Renew button present), checks the halls' due-soon spine text, and requires history titles as links (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (15/15).
-- Tests: 487 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA30).
+- C101 — Front hall Due back soon slip (`components/DueSoonSlip.tsx`): each line now offers "Renew" (spoken "Renew <title> at the loan desk") linking to `/works/<slug>#desk`, as the card's C100. Unit-tested (`tests/dueSoonRenew.test.tsx`).
+- C102 — Reading room due line (`components/DueWithinHour.tsx`, `lib/dueNotice.ts`): when the open loan is due back within the hour, one quiet line at the top of the page under the toolbar — "Due back at 14:00 · renew at the desk" (SA clock; link to `/works/<slug>#desk`). Read after mount and re-checked every minute (no server/client clock mismatch; it appears as the last hour begins and goes when the loan runs out). Not in the proof copy. Unit-tested (`tests/dueNotice.test.tsx`).
+- C103 — Halls legend for the due-soon band: "due soon marks books due back within the day — renew them at the front desk", shown only while a band shows (same condition as the band). Unit-tested (`tests/hallsDueLegend.test.ts`).
+- QA31 (2026-11-07, after C101–C103): `npm run qa` all clear — now also requires Renew on the front hall slip, the halls' due-soon legend, and (in its own sweep after the front hall, since opening the book makes it the Continue reading book) the reading room's "Due back at" line linking to the desk (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 495 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA31).
 
 ## Next task
-C101 — "Renew" on each line of the front hall's Due back soon slip (BACKLOG.md → FOLLOW-UPS), then C102, C103, QA31. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C104 — "no renewals left" on the card's On loan now (BACKLOG.md → FOLLOW-UPS), then C105, C106, QA32. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

@@ -416,6 +416,8 @@ for (const width of WIDTHS) {
   else {
     if (!(await slip.getByRole("link", { name: "Placeholder Work Two" }).count())) { failures++; console.log(`✗ ${width}px due-soon slip doesn't list the book due within the hour`); }
     if (!(await slip.getByText(/left in this book|At the end of this book/).count())) { failures++; console.log(`✗ ${width}px due-soon slip without the time left in the book`); }
+    // QA31 (C101): each slip line offers Renew → the work's loan desk.
+    if (!(await slip.locator("a[href='/works/placeholder-work-two#desk']").getByText("Renew").count())) { failures++; console.log(`✗ ${width}px due-soon slip without Renew to the loan desk`); }
   }
   // QA29 (C95): the Continue reading card adds the time left in the book.
   if (!(await page.getByRole("region", { name: "Continue reading" }).getByText(/left in this book|at the end of this book/).count())) { failures++; console.log(`✗ ${width}px Continue reading card without the time left in the book`); }
@@ -440,6 +442,8 @@ for (const width of WIDTHS) {
   await page.goto(`${BASE}/halls`);
   const soonSpine = await page.locator("a[href='/works/placeholder-work-two'] .sr-only").first().textContent();
   if (!/due back within the day/.test(soonSpine ?? "")) { failures++; console.log(`✗ ${width}px halls: the due-soon spine doesn't say so (${soonSpine})`); }
+  // QA31 (C103): the due-soon band has its legend while one shows.
+  if (!(await page.getByText(/marks books due back within the day/).count())) { failures++; console.log(`✗ ${width}px halls: no legend for the due-soon band`); }
   await axeCheck(`${width}px halls with a due-soon band`);
   errors.length = 0;
   await page.goto(`${BASE}/works/placeholder-work-one`);
@@ -458,6 +462,19 @@ for (const width of WIDTHS) {
   // QA25 (C85): the finished book says how long it took.
   if (!(await page.getByText(/· read (in a day|over \d+ days)/).count())) { failures++; console.log(`✗ ${width}px ledger Read to the end without how long it took`); }
   await axeCheck(`${width}px finished stamp → ledger Read to the end`);
+}
+
+// QA31 (C102): the reading room says the loan is due back within the hour, linking to the desk.
+// Run after the front-hall sweep: opening the book makes it the Continue reading book,
+// which then (rightly, C42) leaves the Due back soon slip.
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/works/placeholder-work-two/read`);
+  const dueLine = page.getByText(/^Due back at \d\d:\d\d ·/);
+  try { await dueLine.waitFor({ timeout: 5000 }); } catch { failures++; console.log(`✗ ${width}px reading room: no "Due back at" line for the loan due within the hour`); }
+  if (!(await page.locator("main a[href='/works/placeholder-work-two#desk']").getByText("renew at the desk").count())) { failures++; console.log(`✗ ${width}px reading room: the due line doesn't link to the loan desk`); }
+  await axeCheck(`${width}px reading room with the due-within-the-hour line`);
 }
 
 await browser.close();
