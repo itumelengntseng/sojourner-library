@@ -191,6 +191,8 @@ export interface HistoryRow {
   endedAt: number | null; // returned (or expired) at
   open: boolean;
   renewals: number;
+  /** C127: handed back by the reader before it was due (not settled by the desk on expiry). */
+  onTime?: boolean;
 }
 
 /** C109: for an open loan, "2 renewals left" / "1 renewal left" / "No renewals left"; nothing for a closed one. */
@@ -218,7 +220,7 @@ export function loanHistory(loans: Loan[], now: number): HistoryRow[] {
     .sort((a, b) => b.borrowedAt - a.borrowedAt)
     .map((l) => {
       const ended = l.returnedAt ?? (l.dueAt <= now ? l.dueAt : null);
-      return { id: l.id, workKey: l.workId, borrowedAt: l.borrowedAt, endedAt: ended, open: ended === null, renewals: l.renewals };
+      return { id: l.id, workKey: l.workId, borrowedAt: l.borrowedAt, endedAt: ended, open: ended === null, renewals: l.renewals, onTime: l.returnedAt !== null && l.returnedAt < l.dueAt };
     });
 }
 
