@@ -38,6 +38,6 @@ describe("no renewals left in the reading room (C106)", () => {
   it("the reading room loader passes the renewals left (preview and library)", () => {
     const src = readFileSync("lib/readingRoom.ts", "utf8");
     expect(src).toContain("renewalsLeft: Math.max(0, MAX_RENEWALS - loan.renewals)");
-    expect(src).toContain('select("id, due_at, bookmark_offset, renewals")');
+    expect(src).toContain('select("id, due_at, bookmark_offset, renewals, borrowed_at")');
   });
 });
