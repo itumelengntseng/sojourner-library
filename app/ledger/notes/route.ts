@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   return new NextResponse(md, {
     headers: {
       "content-type": "text/markdown; charset=utf-8",
-      "content-disposition": `attachment; filename="${notesFilename(slug)}"`,
+      "content-disposition": `attachment; filename="${notesFilename(slug, Date.now())}"`,
       "cache-control": "private, no-store",
     },
   });

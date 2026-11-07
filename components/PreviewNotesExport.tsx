@@ -33,7 +33,7 @@ export function PreviewNotesExport({ slug, title }: { slug?: string; title?: str
   const download = () => {
     const md = buildPreviewExport((k) => { try { return localStorage.getItem(k); } catch { return null; } }, Date.now(), slug);
     const url = URL.createObjectURL(new Blob([md], { type: "text/markdown" }));
-    const a = Object.assign(document.createElement("a"), { href: url, download: notesFilename(slug) });
+    const a = Object.assign(document.createElement("a"), { href: url, download: notesFilename(slug, Date.now()) });
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };

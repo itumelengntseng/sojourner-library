@@ -215,3 +215,18 @@ describe("notes export headings (C68)", () => {
     expect(md).not.toContain("## Placeholder Work Two");
   });
 });
+
+describe("dated notes file names (C81)", () => {
+  const at = Date.parse("2026-11-06T22:30:00Z"); // already 7 Nov in Johannesburg
+  it("adds the SA export date so repeat downloads don't overwrite", () => {
+    expect(notesFilename(undefined, at)).toBe("sojourner-notes-2026-11-07.md");
+    expect(notesFilename("placeholder-work-one", at)).toBe("sojourner-notes-placeholder-work-one-2026-11-07.md");
+    expect(notesFilename('x"; rm', at)).toBe("sojourner-notes-xrm-2026-11-07.md");
+    expect(notesFilename("placeholder-work-one", NaN)).toBe("sojourner-notes-placeholder-work-one.md");
+  });
+  it("both download paths pass the export time", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("app/ledger/notes/route.ts", "utf8")).toContain("notesFilename(slug, Date.now())");
+    expect(readFileSync("components/PreviewNotesExport.tsx", "utf8")).toContain("notesFilename(slug, Date.now())");
+  });
+});

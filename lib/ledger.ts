@@ -242,10 +242,14 @@ export function notesMarkdown(works: ExportWork[], exportedAt: number, readerNam
   return out.join("\n").trimEnd() + "\n";
 }
 
-/** "sojourner-notes.md", or "sojourner-notes-<slug>.md" for one book (C29). */
-export function notesFilename(slug?: string): string {
+/**
+ * "sojourner-notes.md", or "sojourner-notes-<slug>.md" for one book (C29). With `at` (C81) the SA date of
+ * the export is added — "sojourner-notes-<slug>-2026-11-07.md" — so repeat downloads don't overwrite each other.
+ */
+export function notesFilename(slug?: string, at?: number): string {
   const clean = (slug ?? "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 80);
-  return clean ? `sojourner-notes-${clean}.md` : "sojourner-notes.md";
+  const day = at === undefined || !Number.isFinite(at) ? "" : new Date(at).toLocaleDateString("en-CA", { timeZone: "Africa/Johannesburg" });
+  return ["sojourner-notes", clean, day].filter(Boolean).join("-") + ".md";
 }
 
 /** "Finished 5 Nov 2026" in SA time — the stamp used beside books read to the end (C71). */
