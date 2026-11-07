@@ -104,8 +104,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C66 Reading room: the "Keys" card lists the new Contents items (Go to your bookmark, time left) in its help text — no new keys; keep the proof copy's card without bookmark lines.
 - [x] C67 Halls: a "Clear search" link inside the "Nothing on the shelves matches" status, and the empty-result message suggests checking the canon switch when drafts are hidden ("Include drafts" link).
 - [x] QA19 QA pass after C65–C67.
-- [ ] C68 Ledger notes export (Markdown): check every note/highlight sits under its chapter's title heading (not just the number) and the file opens with "Notes on the works of Itumeleng Ntseng" + export date; add tests for the per-book file too. Fix if not.
-- [ ] C69 Work page: "Ask the librarian" gains a suggested question "How long is left in this book?" when the reader has a bookmark (engine already answers remaining time — reuse, no new parser rules unless needed).
-- [ ] C70 Card page "Recently returned": show "Finished" beside a returned book the reader read to the end (C13 rule, own sessions).
-- [ ] QA20 QA pass after C68–C70.
-
+- [x] C68 Ledger notes export (Markdown): check every note/highlight sits under its chapter's title heading (not just the number) and the file opens with "Notes on the works of Itumeleng Ntseng" + export date; add tests for the per-book file too. Fix if not.
+- [x] C69 Work page: "Ask the librarian" gains a suggested question "How long is left in this book?" when the reader has a bookmark (engine already answers remaining time — reuse, no new parser rules unless needed).
+- [x] C70 Card page "Recently returned": show "Finished" beside a returned book the reader read to the end (C13 rule, own sessions).
+- [x] QA20 QA pass after C68–C70.
+- [ ] C71 Card page "Recently returned": the Finished mark carries its date ("Finished 5 Nov 2026", SA time) for screen readers and sighted readers alike.
+- [ ] C72 Halls: a small "Finished" mark on a shelf entry the reader has read to the end (own sessions, C13 rule; reuse `myFinishes`).
+- [ ] C73 Librarian at the end of a book: time-left questions answer "You're at the end of this book." instead of "About 0 min to finish" (answer text only, no new parser rules); chapter question likewise at the end of a chapter with nothing left.
+- [ ] QA21 QA pass after C71–C73.

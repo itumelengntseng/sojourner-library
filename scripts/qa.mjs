@@ -284,6 +284,35 @@ for (const width of WIDTHS) {
   await axeCheck(`${width}px ledger with a finished book`);
 }
 
+// QA20: the librarian's "How long is left in this book?" chip (a bookmark is set by the sweeps above),
+// and "Finished" beside a returned book read to the end on the card (C70).
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/works/placeholder-work-one`);
+  const chip = page.getByRole("button", { name: "How long is left in this book?" });
+  if (await chip.count()) {
+    await chip.click();
+    await page.getByText(/to finish at your pace/).first().waitFor();
+    await axeCheck(`${width}px work page with the book-left question answered`);
+  } else {
+    console.log(`✗ ${width}px work page: no "How long is left in this book?" chip with a bookmark`);
+    failures++;
+  }
+}
+{
+  await page.setViewportSize({ width: 375, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/works/placeholder-work-one`);
+  if (await page.getByRole("button", { name: "Return to shelf" }).count()) {
+    await page.getByRole("button", { name: "Return to shelf" }).click();
+    await page.getByRole("button", { name: "Return to shelf" }).waitFor({ state: "detached" });
+  }
+  await page.goto(`${BASE}/card`);
+  await page.getByRole("region", { name: "Recently returned" }).getByText("Finished", { exact: true }).waitFor();
+  await axeCheck("card with a finished book in recently returned");
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);
