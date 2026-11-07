@@ -82,3 +82,19 @@ describe("finishedDuring (C97)", () => {
     expect(finishedDuring({ ...row, endedAt: null, open: true }, 900, 1_000)).toBe(true);
   });
 });
+
+describe("Borrowing history titles link to the work (C98)", () => {
+  it("links a title still on the shelves and leaves a set-aside one as text", async () => {
+    hours = [];
+    history = [
+      { id: "l1", workKey: "w", borrowedAt: 1, endedAt: 2, open: false, renewals: 0 },
+      { id: "l2", workKey: "gone", borrowedAt: 1, endedAt: 2, open: false, renewals: 0 },
+    ];
+    const html = await render();
+    const hist = html.slice(html.indexOf("Borrowing history"));
+    expect(hist).toMatch(/<a [^>]*href="\/works\/placeholder-work-one"[^>]*>Placeholder Work One<\/a>/);
+    expect(hist).toContain("A work no longer on the shelves");
+    expect(hist).not.toMatch(/<a [^>]*>A work no longer on the shelves/);
+    history = [];
+  });
+});

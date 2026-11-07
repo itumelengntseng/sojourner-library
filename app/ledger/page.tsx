@@ -120,7 +120,8 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
             {historyPage(l.history, showAll).rows.map((r) => (
               <li key={r.id} className="flex flex-wrap items-baseline justify-between gap-2 py-3">
                 <span>
-                  {title(r.workKey)}
+                  {/* C98: the title leads to the work page while the work is still on the shelves. */}
+                  {link(r.workKey) ? <Link href={link(r.workKey)!} className="hover:text-lamplight">{title(r.workKey)}</Link> : title(r.workKey)}
                   {/* C97: the loan during which the reader read the book to the end carries the Finished stamp. */}
                   {finishedDuring(r, finishAt[r.workKey], now) && (
                     <span className="ml-2 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">{finishedStamp(finishAt[r.workKey]!)}</span>
