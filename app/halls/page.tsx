@@ -11,6 +11,8 @@ import { chapterHits, cleanQuery, resultLine, searchShelves } from "@/lib/shelfS
 import { parseSort, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
 import { myOpenLoans } from "@/lib/loanStore";
 import { loansBySlug } from "@/lib/loanDesk";
+import { myFinishes } from "@/lib/ledgerStore";
+import { finishedDate, finishedStamp } from "@/lib/ledger";
 
 export const metadata: Metadata = { title: "The halls" };
 
@@ -24,7 +26,7 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
   const sort = parseSort(params.sort);
   const works = sortShelf(searchShelves(filterByCanon(catalogue.works, view), halls, query), sort);
   const canonParam = typeof params.canon === "string" ? params.canon : undefined;
-  const [out, pace] = await Promise.all([myOpenLoans().then(loansBySlug), myPace()]);
+  const [out, pace, done] = await Promise.all([myOpenLoans().then(loansBySlug), myPace(), myFinishes(works.map((w) => w.slug))]);
 
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16">
@@ -73,6 +75,12 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
           marks the books you have on loan — renew or return them at the <Link href="/card" className="underline underline-offset-2 hover:text-lamplight">front desk</Link>.
         </p>
       )}
+      {works.some((w) => done[w.slug] !== undefined) && (
+        <p className="mt-1 font-sans text-xs text-sandstone">
+          <span aria-hidden="true" className="mr-1 rounded-[1px] border border-lamplight px-1 font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-lamplight">read</span>
+          marks the books you have read to the end.
+        </p>
+      )}
       {halls.map((hall) => {
         const shelf = works.filter((w) => w.hall === hall.id);
         if (query && shelf.length === 0) return null;
@@ -100,9 +108,10 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
                           {loan && <span aria-hidden="true" title={`On loan to you · due ${loan.due}`} className="-mt-1 mb-1 w-full rounded-[1px] bg-paper py-0.5 text-center font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-ink">out</span>}
                           <span className="line-clamp-2 text-[0.75rem] leading-tight [writing-mode:vertical-rl] rotate-180">{w.title}</span>
                           <span className="font-sans text-[0.55rem] uppercase tracking-wider text-lamplight [writing-mode:vertical-rl] rotate-180">{w.author}</span>
+                          {done[w.slug] !== undefined && <span aria-hidden="true" title={finishedStamp(done[w.slug])} className="mt-1 w-full rounded-[1px] border border-lamplight py-0.5 text-center font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-lamplight">read</span>}
                           {w.canonStatus !== "canon" && <span aria-hidden="true" title="Not canon" className="mt-1 h-2 w-2 rounded-full bg-ember" />}
                           <span className="sr-only">
-                            by {w.author}. {CANON_LABEL[w.canonStatus]}. {s.readingTime} to read.{loan ? ` On loan to you, due ${loan.due}.` : ""}
+                            by {w.author}. {CANON_LABEL[w.canonStatus]}. {s.readingTime} to read.{loan ? ` On loan to you, due ${loan.due}.` : ""}{done[w.slug] !== undefined ? ` You read this to the end on ${finishedDate(done[w.slug])}.` : ""}
                           </span>
                         </Link>
                       </li>

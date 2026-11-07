@@ -250,5 +250,10 @@ export function notesFilename(slug?: string): string {
 
 /** "Finished 5 Nov 2026" in SA time — the stamp used beside books read to the end (C71). */
 export function finishedStamp(ms: number): string {
-  return `Finished ${new Date(ms).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" })}`;
+  return `Finished ${finishedDate(ms)}`;
+}
+
+/** "5 Nov 2026" in SA time. */
+export function finishedDate(ms: number): string {
+  return new Date(ms).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" });
 }

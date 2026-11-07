@@ -221,9 +221,50 @@ export async function myWeek(): Promise<Week | null> {
   })), now);
 }
 
-/** C70: which of these works the reader has read to the end (C13 rule, own sessions only) — slug → finish time. */
+/**
+ * C70/C72: which of these works the reader has read to the end (C13 rule, own sessions only) — slug → finish time.
+ * One pass for any number of works: preview reads the cookie once; library mode makes three queries in all.
+ */
 export async function myFinishes(slugs: string[]): Promise<Record<string, number>> {
-  const uniq = [...new Set(slugs)].slice(0, 10);
-  const stamps = await Promise.all(uniq.map((s) => myFinish(s).catch(() => undefined)));
-  return Object.fromEntries(uniq.flatMap((s, i) => (stamps[i] === undefined ? [] : [[s, stamps[i] as number]])));
+  const uniq = [...new Set(slugs)];
+  if (uniq.length === 0) return {};
+  const out: Record<string, number> = {};
+  const supabase = await supabaseServer();
+  if (!supabase) {
+    const stats = parseStoredStats((await cookies()).get(PREVIEW_SESSIONS_COOKIE)?.value);
+    for (const slug of uniq) {
+      const last = getWorks().find((w) => w.slug === slug)?.chapters.at(-1);
+      if (!last) continue;
+      const mine = stats.filter((s) => s.slug === slug).map((s) => ({ ...s, workKey: slug, ...(s.position ? { chapterKey: String(s.position) } : {}) }));
+      const at = finishedAt(mine, { key: String(last.position), words: countWords(last.body) });
+      if (at !== undefined) out[slug] = at;
+    }
+    return out;
+  }
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return {};
+  const { data: works } = await supabase.from("works").select("id, slug").in("slug", uniq);
+  if (!works?.length) return {};
+  const { data: chapters } = await supabase.from("chapters").select("id, work_id, position, word_count")
+    .in("work_id", works.map((w) => w.id as string)).is("archived_at", null);
+  const lastByWork = new Map<string, { id: string; position: number; words: number }>();
+  for (const c of chapters ?? []) {
+    const cur = lastByWork.get(c.work_id as string);
+    if (!cur || (c.position as number) > cur.position) lastByWork.set(c.work_id as string, { id: c.id as string, position: c.position as number, words: c.word_count as number });
+  }
+  const lastIds = [...lastByWork.values()].map((c) => c.id);
+  if (lastIds.length === 0) return {};
+  const { data: rows } = await supabase.from("sessions").select("chapter_id, words_read, started_at, ended_at")
+    .eq("reader_id", auth.user.id).in("chapter_id", lastIds).limit(2000);
+  for (const w of works) {
+    const last = lastByWork.get(w.id as string);
+    if (!last) continue;
+    const sessions = (rows ?? []).filter((r) => r.chapter_id === last.id).map((r) => ({
+      workKey: w.id as string, chapterKey: last.id, wordsRead: r.words_read as number, activeMs: 0,
+      endedAt: Date.parse((r.ended_at ?? r.started_at) as string),
+    }));
+    const at = finishedAt(sessions, { key: last.id, words: last.words });
+    if (at !== undefined) out[w.slug as string] = at;
+  }
+  return out;
 }

@@ -309,7 +309,7 @@ for (const width of WIDTHS) {
     await page.getByRole("button", { name: "Return to shelf" }).waitFor({ state: "detached" });
   }
   await page.goto(`${BASE}/card`);
-  await page.getByRole("region", { name: "Recently returned" }).getByText("Finished", { exact: true }).waitFor();
+  await page.getByRole("region", { name: "Recently returned" }).getByText(/^Finished /).waitFor();
   await axeCheck("card with a finished book in recently returned");
 }
 
