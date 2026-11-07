@@ -27,3 +27,10 @@ describe("No renewals left on the slip (C105)", () => {
     expect(html).toContain('href="/works/fresh#desk"');
   });
 });
+
+describe("count on the Due back soon slip (C119)", () => {
+  it("shows the count only with two or more lines", () => {
+    expect(renderToStaticMarkup(<DueSoonSlip loans={[on("one"), on("two")]} />).replace(/<!-- -->/g, "")).toContain(">Due back soon · 2</h2>");
+    expect(renderToStaticMarkup(<DueSoonSlip loans={[on("one")]} />).replace(/<!-- -->/g, "")).toContain(">Due back soon</h2>");
+  });
+});

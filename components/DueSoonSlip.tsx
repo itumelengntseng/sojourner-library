@@ -2,13 +2,14 @@ import Link from "next/link";
 import { noRenewalsLeft, type OnLoan } from "@/lib/loanDesk";
 
 // A small slip tucked by the front-hall door: what's due back within the day.
+// C119: with two or more lines the heading carries the count.
 // Each line offers Renew → the work page's loan desk (C101).
 // `bookLeft` (slug → "About 25 min left in this book", C80) is added after the time left on the loan.
 export function DueSoonSlip({ loans, bookLeft = {} }: { loans: OnLoan[]; bookLeft?: Record<string, string> }) {
   if (loans.length === 0) return null;
   return (
     <aside aria-labelledby="due-soon" className="mx-auto mt-8 max-w-md -rotate-1 rounded-sm bg-paper px-4 py-3 text-ink shadow-[0_10px_24px_-10px_rgb(0_0_0/0.7)]">
-      <h2 id="due-soon" className="font-sans text-[0.65rem] uppercase tracking-[0.25em] text-[#8a4a12]">Due back soon</h2>
+      <h2 id="due-soon" className="font-sans text-[0.65rem] uppercase tracking-[0.25em] text-[#8a4a12]">Due back soon{loans.length > 1 ? ` · ${loans.length}` : ""}</h2>
       <ul className="mt-1">
         {loans.map((l) => (
           <li key={l.workKey} className="flex flex-wrap items-baseline justify-between gap-x-3 py-0.5">
