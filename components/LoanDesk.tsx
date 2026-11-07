@@ -3,11 +3,12 @@ import { ContinueHere } from "./ContinueHere";
 import { DueDateSlip } from "./DueDateSlip";
 import type { ContinueCard } from "@/lib/continueReading";
 import { BorrowForm, LoanActions } from "@/app/works/[slug]/LoanDeskForms";
-import { latestLoan, openLoan, PERIODS, slipFor } from "@/lib/loanDesk";
+import { bookLeftLine, latestLoan, openLoan, PERIODS, slipFor } from "@/lib/loanDesk";
 import type { DeskView } from "@/lib/loanStore";
 
 // The circulation desk beside each work: borrow, see the slip, renew, return.
-export function LoanDesk({ desk, slug, title, now, continueAt = null }: { desk: DeskView; slug: string; title: string; now: number; continueAt?: ContinueCard | null }) {
+// `totalWords` + `wpm` (C78) let the desk say how long is left in the book from the bookmark.
+export function LoanDesk({ desk, slug, title, now, continueAt = null, totalWords = 0, wpm = 0 }: { desk: DeskView; slug: string; title: string; now: number; continueAt?: ContinueCard | null; totalWords?: number; wpm?: number }) {
   if (desk.mode === "signed-out") {
     return (
       <p className="font-sans text-sm text-sandstone">
@@ -32,6 +33,9 @@ export function LoanDesk({ desk, slug, title, now, continueAt = null }: { desk: 
               className="w-fit rounded bg-timber px-4 py-2 font-sans text-sm font-semibold text-paper hover:bg-ochre">
               {open.bookmark.wordOffset > 0 ? "Resume at your bookmark" : "Open the reading room"}
             </Link>
+            {open.bookmark.wordOffset > 0 && wpm > 0 && bookLeftLine(totalWords, open.bookmark.wordOffset, wpm) && (
+              <p className="-mt-1 font-sans text-xs text-sandstone">{bookLeftLine(totalWords, open.bookmark.wordOffset, wpm)}</p>
+            )}
             <ContinueHere card={continueAt?.slug === slug ? continueAt : null} />
             <LoanActions slug={slug} loanId={open.id} canRenew={slip.canRenew} canReturn={slip.canReturn} />
           </>

@@ -92,7 +92,7 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
         {(await searchParams).returned === "1" && !openLoan(desk.loans, desk.workId, desk.readerId, now) && (
           <p role="status" className="mb-4 font-sans text-sm text-lamplight">Returned to the shelf. Your bookmark is kept — borrow it again any time.</p>
         )}
-        <LoanDesk desk={desk} slug={work.slug} title={work.title} now={now} continueAt={continueAt} />
+        <LoanDesk desk={desk} slug={work.slug} title={work.title} now={now} continueAt={continueAt} totalWords={facts.totalWords} wpm={pace.wpm} />
       </section>
 
       <div className="mt-8"><AskLibrarian facts={facts} title={work.title} /></div>
