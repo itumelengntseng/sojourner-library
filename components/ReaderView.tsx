@@ -19,6 +19,7 @@ import { outsideCanonNote } from "@/lib/canon";
 import { EndOfChapter } from "./EndOfChapter";
 import { ChapterProgress } from "./ChapterProgress";
 import { DueWithinHour } from "./DueWithinHour";
+import { stampDate } from "@/lib/loanDesk";
 
 const SETTINGS_KEY = "soj:reader-settings";
 const annKey = (slug: string, pos: number) => `soj:ann:${slug}:${pos}`;
@@ -226,6 +227,8 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
             <summary className={`${btn} cursor-pointer list-none border border-sandstone/40 text-paper`}>Contents</summary>
             <nav aria-label="Contents" className="absolute inset-x-3 top-full z-30 mt-1 max-h-[60dvh] overflow-auto sm:inset-x-auto sm:w-80 rounded-sm border border-timber-dark bg-stone-wall p-2 shadow-lg">
               {!proof && <p className="mb-1 px-2 py-1 text-sandstone">{bookLeft > 0 ? `About ${formatDuration(bookLeft)} left in this book` : "You're at the end of this book"}</p>}
+              {/* C112: the loan's due stamp, under the time left in the book. */}
+              {!proof && data.dueAt > 0 && <p className="-mt-1 mb-1 px-2 pb-1 font-mono text-[0.7rem] uppercase tracking-wider text-sandstone">Due back {stampDate(data.dueAt)}</p>}
               {!proof && data.bookmark && (
                 data.bookmark.position === chapter.position ? (
                   <button type="button" onClick={() => { if (contentsRef.current) contentsRef.current.open = false; showBookmark(); }}

@@ -59,3 +59,16 @@ describe("C57 time left in the book (Contents)", () => {
   });
 });
 
+
+describe("C112 due stamp in Contents", () => {
+  const nav = (html: string) => html.slice(html.indexOf('aria-label="Contents"'), html.indexOf("</nav>"));
+  it("stamps the loan's due time (SA clock) under the time left in the book", () => {
+    const n = nav(renderToStaticMarkup(<ReaderView slug="w" data={data} wpm={200} minutesPerDay={30} />));
+    expect(n).toContain("Due back Sat, 07 Nov, 12:00");
+    expect(n.indexOf("Due back")).toBeGreaterThan(n.indexOf("left in this book"));
+  });
+  it("not in the proof copy (no loan there)", () => {
+    const n = nav(renderToStaticMarkup(<ReaderView slug="w" data={{ ...data, mode: "proof" as never, dueAt: 0 }} wpm={200} minutesPerDay={30} />));
+    expect(n).not.toContain("Due back");
+  });
+});
