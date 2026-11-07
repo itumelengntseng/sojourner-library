@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { MembershipCard } from "@/components/MembershipCard";
 import { OnLoanNow } from "@/components/OnLoanNow";
-import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
+import { myLoanWords, myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
+import { bookLeftLine } from "@/lib/loanDesk";
+import { myPace } from "@/lib/sessionStore";
 import { RecentlyReturned } from "@/components/RecentlyReturned";
 import { ContinueReading } from "@/components/ContinueReading";
 import { myContinueBySlug, myContinueReading } from "@/lib/continueStore";
@@ -26,6 +28,18 @@ function Desk({ eyebrow, title, children }: { eyebrow: string; title: string; ch
   );
 }
 
+/** "On loan now", each with the time left in the book at the reader's pace (C74). */
+async function LoanShelf() {
+  const [loans, continueAt, pace] = await Promise.all([myOpenLoans(), myContinueBySlug(), myPace()]);
+  const words = await myLoanWords(loans);
+  const bookLeft: Record<string, string> = {};
+  for (const l of loans) {
+    const line = bookLeftLine(words[l.slug] ?? 0, l.bookmark, pace.wpm);
+    if (line) bookLeft[l.slug] = line;
+  }
+  return <OnLoanNow loans={loans} continueAt={continueAt} bookLeft={bookLeft} />;
+}
+
 /** "Recently returned", with a Finished mark on books read to the end (C70). */
 async function ReturnedShelf() {
   const items = await myRecentlyReturned();
@@ -43,7 +57,7 @@ export default async function CardPage() {
         </p>
         <WeekLine week={await myWeek()} />
         <ContinueReading card={await myContinueReading()} className="w-full" />
-        <OnLoanNow loans={await myOpenLoans()} continueAt={await myContinueBySlug()} />
+        <LoanShelf />
         <ReturnedShelf />
       </Desk>
     );
@@ -78,7 +92,7 @@ export default async function CardPage() {
       <MembershipCard card={card} />
       <WeekLine week={await myWeek()} />
       <ContinueReading card={await myContinueReading()} className="w-full" />
-      <OnLoanNow loans={await myOpenLoans()} continueAt={await myContinueBySlug()} />
+      <LoanShelf />
       <ReturnedShelf />
       <PrefsForm name={card.display_name ?? ""} wpm={(card as ReaderCard & { wpm_override?: number | null }).wpm_override ?? null} />
       <form action={signOut}>

@@ -3,7 +3,8 @@ import { chapterLabel, type ContinueCard } from "@/lib/continueReading";
 import type { OnLoan } from "@/lib/loanDesk";
 
 /** The reader's open loans at the front desk, each with its due-date stamp and a way back in. */
-export function OnLoanNow({ loans, continueAt = {} }: { loans: OnLoan[]; continueAt?: Record<string, ContinueCard> }) {
+/** `bookLeft` (slug → "About 1 h 2 min left in this book", C74) is shown under each due line. */
+export function OnLoanNow({ loans, continueAt = {}, bookLeft = {} }: { loans: OnLoan[]; continueAt?: Record<string, ContinueCard>; bookLeft?: Record<string, string> }) {
   if (loans.length === 0) {
     return (
       <p className="font-sans text-sm text-sandstone">
@@ -22,6 +23,7 @@ export function OnLoanNow({ loans, continueAt = {} }: { loans: OnLoan[]; continu
               <p className={`font-mono text-[0.7rem] uppercase tracking-wider ${l.dueSoon ? "text-ember" : "text-sandstone"}`}>
                 Due {l.due} · {l.timeLeft} left
               </p>
+              {bookLeft[l.slug] && <p className="mt-0.5 font-sans text-xs text-sandstone">{bookLeft[l.slug]}</p>}
               {continueAt[l.slug] && (
                 <p className="mt-1 font-sans text-xs text-paper/80">
                   Continue at{" "}

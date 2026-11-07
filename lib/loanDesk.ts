@@ -1,3 +1,4 @@
+import { formatDuration, minutesFor } from "./engine/readingTime";
 // The loan desk: pure helpers shared by the work page, the server actions and tests.
 // Built on the checkout engine; the database enforces the same rules (0003_loan_desk.sql).
 import { b36, compactSafe, fitCookie, packRecords, readNum, unpackRecords } from "./cookieBudget";
@@ -241,7 +242,7 @@ export function rowToLoan(r: LoanRow): Loan {
 
 // ── "On loan now" at the front desk ─────────────────────────────────────────
 
-export interface OnLoan { workKey: string; slug: string; title: string; due: string; timeLeft: string; dueSoon: boolean; resume: boolean; dueAt: number }
+export interface OnLoan { workKey: string; slug: string; title: string; due: string; timeLeft: string; dueSoon: boolean; resume: boolean; dueAt: number; bookmark: number }
 
 /** The reader's open loans, soonest due first. `works` maps a loan's workId to the work's slug and title. */
 export function onLoanNow(loans: Loan[], readerId: string, works: Record<string, { slug: string; title: string }>, now: number): OnLoan[] {
@@ -250,7 +251,7 @@ export function onLoanNow(loans: Loan[], readerId: string, works: Record<string,
     .sort((a, b) => a.dueAt - b.dueAt)
     .map((l) => {
       const s = slipFor(l, now);
-      return { workKey: l.workId, slug: works[l.workId].slug, title: works[l.workId].title, due: s.due, timeLeft: s.timeLeft ?? "", dueSoon: s.status === "due_soon", resume: l.bookmark.wordOffset > 0, dueAt: l.dueAt };
+      return { workKey: l.workId, slug: works[l.workId].slug, title: works[l.workId].title, due: s.due, timeLeft: s.timeLeft ?? "", dueSoon: s.status === "due_soon", resume: l.bookmark.wordOffset > 0, dueAt: l.dueAt, bookmark: l.bookmark.wordOffset };
     });
 }
 
@@ -295,4 +296,14 @@ export function recentlyReturned(loans: Loan[], readerId: string, works: Record<
     if (out.length >= limit) break;
   }
   return out;
+}
+
+// ── Time left in each book on loan (C74) ────────────────────────────────────
+
+/** "About 1 h 2 min left in this book" from the bookmark at the reader's pace; "At the end of this book" when nothing's left. */
+export function bookLeftLine(totalWords: number, bookmark: number, wpm: number): string | null {
+  if (!(totalWords > 0)) return null;
+  const left = Math.max(0, totalWords - Math.max(0, bookmark));
+  if (left === 0) return "At the end of this book";
+  return `About ${formatDuration(minutesFor(left, wpm))} left in this book`;
 }

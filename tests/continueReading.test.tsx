@@ -81,7 +81,7 @@ describe("continue reading", () => {
 
 describe("due soon on the continue card (C42)", () => {
   const H = 3600_000;
-  const on = (slug: string, inMs: number): OnLoan => ({ workKey: slug, slug, title: `Placeholder ${slug}`, due: "Fri 6 Nov, 14:00", timeLeft: "4 h", dueSoon: false, resume: true, dueAt: T + inMs });
+  const on = (slug: string, inMs: number): OnLoan => ({ workKey: slug, slug, title: `Placeholder ${slug}`, due: "Fri 6 Nov, 14:00", timeLeft: "4 h", dueSoon: false, resume: true, dueAt: T + inMs, bookmark: 0 });
   it("moves the continue book off the due-soon slip onto the card", () => {
     const soon = [on("a", 2 * H), on("b", 3 * H)];
     expect(splitDueSoon(soon, "a")).toEqual({ onCard: soon[0], onSlip: [soon[1]] });

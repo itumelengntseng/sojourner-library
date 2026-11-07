@@ -8,6 +8,7 @@ import {
   onLoanNow, rowToLoan, serializePreviewLoans, settleExpired, type DeskResult, type LoanRow, type OnLoan, recentlyReturned, type Returned,
 } from "./loanDesk";
 import { getWorks } from "./catalogue";
+import { countWords } from "./engine/readingTime";
 import { supabaseServer } from "./supabase/server";
 
 export type DeskMode = "preview" | "library" | "signed-out" | "not-shelved";
@@ -125,4 +126,18 @@ export async function myRecentlyReturned(): Promise<Returned[]> {
   const { data: works } = await supabase.from("works").select("id, slug, title").in("id", [...new Set(loans.map((l) => l.workId))]).is("archived_at", null);
   const byId = Object.fromEntries(((works ?? []) as { id: string; slug: string; title: string }[]).map((w) => [w.id, { slug: w.slug, title: w.title }]));
   return recentlyReturned(loans, auth.user.id, byId, now);
+}
+
+/** C74: total words of each work on loan (keyed by slug), for "About N min left in this book" at the front desk. */
+export async function myLoanWords(loans: OnLoan[]): Promise<Record<string, number>> {
+  if (loans.length === 0) return {};
+  const supabase = await supabaseServer();
+  if (!supabase) {
+    const slugs = new Set(loans.map((l) => l.slug));
+    return Object.fromEntries(getWorks().filter((w) => slugs.has(w.slug)).map((w) => [w.slug, w.chapters.reduce((n, c) => n + countWords(c.body), 0)]));
+  }
+  const { data: rows } = await supabase.from("chapters").select("work_id, word_count").in("work_id", loans.map((l) => l.workKey)).is("archived_at", null);
+  const out: Record<string, number> = {};
+  for (const l of loans) out[l.slug] = (rows ?? []).filter((r) => r.work_id === l.workKey).reduce((n, r) => n + ((r.word_count as number) ?? 0), 0);
+  return out;
 }

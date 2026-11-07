@@ -5,7 +5,7 @@ import { dueBackSoon, type OnLoan } from "@/lib/loanDesk";
 
 const NOW = Date.parse("2026-11-06T10:00:00Z");
 const H = 3600_000;
-const loan = (slug: string, inMs: number): OnLoan => ({ workKey: slug, slug, title: `Placeholder ${slug}`, due: "Fri 6 Nov, 14:00", timeLeft: "4 h", dueSoon: false, resume: false, dueAt: NOW + inMs });
+const loan = (slug: string, inMs: number): OnLoan => ({ workKey: slug, slug, title: `Placeholder ${slug}`, due: "Fri 6 Nov, 14:00", timeLeft: "4 h", dueSoon: false, resume: false, dueAt: NOW + inMs, bookmark: 0 });
 
 describe("due back soon", () => {
   it("keeps only loans due within a day, soonest first", () => {
