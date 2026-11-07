@@ -13,3 +13,8 @@ export function spokenSpine(a: { author: string; canon: string; readingTime: str
   if (a.finished !== undefined) out += ` You read this to the end on ${finishedDate(a.finished)}.`;
   return out;
 }
+
+/** C142: the ✓ key's words for one or several books handed back within the hour. */
+export function justBackLegend(n: number): string {
+  return n === 1 ? "a book you returned in the last hour — borrow it again any time." : `the ${n} books you returned in the last hour — borrow them again any time.`;
+}

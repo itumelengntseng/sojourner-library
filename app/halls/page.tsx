@@ -13,7 +13,7 @@ import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
 import { dueBackSoon, justReturned, loansBySlug, noRenewalsLeft } from "@/lib/loanDesk";
 import { myFinishes } from "@/lib/ledgerStore";
 import { myBookLeft } from "@/lib/bookLeftStore";
-import { spokenSpine } from "@/lib/spine";
+import { justBackLegend, spokenSpine } from "@/lib/spine";
 import { FINISHED_SHELF, finishedStamp } from "@/lib/ledger";
 
 export const metadata: Metadata = { title: "The halls" };
@@ -90,6 +90,13 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
         <p className="mt-1 font-sans text-xs text-sandstone">
           <span aria-hidden="true" className="mr-1 rounded-[1px] bg-ember px-1 font-mono text-[0.5rem] font-semibold uppercase tracking-wider text-ink">due soon</span>
           marks books due back within the day — renew them at the <Link href="/card" className="underline underline-offset-2 hover:text-lamplight">front desk</Link>.
+        </p>
+      )}
+      {/* C142: the lamplight ✓ explained, only when one shows (books handed back within the hour). */}
+      {works.some((w) => !out[w.slug] && backNow[w.slug]) && (
+        <p className="mt-1 font-sans text-xs text-sandstone">
+          <span aria-hidden="true" className="mr-1 font-mono text-[0.7rem] text-lamplight">✓</span>
+          marks {justBackLegend(works.filter((w) => !out[w.slug] && backNow[w.slug]).length)}
         </p>
       )}
       {works.some((w) => done[w.slug] !== undefined) && (
