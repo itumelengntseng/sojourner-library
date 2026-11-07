@@ -4,7 +4,7 @@ import { hallsFromRows, type HallRow } from "./catalogueRows";
 import { countWords } from "./engine/readingTime";
 import type { ShelvedWork } from "./manuscript";
 import { supabaseServer } from "./supabase/server";
-import { dueBackSoon, justReturned } from "./loanDesk";
+import { dueBackSoon, justBorrowed, justReturned } from "./loanDesk";
 import { myOpenLoans, myRecentlyReturned } from "./loanStore";
 
 export interface RoomWork {
@@ -35,9 +35,9 @@ export interface RoomInvite {
 }
 
 export type Room =
-  | { mode: "preview"; works: RoomWork[]; halls: Hall[]; shelf: Record<string, ShelvedWork>; dueSoon: number; returnedHour: number }
+  | { mode: "preview"; works: RoomWork[]; halls: Hall[]; shelf: Record<string, ShelvedWork>; dueSoon: number; returnedHour: number; borrowedHour: number }
   | { mode: "closed"; reason: "signed-out" | "not-owner" }
-  | { mode: "library"; works: RoomWork[]; invites: RoomInvite[]; halls: Hall[]; hallsNamed: boolean; setAside: { id: string; slug: string; title: string; archivedAt: string }[]; shelf: Record<string, ShelvedWork>; cardHolders: number; dueSoon: number; returnedHour: number };
+  | { mode: "library"; works: RoomWork[]; invites: RoomInvite[]; halls: Hall[]; hallsNamed: boolean; setAside: { id: string; slug: string; title: string; archivedAt: string }[]; shelf: Record<string, ShelvedWork>; cardHolders: number; dueSoon: number; returnedHour: number; borrowedHour: number };
 
 /** The owner's client, or null (with why) — every Writer's Room action goes through this. */
 export async function ownerClient() {
@@ -61,6 +61,7 @@ export async function loadRoom(): Promise<Room> {
       mode: "preview",
       dueSoon: dueBackSoon(out, Date.now()).length,
       returnedHour: back.filter((r) => justReturned(r, Date.now())).length,
+      borrowedHour: out.filter((l) => justBorrowed(l, Date.now())).length,
       works: getWorks().map((w) => ({
         id: w.slug, slug: w.slug, title: w.title, canonStatus: w.canonStatus, visibility: "owner", isPlaceholder: true, description: "", hall: w.hall,
         words: 0, readers: 0, openLoans: outBySlug.get(w.slug) ?? 0, minutes: 0,
@@ -74,7 +75,7 @@ export async function loadRoom(): Promise<Room> {
   }
   if (!supabase) return { mode: "closed", reason: reason as "signed-out" | "not-owner" };
   const nowMs = Date.now();
-  const [{ data: works }, { data: stats }, { data: invites }, { data: hallRows }, { data: archived }, { data: chapterRows }, { count: cardHolders }, finishedRes, { count: dueSoon }, { data: backRows }] = await Promise.all([
+  const [{ data: works }, { data: stats }, { data: invites }, { data: hallRows }, { data: archived }, { data: chapterRows }, { count: cardHolders }, finishedRes, { count: dueSoon }, { data: backRows }, { count: borrowedHour }] = await Promise.all([
     supabase.from("works").select("id, slug, title, canon_status, visibility, is_placeholder, description, hall, word_count, updated_at").is("archived_at", null).order("title"),
     supabase.rpc("readership"),
     supabase.from("invites").select("id, note, expires_at, redeemed_at, revoked_at").eq("role", "guest").order("created_at", { ascending: false }).limit(50),
@@ -88,6 +89,8 @@ export async function loadRoom(): Promise<Room> {
       .gt("due_at", new Date(nowMs).toISOString()).lte("due_at", new Date(nowMs + 24 * 3600_000).toISOString()),
     // C136: loans that came back in the last hour — times only (no reader, no work), counted below.
     supabase.from("loans").select("returned_at, due_at").gte("returned_at", new Date(nowMs - 3600_000).toISOString()).limit(1000),
+    // C139: loans taken out in the last hour — a head count only.
+    supabase.from("loans").select("id", { count: "exact", head: true }).gt("borrowed_at", new Date(nowMs - 3600_000).toISOString()),
   ]);
   const finishedBy = finishedRes.error ? null
     : new Map(((finishedRes.data ?? []) as { work_id: string; finished: number | string }[]).map((r) => [r.work_id, Number(r.finished)]));
@@ -110,6 +113,7 @@ export async function loadRoom(): Promise<Room> {
     shelf,
     cardHolders: cardHolders ?? 0,
     dueSoon: dueSoon ?? 0,
+    borrowedHour: borrowedHour ?? 0,
     returnedHour: ((backRows ?? []) as { returned_at: string; due_at: string }[])
       .filter((r) => justReturned({ returnedAt: Date.parse(r.returned_at), onTime: Date.parse(r.returned_at) < Date.parse(r.due_at) }, nowMs)).length,
     setAside: (archived ?? []).map((w) => ({ id: w.id as string, slug: w.slug as string, title: w.title as string, archivedAt: w.archived_at as string })),

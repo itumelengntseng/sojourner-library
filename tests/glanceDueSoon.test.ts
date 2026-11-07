@@ -52,6 +52,19 @@ describe("Writer's Room loans tile — returned in the last hour (C136)", () => 
     const src = readFileSync("lib/writersRoom.ts", "utf8");
     expect(src).toContain('supabase.from("loans").select("returned_at, due_at").gte("returned_at"');
     expect(src).toMatch(/justReturned\(\{ returnedAt: Date\.parse\(r\.returned_at\), onTime: Date\.parse\(r\.returned_at\) < Date\.parse\(r\.due_at\) \}, nowMs\)/);
-    expect(readFileSync("app/writers-room/page.tsx", "utf8")).toContain("room.dueSoon, room.returnedHour)");
+    expect(readFileSync("app/writers-room/page.tsx", "utf8")).toContain("room.dueSoon, room.returnedHour");
+  });
+});
+
+describe("Writer's Room loans tile — borrowed in the last hour (C139)", () => {
+  it("adds the count before the returned count", () => {
+    expect(glance([w(2)], 0, 3, 0, 0, 1).find((x) => x.label === "Out on loan now")!.note).toBe("2 open loans · 1 borrowed in the last hour");
+    expect(glance([w(2)], 0, 3, 0, 1, 2).find((x) => x.label === "Out on loan now")!.note).toBe("2 open loans · 2 borrowed in the last hour · 1 returned in the last hour");
+  });
+  it("library mode asks for a head count of the last hour's borrowing; preview reads the cookie desk", () => {
+    const src = readFileSync("lib/writersRoom.ts", "utf8");
+    expect(src).toContain('supabase.from("loans").select("id", { count: "exact", head: true }).gt("borrowed_at"');
+    expect(src).toContain("borrowedHour: out.filter((l) => justBorrowed(l, Date.now())).length,");
+    expect(readFileSync("app/writers-room/page.tsx", "utf8")).toContain("room.returnedHour, room.borrowedHour)");
   });
 });

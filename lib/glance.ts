@@ -4,7 +4,7 @@ export interface GlanceTile { label: string; value: string; note?: string;
   urgentNote?: string }
 
 /** "The library at a glance": counts only — never who read what. */
-export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number }[], setAside: number, cardHolders: number | null, dueSoon = 0, returnedHour = 0): GlanceTile[] {
+export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number }[], setAside: number, cardHolders: number | null, dueSoon = 0, returnedHour = 0, borrowedHour = 0): GlanceTile[] {
   const shared = works.filter((w) => w.visibility === "members").length;
   const words = works.reduce((a, w) => a + w.words, 0);
   const loans = works.reduce((a, w) => a + w.openLoans, 0);
@@ -14,8 +14,8 @@ export function glance(works: { visibility: "owner" | "members"; words: number; 
     { label: "Words shelved", value: words.toLocaleString("en-ZA") },
     { label: "Card holders", value: cardHolders === null ? "—" : String(cardHolders), note: cardHolders === null ? "once the library is connected" : undefined },
     // C122: how many of those are due back within the day — a count only, never who.
-    // C136: and how many came back in the last hour (handed back by readers; counts only).
-    { label: "Out on loan now", value: String(loans), note: `${loans ? plural(loans, "open loan") : "every book is in"}${returnedHour > 0 ? ` · ${returnedHour.toLocaleString("en-ZA")} returned in the last hour` : ""}`,
+    // C136/C139: and how many went out / came back in the last hour (counts only).
+    { label: "Out on loan now", value: String(loans), note: `${loans ? plural(loans, "open loan") : "every book is in"}${borrowedHour > 0 ? ` · ${borrowedHour.toLocaleString("en-ZA")} borrowed in the last hour` : ""}${returnedHour > 0 ? ` · ${returnedHour.toLocaleString("en-ZA")} returned in the last hour` : ""}`,
       ...(loans && dueSoon > 0 ? { urgentNote: `${Math.min(dueSoon, loans).toLocaleString("en-ZA")} due back within the day` } : {}) },
   ];
   // C45: shown once the library can count it (finished_readers() answered for every work).
