@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 9 — C101–C121, QA31–QA37; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 10 — C122–C124, QA38; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -181,10 +181,14 @@ _Last updated: 2026-11-07 (scheduled build run 9 — C101–C121, QA31–QA37; `
 - C120 — Ledger Hours per book: a book on loan due back within the day carries the card's ember "Due soon" mark (spoken "Due soon: back by <due>"). Unit-tested.
 - C121 — Work page: with the book out, "On loan to you · due Sat, 07 Nov, 14:00" under the byline, linking down to the loan desk (`#desk`). Unit-tested (source check).
 - QA37 (2026-11-07, after C119–C121): `npm run qa` all clear — now also requires the work page's On loan to you line and the ledger's Due soon mark (375px + 1280px, axe clean). The slip's count is unit-tested only (the sweep's slip has one line). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 520 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA37).
+- C122 — Writer's Room glance: the "Out on loan now" tile reads "3 open loans · 2 due back within the day" (never more due than out). Library mode: a head count of open loans due in the next 24 h (owner can read loans under RLS; no rows, no names). Preview: counts the visitor's own cookie desk, which now also fills the tile's open-loan count. Unit-tested.
+- C123 — Pitch Room: each open share link reads "open until 21 Nov · 14 days left" (SA calendar days), "· last day" on its final day; expired/closed unchanged (`linkTimeLeft()` in `lib/pitch.ts`). Unit-tested (preview has no share links, so the sweep can't see it).
+- C124 — Card page Recently returned: a book the reader handed back within the last hour reads "Just returned" (lamplight) instead of the stamp; screen readers hear "Just returned, <stamp>". Loans the desk settled on expiry keep "back on the shelf when due". Unit-tested.
+- QA38 (2026-11-07, after C122–C124): `npm run qa` all clear — now also requires the Writer's Room tile's "due back within the day" count and the card's "Just returned" (with its spoken stamp) at 375px + 1280px, axe clean. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 532 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA38).
 
 ## Next task
-C122 — "due back within the day" count on the Writer's Room loans tile (BACKLOG.md → FOLLOW-UPS), then C123, C124, QA38. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C125 — Pitch Room "Last day" mark on a share link's final day (BACKLOG.md → FOLLOW-UPS), then C126, C127, QA39. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -228,6 +232,8 @@ C122 — "due back within the day" count on the Writer's Room loans tile (BACKLO
 - A new person/place/event gets an id from "new …"; Itu renames it if he wants a meaningful id (renaming updates references).
 - Lineage and timeline are readable by any card holder (as before); editing is owner-only.
 - The Keeper's proof copy is read-only and unrecorded, so it never skews readership counts or the Keeper's own pace.
+- "Just returned" (C124) applies only to books the reader handed back, for one hour; loans that ran out keep their "back on the shelf when due" stamp.
+- In preview mode the Writer's Room loan counts come from the visitor's own cookie desk (the only loans that exist there).
 - "Fresh on the shelves" uses a work's `updated_at`, so sharing a work or editing its description also brings it forward (60-day window, 3 works).
 - Setting a work aside also closes access for readers who have it on loan (their loan rows and notes are kept); restoring reopens it.
 - A book counts as finished at 90% of its last chapter's words (readers skim endings and the tracker is conservative); rereads keep the first finish date.

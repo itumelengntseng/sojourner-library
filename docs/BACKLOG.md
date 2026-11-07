@@ -176,7 +176,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C120 Ledger "Hours per book": a book on loan due back within the day carries a small "Due soon" mark (same look and spoken label as the card's C96).
 - [x] C121 Work page: when the reader has the book out, a quiet line under the title — "On loan to you · due <stamp>" — linking to the loan desk (`#desk`).
 - [x] QA37 QA pass after C119–C121.
-- [ ] C122 Writer's Room glance: the "Loans out now" tile adds "· N due back within the day" (counts only, never who; library mode from the same count query family, preview from the cookie desk).
-- [ ] C123 Pitch Room: each open share link says how long it has left ("open until 21 Nov · 14 days left"), SA time; "last day" on its final day.
-- [ ] C124 Card page "Recently returned": a book returned within the last hour shows "Just returned" instead of the stamp, with the stamp kept in its spoken label.
-- [ ] QA38 QA pass after C122–C124.
+- [x] C122 Writer's Room glance: the "Loans out now" tile adds "· N due back within the day" (counts only, never who; library mode from the same count query family, preview from the cookie desk).
+- [x] C123 Pitch Room: each open share link says how long it has left ("open until 21 Nov · 14 days left"), SA time; "last day" on its final day.
+- [x] C124 Card page "Recently returned": a book returned within the last hour shows "Just returned" instead of the stamp, with the stamp kept in its spoken label.
+- [x] QA38 QA pass after C122–C124.
+- [ ] C125 Pitch Room: a share link on its last day carries a small ember "Last day" mark (same look as the card's "Due soon"), spoken "Last day: closes <time>".
+- [ ] C126 Card page "Recently returned": with two or more lines, the heading carries the count ("Recently returned · 3"), like C116/C119.
+- [ ] C127 Ledger Borrowing history: a loan the reader returned within the last hour reads "Just returned" (reuse `justReturned()`), stamp kept in its spoken label.
+- [ ] QA39 QA pass after C125–C127.

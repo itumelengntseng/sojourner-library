@@ -506,7 +506,17 @@ for (const width of WIDTHS) {
   if (await onLoan.locator("a[href='/works/placeholder-work-two#desk']").count()) { failures++; console.log(`✗ ${width}px card: still offers Renew on the spent loan`); }
   // QA36 (C116): the heading carries the count.
   if (!(await page.getByRole("heading", { name: /^On loan now · \d+$/ }).count())) { failures++; console.log(`✗ ${width}px card: the On loan now heading has no count`); }
+  // QA38 (C124): the book handed back earlier this run reads "Just returned", stamp kept for screen readers.
+  const back = page.getByRole("region", { name: "Recently returned" });
+  if (await back.count()) {
+    if (!(await back.locator("span[aria-hidden='true']", { hasText: /^Just returned$/ }).count()) || !(await back.locator(".sr-only", { hasText: /^Just returned, / }).count())) { failures++; console.log(`✗ ${width}px card: a book returned this hour doesn't read "Just returned"`); }
+  }
   await axeCheck(`${width}px card with no renewals left`);
+  // QA38 (C122): the Writer's Room loans tile counts the spent hour loan as due back within the day.
+  errors.length = 0;
+  await page.goto(`${BASE}/writers-room`);
+  if (!(await page.getByText(/^\d+ open loans? · \d+ due back within the day$/).count())) { failures++; console.log(`✗ ${width}px Writer's Room loans tile doesn't count the loans due back within the day`); }
+  await axeCheck(`${width}px Writer's Room with a loan due within the day`);
   // QA33 (C108, C109): the spine says so, and the ledger's history row too.
   errors.length = 0;
   await page.goto(`${BASE}/halls`);
