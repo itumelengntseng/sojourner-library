@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 9 — C101–C115, QA31–QA35 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 9 — C101–C118, QA31–QA36; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -173,10 +173,14 @@ _Last updated: 2026-11-07 (scheduled build run 9 — C101–C115, QA31–QA35 so
 - C114 — Front hall Continue reading card: when it carries the due stamp (C42) and the loan has no renewals left, the stamp ends "· no renewals left · return" instead of "renew or return". Unit-tested.
 - C115 — Reading room end-of-book card: beside Return to shelf, "Your bookmark is kept if you borrow it again. No renewals left on this loan." when the loan is spent; never in the proof copy. Unit-tested (`tests/endOfChapter.test.tsx`).
 - QA35 (2026-11-07, after C113–C115): `npm run qa` all clear — now also requires the ledger's On loan tile, the front hall's Continue card saying no renewals left (and not "renew or return") for the spent loan, and the end-of-book note (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 514 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA35).
+- C116 — Card On loan now: the heading reads "On loan now · 3", and with two or more due within the day a line under it, "2 due back within the day" (ember). Unit-tested.
+- C117 — Ledger On loan tile: when the soonest loan is due within the day (`dueBackSoon()`), the note reads "due back within the day · <stamp>" in ember (axe contrast clean). Unit-tested.
+- C118 — Halls "out" legend: "out marks the book out to you — renew or return it at the front desk" / "the 2 books … them", counted over the shelves shown. Unit-tested (source check).
+- QA36 (2026-11-07, after C116–C118): `npm run qa` all clear — now also requires the count on the card's heading, the ledger tile's "due back within the day" for the hour loan, and the counted halls legend (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 517 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA36).
 
 ## Next task
-C116 — the count on the card's "On loan now" heading (BACKLOG.md → FOLLOW-UPS), then C117, C118, QA36. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C119 — a count on the front hall's "Due back soon" slip (BACKLOG.md → FOLLOW-UPS), then C120, C121, QA37. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

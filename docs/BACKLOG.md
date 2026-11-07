@@ -168,7 +168,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C114 Front hall Continue reading card: when its due stamp shows (C42) and the loan has no renewals left, the stamp reads "… · no renewals left · return" instead of "renew or return".
 - [x] C115 Reading room end-of-book card: when the loan has no renewals left, the Return to shelf note adds "No renewals left on this loan." (not in the proof copy).
 - [x] QA35 QA pass after C113–C115.
-- [ ] C116 Card page "On loan now": the heading carries the count ("On loan now · 2"), and with two or more due within the day a line under it, "2 due back within the day".
-- [ ] C117 Ledger "On loan" tile: when the soonest loan is due within the day (`dueBackSoon()`), its note turns ember and reads "due back within the day · <stamp>".
-- [ ] C118 Halls: the "out" legend line says how many ("2 books out to you — renew or return them at the front desk").
-- [ ] QA36 QA pass after C116–C118.
+- [x] C116 Card page "On loan now": the heading carries the count ("On loan now · 2"), and with two or more due within the day a line under it, "2 due back within the day".
+- [x] C117 Ledger "On loan" tile: when the soonest loan is due within the day (`dueBackSoon()`), its note turns ember and reads "due back within the day · <stamp>".
+- [x] C118 Halls: the "out" legend line says how many ("2 books out to you — renew or return them at the front desk").
+- [x] QA36 QA pass after C116–C118.
+- [ ] C119 Front hall "Due back soon" slip: with two or more lines, the heading carries the count ("Due back soon · 2").
+- [ ] C120 Ledger "Hours per book": a book on loan due back within the day carries a small "Due soon" mark (same look and spoken label as the card's C96).
+- [ ] C121 Work page: when the reader has the book out, a quiet line under the title — "On loan to you · due <stamp>" — linking to the loan desk (`#desk`).
+- [ ] QA37 QA pass after C119–C121.
