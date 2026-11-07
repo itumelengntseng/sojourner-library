@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { OnLoan } from "@/lib/loanDesk";
 
 // A small slip tucked by the front-hall door: what's due back within the day.
+// Each line offers Renew → the work page's loan desk (C101).
 // `bookLeft` (slug → "About 25 min left in this book", C80) is added after the time left on the loan.
 export function DueSoonSlip({ loans, bookLeft = {} }: { loans: OnLoan[]; bookLeft?: Record<string, string> }) {
   if (loans.length === 0) return null;
@@ -12,7 +13,13 @@ export function DueSoonSlip({ loans, bookLeft = {} }: { loans: OnLoan[]; bookLef
         {loans.map((l) => (
           <li key={l.workKey} className="flex flex-wrap items-baseline justify-between gap-x-3 py-0.5">
             <Link href={`/works/${l.slug}/read`} className="underline-offset-2 hover:underline">{l.title}</Link>
-            <span className="font-mono text-xs text-[#8a4a12]">{l.due}{l.timeLeft ? ` · ${l.timeLeft} left` : ""}</span>
+            <span className="flex items-baseline gap-2">
+              <span className="font-mono text-xs text-[#8a4a12]">{l.due}{l.timeLeft ? ` · ${l.timeLeft} left` : ""}</span>
+              {/* C101: each line offers the way to renew at the work's loan desk (as the card's C100). */}
+              <Link href={`/works/${l.slug}#desk`} className="font-sans text-[0.7rem] font-semibold text-[#8a4a12] underline underline-offset-2 hover:text-ink">
+                Renew<span className="sr-only"> {l.title} at the loan desk</span>
+              </Link>
+            </span>
             {bookLeft[l.slug] && <span className="w-full font-sans text-[0.7rem] text-ink/75">{bookLeft[l.slug]}</span>}
           </li>
         ))}
