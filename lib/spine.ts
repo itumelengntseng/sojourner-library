@@ -5,9 +5,11 @@ const inline = (line: string) => line.charAt(0).toLowerCase() + line.slice(1);
 
 // C99: `dueSoon` (due back within the day — the front hall slip's rule) is said after the due time.
 // C108: `noRenewals` (every renewal used — C104's rule) is said after that.
-export function spokenSpine(a: { author: string; canon: string; readingTime: string; due?: string; dueSoon?: boolean; noRenewals?: boolean; bookLeft?: string; finished?: number }): string {
+export function spokenSpine(a: { author: string; canon: string; readingTime: string; due?: string; dueSoon?: boolean; noRenewals?: boolean; bookLeft?: string; finished?: number; justReturned?: string }): string {
   let out = `by ${a.author}. ${a.canon}. ${a.readingTime} to read.`;
   if (a.due) out += ` On loan to you, due ${a.due}${a.dueSoon ? " — due back within the day" : ""}${a.noRenewals ? ", no renewals left" : ""}${a.bookLeft ? `; ${inline(a.bookLeft)}` : ""}.`;
+  // C132: handed back within the hour (only when it isn't out again).
+  if (!a.due && a.justReturned) out += ` Just returned, ${a.justReturned}.`;
   if (a.finished !== undefined) out += ` You read this to the end on ${finishedDate(a.finished)}.`;
   return out;
 }

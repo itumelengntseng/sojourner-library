@@ -48,3 +48,18 @@ describe("spine: no renewals left (C108)", () => {
     expect(readFileSync("app/halls/page.tsx", "utf8")).toContain("noRenewals: loan ? noRenewalsLeft(loan) : false");
   });
 });
+
+describe("spoken spine — just returned (C132)", () => {
+  const base = { author: "Itumeleng Ntseng", canon: "Canon", readingTime: "40 min" };
+  it("says so for a book handed back within the hour, unless it's out again", () => {
+    expect(spokenSpine({ ...base, justReturned: "Sat, 07 Nov, 11:40" })).toBe("by Itumeleng Ntseng. Canon. 40 min to read. Just returned, Sat, 07 Nov, 11:40.");
+    expect(spokenSpine({ ...base, due: "Sun, 08 Nov, 11:00", justReturned: "Sat, 07 Nov, 11:40" })).not.toContain("Just returned");
+  });
+  it("the halls give it a lamplight tick and pass it to the spoken spine", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync("app/halls/page.tsx", "utf8");
+    expect(src).toContain("returnedNow.filter((r) => justReturned(r, nowMs))");
+    expect(src).toContain('{!loan && backNow[w.slug] && <span aria-hidden="true" title="Just returned"');
+    expect(src).toContain("justReturned: backNow[w.slug] })}");
+  });
+});

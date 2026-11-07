@@ -9,8 +9,8 @@ import { CANON_LABEL, filterByCanon, hallSummary, workStats } from "@/lib/workSt
 import { myPace } from "@/lib/sessionStore";
 import { chapterHits, cleanQuery, resultLine, searchShelves } from "@/lib/shelfSearch";
 import { parseSort, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
-import { myOpenLoans } from "@/lib/loanStore";
-import { dueBackSoon, loansBySlug, noRenewalsLeft } from "@/lib/loanDesk";
+import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
+import { dueBackSoon, justReturned, loansBySlug, noRenewalsLeft } from "@/lib/loanDesk";
 import { myFinishes } from "@/lib/ledgerStore";
 import { myBookLeft } from "@/lib/bookLeftStore";
 import { spokenSpine } from "@/lib/spine";
@@ -28,7 +28,10 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
   const sort = parseSort(params.sort);
   const works = sortShelf(searchShelves(filterByCanon(catalogue.works, view), halls, query), sort);
   const canonParam = typeof params.canon === "string" ? params.canon : undefined;
-  const [loansNow, pace, done] = await Promise.all([myOpenLoans(), myPace(), myFinishes(works.map((w) => w.slug))]);
+  const [loansNow, pace, done, returnedNow] = await Promise.all([myOpenLoans(), myPace(), myFinishes(works.map((w) => w.slug)), myRecentlyReturned()]);
+  // C132: books handed back within the hour (own returns only) carry a lamplight tick and say so.
+  const nowMs = Date.now();
+  const backNow: Record<string, string> = Object.fromEntries(returnedNow.filter((r) => justReturned(r, nowMs)).map((r) => [r.slug, r.returned]));
   const out = loansBySlug(loansNow);
   // C99: books due back within the day (the front hall slip's rule) get a "due soon" band.
   const soon = new Set(dueBackSoon(loansNow, Date.now()).map((l) => l.slug));
@@ -121,12 +124,13 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
                         >
                           {loan && <span aria-hidden="true" title={`On loan to you · due ${loan.due}`} className="-mt-1 mb-1 w-full rounded-[1px] bg-paper py-0.5 text-center font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-ink">out</span>}
                           {loan && soon.has(w.slug) && <span aria-hidden="true" title="Due back within the day" className="-mt-0.5 mb-1 w-full rounded-[1px] bg-ember py-0.5 text-center font-mono text-[0.5rem] font-semibold uppercase leading-tight tracking-wider text-ink">due soon</span>}
+                          {!loan && backNow[w.slug] && <span aria-hidden="true" title="Just returned" className="-mt-1 mb-1 font-mono text-[0.7rem] leading-none text-lamplight">✓</span>}
                           <span className="line-clamp-2 text-[0.75rem] leading-tight [writing-mode:vertical-rl] rotate-180">{w.title}</span>
                           <span className="font-sans text-[0.55rem] uppercase tracking-wider text-lamplight [writing-mode:vertical-rl] rotate-180">{w.author}</span>
                           {done[w.slug] !== undefined && <span aria-hidden="true" title={finishedStamp(done[w.slug])} className="mt-1 w-full rounded-[1px] border border-lamplight py-0.5 text-center font-mono text-[0.55rem] font-semibold uppercase tracking-wider text-lamplight">read</span>}
                           {w.canonStatus !== "canon" && <span aria-hidden="true" title="Not canon" className="mt-1 h-2 w-2 rounded-full bg-ember" />}
                           <span className="sr-only">
-                            {spokenSpine({ author: w.author, canon: CANON_LABEL[w.canonStatus], readingTime: s.readingTime, due: loan?.due, dueSoon: soon.has(w.slug), noRenewals: loan ? noRenewalsLeft(loan) : false, bookLeft: bookLeft[w.slug], finished: done[w.slug] })}
+                            {spokenSpine({ author: w.author, canon: CANON_LABEL[w.canonStatus], readingTime: s.readingTime, due: loan?.due, dueSoon: soon.has(w.slug), noRenewals: loan ? noRenewalsLeft(loan) : false, bookLeft: bookLeft[w.slug], finished: done[w.slug], justReturned: backNow[w.slug] })}
                           </span>
                         </Link>
                       </li>
