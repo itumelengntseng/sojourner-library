@@ -212,16 +212,26 @@ export interface ExportWork {
 const quote = (t: string) => t.split("\n").map((l) => `> ${l}`).join("\n");
 const clip = (t: string, n = 160) => (t.length > n ? `${t.slice(0, n).trimEnd()}…` : t);
 
+const AUTHOR = "Itumeleng Ntseng";
+export const NOTES_HEADING = `Notes on the works of ${AUTHOR}`;
+
+/** A chapter's heading in the notes file: its title, or "Chapter N" when it has none (C68). */
+export function chapterHeading(c: { position: number; title: string }): string {
+  const t = (c.title ?? "").replace(/\s+/g, " ").trim();
+  return t || `Chapter ${c.position}`;
+}
+
 export function notesMarkdown(works: ExportWork[], exportedAt: number, readerName = ""): string {
   const when = new Date(exportedAt).toLocaleDateString("en-ZA", { day: "numeric", month: "long", year: "numeric", timeZone: "Africa/Johannesburg" });
-  const out = [`# My notes from The Sojourner Library`, ``, `${readerName ? `${readerName} · ` : ""}Exported ${when}. Private to you.`, ``];
+  // C68: the file opens with whose works these are and when it was made.
+  const out = [`# ${NOTES_HEADING}`, ``, `From The Sojourner Library · ${readerName ? `${readerName} · ` : ""}Exported ${when}. Private to you.`, ``];
   const withContent = works.filter((w) => w.chapters.some((c) => c.notes.length || c.highlights.length));
   if (withContent.length === 0) out.push("_No notes or highlights yet._", "");
   for (const w of withContent) {
-    out.push(`## ${w.title}`, ``, `_by ${w.author}_`, ``);
+    out.push(`## ${w.title}`, ``, `_by ${w.author.trim() || AUTHOR}_`, ``);
     for (const c of [...w.chapters].sort((a, b) => a.position - b.position)) {
       if (!c.notes.length && !c.highlights.length) continue;
-      out.push(`### ${c.title}`, ``);
+      out.push(`### ${chapterHeading(c)}`, ``);
       const items = [
         ...c.highlights.map((h) => ({ at: h.createdAt, md: `${quote(h.text)}\n\n_highlight · ${h.colour}_` })),
         ...c.notes.map((n) => ({ at: n.createdAt, md: `${n.anchorText ? `${quote(clip(n.anchorText))}\n\n` : ""}**Note:** ${n.body}` })),

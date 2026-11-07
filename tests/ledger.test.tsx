@@ -62,8 +62,8 @@ describe("notes export", () => {
         { position: 1, title: "Chapter 1", notes: [], highlights: [{ text: "Bright line", colour: "ochre", createdAt: 1 }] },
       ],
     }], NOW, "Thandi");
-    expect(md).toContain("# My notes from The Sojourner Library");
-    expect(md).toContain("Thandi · Exported 6 November 2026");
+    expect(md.startsWith("# Notes on the works of Itumeleng Ntseng\n")).toBe(true);
+    expect(md).toContain("From The Sojourner Library · Thandi · Exported 6 November 2026");
     expect(md).toContain("_by Itumeleng Ntseng_");
     expect(md.indexOf("### Chapter 1")).toBeLessThan(md.indexOf("### Chapter 2"));
     expect(md).toContain("> Bright line\n\n_highlight · ochre_");
@@ -175,5 +175,43 @@ describe("C56 this week", async () => {
   });
   it("nothing read → zero", () => {
     expect(thisWeek([], now)).toEqual({ ms: 0, days: 0 });
+  });
+});
+
+import { chapterHeading, NOTES_HEADING } from "@/lib/ledger";
+
+describe("notes export headings (C68)", () => {
+  it("opens with whose works these are and the export date", () => {
+    const md = notesMarkdown([], NOW);
+    expect(md.split("\n")[0]).toBe(`# ${NOTES_HEADING}`);
+    expect(NOTES_HEADING).toBe("Notes on the works of Itumeleng Ntseng");
+    expect(md.split("\n")[2]).toBe("From The Sojourner Library · Exported 6 November 2026. Private to you.");
+  });
+  it("puts each note under its chapter's title, falling back to the number only when untitled", () => {
+    const md = notesMarkdown([{
+      title: "W", author: "",
+      chapters: [
+        { position: 1, title: "  The   Crossing ", notes: [{ anchorText: "", body: "first", createdAt: 1 }], highlights: [] },
+        { position: 2, title: "", notes: [{ anchorText: "", body: "second", createdAt: 2 }], highlights: [] },
+      ],
+    }], NOW);
+    expect(md).toContain("_by Itumeleng Ntseng_");
+    expect(md.indexOf("### The Crossing")).toBeGreaterThan(-1);
+    expect(md.indexOf("### The Crossing")).toBeLessThan(md.indexOf("**Note:** first"));
+    expect(md.indexOf("### Chapter 2")).toBeLessThan(md.indexOf("**Note:** second"));
+    expect(md.indexOf("**Note:** first")).toBeLessThan(md.indexOf("### Chapter 2"));
+    expect(chapterHeading({ position: 4, title: "Night Market" })).toBe("Night Market");
+  });
+  it("the per-book file has the same heading, authorship and chapter titles", () => {
+    const ch = getWork("placeholder-work-one")!.chapters[1];
+    const store: Record<string, string> = {
+      "soj:ann:placeholder-work-one:2": JSON.stringify({ notes: [{ id: "n", anchor: splitParagraphs(ch.body)[0].start, body: "Per-book note", createdAt: 3 }] }),
+    };
+    const md = buildPreviewExport((k) => store[k] ?? null, NOW, "placeholder-work-one");
+    expect(md.split("\n")[0]).toBe("# Notes on the works of Itumeleng Ntseng");
+    expect(md).toContain("Exported 6 November 2026");
+    expect(md).toContain("## Placeholder Work One\n\n_by Itumeleng Ntseng_");
+    expect(md.indexOf(`### ${ch.title}`)).toBeLessThan(md.indexOf("**Note:** Per-book note"));
+    expect(md).not.toContain("## Placeholder Work Two");
   });
 });
