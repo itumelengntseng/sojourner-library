@@ -313,6 +313,17 @@ for (const width of WIDTHS) {
   await axeCheck("card with a finished book in recently returned");
 }
 
+// QA21: the halls with a book read to the end (the "read" mark and its legend, C72).
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/halls`);
+  await page.getByText("marks the books you have read to the end.").waitFor();
+  const spoken = await page.locator("a[href='/works/placeholder-work-one'] .sr-only").first().textContent();
+  if (!/read this to the end on/.test(spoken ?? "")) { failures++; console.log(`✗ ${width}px halls: the finished book's spine doesn't say so to screen readers`); }
+  await axeCheck(`${width}px halls with a book read to the end`);
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);

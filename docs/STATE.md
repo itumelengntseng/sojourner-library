@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 7 — C68–C70, QA20; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 7 — C68–C73, QA20–QA21; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -113,10 +113,14 @@ _Last updated: 2026-11-07 (scheduled build run 7 — C68–C70, QA20; C24 + 0013
 - C69 — "How long is left in this book?" (`suggestedQuestions()` / `BOOK_LEFT_QUESTION` in `lib/librarian.ts`, `components/AskLibrarian.tsx`): the librarian's first chip once the reader has a bookmark inside the book (not at the start, not at the very end); answered by the engine's existing time-left rule from the bookmark. Shows on the work page and the reading room's desk. Unit-tested.
 - C70 — "Finished" on Recently returned (`myFinishes()` in `lib/ledgerStore.ts`, `components/RecentlyReturned.tsx`, `ReturnedShelf` in `app/card/page.tsx`): a small stamped "Finished" mark beside a returned book the reader read to the end (C13 rule, own sessions only; preview from the cookie). Unit-tested (store in preview mode, render).
 - QA20 (2026-11-07, after C68–C70): `npm run qa` all clear — now also clicks the "How long is left in this book?" chip on the work page (375px + 1280px) and checks the card page with a Finished mark. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (`myFinishes()` reads only the reader's own sessions).
-- Tests: 420 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA20).
+- C71 — The Finished mark in Recently returned carries its date ("Finished 05 Nov 2026", SA time — `finishedStamp()` in `lib/ledger.ts`). Unit-tested across the SA midnight edge.
+- C72 — "read" mark on the halls (`app/halls/page.tsx`, `myFinishes()` now one pass for any number of works — preview reads the cookie once, library mode makes three queries): a small lamplit "read" band on the spine of each book the reader has read to the end, a legend line "read marks the books you have read to the end." when any show, and the spine's screen-reader text adds "You read this to the end on 05 Nov 2026." Own sessions only. Unit-tested (no cap, partly-read book left unmarked).
+- C73 — The librarian at the end (`lib/engine/ask.ts`): with nothing left, time-left / by-a-date / per-day / chapter questions answer "You're at the end of this book." (and "You're at the end of this chapter." when only the chapter is done) instead of "About 0 min…". Answer text only; no new parser rules. Unit-tested.
+- QA21 (2026-11-07, after C71–C73): `npm run qa` all clear — now also sweeps the halls with a book read to the end (legend, spoken spine text, axe at 375px + 1280px); the dated Finished mark on the card is in the QA20 sweep. Preview e2e 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 426 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA21).
 
 ## Next task
-C71 — date on the Finished mark in Recently returned (BACKLOG.md → FOLLOW-UPS), then C72, C73, QA21. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C74 — "About N min left in this book" on the card's On loan now (BACKLOG.md → FOLLOW-UPS), then C75, C76, QA22. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -174,4 +178,5 @@ C71 — date on the Finished mark in Recently returned (BACKLOG.md → FOLLOW-UP
 - The borrow form's remembered period (C44) is per browser, like the reader settings.
 - "Hold the covers still" is per browser (localStorage), like the reader settings; the device's reduced-motion setting still applies on its own.
 - The notes file is titled "Notes on the works of Itumeleng Ntseng" (C68); the reader's name and the export date follow on the next line.
+- A book counts as "read" on the halls by the same rule as the ledger's finished stamp (C13); the halls show the mark only to the reader who finished it.
 - "Last backed up" is remembered per browser (localStorage), so a backup made on another device doesn't show; reminder after 30 days.
