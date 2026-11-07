@@ -19,6 +19,8 @@ export interface WorkHours {
   wordsRead: number;
   sessions: number;
   lastRead: number;
+  /** End of the reader's earliest session in this book (C85). */
+  firstRead?: number;
   /** When the reader reached the end of the last chapter, if they have. */
   finishedAt?: number;
 }
@@ -31,6 +33,7 @@ export function hoursByWork(sessions: WorkSession[]): WorkHours[] {
     h.wordsRead += s.wordsRead;
     h.sessions += 1;
     h.lastRead = Math.max(h.lastRead, s.endedAt);
+    h.firstRead = Math.min(h.firstRead ?? s.endedAt, s.endedAt);
     map.set(s.workKey, h);
   }
   return [...map.values()].sort((a, b) => b.lastRead - a.lastRead);
@@ -65,9 +68,21 @@ export function withFinished(hours: WorkHours[], sessions: WorkSession[], lastCh
 
 /** "3 h 20 min", "12 min", "under a minute". */
 /** C41: the books the reader has finished, newest finish first. */
-export function finishedBooks(hours: WorkHours[]): { workKey: string; finishedAt: number }[] {
-  return hours.flatMap((h) => (h.finishedAt !== undefined ? [{ workKey: h.workKey, finishedAt: h.finishedAt }] : []))
+export function finishedBooks(hours: WorkHours[]): { workKey: string; finishedAt: number; firstRead?: number }[] {
+  return hours.flatMap((h) => (h.finishedAt !== undefined
+    ? [{ workKey: h.workKey, finishedAt: h.finishedAt, ...(h.firstRead !== undefined ? { firstRead: h.firstRead } : {}) }]
+    : []))
     .sort((a, b) => b.finishedAt - a.finishedAt);
+}
+
+/**
+ * C85: how long a finished book took, counted in SA calendar days from the reader's first session in it
+ * to the session that finished it — "in a day" when both fall on one day, else "over 9 days".
+ */
+export function finishSpan(firstRead: number | undefined, finished: number): string | null {
+  if (firstRead === undefined || !Number.isFinite(firstRead) || !Number.isFinite(finished)) return null;
+  const days = dayKey(finished) - dayKey(Math.min(firstRead, finished)) + 1;
+  return days <= 1 ? "in a day" : `over ${days} days`;
 }
 
 export function formatHours(ms: number): string {
