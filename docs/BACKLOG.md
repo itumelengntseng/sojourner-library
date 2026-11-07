@@ -128,7 +128,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C84 Card page: "Recently returned" rows for finished books link "Notes for this book" (own notes only; reuse the C29 per-book export — library route or preview button).
 - [x] C85 Ledger "Read to the end": each finished book shows how long it took from first to last session ("over 9 days"), from the reader's own sessions (C13 rule for the end).
 - [x] QA25 QA pass after C83–C85.
-- [ ] C86 Work page: the "You finished this · …" stamp adds how long it took ("· read over 9 days"), reusing `finishSpan()` (own sessions; keeps linking to `/ledger#finished`).
-- [ ] C87 Reading room end-of-book card: under the Finished stamp, "Read over 9 days" (reuse `finishSpan()`; not in the proof copy).
-- [ ] C88 Card page: under the week line, "N books read to the end · Read to the end" linking to `/ledger#finished` (own sessions; nothing finished → nothing shown).
-- [ ] QA26 QA pass after C86–C88.
+- [x] C86 Work page: the "You finished this · …" stamp adds how long it took ("· read over 9 days"), reusing `finishSpan()` (own sessions; keeps linking to `/ledger#finished`).
+- [x] C87 Reading room end-of-book card: under the Finished stamp, "Read over 9 days" (reuse `finishSpan()`; not in the proof copy).
+- [x] C88 Card page: under the week line, "N books read to the end · Read to the end" linking to `/ledger#finished` (own sessions; nothing finished → nothing shown).
+- [x] QA26 QA pass after C86–C88.
+- [ ] C89 Ledger "Read to the end": each finished book offers "Notes for this book" (reuse the C29 per-book export — library route or preview button; own notes only), like the card's C84.
+- [ ] C90 Halls: the legend line "read marks the books you have read to the end." links "read to the end" to `/ledger#finished`.
+- [ ] C91 Ledger top tiles: a "Read to the end" tile (count from `finishedBooks()`, linking to `#finished`), shown once a book is finished.
+- [ ] QA27 QA pass after C89–C91.

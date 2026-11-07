@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 8 — C83–C85, QA25 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 8 — C83–C88, QA25–QA26 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -133,10 +133,14 @@ _Last updated: 2026-11-07 (scheduled build run 8 — C83–C85, QA25 so far; C24
 - C84 — "Notes for this book" on the card's Recently returned (`components/RecentlyReturned.tsx`, `notes` prop; `ReturnedShelf` in `app/card/page.tsx`): a returned book the reader read to the end carries the per-book notes download — `/ledger/notes?work=<slug>` in library mode (own notes only, RLS), the in-browser export in preview mode. Unit-tested (`tests/returnedNotes.test.tsx`).
 - C85 — How long a finished book took (`finishSpan()` and `WorkHours.firstRead` in `lib/ledger.ts`, `components/FinishedShelf.tsx`): each book on the ledger's "Read to the end" shelf reads "· read over 9 days" (or "in a day"), counted in SA calendar days from the reader's first session in that book to the session that finished it; rereads keep the first finish. Own sessions only. Unit-tested across SA midnight (`tests/finishSpan.test.tsx`).
 - QA25 (2026-11-07, after C83–C85): `npm run qa` all clear — the due-soon slip is now always swept (375px + 1280px), the card's Notes for this book button is clicked and the download name checked (`sojourner-notes-placeholder-work-one-<date>.md`), and the ledger's Read to the end must show how long the book took. Preview e2e 6/6. Performance (local prod build, curl): every page < 25 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (`finishSpan` reads only the reader's own sessions).
-- Tests: 455 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA25).
+- C86 — The work page's stamp now reads "You finished this · 5 Nov 2026 · read over 9 days" (`finishedStampLine()` in `lib/ledger.ts`, `myFirstRead()` in `lib/ledgerStore.ts` — the reader's earliest session in that book; own sessions only), still linking to `/ledger#finished`. Unit-tested (`tests/finishStampSpan.test.tsx`).
+- C87 — End-of-book card (`components/EndOfChapter.tsx`, `firstRead` via `ReaderView` from the read page): "Read over 9 days" beside the Finished stamp. Never in the proof copy. Unit-tested.
+- C88 — Front desk line (`components/FinishedLine.tsx`, `myFinishedCount()`): "2 books read to the end · Read to the end" under the week line, linking to the ledger shelf; the count is the ledger's own (`finishedBooks(loadLedger().hours)`), so they always agree. Nothing finished → nothing shown. Unit-tested (`tests/finishedLine.test.tsx`).
+- QA26 (2026-11-07, after C86–C88): `npm run qa` all clear — now also requires "read …" on the work page stamp and "Read …" on the end-of-book card (375px + 1280px), and the card's read-to-the-end line with its link. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (`myFirstRead()` filters to the reader's own sessions; RLS enforces it too).
+- Tests: 462 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA26).
 
 ## Next task
-C86 — the work page's "You finished this" stamp adds how long it took (BACKLOG.md → FOLLOW-UPS), then C87, C88, QA26. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C89 — "Notes for this book" on each book of the ledger's Read to the end shelf (BACKLOG.md → FOLLOW-UPS), then C90, C91, QA27. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
@@ -194,7 +198,7 @@ C86 — the work page's "You finished this" stamp adds how long it took (BACKLOG
 - The borrow form's remembered period (C44) is per browser, like the reader settings.
 - "Hold the covers still" is per browser (localStorage), like the reader settings; the device's reduced-motion setting still applies on its own.
 - Notes downloads are named with the SA export date (C81).
-- "How long it took" (C85) counts SA calendar days from the end of the reader's first session in the book to the finishing session ("in a day" when both fall on one day). In preview mode only the last 40 session summaries are kept, so a long-ago start may be counted from a later session.
+- "How long it took" (C85) counts SA calendar days from the end of the reader's first session in the book to the finishing session ("in a day" when both fall on one day). In preview mode only the last 40 session summaries are kept, and the library-mode ledger reads the last 400 days, so a long-ago start may be counted from a later session (the work page and end card read the true first session in library mode).
 - The notes file is titled "Notes on the works of Itumeleng Ntseng" (C68); the reader's name and the export date follow on the next line.
 - A book counts as "read" on the halls by the same rule as the ledger's finished stamp (C13); the halls show the mark only to the reader who finished it.
 - "Last backed up" is remembered per browser (localStorage), so a backup made on another device doesn't show; reminder after 30 days.

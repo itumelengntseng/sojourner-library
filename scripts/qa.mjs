@@ -311,6 +311,8 @@ for (const width of WIDTHS) {
   await page.goto(`${BASE}/card`);
   await page.getByRole("region", { name: "Recently returned" }).getByText(/^Finished /).waitFor();
   await axeCheck("card with a finished book in recently returned");
+  // QA26 (C88): the front desk counts the books read to the end and leads to that shelf.
+  if (!(await page.getByText(/books? read to the end/).count()) || !(await page.locator("a[href='/ledger#finished']", { hasText: "Read to the end" }).count())) { failures++; console.log("✗ card: no 'read to the end' line"); }
   // QA25 (C84): the finished book offers its notes; in preview the file is built in the browser.
   const notesBtn = page.getByRole("region", { name: "Recently returned" }).getByRole("button", { name: /Notes for this book/ });
   if (!(await notesBtn.count())) { failures++; console.log("✗ card: no Notes for this book beside the finished returned book"); }
@@ -351,6 +353,8 @@ for (const width of WIDTHS) {
   errors.length = 0;
   await page.goto(`${BASE}/works/placeholder-work-one/read?ch=6`);
   await page.getByRole("region", { name: "End of the chapter" }).getByText(/^Finished /).waitFor();
+  // QA26 (C87): how long the book took, under the stamp.
+  if (!(await page.getByRole("region", { name: "End of the chapter" }).getByText(/^Read (in a day|over \d+ days)$/).count())) { failures++; console.log(`✗ ${width}px end-of-book card without how long it took`); }
   await axeCheck(`${width}px end-of-book card with the Finished stamp`);
 }
 
@@ -399,6 +403,8 @@ for (const width of WIDTHS) {
   await axeCheck(`${width}px front hall with the due-soon slip`);
   errors.length = 0;
   await page.goto(`${BASE}/works/placeholder-work-one`);
+  // QA26 (C86): the stamp says how long the book took.
+  if (!(await page.getByRole("link", { name: /You finished this · .+ · read (in a day|over \d+ days)/ }).count())) { failures++; console.log(`✗ ${width}px work page finished stamp without how long it took`); }
   await page.getByRole("link", { name: /You finished this/ }).click();
   await page.waitForURL(/\/ledger#finished$/);
   await page.getByRole("heading", { name: "Read to the end" }).waitFor();
