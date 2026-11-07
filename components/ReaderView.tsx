@@ -284,7 +284,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
       </header>
 
       <main id="main" data-ring="" style={{ ["--ring" as string]: FOCUS_RING[settings.theme] }} className="mx-auto max-w-3xl px-5 pb-24 pt-8">
-        {!proof && <DueWithinHour slug={slug} dueAt={data.dueAt} />}
+        {!proof && <DueWithinHour slug={slug} dueAt={data.dueAt} renewalsLeft={data.renewalsLeft} />}
         <p className="font-sans text-xs uppercase tracking-[0.25em] opacity-80">{data.author}</p>
         <h1 className="mt-1 text-2xl">{chapter.title}</h1>
         <p className="mt-1 font-sans text-xs opacity-80">
