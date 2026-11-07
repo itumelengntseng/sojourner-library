@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getWorks, HALLS, type Work } from "@/lib/catalogue";
 import { NO_BLURB } from "@/lib/catalogueRows";
-import { chapterHits, cleanQuery, fold, resultLine, searchShelves } from "@/lib/shelfSearch";
+import { chapterHits, filterByTitle, cleanQuery, fold, resultLine, searchShelves } from "@/lib/shelfSearch";
 
 const base = getWorks()[0];
 const w = (over: Partial<Work>): Work => ({ ...base, ...over });
@@ -74,3 +74,14 @@ describe("C51 search matches chapter titles (titles only)", () => {
     expect(chapterHits(many, halls, "yard")).toHaveLength(3);
   });
 });
+
+describe("C61 Writer's Room find a work", () => {
+  const list = [{ title: "Placeholder Séance Book" }, { title: "Placeholder Stone Book" }, { title: "The Placeholder Yard" }];
+  it("matches every word in the title, folding case and accents", () => {
+    expect(filterByTitle(list, "seance").map((x) => x.title)).toEqual(["Placeholder Séance Book"]);
+    expect(filterByTitle(list, "book placeholder")).toHaveLength(2);
+    expect(filterByTitle(list, "yard stone")).toEqual([]);
+    expect(filterByTitle(list, "")).toHaveLength(3);
+  });
+});
+

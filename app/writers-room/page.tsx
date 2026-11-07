@@ -7,14 +7,16 @@ import { CANON_LABEL, formatWords } from "@/lib/workStats";
 import { AUTHOR } from "@/lib/site";
 import { changedLabel, glance } from "@/lib/glance";
 import { loadRoom } from "@/lib/writersRoom";
+import { cleanQuery, filterByTitle } from "@/lib/shelfSearch";
 
 // Owner-only: always render per request (reads the session).
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Writer's Room" };
 
 // Behind the stacks: a timber table under one lamp, where the Keeper shelves new work.
-export default async function WritersRoom() {
+export default async function WritersRoom({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const room = await loadRoom();
+  const find = cleanQuery((await searchParams).find);
   const now = Date.now();
   if (room.mode === "closed") {
     return (
@@ -27,6 +29,9 @@ export default async function WritersRoom() {
   }
   const live = room.mode === "library";
   const tiles = glance(room.works, live ? room.setAside.length : 0, live ? room.cardHolders : null);
+  // C61: "Find a work" narrows the shelf list and the set-aside list (a GET form — no JavaScript needed).
+  const shownWorks = filterByTitle(room.works, find);
+  const shownAside = live ? filterByTitle(room.setAside, find) : [];
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16">
       <nav className="font-sans text-xs text-sandstone"><Link href="/" className="hover:text-lamplight">Front hall</Link> / Writer&apos;s Room</nav>
@@ -59,8 +64,18 @@ export default async function WritersRoom() {
 
       <section aria-labelledby="shelves" className="mt-10">
         <h2 id="shelves" className="text-xl text-paper">On the shelves</h2>
+        {(room.works.length > 1 || find) && (
+          <form role="search" action="/writers-room#shelves" method="get" className="mt-3 flex max-w-md items-center gap-2 font-sans text-sm">
+            <label htmlFor="room-find" className="sr-only">Find a work</label>
+            <input id="room-find" name="find" type="search" defaultValue={find} maxLength={80} autoComplete="off" placeholder="Find a work by title…"
+              className="min-w-0 flex-1 rounded-sm border border-timber bg-stone-wall/70 px-3 py-2 text-paper placeholder:text-sandstone/70" />
+            <button type="submit" className="rounded-sm border border-lamplight/60 px-3 py-2 text-lamplight hover:bg-lamplight/10">Find</button>
+            {find && <Link href="/writers-room#shelves" className="text-sandstone underline underline-offset-2 hover:text-lamplight">Clear</Link>}
+          </form>
+        )}
+        {find && <p role="status" className="mt-2 font-sans text-sm text-sandstone">{shownWorks.length + shownAside.length === 0 ? `No work’s title matches “${find}”.` : `Matching “${find}”: ${shownWorks.length} on the shelves${live ? ` · ${shownAside.length} set aside` : ""}.`}</p>}
         <ul className="mt-4 divide-y divide-timber-dark/70 border-y border-timber-dark/70">
-          {room.works.map((w) => (
+          {shownWorks.map((w) => (
             <li key={w.id} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <Link href={`/works/${w.slug}`} className="hover:text-lamplight">{w.title}</Link>
@@ -80,12 +95,12 @@ export default async function WritersRoom() {
       <p className="mt-10 font-sans text-sm"><Link href="/pitch-room" className="text-lamplight underline underline-offset-2">The Pitch Room →</Link> <span className="text-sandstone">one-sheet pitches and private links for agents and producers.</span></p>
       <p className="mt-2 font-sans text-sm"><Link href="/writers-room/atlas" className="text-lamplight underline underline-offset-2">The family wall &amp; timeline →</Link> <span className="text-sandstone">edit the people, places and dates behind the explorers.</span></p>
 
-      {live && room.setAside.length > 0 && (
+      {live && shownAside.length > 0 && (
         <section aria-labelledby="set-aside" className="mt-8">
           <h2 id="set-aside" className="text-lg text-paper">Set aside</h2>
           <p className="font-sans text-xs text-sandstone">Off the shelves and out of the readers&apos; sight, kept whole.</p>
           <ul className="mt-2 divide-y divide-timber-dark/70 border-y border-timber-dark/70">
-            {room.setAside.map((w) => (
+            {shownAside.map((w) => (
               <li key={w.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
                 <span>{w.title} <span className="font-sans text-xs text-sandstone">· set aside {new Date(w.archivedAt).toLocaleDateString("en-ZA", { timeZone: "Africa/Johannesburg" })}</span></span>
                 <span className="flex flex-wrap items-center gap-3"><BackupLinks slug={w.slug} title={w.title} shelf={room.shelf[w.slug]} /><ArchiveButton id={w.id} title={w.title} intent="restore" /></span>

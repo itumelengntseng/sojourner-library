@@ -83,3 +83,19 @@ describe("the map", () => {
     expect(html).toContain("c. 1900");
   });
 });
+
+describe("C59 find an event", async () => {
+  const { findEvents } = await import("@/lib/timeline");
+  const places = [{ id: "p1", name: "Placeholder Corner Store", isPlaceholder: true, street: 125, avenue: "lenox" as never }];
+  const ev = (id: string, title: string, placeId?: string) => ({ id, title, isPlaceholder: true, date: "1925", appearsIn: [], ...(placeId ? { placeId } : {}) });
+  const events = [ev("a", "Placeholder Arrival", "p1"), ev("b", "Placeholder Departure"), ev("c", "Placeholder Meeting")];
+  it("matches word starts in the title or the place name", () => {
+    expect(findEvents(events, places, "arr").map((e) => e.id)).toEqual(["a"]);
+    expect(findEvents(events, places, "corner").map((e) => e.id)).toEqual(["a"]);
+    expect(findEvents(events, places, "rival")).toEqual([]);
+    expect(findEvents(events, places, "PLACEHOLDER meet").map((e) => e.id)).toEqual(["c"]);
+  });
+  it("an empty query keeps every event", () => {
+    expect(findEvents(events, places, " ")).toHaveLength(3);
+  });
+});

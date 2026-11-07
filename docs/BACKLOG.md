@@ -92,8 +92,12 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C57 Reading room Contents: a line at the top "About N left in this book" at the reader's pace (this chapter's remaining minutes + the chapters after it). Not in the proof copy.
 - [x] C58 Family wall: a "Find a person" box filtering the plaques by name (client-side over what's shown; respects the canon switch; no new data).
 - [x] QA16 QA pass after C56–C58.
-- [ ] C59 Harlem timeline: a "Find an event" box filtering the event list (and map markers) by title or place name (client-side over what's shown; respects the canon switch and year range).
-- [ ] C60 Card page: a one-line "This week: 35 min on 2 days · Your ledger" under the card (reuse C56; nothing read → "Nothing read this week yet").
-- [ ] C61 Writer's Room: a "Find a work" box over the shelf list, filtering by title (client-side; set-aside list included), for when the shelves grow.
-- [ ] QA17 QA pass after C59–C61.
+- [x] C59 Harlem timeline: a "Find an event" box filtering the event list (and map markers) by title or place name (client-side over what's shown; respects the canon switch and year range).
+- [x] C60 Card page: a one-line "This week: 35 min on 2 days · Your ledger" under the card (reuse C56; nothing read → "Nothing read this week yet").
+- [x] C61 Writer's Room: a "Find a work" box over the shelf list, filtering by title (client-side; set-aside list included), for when the shelves grow.
+- [x] QA17 QA pass after C59–C61.
+- [ ] C62 Front hall: one quiet line under the wall — "N works on the shelves · about H to read at your pace" (reuse C55's summary over what the reader can see; canon switch respected).
+- [ ] C63 Ledger "Hours per book": for a book the reader has out now, add "Continue at <chapter>" (reuse C50's per-loan cards).
+- [ ] C64 A per-browser "Still covers" switch (front hall footer or card page) that stops the living covers' motion even when the device doesn't ask for reduced motion; remembered in localStorage.
+- [ ] QA18 QA pass after C62–C64.
 

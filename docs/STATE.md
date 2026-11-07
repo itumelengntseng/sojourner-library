@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 6 — C48–C58, QA13–QA16 so far; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 6 — C48–C61, QA13–QA17; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -97,10 +97,14 @@ _Last updated: 2026-11-07 (scheduled build run 6 — C48–C58, QA13–QA16 so f
 - C57 — Time left in the book (Contents drawer, `components/ReaderView.tsx`): the drawer opens with "About 1 h 2 min left in this book" — the rest of this chapter (paragraphs read past, as the "min left" line) plus every later chapter, at the reader's pace; "You're at the end of this book" when nothing's left. Not in the proof copy. Unit-tested; smoke-tested at 375px (chapter 1 → 1 h 2 min, chapter 5 → 21 min).
 - C58 — "Find a person" on the family wall (`findPeople()` in `lib/lineage.ts`, `components/LineageWall.tsx`): a labelled search box above the plaques; each typed word must start a word of the name (case and accents ignored); generations with no match are hidden; "3 people match “C”." / "No one on the wall matches …" announced as a status; Clear resets. Over what's shown only (canon switch respected); no new data. Unit-tested; smoke-tested at 375px.
 - QA16 (2026-11-07, after C56–C58): `npm run qa` all clear — now also sweeps the family wall with a name typed (375px + 1280px); the ledger (six tiles) and the reading room's Contents (time left line) are in the existing sweeps. Preview e2e 6/6. Performance unchanged (every page < 20 ms locally). No migration → RLS audit unchanged.
-- Tests: 401 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA16).
+- C59 — "Find an event" on the Harlem timeline (`findEvents()` in `lib/timeline.ts`, `components/HarlemMap.tsx`): a labelled search box above the event list; each typed word must start a word of the event's title or its place's name; it narrows the list and the lit places on the map together, inside the chosen years; "N events match “…” in these years." as a status; Clear resets. Over what's shown only (canon switch respected). Unit-tested; smoke-tested at 375px.
+- C60 — "This week" at the front desk (`myWeek()` in `lib/ledgerStore.ts`, `components/WeekLine.tsx`, `/card`): one line under the card — "This week: 35 min on 2 days · Your ledger", or "Nothing read this week yet · Your ledger". Own sessions only (library: the last 9 days of the reader's own sessions; preview: the cookie). Unit-tested; smoke-tested at 375px.
+- C61 — "Find a work" in the Writer's Room (`filterByTitle()` in `lib/shelfSearch.ts`, `/writers-room?find=`): a GET search box over "On the shelves" (shown with 2+ works) narrowing the shelf list and the set-aside list by title (every word, case and accents ignored); "Matching “two”: 1 on the shelves · 0 set aside." as a status; Clear returns to all. Works without JavaScript. The glance tiles still count the whole library. Unit-tested; smoke-tested at 375px in preview.
+- QA17 (2026-11-07, after C59–C61): `npm run qa` all clear — now also sweeps `/writers-room?find=two` and the timeline with an event search typed (375px + 1280px); the card page with the week line is in the existing sweep. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms. No migration → RLS audit unchanged (`myWeek()` reads only the reader's own sessions).
+- Tests: 406 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA17).
 
 ## Next task
-C59 — "Find an event" on the Harlem timeline (BACKLOG.md → FOLLOW-UPS), then C60, C61, QA17. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C62 — library summary on the front hall (BACKLOG.md → FOLLOW-UPS), then C63, C64, QA18. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

@@ -22,7 +22,7 @@ await page.goto(`${BASE}/works/placeholder-work-one`);
 await page.getByRole("button", { name: "Borrow this work" }).click();
 await page.getByRole("link", { name: "Open the reading room" }).waitFor();
 
-const routes = ["/", "/halls", "/halls?canon=all", "/halls?q=two", "/halls?sort=title", "/halls?q=placeholder&sort=recent", "/halls?q=zzzz", "/halls?q=chapter+5", "/card", "/works/placeholder-work-one", "/works/placeholder-work-one/read",
+const routes = ["/", "/halls", "/halls?canon=all", "/halls?q=two", "/halls?sort=title", "/halls?q=placeholder&sort=recent", "/halls?q=zzzz", "/halls?q=chapter+5", "/writers-room?find=two", "/card", "/works/placeholder-work-one", "/works/placeholder-work-one/read",
   "/works/placeholder-work-three/read", "/works/placeholder-work-one/proof", "/works/placeholder-work-one/proof?ch=2", "/works/placeholder-work-one/read?ch=2", "/ledger", "/ledger?history=all", "/lineage", "/lineage?canon=all", "/timeline", "/timeline?canon=all", "/writers-room", "/writers-room/atlas", "/pitch-room", "/pitch-room/placeholder-work-one", "/pitch-room/placeholder-work-one/edit", "/p/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "/works/no-such-book"];
 let failures = 0;
 for (const width of WIDTHS) {
@@ -232,6 +232,16 @@ for (const width of WIDTHS) {
   await page.fill("#find-person", "placeholder");
   await page.getByRole("status").filter({ hasText: /match/ }).waitFor();
   await axeCheck(`${width}px family wall with Find a person`);
+}
+
+// C59: the timeline with "Find an event" typed.
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/timeline`);
+  await page.fill("#find-event", "placeholder");
+  await page.getByRole("status").filter({ hasText: /match/ }).waitFor();
+  await axeCheck(`${width}px timeline with Find an event`);
 }
 
 // C52: the reading room's Contents open with "Go to your bookmark" (book out from the C49 check; bookmark in chapter 2).

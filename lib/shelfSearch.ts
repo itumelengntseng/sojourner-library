@@ -58,3 +58,10 @@ export function resultLine(count: number, query: string): string {
   if (count === 0) return `Nothing on the shelves matches “${query}”.`;
   return `${count} ${count === 1 ? "work matches" : "works match"} “${query}”.`;
 }
+
+/** C61: the Writer's Room "Find a work" — every typed word in the title (case and accents ignored). */
+export function filterByTitle<T extends { title: string }>(list: T[], query: string): T[] {
+  const ws = words(query);
+  if (ws.length === 0) return list;
+  return list.filter((x) => { const t = ` ${fold(x.title)} `; return ws.every((w) => t.includes(w)); });
+}

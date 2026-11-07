@@ -113,3 +113,15 @@ export function project(street: number, avenue: AvenueId): { x: number; y: numbe
 export function timelineForWorks(t: Timeline, slugs: Set<string>): Timeline {
   return { ...t, events: t.events.filter((e) => e.appearsIn.length === 0 || e.appearsIn.some((w) => slugs.has(w))) };
 }
+
+/** C59: "Find an event" — every typed word starts a word of the event's title or its place's name. */
+export function findEvents(events: TimelineEvent[], places: Place[], query: string): TimelineEvent[] {
+  const fold = (s: string) => s.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  const words = fold(query).split(" ").filter(Boolean);
+  if (words.length === 0) return events;
+  const placeName = new Map(places.map((p) => [p.id, p.name]));
+  return events.filter((e) => {
+    const hay = ` ${fold(`${e.title} ${e.placeId ? placeName.get(e.placeId) ?? "" : ""}`)} `;
+    return words.every((w) => hay.includes(` ${w}`));
+  });
+}

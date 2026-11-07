@@ -204,3 +204,19 @@ export async function myAnnotationCount(slug: string): Promise<{ notes: number; 
   ]);
   return { notes: notes ?? 0, highlights: highlights ?? 0 };
 }
+
+/** C60: the reader's own reading in the last 7 SA days, for the line on the card page. */
+export async function myWeek(): Promise<Week | null> {
+  const now = Date.now();
+  const supabase = await supabaseServer();
+  if (!supabase) return thisWeek(parseStoredStats((await cookies()).get(PREVIEW_SESSIONS_COOKIE)?.value), now);
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return null;
+  const { data: rows } = await supabase.from("sessions").select("words_read, activity, started_at, ended_at")
+    .eq("reader_id", auth.user.id).gte("started_at", new Date(now - 9 * 86_400_000).toISOString()).limit(1000);
+  return thisWeek((rows ?? []).map((r) => ({
+    wordsRead: r.words_read as number,
+    activeMs: activeMs(((r.activity as string[]) ?? []).map((t) => Date.parse(t))),
+    endedAt: Date.parse((r.ended_at ?? r.started_at) as string),
+  })), now);
+}

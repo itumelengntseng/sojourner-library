@@ -5,6 +5,8 @@ import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
 import { RecentlyReturned } from "@/components/RecentlyReturned";
 import { ContinueReading } from "@/components/ContinueReading";
 import { myContinueBySlug, myContinueReading } from "@/lib/continueStore";
+import { WeekLine } from "@/components/WeekLine";
+import { myWeek } from "@/lib/ledgerStore";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { ReaderCard } from "@/lib/membership";
 import { signOut } from "./actions";
@@ -32,6 +34,7 @@ export default async function CardPage() {
         <p className="max-w-prose text-paper/85">
           Reader cards will be issued here once the library&apos;s records room is connected.
         </p>
+        <WeekLine week={await myWeek()} />
         <ContinueReading card={await myContinueReading()} className="w-full" />
         <OnLoanNow loans={await myOpenLoans()} continueAt={await myContinueBySlug()} />
         <RecentlyReturned items={await myRecentlyReturned()} />
@@ -66,6 +69,7 @@ export default async function CardPage() {
   return (
     <Desk eyebrow="Front desk" title="Welcome back">
       <MembershipCard card={card} />
+      <WeekLine week={await myWeek()} />
       <ContinueReading card={await myContinueReading()} className="w-full" />
       <OnLoanNow loans={await myOpenLoans()} continueAt={await myContinueBySlug()} />
       <RecentlyReturned items={await myRecentlyReturned()} />

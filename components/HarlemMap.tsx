@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
-  AVENUES, dateLabel, eventsBetween, MAJOR_STREETS, MAP, project, STREET_MIN, yearSpan,
+  AVENUES, dateLabel, eventsBetween, findEvents, MAJOR_STREETS, MAP, project, STREET_MIN, yearSpan,
   type Place, type Timeline,
 } from "@/lib/timeline";
 
@@ -15,7 +15,11 @@ export function HarlemMap({ timeline, works }: { timeline: Timeline; works: Reco
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
 
-  const inRange = useMemo(() => eventsBetween(timeline.events, Math.min(from, to), Math.max(from, to)), [timeline.events, from, to]);
+  const [query, setQuery] = useState("");
+  const searching = query.trim() !== "";
+  // C59: the year range, then "Find an event" — the list and the lit places both follow.
+  const inRange = useMemo(() => findEvents(eventsBetween(timeline.events, Math.min(from, to), Math.max(from, to)), timeline.places, query),
+    [timeline.events, timeline.places, from, to, query]);
   const activePlaces = new Set(inRange.map((e) => e.placeId).filter(Boolean));
   const event = timeline.events.find((e) => e.id === selectedEvent);
   const placeId = selectedPlace ?? event?.placeId ?? null;
@@ -81,7 +85,17 @@ export function HarlemMap({ timeline, works }: { timeline: Timeline; works: Reco
 
         <section aria-labelledby="events-h">
           <h2 id="events-h" className="text-lg text-paper">On the timeline</h2>
-          {inRange.length === 0 ? <p className="mt-2 font-sans text-sm text-sandstone">Nothing recorded in these years.</p> : (
+          <div role="search" className="mt-2 flex flex-wrap items-center gap-2 font-sans text-sm">
+            <label htmlFor="find-event" className="sr-only">Find an event</label>
+            <input id="find-event" type="search" value={query} onChange={(e) => setQuery(e.target.value)} maxLength={60} autoComplete="off"
+              placeholder="Find an event or place…"
+              className="min-w-0 flex-1 rounded-sm border border-timber bg-stone-floor/80 px-3 py-1.5 text-paper placeholder:text-sandstone/70" />
+            {searching && <button type="button" onClick={() => setQuery("")} className="text-sandstone underline underline-offset-2 hover:text-lamplight">Clear</button>}
+            <p role="status" className="w-full text-xs text-sandstone">
+              {searching ? `${inRange.length} ${inRange.length === 1 ? "event matches" : "events match"} “${query.trim()}” in these years.` : ""}
+            </p>
+          </div>
+          {inRange.length === 0 ? <p className="mt-2 font-sans text-sm text-sandstone">{searching ? "Nothing on the timeline matches." : "Nothing recorded in these years."}</p> : (
             <ol className="mt-2 border-l border-timber pl-4">
               {inRange.map((e) => (
                 <li key={e.id} className="relative mb-2">
