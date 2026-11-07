@@ -8,7 +8,8 @@ import { AUTHOR, SITE_NAME } from "@/lib/site";
 import { ShelfEmpty } from "@/components/ShelfEmpty";
 import { freshOnShelves } from "@/lib/catalogueRows";
 import { DESK_TIME_ZONE, dueBackSoon, splitDueSoon } from "@/lib/loanDesk";
-import { myOpenLoans } from "@/lib/loanStore";
+import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
+import { JustReturnedNote } from "@/components/JustReturnedNote";
 import { DueSoonSlip } from "@/components/DueSoonSlip";
 import { myBookLeft } from "@/lib/bookLeftStore";
 import { ContinueReading } from "@/components/ContinueReading";
@@ -24,6 +25,8 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
   const now = Date.now();
   const fresh = freshOnShelves(works, now);
   const [open, cont, pace] = await Promise.all([myOpenLoans(), myContinueReading(), myPace()]);
+  // C131: with nothing to continue, the book handed back within the hour (own returns only).
+  const returned = cont ? [] : await myRecentlyReturned();
   const { onCard, onSlip } = splitDueSoon(dueBackSoon(open, now), cont?.slug);
   // C95 + C80: time left in the book for the Continue reading card and the due-soon slip (own loans only).
   const bookLeft = cont || onSlip.length ? await myBookLeft(open) : {};
@@ -37,6 +40,7 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
       </header>
       <ContinueReading card={cont} due={onCard} bookLeft={cont ? bookLeft[cont.slug] : undefined} />
       <DueSoonSlip loans={onSlip} bookLeft={bookLeft} />
+      {!cont && <JustReturnedNote items={returned} now={now} />}
 
       <section aria-labelledby="on-the-wall" className="mt-12">
         <h2 id="on-the-wall" className="sr-only">On the wall</h2>
