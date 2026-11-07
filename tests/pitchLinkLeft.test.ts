@@ -72,3 +72,18 @@ describe("pitch share links — closes today (C133)", () => {
     expect(src).toContain('{closingToday > 0 && <span className="text-ember"> · {closingToday} close{closingToday === 1 ? "s" : ""} today</span>}');
   });
 });
+
+describe("pitch share links — opened just now (C138)", () => {
+  const now = Date.parse("2026-11-07T10:00:00Z");
+  it("is true within the hour after the last opening only", async () => {
+    const { openedJustNow } = await import("@/lib/pitch");
+    expect(openedJustNow("2026-11-07T09:30:00Z", now)).toBe(true);
+    expect(openedJustNow("2026-11-07T09:00:00Z", now)).toBe(false);
+    expect(openedJustNow(null, now)).toBe(false);
+    expect(openedJustNow("2026-11-07T10:30:00Z", now)).toBe(false);
+  });
+  it("the Pitch Room shows it with the last-opened stamp in its spoken label", () => {
+    const src = readFileSync("app/pitch-room/page.tsx", "utf8");
+    expect(src).toContain('<span aria-hidden="true" className="text-lamplight">opened just now</span><span className="sr-only">opened just now, {lastOpened(l.lastViewedAt)}</span>');
+  });
+});

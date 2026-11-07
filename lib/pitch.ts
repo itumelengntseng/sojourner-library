@@ -202,3 +202,9 @@ export function orderLinks<T extends { expiresAt: string; revoked: boolean }>(li
   const closingToday = open.filter((l) => lastDayLabel(l.expiresAt, now) !== null).length;
   return { links: [...open, ...links.filter((l) => !isOpen(l))], open: open.length, closingToday };
 }
+
+/** C138: a share link opened within the last hour. */
+export function openedJustNow(iso: string | null, now: number): boolean {
+  const t = iso ? Date.parse(iso) : NaN;
+  return Number.isFinite(t) && t <= now && now - t < 3600_000;
+}

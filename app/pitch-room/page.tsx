@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RevokeLink, ShareForm } from "@/components/PitchForms";
-import { kitStatus, lastDayLabel, lastOpened, linkTimeLeft, loglineWarning, orderLinks } from "@/lib/pitch";
+import { kitStatus, lastDayLabel, lastOpened, linkTimeLeft, loglineWarning, openedJustNow, orderLinks } from "@/lib/pitch";
 import { ownerPitchLinks, roomPitches } from "@/lib/pitchStore";
 import { AUTHOR } from "@/lib/site";
 import { cleanQuery, filterByTitle } from "@/lib/shelfSearch";
@@ -75,7 +75,10 @@ export default async function PitchRoom({ searchParams }: { searchParams: Promis
                   {mine.map((l) => (
                     <li key={l.id} className="flex flex-wrap justify-between gap-2 py-1.5">
                       <span>
-                        {l.note || "Link"} · {l.views} view{l.views === 1 ? "" : "s"} · {lastOpened(l.lastViewedAt)}
+                        {l.note || "Link"} · {l.views} view{l.views === 1 ? "" : "s"} · {openedJustNow(l.lastViewedAt, now)
+                          // C138: opened within the hour — "opened just now", the stamp kept for screen readers.
+                          ? <><span aria-hidden="true" className="text-lamplight">opened just now</span><span className="sr-only">opened just now, {lastOpened(l.lastViewedAt)}</span></>
+                          : lastOpened(l.lastViewedAt)}
                         {/* C125: the card's "Due soon" look, on a link's final day. */}
                         {!l.revoked && lastDayLabel(l.expiresAt, now) && (
                           <span className="ml-2 inline-block -rotate-2 rounded-sm border border-ember px-1.5 py-0.5 align-middle font-mono text-[0.65rem] uppercase tracking-wider text-ember">
