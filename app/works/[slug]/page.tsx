@@ -112,7 +112,10 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
         <LoanDesk desk={desk} slug={work.slug} title={work.title} now={now} continueAt={continueAt} totalWords={facts.totalWords} wpm={pace.wpm} />
         {/* C153: a returning borrower (own loans of this work). */}
         {desk.mode !== "signed-out" && desk.mode !== "not-shelved" && borrowedTimesLine(desk.loans, desk.workId, desk.readerId) && (
-          <p className="mt-3 font-sans text-xs text-sandstone">{borrowedTimesLine(desk.loans, desk.workId, desk.readerId)}</p>
+          <p className="mt-3 font-sans text-xs text-sandstone">
+            {/* C159: to the ledger's Borrowing history. */}
+            <Link href="/ledger#history" className="underline underline-offset-2 hover:text-lamplight">{borrowedTimesLine(desk.loans, desk.workId, desk.readerId)}<span className="sr-only"> — see your borrowing history</span></Link>
+          </p>
         )}
       </section>
 

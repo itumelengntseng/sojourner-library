@@ -28,3 +28,10 @@ describe("work page — first on <date> (C155)", () => {
     expect(line).toContain(finishedDate(a));
   });
 });
+
+describe("work page — borrowed-times line links to the history (C159)", () => {
+  it("leads to /ledger#history", () => {
+    const src = readFileSync("app/works/[slug]/page.tsx", "utf8");
+    expect(src).toContain('<Link href="/ledger#history" className="underline underline-offset-2 hover:text-lamplight">{borrowedTimesLine(desk.loans, desk.workId, desk.readerId)}<span className="sr-only"> — see your borrowing history</span></Link>');
+  });
+});
