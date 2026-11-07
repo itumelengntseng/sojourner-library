@@ -308,6 +308,11 @@ export function recentlyReturned(loans: Loan[], readerId: string, works: Record<
   return out;
 }
 
+/** C124: a book the reader handed back within the last hour reads "Just returned" (expired loans settled by the desk don't). */
+export function justReturned(r: Pick<Returned, "returnedAt" | "onTime">, now: number): boolean {
+  return r.onTime && r.returnedAt <= now && now - r.returnedAt < 3600_000;
+}
+
 // ── Time left in each book on loan (C74) ────────────────────────────────────
 
 /** "About 1 h 2 min left in this book" from the bookmark at the reader's pace; "At the end of this book" when nothing's left. */

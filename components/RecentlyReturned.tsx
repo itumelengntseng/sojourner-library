@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Returned } from "@/lib/loanDesk";
+import { justReturned, type Returned } from "@/lib/loanDesk";
 import { finishedStamp, finishSpan } from "@/lib/ledger";
 import { PreviewNotesExport } from "./PreviewNotesExport";
 
@@ -9,8 +9,9 @@ import { PreviewNotesExport } from "./PreviewNotesExport";
  * C84: a finished book also offers "Notes for this book" — the ledger's per-book export (own notes only):
  * the library route in library mode, built in this browser in preview mode.
  * C93: the Finished mark adds how long it took, from `firstRead` (slug → the reader's first session in it).
+ * C124: a book handed back within the last hour reads "Just returned"; the stamp stays in its spoken label.
  */
-export function RecentlyReturned({ items, finished = {}, notes = "preview", firstRead = {} }: { items: Returned[]; finished?: Record<string, number>; notes?: "library" | "preview"; firstRead?: Record<string, number> }) {
+export function RecentlyReturned({ items, finished = {}, notes = "preview", firstRead = {}, now }: { items: Returned[]; finished?: Record<string, number>; notes?: "library" | "preview"; firstRead?: Record<string, number>; now?: number }) {
   if (items.length === 0) return null;
   return (
     <section aria-labelledby="recently-returned" className="w-full max-w-md text-left">
@@ -31,7 +32,9 @@ export function RecentlyReturned({ items, finished = {}, notes = "preview", firs
                 )}
               </p>
               <p className="font-mono text-[0.7rem] uppercase tracking-wider text-sandstone">
-                Out {r.borrowed} · {r.onTime ? "returned" : "back on the shelf when due"} {r.returned}
+                Out {r.borrowed} · {now !== undefined && justReturned(r, now)
+                  ? <><span aria-hidden="true" className="text-lamplight">Just returned</span><span className="sr-only">Just returned, {r.returned}</span></>
+                  : <>{r.onTime ? "returned" : "back on the shelf when due"} {r.returned}</>}
               </p>
               {finished[r.slug] !== undefined && (
                 <p className="mt-0.5">
