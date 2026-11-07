@@ -364,17 +364,31 @@ for (const width of WIDTHS) {
   await axeCheck(`${width}px halls with the time left spoken on a spine`);
 }
 
-// QA24: the front hall's due-soon slip with the time left in the book (C80, when the slip shows),
+// C83: borrow a second book for an hour — due within the day and NOT the Continue reading book —
+// so the front hall shows its "Due back soon" slip to the sweep below.
+{
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto(`${BASE}/works/placeholder-work-two`);
+  if (await page.getByRole("button", { name: "Borrow this work" }).count()) {
+    await page.getByRole("radio", { name: "An hour" }).check();
+    await page.getByRole("button", { name: "Borrow this work" }).click();
+    await page.getByRole("link", { name: /Open the reading room|Resume at your bookmark/ }).waitFor();
+  }
+}
+
+// QA24: the front hall's due-soon slip with the time left in the book (C80 — the slip must show now, C83),
 // and the work page's finished stamp leading to the ledger's Read to the end shelf (C82).
 for (const width of WIDTHS) {
   await page.setViewportSize({ width, height: 900 });
   errors.length = 0;
   await page.goto(`${BASE}/`);
   const slip = page.getByRole("complementary", { name: "Due back soon" });
-  if (await slip.count()) {
+  if (!(await slip.count())) { failures++; console.log(`✗ ${width}px front hall: no due-soon slip for the book due within the hour`); }
+  else {
+    if (!(await slip.getByRole("link", { name: "Placeholder Work Two" }).count())) { failures++; console.log(`✗ ${width}px due-soon slip doesn't list the book due within the hour`); }
     if (!(await slip.getByText(/left in this book|At the end of this book/).count())) { failures++; console.log(`✗ ${width}px due-soon slip without the time left in the book`); }
   }
-  await axeCheck(`${width}px front hall (due-soon slip ${await slip.count() ? "shown" : "not shown"})`);
+  await axeCheck(`${width}px front hall with the due-soon slip`);
   errors.length = 0;
   await page.goto(`${BASE}/works/placeholder-work-one`);
   await page.getByRole("link", { name: /You finished this/ }).click();
