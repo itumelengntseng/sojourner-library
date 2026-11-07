@@ -313,6 +313,13 @@ export function justReturned(r: Pick<Returned, "returnedAt" | "onTime">, now: nu
   return r.onTime && r.returnedAt <= now && now - r.returnedAt < 3600_000;
 }
 
+/** C129: the reader's latest loan of this work, if they handed it back within the hour (and it isn't out again). */
+export function justReturnedLoan(loans: Loan[], workId: string, readerId: string, now: number): Loan | undefined {
+  const l = latestLoan(loans, workId, readerId);
+  if (!l || l.returnedAt === null) return undefined;
+  return justReturned({ returnedAt: l.returnedAt, onTime: l.returnedAt < l.dueAt }, now) ? l : undefined;
+}
+
 // ── Time left in each book on loan (C74) ────────────────────────────────────
 
 /** "About 1 h 2 min left in this book" from the bookmark at the reader's pace; "At the end of this book" when nothing's left. */

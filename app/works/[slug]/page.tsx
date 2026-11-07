@@ -1,4 +1,4 @@
-import { openLoan, stampDate } from "@/lib/loanDesk";
+import { justReturnedLoan, openLoan, stampDate } from "@/lib/loanDesk";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -44,6 +44,8 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
   // C54: with the book out, each chapter in Contents opens the reading room at that chapter.
   const openNow = desk.mode !== "signed-out" && desk.mode !== "not-shelved" ? openLoan(desk.loans, desk.workId, desk.readerId, now) : undefined;
   const out = !!openNow;
+  // C129: handed back within the hour — a quiet line pointing back to the desk.
+  const backNow = !openNow && desk.mode !== "signed-out" && desk.mode !== "not-shelved" ? justReturnedLoan(desk.loans, desk.workId, desk.readerId, now) : undefined;
 
   return (
     <main id="main" className="mx-auto max-w-4xl px-4 pt-16">
@@ -63,6 +65,11 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
           {openNow && (
             <p className="mt-2 font-sans text-xs text-sandstone">
               <Link href="#desk" className="underline underline-offset-2 hover:text-lamplight">On loan to you · due {stampDate(openNow.dueAt)}</Link>
+            </p>
+          )}
+          {backNow && (
+            <p className="mt-2 font-sans text-xs text-sandstone">
+              <Link href="#desk" className="underline underline-offset-2 hover:text-lamplight"><span aria-hidden="true">Just returned</span><span className="sr-only">Just returned, {stampDate(backNow.returnedAt!)}</span> · borrow it again below</Link>
             </p>
           )}
           {finished !== undefined && (
