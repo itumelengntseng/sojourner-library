@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 7 — C68–C76, QA20–QA22; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-07 (scheduled build run 7 — C68–C79, QA20–QA23; `preview` branch refreshed; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -121,10 +121,14 @@ _Last updated: 2026-11-07 (scheduled build run 7 — C68–C76, QA20–QA22; C24
 - C75 — Finished stamp on the end-of-book card (`components/EndOfChapter.tsx`, `ReaderView` `finishedAt`, `app/works/[slug]/read/page.tsx` via `myFinish`): on the last chapter, a reader who has read the book to the end sees "Finished 05 Nov 2026" under "The end of …". Never in the proof copy. Unit-tested.
 - C76 — One Finished stamp everywhere: the ledger table, the Read to the end shelf, the work page ("You finished this · …"), the card, the halls and the end card all use `finishedStamp()` / `finishedDate()` from `lib/ledger.ts`; a test fails if a page formats a Finished date by hand again.
 - QA22 (2026-11-07, after C74–C76): `npm run qa` all clear — now also borrows again and checks the card's "left in this book" line, and the end-of-book card with the Finished stamp at 375px + 1280px (fixed the QA script's own wait: a re-borrow with a bookmark shows "Resume at your bookmark", not "Open the reading room"). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 434 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA22).
+- C77 — Ledger "Hours per book": a book out on loan shows "… · about 25 min left in this book" after its Continue at line (`myBookLeft()` / `inline()` in the new `lib/bookLeftStore.ts`, now also behind the card's On loan now). Own loans only. Unit-tested (preview desk cookie).
+- C78 — Work page loan desk (`components/LoanDesk.tsx`, `totalWords`/`wpm` from the work page): "About 25 min left in this book" under "Resume at your bookmark" (nothing before reading starts; "At the end of this book" at the end). Unit-tested.
+- C79 — Halls spines (`spokenSpine()` in the new `lib/spine.ts`): a book on loan's screen-reader text now reads "…On loan to you, due Fri 6 Nov, 14:00; about 25 min left in this book." Authorship stays first. Unit-tested.
+- QA23 (2026-11-07, after C77–C79): `npm run qa` all clear — now also checks the work page desk, the ledger and the halls spine with a book on loan and a bookmark (375px + 1280px). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 442 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA23).
 
 ## Next task
-C77 — "About N min left in this book" in the ledger's Hours per book (BACKLOG.md → FOLLOW-UPS), then C78, C79, QA23. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C80 — time left in the book on the front hall's "Due back soon" slip (BACKLOG.md → FOLLOW-UPS), then C81, C82, QA24. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).

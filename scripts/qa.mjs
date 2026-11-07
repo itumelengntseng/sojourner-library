@@ -346,6 +346,24 @@ for (const width of WIDTHS) {
   await axeCheck(`${width}px end-of-book card with the Finished stamp`);
 }
 
+// QA23: with the book on loan again (QA22) and a bookmark, the work page desk, the ledger and the
+// halls spine all say how long is left in the book (C77–C79).
+for (const width of WIDTHS) {
+  await page.setViewportSize({ width, height: 900 });
+  errors.length = 0;
+  await page.goto(`${BASE}/works/placeholder-work-one`);
+  await page.getByText(/left in this book|At the end of this book/).first().waitFor();
+  await axeCheck(`${width}px work page desk with time left in the book`);
+  errors.length = 0;
+  await page.goto(`${BASE}/ledger`);
+  await axeCheck(`${width}px ledger with a book on loan`);
+  errors.length = 0;
+  await page.goto(`${BASE}/halls`);
+  const spoken = await page.locator("a[href='/works/placeholder-work-one'] .sr-only").first().textContent();
+  if (!/On loan to you, due .+; (about .+ left in this book|at the end of this book)\./.test(spoken ?? "")) { failures++; console.log(`✗ ${width}px halls: the spine on loan doesn't say the time left (${spoken})`); }
+  await axeCheck(`${width}px halls with the time left spoken on a spine`);
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);

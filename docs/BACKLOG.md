@@ -116,7 +116,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C75 Reading room end-of-book card: when the reader has read this book to the end, it carries the "Finished <date>" stamp (reuse `myFinish`; not in the proof copy).
 - [x] C76 Use one date helper for every Finished stamp (`finishedStamp()` in FinishedShelf, the ledger table and the work page) so they can never drift apart; tests pin the format.
 - [x] QA22 QA pass after C74–C76.
-- [ ] C77 Ledger "Hours per book": a book out on loan also shows "About N min left in this book" beside its Continue at line (reuse `bookLeftLine`; own loan only).
-- [ ] C78 Work page loan desk: "About N min left in this book" under "Resume at your bookmark" (reuse `bookLeftLine`).
-- [ ] C79 Halls: a book on loan's spine screen-reader text adds the time left in the book ("…due Fri 6 Nov, 14:00; about 25 min left in this book").
-- [ ] QA23 QA pass after C77–C79.
+- [x] C77 Ledger "Hours per book": a book out on loan also shows "About N min left in this book" beside its Continue at line (reuse `bookLeftLine`; own loan only).
+- [x] C78 Work page loan desk: "About N min left in this book" under "Resume at your bookmark" (reuse `bookLeftLine`).
+- [x] C79 Halls: a book on loan's spine screen-reader text adds the time left in the book ("…due Fri 6 Nov, 14:00; about 25 min left in this book").
+- [x] QA23 QA pass after C77–C79.
+- [ ] C80 Front hall "Due back soon" slip: add the time left in the book ("Due back soon: <title> · <time> · about 25 min left in this book"), reusing `myBookLeft`.
+- [ ] C81 Notes export file names carry the export date in SA time ("sojourner-notes-2026-11-07.md", "sojourner-notes-<slug>-2026-11-07.md") so repeat downloads don't overwrite each other; library route and preview button alike.
+- [ ] C82 Work page: the "You finished this · …" stamp links to the ledger's "Read to the end" section (`/ledger#finished`).
+- [ ] QA24 QA pass after C80–C82.
