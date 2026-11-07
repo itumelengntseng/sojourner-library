@@ -32,6 +32,8 @@ export function DueDateSlip({ slip, title }: { slip: Slip; title: string }) {
         {slip.headline}
         {slip.timeLeft && <span className="font-normal"> · {slip.timeLeft} left</span>}
       </p>
+      {/* C107: the last hour of a loan is called out on the slip itself. */}
+      {slip.withinHour && <p className="font-sans text-xs font-semibold text-[#8a4a12]">Due back within the hour</p>}
       {slip.canRenew || slip.canReturn ? (
         <p className="font-sans text-[0.7rem] text-ink/70">
           {slip.renewalsLeft > 0 ? `${slip.renewalsLeft} renewal${slip.renewalsLeft === 1 ? "" : "s"} left` : "No renewals left"}

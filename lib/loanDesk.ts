@@ -63,6 +63,8 @@ export interface Slip {
   canRenew: boolean;
   canReturn: boolean;
   headline: string;
+  /** C107: open, and due back within the hour (C102's rule) — but not yet in the last 15 min, which the headline already says. */
+  withinHour: boolean;
 }
 
 export function slipFor(loan: Loan, now: number): Slip {
@@ -84,6 +86,7 @@ export function slipFor(loan: Loan, now: number): Slip {
     canRenew: open && renewalsLeft > 0,
     canReturn: open,
     headline,
+    withinHour: status === "active" && loan.dueAt - now <= 3600_000,
   };
 }
 
