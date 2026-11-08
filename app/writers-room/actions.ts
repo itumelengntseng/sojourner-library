@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { parseManuscript, slugify } from "@/lib/manuscript";
+import { importedMessage, parseManuscript, slugify } from "@/lib/manuscript";
 import { ownerClient } from "@/lib/writersRoom";
 import { checkHall } from "@/lib/catalogueRows";
 
@@ -9,6 +9,8 @@ export interface RoomState {
   ok: boolean;
   message: string;
   code?: string;
+  /** C216: a follow-on link shown with the message (e.g. the proof copy after an import). */
+  link?: { href: string; label: string };
 }
 
 const CANON = ["canon", "draft", "apocrypha"];
@@ -33,7 +35,10 @@ export async function importAction(_: RoomState, form: FormData): Promise<RoomSt
   });
   if (error) return { ok: false, message: `The import didn't go through: ${error.message}` };
   revalidatePath("/writers-room");
-  return { ok: true, message: `Saved "${title}" — ${parsed.chapters.length} chapters, ${parsed.words.toLocaleString("en-ZA")} words. It is visible only to you until you share it.` };
+  // C216: say where it now stands (a re-import keeps the work's sharing) and offer the proof copy.
+  const { data: row } = await supabase.from("works").select("visibility").eq("slug", slug).maybeSingle();
+  const visibility = row?.visibility === "members" ? "members" : "owner";
+  return { ok: true, message: importedMessage(title, parsed.chapters.length, parsed.words, canon, visibility), link: { href: `/works/${slug}/proof`, label: "Open the proof copy" } };
 }
 
 export async function workSettingsAction(_: RoomState, form: FormData): Promise<RoomState> {

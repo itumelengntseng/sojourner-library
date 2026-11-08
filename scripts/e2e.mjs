@@ -86,6 +86,9 @@ if (!preview) {
     await page.locator('textarea[name="manuscript"]').fill("# E2E Placeholder Check\n\n## Chapter 1\n\nPlaceholder text for the end-to-end check.\n\n## Chapter 2\n\nMore placeholder text.\n");
     await page.getByRole("button", { name: "Save to the library" }).click();
     await expectText(page, "Saved");
+    // C216: the status names where it stands and offers the proof copy.
+    await page.getByRole("status").filter({ hasText: /Saved "E2E Placeholder Check" — 2 chapters, .* · (Draft|Canon|Apocrypha) · (Only me|shared with card holders)\./ }).first().waitFor({ timeout: 10_000 });
+    await page.getByRole("link", { name: "Open the proof copy" }).first().waitFor({ timeout: 10_000 });
   });
   await step("proof copy opens without a loan", async () => {
     await page.goto(`${BASE}/works/${SLUG}/proof`);

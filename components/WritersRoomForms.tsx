@@ -15,6 +15,8 @@ function Status({ s }: { s: RoomState }) {
     <div role="status" className={`font-sans text-sm ${s.ok ? "text-lamplight" : "text-ember"}`}>
       {s.message}
       {s.code && <p className="mt-1 select-all font-mono text-lg tracking-widest text-paper">{s.code}</p>}
+      {/* C216: a follow-on link (the proof copy after an import). */}
+      {s.ok && s.link && <p className="mt-1"><a href={s.link.href} className="underline underline-offset-2 hover:text-ember">{s.link.label}</a></p>}
     </div>
   );
 }

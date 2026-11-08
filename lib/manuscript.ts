@@ -110,3 +110,14 @@ export function planSummary(p: ImportPlan): string {
     .filter(([k]) => p.counts[k] > 0).map(([k, w]) => `${p.counts[k]} ${w}`);
   return `Updates the work already on the shelves: ${bits.join(", ")}.${p.setAside ? " It is set aside — it stays off the shelves until you restore it." : ""}`;
 }
+
+const CANON_WORD: Record<string, string> = { canon: "Canon", draft: "Draft", apocrypha: "Apocrypha" };
+
+/**
+ * C216: what the Writer's Room says after an import — the work's name, its size, and where it now stands
+ * ("Draft · Only me" for a new import; a re-import keeps whatever sharing the work already had).
+ */
+export function importedMessage(title: string, chapters: number, words: number, canon: string, visibility: "owner" | "members"): string {
+  const where = `${CANON_WORD[canon] ?? "Draft"} · ${visibility === "members" ? "shared with card holders" : "Only me"}`;
+  return `Saved "${title}" — ${chapters} chapter${chapters === 1 ? "" : "s"}, ${words.toLocaleString("en-ZA").replace(/\s/g, " ")} words · ${where}.`;
+}
