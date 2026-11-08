@@ -332,7 +332,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C237 Halls spines: check a placeholder work's spoken label says "Placeholder." (after "by Itumeleng Ntseng"); add it if missing, keep it silent for works in Itu's own words.
 - [x] C238 Pitch share page `/p/<token>` and the Keeper's sheet: the browser tab title adds "(placeholder)" while the kit is still a placeholder.
 - [x] QA76 QA pass after C236–C238.
-- [ ] C239 Library e2e (`scripts/e2e.mjs`): after opening the pitch link once in the card-less browser, check the Pitch Room shows "1 view" for it (pins C238's one-open-per-request); keep `tests/e2eScript.test.ts` in step.
-- [ ] C240 Ledger "Hours per book": a placeholder book carries a quiet "· placeholder" after its title (own rows; same mark as the notes export, C236).
-- [ ] C241 Privacy pin: a test that the front hall's `keeperWaiting()` returns null for guests and signed-out visitors without reading the atlas, pitch kits or halls (mocked `ownerClient`).
-- [ ] QA77 QA pass after C239–C241.
+- [x] C239 Library e2e (`scripts/e2e.mjs`): after opening the pitch link once in the card-less browser, check the Pitch Room shows "1 view" for it (pins C238's one-open-per-request); keep `tests/e2eScript.test.ts` in step.
+- [x] C240 Ledger "Hours per book": a placeholder book carries a quiet "· placeholder" after its title (own rows; same mark as the notes export, C236).
+- [x] C241 Privacy pin: a test that the front hall's `keeperWaiting()` returns null for guests and signed-out visitors without reading the atlas, pitch kits or halls (mocked `ownerClient`).
+- [x] QA77 QA pass after C239–C241.
+- [ ] C242 Writer's Room import preview: a re-imported backup of placeholder text would be marked as Itu's own words (`import_manuscript()` always clears `is_placeholder`). Mark placeholder backups (C27/C31 front matter `placeholder: true`) and have the import preview warn "This file says it is placeholder text — saving marks it as your own words." No RPC change (a migration to respect the flag would go under NEEDS ITU).
+- [ ] C243 Card page "On loan now" and "Recently returned": a placeholder book's line carries "· placeholder" (C240's mark).
+- [ ] C244 Pitch Room one-pager download: the file name ends "-placeholder.md" while the kit is still a placeholder.
+- [ ] QA78 QA pass after C242–C244.
