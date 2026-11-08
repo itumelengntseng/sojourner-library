@@ -63,3 +63,17 @@ describe("spoken spine — just returned (C132)", () => {
     expect(src).toContain("justReturned: backNow[w.slug],");
   });
 });
+
+describe("halls spine — time read under Most read by you (C167)", () => {
+  it("says how long the reader has read in it, last", () => {
+    const s = spokenSpine({ author: "Itumeleng Ntseng", canon: "Canon", readingTime: "1 h", readFor: "45 min" });
+    expect(s).toBe("by Itumeleng Ntseng. Canon. 1 h to read. You've read for 45 min.");
+    expect(spokenSpine({ author: "Itumeleng Ntseng", canon: "Canon", readingTime: "1 h" })).not.toContain("You've read for");
+  });
+  it("is only passed under the read order (myHours is empty otherwise)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync("app/halls/page.tsx", "utf8");
+    expect(src).toContain('const myHours = sort === "read" ? await myHoursBySlug() : {};');
+    expect(src).toContain("readFor: myHours[w.slug] ? formatHours(myHours[w.slug]) : undefined");
+  });
+});
