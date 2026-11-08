@@ -9,6 +9,9 @@ import { changedLabel, glance } from "@/lib/glance";
 import { loadRoom } from "@/lib/writersRoom";
 import { cleanQuery, filterByTitle } from "@/lib/shelfSearch";
 import { replaceHref, replaceNote, replaceTarget } from "@/lib/replaceManuscript";
+import { waitingForWords } from "@/lib/waiting";
+import { loadAtlas } from "@/lib/atlasStore";
+import { roomPitches } from "@/lib/pitchStore";
 
 // Owner-only: always render per request (reads the session).
 export const dynamic = "force-dynamic";
@@ -36,6 +39,12 @@ export default async function WritersRoom({ searchParams }: { searchParams: Prom
   const shownAside = live ? filterByTitle(room.setAside, find) : [];
   // C218: "replace with your manuscript" — the placeholder's title waits in the import form.
   const replacing = replaceTarget(room.works, params.replace);
+  // C224: everything still carrying placeholder text, from the copies the library is actually using.
+  const [atlas, { pitches }] = await Promise.all([loadAtlas(), roomPitches()]);
+  const waiting = waitingForWords({
+    works: room.works, kits: pitches.map((p) => p.kit), people: atlas.lineage.people, places: atlas.timeline.places, events: atlas.timeline.events,
+    hallsNamed: room.mode === "library" && room.hallsNamed,
+  });
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16">
       <nav className="font-sans text-xs text-sandstone"><Link href="/" className="hover:text-lamplight">Front hall</Link> / Writer&apos;s Room</nav>
@@ -55,6 +64,15 @@ export default async function WritersRoom({ searchParams }: { searchParams: Prom
           ))}
         </dl>
         <p className="mt-2 font-sans text-[0.65rem] text-sandstone/70">Counts only. Readers&apos; notes, highlights and who read what stay private.</p>
+      </section>
+
+      <section aria-labelledby="waiting" className="mt-6 rounded-sm border border-timber-dark/70 bg-ink/30 px-4 py-3">
+        <h2 id="waiting" className="font-sans text-xs uppercase tracking-wider text-sandstone">What still waits for your words</h2>
+        {waiting.allDone ? <p className="mt-1 font-sans text-sm text-lamplight">Everything is in your own words.</p> : (
+          <ul className="mt-1 flex flex-col gap-1 font-sans text-sm text-paper/90">
+            {waiting.rows.map((r) => <li key={r.key}>{r.text} · <a href={r.href} className="text-lamplight underline underline-offset-2">{r.linkLabel}</a></li>)}
+          </ul>
+        )}
       </section>
 
       <BackupEverything />
