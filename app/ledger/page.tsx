@@ -112,6 +112,8 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
               {orderHours(l.hours, hoursOrder).map((h, i) => (
                 <tr key={h.workKey}>
                   <td className="py-3 pr-2">{link(h.workKey) ? <Link href={link(h.workKey)!} className="hover:text-lamplight">{title(h.workKey)}</Link> : title(h.workKey)}
+                    {/* C240: a placeholder book says so, as the notes file does (C236). */}
+                    {l.placeholders?.includes(h.workKey) && <span className="font-sans text-xs text-sandstone" data-placeholder-mark> · placeholder</span>}
                     {/* C169: under Most hours, the top book (two or more books). */}
                     {hoursOrder === "most" && i === 0 && l.hours.length > 1 && h.activeMs > 0 && (
                       <span className="ml-2 inline-block rounded-sm bg-lamplight/15 px-1.5 py-0.5 align-middle font-mono text-[0.65rem] uppercase tracking-wider text-lamplight"><span aria-hidden="true">most read</span><span className="sr-only">your most-read book</span></span>

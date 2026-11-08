@@ -14,6 +14,8 @@ export interface LedgerView {
   readerName: string;
   titles: Record<string, string>;
   slugs: Record<string, string>;
+  /** C240: work keys still marked Placeholder (Hours per book says so after the title). */
+  placeholders?: string[];
   history: HistoryRow[];
   hours: WorkHours[];
   streaks: Streaks;
@@ -40,7 +42,7 @@ export async function loadLedger(): Promise<LedgerView> {
     const titles = Object.fromEntries(getWorks().map((w) => [w.slug, w.title]));
     const slugs = Object.fromEntries(getWorks().map((w) => [w.slug, w.slug]));
     return {
-      mode: "preview", readerName: "", titles, slugs,
+      mode: "preview", readerName: "", titles, slugs, placeholders: getWorks().filter((w) => w.isPlaceholder).map((w) => w.slug),
       history: loanHistory(loans, now), hours: withFinished(hoursByWork(sessions.filter((s) => s.workKey !== "unknown")), sessions, lastChapters),
       streaks: streaks(stats, now), totalMs: stats.reduce((a, s) => a + s.activeMs, 0), totalWords: stats.reduce((a, s) => a + s.wordsRead, 0), months: byMonth(stats, now), week: thisWeek(stats, now),
     };
@@ -53,7 +55,7 @@ export async function loadLedger(): Promise<LedgerView> {
     supabase.from("readers").select("display_name").eq("id", uid).maybeSingle(),
     supabase.from("loans").select("*").eq("reader_id", uid).order("borrowed_at", { ascending: false }).limit(200),
     supabase.from("sessions").select("work_id, chapter_id, words_read, activity, started_at, ended_at").eq("reader_id", uid).gte("started_at", since).limit(2000),
-    supabase.from("works").select("id, slug, title"),
+    supabase.from("works").select("id, slug, title, is_placeholder"),
   ]);
   const sessions: WorkSession[] = (rows ?? []).map((r) => ({
     workKey: r.work_id as string,
@@ -75,6 +77,7 @@ export async function loadLedger(): Promise<LedgerView> {
     readerName: (me?.display_name as string | undefined) ?? "",
     titles: Object.fromEntries((works ?? []).map((w) => [w.id as string, w.title as string])),
     slugs: Object.fromEntries((works ?? []).map((w) => [w.id as string, w.slug as string])),
+    placeholders: (works ?? []).filter((w) => w.is_placeholder !== false).map((w) => w.id as string),
     history: loanHistory(((loans ?? []) as LoanRow[]).map(rowToLoan), now),
     hours: withFinished(hoursByWork(sessions), sessions, lastChapters),
     streaks: streaks(sessions, now),
