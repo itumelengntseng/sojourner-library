@@ -133,6 +133,22 @@ await step("read: a highlight says it was saved, and removed", async () => {
   await page.getByRole("status").filter({ hasText: /^Highlight removed · (\d+|none) left in this book$/ }).first().waitFor({ timeout: 10_000 });
 });
 
+await step("read: a chapter without notes says how many are elsewhere", async () => {
+  // C207/C211: from Contents, open a chapter that holds none of this reader's notes (the note above sits elsewhere).
+  await page.locator("summary", { hasText: "Contents" }).click();
+  const items = page.getByRole("navigation", { name: "Contents" }).locator("li");
+  const n = await items.count();
+  let href = null;
+  for (let i = 0; i < n && !href; i++) {
+    const li = items.nth(i);
+    if ((await li.locator("a[aria-current='page']").count()) || (await li.getByText(/ · \d+ (notes?|highlights?)/).count())) continue;
+    href = await li.locator("a").getAttribute("href");
+  }
+  if (!href) throw new Error("no chapter without notes to open (the book needs two chapters)");
+  await page.goto(`${BASE}${href}`);
+  await page.locator("[data-notes-elsewhere]", { hasText: /^No notes in this chapter yet · \d+ elsewhere in this book · see Contents$/ }).waitFor({ timeout: 10_000 });
+});
+
 await step("ledger: notes export includes the note", async () => {
   await page.goto(`${BASE}/ledger`);
   const [dl] = await Promise.all([
