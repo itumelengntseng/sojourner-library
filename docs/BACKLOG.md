@@ -312,7 +312,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C222 Family wall & timeline editor: one line at the top "N of M people and K of L events are still placeholders" (counts `isPlaceholder` entries in the current copy, live as he edits; "everyone and everything is in your own words" at zero).
 - [x] C223 Pitch Room: a line above the kit list "N of M kits still placeholder" (stored kit → file kit rule as shown), linking each placeholder kit's "Edit the kit"; zero → "every kit is in your own words".
 - [x] QA71 QA pass after C221–C223.
-- [ ] C224 Writer's Room: a short "What still waits for your words" panel under the glance — works (C215), pitch kits (C223), family-wall people and timeline events (C222 counts over the copy in use), and hall names (placeholder until named) — each a count with a link to where it's done; "Everything is in your own words" when all are zero. Counts only; nothing invented.
-- [ ] C225 Pitch Room kit card: the "Placeholder — awaiting the author's words" status links to that kit's editor (spoken "edit the kit for <title>").
-- [ ] C226 Family wall & timeline editor: a "Placeholders only" toggle on the person / event pickers, so Itu can step through what's left to replace (client-side; no data change).
-- [ ] QA72 QA pass after C224–C226.
+- [x] C224 Writer's Room: a short "What still waits for your words" panel under the glance — works (C215), pitch kits (C223), family-wall people and timeline events (C222 counts over the copy in use), and hall names (placeholder until named) — each a count with a link to where it's done; "Everything is in your own words" when all are zero. Counts only; nothing invented.
+- [x] C225 Pitch Room kit card: the "Placeholder — awaiting the author's words" status links to that kit's editor (spoken "edit the kit for <title>").
+- [x] C226 Family wall & timeline editor: a "Placeholders only" toggle on the person / event pickers, so Itu can step through what's left to replace (client-side; no data change).
+- [x] QA72 QA pass after C224–C226.
+- [ ] C227 Writer's Room "What still waits": with one to three placeholder works, the works row names each with its own "replace" link (reuse `replaceHref()`), instead of the single #shelves link.
+- [ ] C228 Pitch kit editor: while the kit is still marked Placeholder, one line at the top — "This kit is still a placeholder — tick “in my own words” when it is." (check the editor first; add only if it doesn't already say so).
+- [ ] C229 Back up everything (.zip): README.txt gains a "Still waiting for your words" section with the same counts as the C224 panel (counts only), so an offline copy says what is placeholder.
+- [ ] QA73 QA pass after C227–C229.
