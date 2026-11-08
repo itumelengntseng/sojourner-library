@@ -528,7 +528,7 @@ for (const width of WIDTHS) {
   // QA40 (C128): the due part sits in ember. QA43 (C139): this run's borrowing is counted.
   if (!(await page.getByText(/^\d+ open loans? · \d+ borrowed in the last hour( · \d+ returned in the last hour)? · \d+ due back within the day$/).count()) || !(await page.locator("dd span.text-ember", { hasText: /^ · \d+ due back within the day$/ }).count())) { failures++; console.log(`✗ ${width}px Writer's Room loans tile doesn't count the loans due back within the day (${await page.locator("dd", { hasText: /open loan/ }).first().textContent()})`); }
   // QA51 (C163): this run's borrowing shows in the Loans this month tile (a head count only).
-  if (!(await page.locator("dl div", { has: page.locator("dt", { hasText: /^Loans this month$/ }) }).getByText(/^taken out in the last 30 days$/).count())) { failures++; console.log(`✗ ${width}px Writer's Room without the Loans this month tile`); }
+  if (!(await page.locator("dl div", { has: page.locator("dt", { hasText: /^Loans this month$/ }) }).getByText(/^taken out in the last 30 days( · \d+ handed back before (it was|they were) due)?$/).count())) { failures++; console.log(`✗ ${width}px Writer's Room without the Loans this month tile`); }
   await axeCheck(`${width}px Writer's Room with a loan due within the day`);
   // QA33 (C108, C109): the spine says so, and the ledger's history row too.
   errors.length = 0;
@@ -685,6 +685,10 @@ await axeCheck("375px reading room gate just returned");
   await fp.getByRole("button", { name: "Borrow this work" }).waitFor();
   await fp.goto(`${BASE}/card`);
   if (!(await fp.getByRole("region", { name: "Recently returned" }).locator("a[href='/ledger#history']", { hasText: /^borrowed 2 times/ }).count())) { failures++; console.log("✗ card Recently returned without a 'borrowed 2 times' link to the history (C156/C161)"); }
+  // QA52 (C165): this browser's two loans both came back early — the Writer's Room tile says so (preview counts the cookie desk).
+  await fp.goto(`${BASE}/writers-room`);
+  if (!(await fp.getByText(/^taken out in the last 30 days · 2 handed back before they were due$/).count())) { failures++; console.log(`✗ Writer's Room Loans this month without '2 handed back before they were due'`); }
+  await fp.goto(`${BASE}/card`);
   await fp.evaluate(axeSource);
   {
     const r = await fp.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] })); // eslint-disable-line no-undef

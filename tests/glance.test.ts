@@ -61,9 +61,9 @@ describe("glance — Loans this month (C163)", () => {
   it("shows a head count tile, never who or what", async () => {
     const { glance } = await import("@/lib/glance");
     const w = [{ visibility: "members" as const, words: 10, openLoans: 1 }];
-    const t = glance(w, 0, 3, 0, 0, 0, 4).find((x) => x.label === "Loans this month")!;
+    const t = glance(w, 0, 3, 0, 0, 0, { taken: 4, early: 0 }).find((x) => x.label === "Loans this month")!;
     expect(t).toEqual({ label: "Loans this month", value: "4", note: "taken out in the last 30 days" });
-    expect(glance(w, 0, 3, 0, 0, 0, 0).find((x) => x.label === "Loans this month")!.note).toBe("none taken out in the last 30 days");
+    expect(glance(w, 0, 3, 0, 0, 0, { taken: 0, early: 0 }).find((x) => x.label === "Loans this month")!.note).toBe("none taken out in the last 30 days");
     expect(glance(w, 0, 3).some((x) => x.label === "Loans this month")).toBe(false);
   });
 });
@@ -73,7 +73,29 @@ describe("Writer's Room — Loans this month wiring (C163)", () => {
     const { readFileSync } = await import("node:fs");
     const src = readFileSync("lib/writersRoom.ts", "utf8");
     expect(src).toContain('supabase.from("loans").select("id", { count: "exact", head: true }).gt("borrowed_at", new Date(nowMs - 30 * 86_400_000).toISOString())');
-    expect(src).toContain("loansMonth: loansInMonth(parsePreviewLoans(");
+    expect(src).toContain("loansMonth: monthLoans(parsePreviewLoans(");
     expect(readFileSync("app/writers-room/page.tsx", "utf8")).toContain("room.borrowedHour, room.loansMonth)");
+  });
+});
+
+describe("glance — Loans this month, handed back early (C165)", () => {
+  const NOW = Date.parse("2026-11-08T12:00:00Z");
+  const DAY = 86_400_000;
+  const l = (daysAgo: number, returnedAfter: number | null, dueAfter: number) => ({ borrowedAt: NOW - daysAgo * DAY, returnedAt: returnedAfter === null ? null : NOW - daysAgo * DAY + returnedAfter, dueAt: NOW - daysAgo * DAY + dueAfter });
+  it("counts the month's loans returned before due (auto-returns at due time don't count)", async () => {
+    const { monthLoans } = await import("@/lib/glance");
+    expect(monthLoans([l(1, 1000, 5000), l(2, 5000, 5000), l(3, null, 5000), l(40, 1, 5000)], NOW)).toEqual({ taken: 3, early: 1 });
+  });
+  it("adds the early part to the note, singular and plural", async () => {
+    const { glance } = await import("@/lib/glance");
+    const w = [{ visibility: "members" as const, words: 10, openLoans: 0 }];
+    const note = (m: { taken: number; early: number }) => glance(w, 0, 1, 0, 0, 0, m).find((x) => x.label === "Loans this month")!.note;
+    expect(note({ taken: 3, early: 1 })).toBe("taken out in the last 30 days · 1 handed back before it was due");
+    expect(note({ taken: 3, early: 2 })).toBe("taken out in the last 30 days · 2 handed back before they were due");
+    expect(note({ taken: 3, early: 0 })).toBe("taken out in the last 30 days");
+  });
+  it("library mode reads only return and due times of the month's handed-back loans", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("lib/writersRoom.ts", "utf8")).toContain('supabase.from("loans").select("returned_at, due_at").gt("borrowed_at", new Date(nowMs - 30 * 86_400_000).toISOString()).not("returned_at", "is", null)');
   });
 });

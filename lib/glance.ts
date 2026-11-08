@@ -4,7 +4,7 @@ export interface GlanceTile { label: string; value: string; note?: string;
   urgentNote?: string }
 
 /** "The library at a glance": counts only — never who read what. */
-export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number }[], setAside: number, cardHolders: number | null, dueSoon = 0, returnedHour = 0, borrowedHour = 0, loansMonth: number | null = null): GlanceTile[] {
+export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number }[], setAside: number, cardHolders: number | null, dueSoon = 0, returnedHour = 0, borrowedHour = 0, loansMonth: MonthLoans | null = null): GlanceTile[] {
   const shared = works.filter((w) => w.visibility === "members").length;
   const words = works.reduce((a, w) => a + w.words, 0);
   const loans = works.reduce((a, w) => a + w.openLoans, 0);
@@ -19,7 +19,9 @@ export function glance(works: { visibility: "owner" | "members"; words: number; 
       ...(loans && dueSoon > 0 ? { urgentNote: `${Math.min(dueSoon, loans).toLocaleString("en-ZA")} due back within the day` } : {}) },
   ];
   // C163: loans taken out in the last 30 days — a head count only, never who or what.
-  if (loansMonth !== null) tiles.push({ label: "Loans this month", value: loansMonth.toLocaleString("en-ZA"), note: loansMonth ? "taken out in the last 30 days" : "none taken out in the last 30 days" });
+  // C165: and how many of those came back before they were due (counts only).
+  if (loansMonth !== null) tiles.push({ label: "Loans this month", value: loansMonth.taken.toLocaleString("en-ZA"),
+    note: loansMonth.taken ? `taken out in the last 30 days${loansMonth.early > 0 ? ` · ${Math.min(loansMonth.early, loansMonth.taken).toLocaleString("en-ZA")} handed back before ${loansMonth.early === 1 ? "it was" : "they were"} due` : ""}` : "none taken out in the last 30 days" });
   // C45: shown once the library can count it (finished_readers() answered for every work).
   if (works.length > 0 && works.every((w) => w.finished !== undefined)) {
     const done = works.reduce((a, w) => a + (w.finished ?? 0), 0);
@@ -45,4 +47,11 @@ export function changedLabel(iso: string | undefined, now: number): string | nul
 /** C163: how many loans were taken out in the 30 days before `now` (borrow times only). */
 export function loansInMonth(borrowedAt: number[], now: number): number {
   return borrowedAt.filter((t) => t <= now && now - t < 30 * DAY).length;
+}
+
+export interface MonthLoans { taken: number; early: number }
+/** C165: the month's loans and how many of them were handed back before they were due (the ledger's C152 rule). */
+export function monthLoans(loans: { borrowedAt: number; returnedAt: number | null; dueAt: number }[], now: number): MonthLoans {
+  const recent = loans.filter((l) => l.borrowedAt <= now && now - l.borrowedAt < 30 * DAY);
+  return { taken: recent.length, early: recent.filter((l) => l.returnedAt !== null && l.returnedAt < l.dueAt).length };
 }
