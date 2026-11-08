@@ -995,6 +995,23 @@ await axeCheck("375px reading room gate just returned");
   await ctx7.close();
 }
 
+// QA74 (C231, C232): placeholder marks on the timeline and family wall; the Keeper's line on the front hall.
+{
+  const ctx8 = await browser.newContext();
+  const p8 = await ctx8.newPage();
+  await p8.goto(`${BASE}/timeline?canon=all`);
+  const tl = await p8.locator("[data-placeholder-mark]").count();
+  await p8.goto(`${BASE}/lineage?canon=all`);
+  const card = await p8.locator("aside [data-placeholder-mark]").count();
+  if (tl < 9 || card !== 1) { failures++; console.log(`✗ placeholder marks: timeline ${tl}, family-wall card ${card}`); }
+  else console.log(`✓ placeholder marks on the timeline (${tl}) and the family-wall card`);
+  await p8.goto(`${BASE}/`);
+  const line = (await p8.locator("[data-keeper-line]").textContent()) ?? "";
+  if (!/^Still waiting for your words: 3 works, 3 pitch kits, \d+ people, \d+ places, \d+ events and the hall names\. Writer's Room$/.test(line) || !(await p8.locator("[data-keeper-line] a[href='/writers-room#waiting']").count())) { failures++; console.log(`✗ keeper line: '${line}'`); }
+  else console.log("✓ front hall tells the Keeper what still waits for his words");
+  await ctx8.close();
+}
+
 // QA71 (C222): the family wall & timeline editor says what's still placeholder, and it follows a "Real" tick.
 {
   const ctx5 = await browser.newContext();
