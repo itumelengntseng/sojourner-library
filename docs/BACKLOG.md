@@ -228,7 +228,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C159 Work page: the "You've borrowed this N times" line links to the ledger's Borrowing history (`/ledger#history`).
 - [x] C160 Ledger Hours per book, "Most hours" order: a thin timber bar under each row's time, scaled to the top book (aria-hidden; the time stays in text).
 - [x] QA50 QA pass after C158–C160.
-- [ ] C161 Card page "Recently returned": the "· borrowed N times" part links to the ledger's Borrowing history (`/ledger#history`), like C159.
-- [ ] C162 Halls: an "Order: Most read by you" option (`?sort=read`) — the reader's own hours per work, most first, then series order (preview from the cookie summaries; unread works keep series order after them).
-- [ ] C163 Writer's Room glance: a "Loans this month" tile — how many loans were taken out in the last 30 days (a head count only, never who or what; preview from the cookie desk).
-- [ ] QA51 QA pass after C161–C163.
+- [x] C161 Card page "Recently returned": the "· borrowed N times" part links to the ledger's Borrowing history (`/ledger#history`), like C159.
+- [x] C162 Halls: an "Order: Most read by you" option (`?sort=read`) — the reader's own hours per work, most first, then series order (preview from the cookie summaries; unread works keep series order after them).
+- [x] C163 Writer's Room glance: a "Loans this month" tile — how many loans were taken out in the last 30 days (a head count only, never who or what; preview from the cookie desk).
+- [x] QA51 QA pass after C161–C163.
+- [ ] C164 Halls, "Most read by you" order: one quiet line under the Order links — "Ordered by your own reading time; books you haven't read in keep shelf order." (or "You haven't read in any book yet — shelf order kept." with no reading).
+- [ ] C165 Writer's Room "Loans this month" tile: the note adds "· N handed back before they were due" (counts only; same rule as C152).
+- [ ] C166 Ledger Hours per book, "Most hours" order: a quiet link "Order the halls the same way" → `/halls?sort=read`.
+- [ ] QA52 QA pass after C164–C166.

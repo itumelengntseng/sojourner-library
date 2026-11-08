@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-07 (scheduled build run 11 — C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 12 — C161–C163, QA51; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -233,10 +233,14 @@ _Last updated: 2026-11-07 (scheduled build run 11 — C140–C160, QA44–QA50; 
 - C159 — Work page: the borrowed-times line links to `/ledger#history` (spoken "— see your borrowing history"). Unit-tested + swept.
 - C160 — Ledger Hours per book, Most hours order: a thin timber bar under each row's time, scaled to the most-read book (4 % floor, aria-hidden; `barShare()`). Unit-tested + swept.
 - QA50 (2026-11-07, after C158–C160): `npm run qa` all clear — now also requires the Most hours bars and the history link keeping `hours=most` (375px + 1280px), and the work page's borrowed-times link. Found and fixed in the sweep itself: the QA49 first-date check was anchored at the end and broke once the line gained its spoken link text. Preview e2e 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 603 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA50).
+- C161 — Card page Recently returned: "borrowed N times" links to `/ledger#history` (spoken "— see your borrowing history"), like C159. Unit-tested + swept.
+- C162 — Halls: "Order: Most read by you" (`?sort=read`) — the reader's own active reading time per work, most first; unread works keep shelf order after them; ties keep shelf order (`sortShelf(…, hours)`, `myHoursBySlug()` from the ledger loader, only read when chosen). Unit-tested + swept.
+- C163 — Writer's Room glance: a "Loans this month" tile — head count of loans taken out in the last 30 days (library: `count` head query on `borrowed_at`; preview: the cookie desk, `loansInMonth()`). Grid goes to 3 columns at 6 tiles. Unit-tested + swept.
+- QA51 (2026-11-08, after C161–C163): `npm run qa` all clear (run twice) — now also requires the card's "borrowed 2 times" as a link to the history, the halls' "Most read by you" putting the ledger's top Most-hours book first on its shelf (375px + 1280px, axe clean), and the Writer's Room "Loans this month" tile. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (the Writer's Room reads one more head count of loans, which the owner can already read under RLS).
+- Tests: 611 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA51).
 
 ## Next task
-C161 — card page "borrowed N times" links to the ledger's Borrowing history (BACKLOG.md → FOLLOW-UPS), then C162, C163, QA51. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C164 — halls "Most read by you" explanatory line (BACKLOG.md → FOLLOW-UPS), then C165, C166, QA52. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
@@ -309,3 +313,5 @@ C161 — card page "borrowed N times" links to the ledger's Borrowing history (B
 - The front hall's Just borrowed line (C143) treats a loan with no bookmark yet as "not opened" (the bookmark moves once a paragraph is read past); it gives way to the Continue reading card and the Just returned line.
 - The work page's loan desk says "Start reading" until the reader's first bookmark, then "Resume at your bookmark" (C149).
 - Ledger Hours per book defaults to "Recently read"; "Most hours" is opt-in via `?hours=most` (C157), like the halls' `?sort=`.
+- The halls' "Most read by you" (C162) ranks by the reader's own active reading time (the ledger's Time column), not words read; it reads the same 400 days the ledger does.
+- "Loans this month" (C163) means the last 30 days (rolling), matching the ledger's 30-day line (C152).
