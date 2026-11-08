@@ -161,6 +161,8 @@ for (const width of WIDTHS) {
   await page.locator('textarea[name="manuscript"]').fill("# Placeholder Work One\n\n## Chapter 1\n\nPlaceholder text for the QA sweep.\n\n## A new chapter\n\nMore placeholder text.");
   await page.getByRole("region", { name: "Import preview" }).waitFor();
   await axeCheck(`${width}px writer's room re-import preview + glance tiles`);
+  // QA71 (C221): re-importing over a placeholder says Save makes it your own words.
+  if (!(await page.getByRole("region", { name: "Import preview" }).getByText("Saving marks it as your own words — it stops being a placeholder.", { exact: false }).count())) { failures++; console.log(`✗ ${width}px import preview without the own-words line`); }
   // QA69 (C215): the glance counts the placeholder works (all of them in preview) and leads to the shelf list; QA70 (C219): one to three are named.
   if (!(await page.locator("dl div", { has: page.locator("dt", { hasText: "Still placeholder" }) }).locator("a[href='#shelves']", { hasText: /^(Placeholder Work \w+(, Placeholder Work \w+)*( and Placeholder Work \w+)?|works?) waits? for your manuscripts?$/ }).count())) { failures++; console.log(`✗ ${width}px writer's room glance without the Still placeholder tile`); }
   else console.log(`✓ ${width}px writer's room glance counts placeholder works`);
@@ -957,6 +959,35 @@ await axeCheck("375px reading room gate just returned");
     else console.log(`✓ ${slug}: page and pitch sheet name Itumeleng Ntseng and say Placeholder`);
   }
   await ctx4.close();
+}
+
+// QA71 (C223): the Pitch Room counts placeholder kits and links each one's editor.
+{
+  const ctx6 = await browser.newContext();
+  const p6 = await ctx6.newPage();
+  await p6.goto(`${BASE}/pitch-room`);
+  const line = (await p6.locator("[data-kits-placeholder]").textContent()) ?? "";
+  const links = await p6.locator("[data-kits-placeholder] a[href$='/edit']").count();
+  if (!/^3 of 3 kits still placeholders/.test(line) || links !== 3) { failures++; console.log(`✗ pitch room placeholder line '${line}' with ${links} edit links`); }
+  else console.log("✓ pitch room counts placeholder kits and links their editors");
+  await ctx6.close();
+}
+
+// QA71 (C222): the family wall & timeline editor says what's still placeholder, and it follows a "Real" tick.
+{
+  const ctx5 = await browser.newContext();
+  const p5 = await ctx5.newPage();
+  await p5.goto(`${BASE}/writers-room/atlas`);
+  const lines = await p5.locator("[data-placeholder-line]").allTextContents();
+  if (lines.length !== 2 || !/^\d+ of \d+ people are still placeholders/.test(lines[0]) || !/places and \d+ of \d+ events are still placeholders/.test(lines[1])) { failures++; console.log(`✗ atlas placeholder lines: ${JSON.stringify(lines)}`); }
+  else {
+    const before = Number(lines[0].split(" ")[0]);
+    await p5.locator("section[aria-labelledby='lineage-doc']").getByLabel("Real — in my own words (not a placeholder)").first().check();
+    const after = (await p5.locator("[data-placeholder-line]").first().textContent()) ?? "";
+    if (Number(after.split(" ")[0]) !== before - 1) { failures++; console.log(`✗ atlas placeholder line didn't follow the Real tick: '${after}'`); }
+    else console.log(`✓ atlas editor counts placeholders live ('${after.split(" —")[0]}')`);
+  }
+  await ctx5.close();
 }
 
 await browser.close();
