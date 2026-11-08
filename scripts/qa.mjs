@@ -552,6 +552,8 @@ for (const width of WIDTHS) {
     if (!(await page.locator("section[aria-labelledby='hours'] tbody span.bg-timber[aria-hidden='true']").count())) { failures++; console.log(`✗ ${width}px ledger: no Most hours bars`); }
     if (await page.locator("a[href*='history=all']").count() && !(await page.locator("a[href='/ledger?hours=most&history=all#history']").count())) { failures++; console.log(`✗ ${width}px ledger: Show all drops the hours order`); }
     await axeCheck(`${width}px ledger ordered by most hours`);
+    // QA52 (C166): a link to order the halls the same way.
+    if (!(await page.getByRole("navigation", { name: "Order hours per book" }).locator("a[href='/halls?sort=read']", { hasText: "Order the halls the same way" }).count())) { failures++; console.log(`✗ ${width}px ledger: Most hours without the link to the halls`); }
     // QA51 (C162): the halls' "Most read by you" puts the ledger's top book first on its shelf.
     const topHref = await page.locator("section[aria-labelledby='hours'] tbody tr td a").first().getAttribute("href");
     await page.goto(`${BASE}/halls?sort=read`);

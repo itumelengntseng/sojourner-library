@@ -92,6 +92,8 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
               <Link key={id} href={hoursHref(id, showAll)} aria-current={hoursOrder === id ? "true" : undefined}
                 className={hoursOrder === id ? "text-lamplight underline underline-offset-4" : "hover:text-lamplight"}>{label}</Link>
             ))}
+            {/* C166: the halls can stand in the same order. */}
+            {hoursOrder === "most" && <Link href="/halls?sort=read" className="text-sandstone/80 underline underline-offset-2 hover:text-lamplight">Order the halls the same way</Link>}
           </nav>
         )}
         {l.hours.length === 0 ? (
