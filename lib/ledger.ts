@@ -239,7 +239,12 @@ export interface ExportWork {
   chapters: ExportChapter[];
   /** C94: when the reader read it to the end (and their first session in it), from their own sessions. */
   finished?: FinishInfo;
+  /** C236: still placeholder text — the file says so under the book's heading. */
+  isPlaceholder?: boolean;
 }
+
+/** C236: the line under a placeholder book's heading in the notes file (the work page's own words). */
+export const PLACEHOLDER_NOTE_LINE = "_Placeholder text — the manuscript has not arrived yet._";
 
 export interface FinishInfo { at: number; firstRead?: number }
 
@@ -269,6 +274,7 @@ export function notesMarkdown(works: ExportWork[], exportedAt: number, readerNam
   if (withContent.length === 0) out.push("_No notes or highlights yet._", "");
   for (const w of withContent) {
     out.push(`## ${w.title}`, ``, `_by ${w.author.trim() || AUTHOR}_`, ``);
+    if (w.isPlaceholder) out.push(PLACEHOLDER_NOTE_LINE, ``);
     if (w.finished && Number.isFinite(w.finished.at)) out.push(finishedNoteLine(w.finished), ``);
     for (const c of [...w.chapters].sort((a, b) => a.position - b.position)) {
       if (!c.notes.length && !c.highlights.length) continue;

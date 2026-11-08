@@ -10,6 +10,7 @@ export function buildPreviewExport(read: (key: string) => string | null, now: nu
   const works: ExportWork[] = getWorks().filter((w) => !slug || w.slug === slug).map((w) => ({
     title: w.title,
     author: w.author,
+    isPlaceholder: w.isPlaceholder,
     ...(finished[w.slug] ? { finished: finished[w.slug] } : {}),
     chapters: w.chapters.map((c) => {
       let saved: { notes?: MarginNote[]; highlights?: Highlight[] } = {};
