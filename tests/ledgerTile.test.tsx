@@ -147,3 +147,18 @@ describe("Due soon mark in Hours per book (C120)", () => {
     spy.mockRestore();
   });
 });
+
+describe("Borrowing history — read for <time> (C176)", () => {
+  it("adds the book's Hours per book total to its rows; nothing for a book not read in", async () => {
+    const t = Date.parse("2026-11-05T10:00:00Z");
+    hours = [{ workKey: "w", activeMs: 45 * 60_000, wordsRead: 100, sessions: 1, lastRead: t }, { workKey: "x", activeMs: 0, wordsRead: 0, sessions: 1, lastRead: t }];
+    history = [
+      { id: "1", workKey: "w", borrowedAt: t - 3 * 86_400_000, endedAt: t - 2 * 86_400_000, open: false, renewals: 0 },
+      { id: "2", workKey: "x", borrowedAt: t - 86_400_000, endedAt: t, open: false, renewals: 0 },
+    ];
+    const html = (await render()).replace(/<!-- -->/g, "");
+    const list = html.slice(html.indexOf('id="history"'));
+    expect(list.match(/ · read for 45 min/g)).toHaveLength(1);
+    history = [];
+  });
+});

@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { getWorks } from "./catalogue";
 import { activeMs, countWords } from "./engine/readingTime";
-import { byMonth, finishedBooks, thisWeek, type Week, chaptersRead, finishedAt, hoursByWork, loanHistory, notesMarkdown, streaks, withFinished, type ExportWork, type HistoryRow, type MonthRow, type Streaks, type WorkHours, type WorkSession } from "./ledger";
+import { byMonth, finishedBooks, thisWeek, type Week, chaptersRead, finishedAt, hoursByWork, readByWork, loanHistory, notesMarkdown, streaks, withFinished, type ExportWork, type HistoryRow, type MonthRow, type Streaks, type WorkHours, type WorkSession } from "./ledger";
 import { parsePreviewLoans, PREVIEW_COOKIE, rowToLoan, type LoanRow } from "./loanDesk";
 import { splitParagraphs } from "./reader";
 import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
@@ -330,9 +330,9 @@ export async function myFinishes(slugs: string[]): Promise<Record<string, number
 export async function myHoursBySlug(): Promise<Record<string, number>> {
   const l = await loadLedger();
   const out: Record<string, number> = {};
-  for (const h of l.hours) {
-    const slug = l.slugs[h.workKey];
-    if (slug && h.activeMs > 0) out[slug] = (out[slug] ?? 0) + h.activeMs;
+  for (const [workKey, ms] of Object.entries(readByWork(l.hours))) {
+    const slug = l.slugs[workKey];
+    if (slug) out[slug] = (out[slug] ?? 0) + ms;
   }
   return out;
 }

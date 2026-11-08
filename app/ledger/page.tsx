@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
-import { finishedBooks, finishedDuring, finishedStamp, formatHours, barShare, historyHref, historyPage, historySummary, hoursHref, orderHours, parseHoursOrder, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
+import { finishedBooks, finishedDuring, readByWork, finishedStamp, formatHours, barShare, historyHref, historyPage, historySummary, hoursHref, orderHours, parseHoursOrder, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
 import { loadLedger } from "@/lib/ledgerStore";
 import { myOpenLoans } from "@/lib/loanStore";
@@ -21,6 +21,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
   // C157: Hours per book order (GET, works without JavaScript).
   const hoursOrder = parseHoursOrder(sp.hours);
   const l = await loadLedger();
+  const readMs = readByWork(l.hours);
   if (l.mode === "signed-out") {
     return (
       <main id="main" className="mx-auto max-w-xl px-4 pt-24 text-center">
@@ -176,6 +177,8 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
                   {r.renewals > 0 ? ` · renewed ${r.renewals}×` : ""}
                   {/* C109: an open loan says how many renewals are left. */}
                   {r.open ? ` · ${renewalsLeftLine(r).toLowerCase()}` : ""}
+                  {/* C176: a book the reader has read in says for how long (the Hours per book total). */}
+                  {(readMs[r.workKey] ?? 0) > 0 && <> · read for {formatHours(readMs[r.workKey])}</>}
                 </span>
               </li>
             ))}

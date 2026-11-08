@@ -352,6 +352,13 @@ export function readForLine(ms: number | undefined): string | null {
   return ms && ms > 0 ? `You've read for ${formatHours(ms)} in this book` : null;
 }
 
+/** C176/C178: the reader's own reading time per work (workKey → ms) — the one source every "read for" line uses. */
+export function readByWork(hours: Pick<WorkHours, "workKey" | "activeMs">[]): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const h of hours) if (h.activeMs > 0) out[h.workKey] = (out[h.workKey] ?? 0) + h.activeMs;
+  return out;
+}
+
 /** C174: the reading room's end card — "You've spent 2 h 5 min reading this book" (own reading; null when none). */
 export function spentLine(ms: number | undefined): string | null {
   return ms && ms > 0 ? `You've spent ${formatHours(ms)} reading this book` : null;

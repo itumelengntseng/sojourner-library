@@ -597,6 +597,12 @@ for (const width of WIDTHS) {
     if (topHref && (await outLi.count()) && !(await outLi.getByText(/ · read for (under a minute|\d+ (h|min))/).count())) { failures++; console.log(`✗ ${width}px card On loan now without 'read for <time>'`); }
     await page.goto(`${BASE}/ledger`);
   }
+  // QA56 (C176): once Hours per book shows whole minutes, Borrowing history says how long that book was read.
+  {
+    const timedRows = (await page.locator("section[aria-labelledby='hours'] tbody tr td:nth-child(2)").allTextContents()).filter((t) => /\d+ (h|min)/.test(t)).length;
+    const hist = page.getByRole("region", { name: "Borrowing history" });
+    if (timedRows && !(await hist.getByText(/ · read for \d+ (h|min)/).count())) { failures++; console.log(`✗ ${width}px ledger Borrowing history without 'read for <time>'`); }
+  }
   // QA44 (C141): this run's open loans were taken out within the hour — "just borrowed", stamp spoken.
   if (!(await page.getByRole("region", { name: "Borrowing history" }).locator(".sr-only", { hasText: /^Just borrowed, / }).count())) { failures++; console.log(`✗ ${width}px ledger Borrowing history without "just borrowed"`); }
   // QA37 (C120): Hours per book marks the book due within the day.
