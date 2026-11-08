@@ -1019,6 +1019,14 @@ await axeCheck("375px reading room gate just returned");
   const onlyOn = await p8.getByLabel(/^Placeholders only/).evaluateAll((els) => els.filter((e) => e.checked).length);
   if (onlyOn !== 2) { failures++; console.log(`✗ atlas editor opened with ${onlyOn} 'Placeholders only' toggles on (expected 2)`); }
   else console.log("✓ waiting panel opens the atlas editor on 'Placeholders only'");
+  // QA76 (C237, C238): placeholder spines say so aloud; the pitch sheet's tab says (placeholder).
+  await p8.goto(`${BASE}/halls`);
+  const spines = await p8.locator("a[href^='/works/'] .sr-only").allTextContents();
+  await p8.goto(`${BASE}/pitch-room/placeholder-work-one`);
+  const tab = await p8.title();
+  if (!spines.length || !spines.every((t) => t.startsWith("by Itumeleng Ntseng. Placeholder. "))) { failures++; console.log(`✗ spoken spines: ${JSON.stringify(spines.slice(0, 2))}`); }
+  else if (!/^Pitch sheet: Placeholder Work One \(placeholder\) · The Sojourner Library$/.test(tab)) { failures++; console.log(`✗ pitch sheet tab title '${tab}'`); }
+  else console.log(`✓ placeholder spines say so (${spines.length}) and the sheet's tab says (placeholder)`);
   await ctx8.close();
 }
 
