@@ -104,6 +104,8 @@ export function HarlemMap({ timeline, works }: { timeline: Timeline; works: Reco
                     className={`text-left ${e.id === selectedEvent ? "text-lamplight" : "text-paper hover:text-lamplight"}`}>
                     <span className="block font-mono text-xs text-sandstone">{dateLabel(e)}</span>
                     {e.title}
+                    {/* C231: placeholder entries say so, on screen and aloud. */}
+                    {e.isPlaceholder && <span className="ml-2 font-sans text-[0.6rem] uppercase tracking-wider text-sandstone" data-placeholder-mark>Placeholder</span>}
                   </button>
                 </li>
               ))}
@@ -118,7 +120,7 @@ export function HarlemMap({ timeline, works }: { timeline: Timeline; works: Reco
               <li key={p.id}>
                 <button type="button" aria-pressed={p.id === placeId} onClick={() => pick(p.id)}
                   className={`rounded-full border px-3 py-1 ${p.id === placeId ? "border-lamplight bg-lamplight text-ink" : "border-sandstone/50 text-paper"}`}>
-                  {p.name}{p.elsewhere ? ` · ${p.elsewhere}` : ""}
+                  {p.name}{p.elsewhere ? ` · ${p.elsewhere}` : ""}{p.isPlaceholder && <span data-placeholder-mark> · placeholder</span>}
                 </button>
               </li>
             ))}
@@ -130,6 +132,7 @@ export function HarlemMap({ timeline, works }: { timeline: Timeline; works: Reco
           <section aria-live="polite" className="rounded-sm bg-paper p-4 text-ink">
             {event && <p className="font-mono text-xs text-timber">{dateLabel(event)}</p>}
             <h2 className="text-lg">{event?.title ?? place?.name}</h2>
+            {(event ?? place)?.isPlaceholder && <p className="font-sans text-[0.65rem] uppercase tracking-wider text-timber" data-placeholder-mark>Placeholder — the author&apos;s own words will replace it</p>}
             {place && (
               <p className="font-sans text-sm text-timber">
                 {place.elsewhere ?? `${place.street}th Street & ${AVENUES.find((a) => a.id === place.avenue)?.name}`}

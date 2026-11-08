@@ -63,6 +63,8 @@ export function LineageWall({ people, works }: { people: Person[]; works: Record
         {me && (
           <section aria-live="polite" className="rounded-sm bg-paper p-4 text-ink">
             <h2 className="text-lg">{me.name}</h2>
+            {/* C231: the detail card says a placeholder is one, as the plaque does. */}
+            {me.isPlaceholder && <p className="font-sans text-[0.65rem] uppercase tracking-wider text-timber" data-placeholder-mark>Placeholder — the author&apos;s own words will replace it</p>}
             {me.note && <p className="font-sans text-xs text-timber">{me.note}</p>}
             <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 font-sans text-sm">
               <dt className="text-timber">Parents</dt><dd>{names(rel.parents)}</dd>
