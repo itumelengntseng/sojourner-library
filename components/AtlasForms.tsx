@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import { makeId, partnersOf, removeEvent, removePerson, removePlace, renamePerson, renamePlace, setPartners } from "@/lib/atlas";
+import { makeId, partnersOf, pickerList, removeEvent, removePerson, removePlace, renamePerson, renamePlace, setPartners } from "@/lib/atlas";
 import type { Lineage, Person } from "@/lib/lineage";
 import { AVENUES, STREET_MAX, STREET_MIN, type AvenueId, type Place, type Timeline, type TimelineEvent } from "@/lib/timeline";
 
@@ -57,6 +57,16 @@ function Real({ value, onChange }: { value: boolean; onChange: (v: boolean) => v
   );
 }
 
+/** C226: step through what's left to replace — shows only placeholder entries (and the one open). */
+function PlaceholdersOnly({ on, onChange, left, noun }: { on: boolean; onChange: (v: boolean) => void; left: number; noun: string }) {
+  return (
+    <label className="flex items-center gap-2 font-sans text-xs text-sandstone">
+      <input type="checkbox" className="accent-lamplight" checked={on} onChange={(e) => onChange(e.target.checked)} />
+      Placeholders only ({left} {left === 1 ? "is" : "are"} left){on && left === 0 && <span className="text-lamplight"> — every {noun} is in your own words</span>}
+    </label>
+  );
+}
+
 export function LineageForm({ value, onChange, works }: { value: Lineage; onChange: (l: Lineage) => void; works: Record<string, string> }) {
   const [sel, setSel] = useState<string | null>(value.people[0]?.id ?? null);
   const person = value.people.find((p) => p.id === sel);
@@ -68,10 +78,12 @@ export function LineageForm({ value, onChange, works }: { value: Lineage; onChan
     setSel(id);
   };
   const partners = person ? partnersOf(value, person.id) : [];
+  const [only, setOnly] = useState(false);
   return (
     <div className="flex flex-col gap-4">
+      <PlaceholdersOnly on={only} onChange={setOnly} left={value.people.filter((p) => p.isPlaceholder).length} noun="person" />
       <div role="group" aria-label="People on the wall" className="flex flex-wrap gap-2">
-        {value.people.map((p) => <button key={p.id} type="button" aria-pressed={p.id === sel} onClick={() => setSel(p.id)} className={chip(p.id === sel)}>{p.name}</button>)}
+        {pickerList(value.people, sel, only).map((p) => <button key={p.id} type="button" aria-pressed={p.id === sel} onClick={() => setSel(p.id)} className={chip(p.id === sel)}>{p.name}</button>)}
         <button type="button" onClick={add} className={chip(false)}>+ Add a person</button>
       </div>
       {person && (
@@ -142,6 +154,7 @@ export function TimelineForm({ value, onChange, works }: { value: Timeline; onCh
     setSelPlace(id);
   };
   const onMap = place ? place.street !== undefined || place.avenue !== undefined : true;
+  const [only, setOnly] = useState(false);
   return (
     <div className="flex flex-col gap-4">
       <div role="group" aria-label="Edit" className="flex gap-2">
@@ -150,8 +163,9 @@ export function TimelineForm({ value, onChange, works }: { value: Timeline; onCh
       </div>
       {tab === "events" ? (
         <>
+          <PlaceholdersOnly on={only} onChange={setOnly} left={value.events.filter((e) => e.isPlaceholder).length} noun="event" />
           <div role="group" aria-label="Events" className="flex flex-wrap gap-2">
-            {value.events.map((e) => <button key={e.id} type="button" aria-pressed={e.id === sel} onClick={() => setSel(e.id)} className={chip(e.id === sel)}>{e.title}</button>)}
+            {pickerList(value.events, sel, only).map((e) => <button key={e.id} type="button" aria-pressed={e.id === sel} onClick={() => setSel(e.id)} className={chip(e.id === sel)}>{e.title}</button>)}
             <button type="button" onClick={addEvent} className={chip(false)}>+ Add an event</button>
           </div>
           {ev && (
@@ -185,8 +199,9 @@ export function TimelineForm({ value, onChange, works }: { value: Timeline; onCh
         </>
       ) : (
         <>
+          <PlaceholdersOnly on={only} onChange={setOnly} left={value.places.filter((p) => p.isPlaceholder).length} noun="place" />
           <div role="group" aria-label="Places" className="flex flex-wrap gap-2">
-            {value.places.map((p) => <button key={p.id} type="button" aria-pressed={p.id === selPlace} onClick={() => setSelPlace(p.id)} className={chip(p.id === selPlace)}>{p.name}</button>)}
+            {pickerList(value.places, selPlace, only).map((p) => <button key={p.id} type="button" aria-pressed={p.id === selPlace} onClick={() => setSelPlace(p.id)} className={chip(p.id === selPlace)}>{p.name}</button>)}
             <button type="button" onClick={addPlace} className={chip(false)}>+ Add a place</button>
           </div>
           {place && (

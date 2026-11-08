@@ -201,3 +201,11 @@ export function placeholderLine(v: { people: { isPlaceholder: boolean }[] } | { 
   const total = shown.reduce((a, p) => a + p.n, 0);
   return `${bits.join(" and ")} ${total === 1 ? "is" : "are"} still ${total === 1 ? "a placeholder" : "placeholders"} — tick “Real” on each one in your own words.`;
 }
+
+/**
+ * C226: the picker's list with "Placeholders only" on — placeholder entries plus the one being edited
+ * (so ticking "Real" doesn't whisk it away mid-edit). Off → everything, in order.
+ */
+export function pickerList<T extends { id: string; isPlaceholder: boolean }>(items: T[], selected: string | null, placeholdersOnly: boolean): T[] {
+  return placeholdersOnly ? items.filter((x) => x.isPlaceholder || x.id === selected) : items;
+}
