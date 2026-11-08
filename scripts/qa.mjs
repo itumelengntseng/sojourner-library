@@ -617,6 +617,8 @@ for (const width of WIDTHS) {
   if (!(await appears(page.locator("section[aria-labelledby='export'] p", { hasText: /^You have (\d+ margin notes?|\d+ highlights?)( · \d+ highlights?)? across \d+ books?\.$/ })))) { failures++; console.log(`✗ ${width}px ledger Your notes without the count line`); }
   // QA59 (C186): the sweep's notes show beside Placeholder Work One's time in Hours per book.
   if (!(await appears(page.locator("section[aria-labelledby='hours'] tbody tr", { has: page.locator("a[href='/works/placeholder-work-one']") }).locator("td:nth-child(2)", { hasText: / · \d+ (notes?|highlights?)/ })))) { failures++; console.log(`✗ ${width}px ledger Hours per book without the notes count beside Placeholder Work One`); }
+  // QA62 (C194): Borrowing history's Placeholder Work One row counts the same notes.
+  if (!(await appears(page.getByRole("region", { name: "Borrowing history" }).locator("li", { has: page.locator("a[href='/works/placeholder-work-one']") }).getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px ledger Borrowing history without the notes count on Placeholder Work One`); }
   // QA60 (C189): Placeholder Work One is on loan and holds the sweep's notes, so its On loan now line counts them.
   await page.goto(`${BASE}/card`);
   {

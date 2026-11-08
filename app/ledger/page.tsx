@@ -186,6 +186,9 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
                   {r.open ? ` · ${renewalsLeftLine(r).toLowerCase()}` : ""}
                   {/* C176: a book the reader has read in says for how long (the Hours per book total). */}
                   {(readMs[r.workKey] ?? 0) > 0 && <> · read for {formatHours(readMs[r.workKey])}</>}
+                  {/* C194: own notes and highlights in this book, as Hours per book shows them (C186). */}
+                  {notesBy ? <BookNotesCount counts={notesBy[r.workKey] ?? { notes: 0, highlights: 0 }} />
+                    : l.slugs[r.workKey] && <BookNotesCount counts={null} slug={l.slugs[r.workKey]} positions={getWork(l.slugs[r.workKey])?.chapters.map((c) => c.position) ?? []} />}
                 </span>
               </li>
             ))}
