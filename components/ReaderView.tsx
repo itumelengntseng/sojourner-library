@@ -13,7 +13,7 @@ import type { ReadingData } from "@/lib/readingRoom";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
 import { useSessionTracker } from "./useSessionTracker";
 import { AskLibrarian } from "./AskLibrarian";
-import { highlightSavedStatus, liveBookCount, noteSavedStatus, previewBookCount, previewByChapter, removedStatus, shortNotesLine, notesInChaptersLine, sumCounts, type AnnotationCount } from "@/lib/notesCount";
+import { highlightSavedStatus, liveBookCount, noteSavedStatus, previewBookCount, previewByChapter, removedStatus, shortNotesLine, notesInChaptersLine, sumCounts, elsewhereLine, type AnnotationCount } from "@/lib/notesCount";
 import { librarianFacts } from "@/lib/librarian";
 import { wordsBeforeChapter } from "@/lib/reader";
 import { outsideCanonNote } from "@/lib/canon";
@@ -332,6 +332,11 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
         {outsideCanonNote(data.canonStatus) && <p className="mt-2 font-sans text-xs font-semibold">{outsideCanonNote(data.canonStatus)}</p>}
         {proof && <p className="mt-2 rounded-sm border border-current/40 px-2 py-1 font-sans text-[0.7rem]">Proof copy — only the Keeper sees this. No loan, bookmark, notes or reading time are recorded.</p>}
         {preview && !proof && <p className="mt-2 font-sans text-[0.7rem] opacity-80">Placeholder text · notes and highlights are kept in this browser until the library is connected.</p>}
+        {/* C207: none of the reader's notes here, but some in other chapters (live, from the Contents counts). */}
+        {!proof && (() => {
+          const line = elsewhereLine(chapterCount(chapter.position), chapters.filter((c) => c.position !== chapter.position).map((c) => chapterCount(c.position)));
+          return line ? <p data-notes-elsewhere="" className="mt-2 font-sans text-[0.7rem] opacity-80">{line}</p> : null;
+        })()}
 
         <div
           ref={textRef}

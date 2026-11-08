@@ -147,3 +147,13 @@ export function annotatedTitles(rows: { title: string; series?: string | null; s
     .sort((a, b) => (a.series ?? "").localeCompare(b.series ?? "") || (a.series_order ?? 0) - (b.series_order ?? 0) || a.title.localeCompare(b.title))
     .map((r) => r.title);
 }
+
+/**
+ * C207: the reading room's quiet line when this chapter holds none of the reader's notes but others do —
+ * "No notes in this chapter yet · 2 elsewhere in this book" (notes and highlights together); null otherwise.
+ */
+export function elsewhereLine(here: AnnotationCount | undefined, others: (AnnotationCount | undefined)[]): string | null {
+  if (here && here.notes + here.highlights > 0) return null;
+  const n = others.reduce((a, c) => a + (c ? c.notes + c.highlights : 0), 0);
+  return n > 0 ? `No notes in this chapter yet · ${n} elsewhere in this book` : null;
+}
