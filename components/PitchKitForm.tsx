@@ -17,6 +17,8 @@ export function PitchKitForm({ kit, canSave }: { kit: PitchKit; canSave: boolean
   return (
     <form action={action} className="flex flex-col gap-5">
       <input type="hidden" name="slug" value={kit.slug} />
+      {/* C228: while the kit is still a placeholder, say so at the top and point to the tick at the foot. */}
+      {kit.isPlaceholder && <p data-kit-placeholder className="rounded-sm border border-ember/50 px-3 py-2 font-sans text-sm text-ember">This kit is still a placeholder — tick <a href="#own-words" className="underline underline-offset-2">“This kit is in my own words”</a> at the foot when it is.</p>}
       <label className={label}>Logline
         <textarea name="logline" rows={2} maxLength={KIT_LIMITS.logline} value={logline} onChange={(e) => setLogline(e.target.value)} className={field} />
         <span className={warn ? `${hint} text-ember` : hint}>{warn ?? "One sentence. Under 50 words lands best."}</span>
@@ -53,7 +55,7 @@ export function PitchKitForm({ kit, canSave }: { kit: PitchKit; canSave: boolean
         <span className={hint}>Shown on share links only if filled in.</span>
       </label>
       <label className="flex items-start gap-2 font-sans text-sm text-paper">
-        <input type="checkbox" name="ownWords" defaultChecked={!kit.isPlaceholder} className="mt-1 accent-lamplight" />
+        <input id="own-words" type="checkbox" name="ownWords" defaultChecked={!kit.isPlaceholder} className="mt-1 accent-lamplight" />
         <span>This kit is in my own words — take off the placeholder mark.</span>
       </label>
       <div className="flex flex-wrap items-center gap-4">
