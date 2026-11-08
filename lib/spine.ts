@@ -29,3 +29,6 @@ export function outLegend(n: number, fresh = 0): string {
   const note = fresh > 0 ? (n === 1 ? " (just borrowed)" : ` (${fresh} just borrowed)`) : "";
   return `${what} out to you${note} — renew or return ${n === 1 ? "it" : "them"}`;
 }
+
+/** C208: said after the rest of a spine's label when the book holds the reader's own notes (nothing visible). */
+export const SPINE_NOTES = " You have notes in it.";

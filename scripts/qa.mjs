@@ -366,6 +366,13 @@ for (const width of WIDTHS) {
   if (!(await page.getByRole("link", { name: "read to the end" }).count())) { failures++; console.log(`✗ ${width}px halls legend without the Read to the end link`); }
   const spoken = await page.locator("a[href='/works/placeholder-work-one'] .sr-only").first().textContent();
   if (!/read this to the end on/.test(spoken ?? "")) { failures++; console.log(`✗ ${width}px halls: the finished book's spine doesn't say so to screen readers`); }
+  // QA66 (C208): a spine says "You have notes in it." exactly when this browser holds notes in that book (spoken only).
+  {
+    const noted = await page.evaluate(() => Object.keys(localStorage).some((k) => { if (!k.startsWith("soj:ann:placeholder-work-one:")) return false; try { const v = JSON.parse(localStorage.getItem(k) ?? "{}"); return (v.notes?.length ?? 0) + (v.highlights?.length ?? 0) > 0; } catch { return false; } }));
+    const sr = page.locator("a[href='/works/placeholder-work-one'] .sr-only", { hasText: / You have notes in it\.$/ });
+    if (noted ? !(await appears(sr)) : await sr.count()) { failures++; console.log(`✗ ${width}px halls: Placeholder Work One's spine ${noted ? "doesn't say" : "says"} 'You have notes in it.'`); }
+    else console.log(`✓ ${width}px halls: Placeholder Work One's spine ${noted ? "says it holds your notes" : "is silent on notes (none)"}`);
+  }
   await axeCheck(`${width}px halls with a book read to the end`);
 }
 

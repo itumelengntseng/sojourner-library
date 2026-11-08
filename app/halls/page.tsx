@@ -11,7 +11,8 @@ import { chapterHits, cleanQuery, resultLine, searchShelves } from "@/lib/shelfS
 import { parseSort, readInHall, readOrderNote, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
 import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
 import { dueBackSoon, justBorrowed, justReturned, loansBySlug, noRenewalsLeft } from "@/lib/loanDesk";
-import { myFinishes, myHoursBySlug } from "@/lib/ledgerStore";
+import { myFinishes, myHoursBySlug, myNotedSlugs } from "@/lib/ledgerStore";
+import { SpineNotes } from "@/components/SpineNotes";
 import { myBookLeft } from "@/lib/bookLeftStore";
 import { justBackLegend, outLegend, spokenSpine } from "@/lib/spine";
 import { FINISHED_SHELF, finishedStamp, formatHours } from "@/lib/ledger";
@@ -30,7 +31,7 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
   const myHours = sort === "read" ? await myHoursBySlug() : {};
   const works = sortShelf(searchShelves(filterByCanon(catalogue.works, view), halls, query), sort, myHours);
   const canonParam = typeof params.canon === "string" ? params.canon : undefined;
-  const [loansNow, pace, done, returnedNow] = await Promise.all([myOpenLoans(), myPace(), myFinishes(works.map((w) => w.slug)), myRecentlyReturned()]);
+  const [loansNow, pace, done, returnedNow, notedSlugs] = await Promise.all([myOpenLoans(), myPace(), myFinishes(works.map((w) => w.slug)), myRecentlyReturned(), myNotedSlugs()]);
   // C132: books handed back within the hour (own returns only) carry a lamplight tick and say so.
   const nowMs = Date.now();
   const backNow: Record<string, string> = Object.fromEntries(returnedNow.filter((r) => justReturned(r, nowMs)).map((r) => [r.slug, r.returned]));
@@ -143,6 +144,8 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
                           {w.canonStatus !== "canon" && <span aria-hidden="true" title="Not canon" className="mt-1 h-2 w-2 rounded-full bg-ember" />}
                           <span className="sr-only">
                             {spokenSpine({ author: w.author, canon: CANON_LABEL[w.canonStatus], readingTime: s.readingTime, due: loan?.due, dueSoon: soon.has(w.slug), noRenewals: loan ? noRenewalsLeft(loan) : false, bookLeft: bookLeft[w.slug], finished: done[w.slug], justReturned: backNow[w.slug], justBorrowed: loan && justBorrowed(loan, nowMs) ? loan.borrowed : undefined, readFor: myHours[w.slug] ? formatHours(myHours[w.slug]) : undefined })}
+                            {/* C208: the reader's own notes in it — spoken only. */}
+                            <SpineNotes noted={notedSlugs === null ? null : notedSlugs.includes(w.slug)} slug={w.slug} positions={w.chapters.map((c) => c.position)} />
                           </span>
                         </Link>
                       </li>

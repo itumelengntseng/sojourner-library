@@ -295,6 +295,22 @@ export async function myAnnotationTotals(): Promise<AnnotationTotals | null> {
   return out;
 }
 
+/** C208: the slugs of the works holding the reader's own notes or highlights; null in preview — the browser checks. */
+export async function myNotedSlugs(): Promise<string[] | null> {
+  const supabase = await supabaseServer();
+  if (!supabase) return null;
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return [];
+  const [{ data: notes }, { data: hls }] = await Promise.all([
+    supabase.from("notes").select("work_id").eq("reader_id", auth.user.id).limit(5000),
+    supabase.from("highlights").select("work_id").eq("reader_id", auth.user.id).limit(5000),
+  ]);
+  const ids = [...new Set([...(notes ?? []), ...(hls ?? [])].map((r) => r.work_id as string))];
+  if (!ids.length) return [];
+  const { data: ws } = await supabase.from("works").select("slug").in("id", ids);
+  return (ws ?? []).map((w) => w.slug as string);
+}
+
 /** C186: own notes and highlights per work (workKey → counts) for Hours per book; null in preview — the browser counts. */
 export async function myAnnotationsByWork(): Promise<Record<string, AnnotationCount> | null> {
   const supabase = await supabaseServer();
