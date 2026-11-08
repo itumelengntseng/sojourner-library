@@ -232,7 +232,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C162 Halls: an "Order: Most read by you" option (`?sort=read`) — the reader's own hours per work, most first, then series order (preview from the cookie summaries; unread works keep series order after them).
 - [x] C163 Writer's Room glance: a "Loans this month" tile — how many loans were taken out in the last 30 days (a head count only, never who or what; preview from the cookie desk).
 - [x] QA51 QA pass after C161–C163.
-- [ ] C164 Halls, "Most read by you" order: one quiet line under the Order links — "Ordered by your own reading time; books you haven't read in keep shelf order." (or "You haven't read in any book yet — shelf order kept." with no reading).
-- [ ] C165 Writer's Room "Loans this month" tile: the note adds "· N handed back before they were due" (counts only; same rule as C152).
-- [ ] C166 Ledger Hours per book, "Most hours" order: a quiet link "Order the halls the same way" → `/halls?sort=read`.
-- [ ] QA52 QA pass after C164–C166.
+- [x] C164 Halls, "Most read by you" order: one quiet line under the Order links — "Ordered by your own reading time; books you haven't read in keep shelf order." (or "You haven't read in any book yet — shelf order kept." with no reading).
+- [x] C165 Writer's Room "Loans this month" tile: the note adds "· N handed back before they were due" (counts only; same rule as C152).
+- [x] C166 Ledger Hours per book, "Most hours" order: a quiet link "Order the halls the same way" → `/halls?sort=read`.
+- [x] QA52 QA pass after C164–C166.
+- [ ] C167 Halls, "Most read by you" order: a read spine's spoken label adds "You've read for <time>." (own reading; sr-only, only under this order; no new visual mark).
+- [ ] C168 Halls, "Most read by you" order: each hall's summary line adds "· you've read in N of M here" (own reading only; nothing when none).
+- [ ] C169 Ledger Hours per book, "Most hours" order: the top row wears a small lamplight "most read" mark (spoken "your most-read book"; only with two or more books).
+- [ ] QA53 QA pass after C167–C169.

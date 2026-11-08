@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 12 — C161–C163, QA51; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 12 — C161–C166, QA51–QA52; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -237,10 +237,14 @@ _Last updated: 2026-11-08 (scheduled build run 12 — C161–C163, QA51; run 11 
 - C162 — Halls: "Order: Most read by you" (`?sort=read`) — the reader's own active reading time per work, most first; unread works keep shelf order after them; ties keep shelf order (`sortShelf(…, hours)`, `myHoursBySlug()` from the ledger loader, only read when chosen). Unit-tested + swept.
 - C163 — Writer's Room glance: a "Loans this month" tile — head count of loans taken out in the last 30 days (library: `count` head query on `borrowed_at`; preview: the cookie desk, `loansInMonth()`). Grid goes to 3 columns at 6 tiles. Unit-tested + swept.
 - QA51 (2026-11-08, after C161–C163): `npm run qa` all clear (run twice) — now also requires the card's "borrowed 2 times" as a link to the history, the halls' "Most read by you" putting the ledger's top Most-hours book first on its shelf (375px + 1280px, axe clean), and the Writer's Room "Loans this month" tile. Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (the Writer's Room reads one more head count of loans, which the owner can already read under RLS).
-- Tests: 611 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA51).
+- C164 — Halls, Most read by you: a quiet line under the Order links — "Ordered by your own reading time; books you haven't read in keep shelf order." (or "You haven't read in any book yet — shelf order kept."; `readOrderNote()`). Unit-tested + swept.
+- C165 — Writer's Room Loans this month: the note adds "· 2 handed back before they were due" (singular "it was"; the ledger's C152 rule, so auto-returns at due time don't count). Library mode reads only `returned_at, due_at` of the month's handed-back loans (no reader, no work); preview: the cookie desk (`monthLoans()`). Unit-tested + swept.
+- C166 — Ledger Hours per book, Most hours: "Order the halls the same way" → `/halls?sort=read` in the Order row. Unit-tested + swept.
+- QA52 (2026-11-08, after C164–C166): `npm run qa` all clear (run twice) — now also requires the halls' Most read by you note, the ledger's link to the halls (375px + 1280px, axe clean), and in a fresh browser the Writer's Room tile's "2 handed back before they were due". Preview e2e 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 617 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA52).
 
 ## Next task
-C164 — halls "Most read by you" explanatory line (BACKLOG.md → FOLLOW-UPS), then C165, C166, QA52. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C167 — halls "Most read by you": spoken reading time on read spines (BACKLOG.md → FOLLOW-UPS), then C168, C169, QA53. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
