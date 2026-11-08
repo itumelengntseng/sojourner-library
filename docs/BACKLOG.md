@@ -252,7 +252,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C177 Ask the librarian: understands "How long have I read this book?" (and close phrasings) and answers from the reader's own reading time ("You've read for 45 min in this book so far." / "You haven't read in this book yet."); add it as a suggested chip once there is time to report.
 - [x] C178 Consistency test: the card's "read for", the work page's "You've read for", the end card's "You've spent" and the ledger's Hours per book all show the same figure for one book (one source, pinned).
 - [x] QA56 QA pass after C176–C178.
-- [ ] C179 Ledger "Your notes": above the export, a count line "N margin notes · M highlights across K books" (own annotations; nothing when none; preview mode counts this browser's).
-- [ ] C180 Ask the librarian: an unrecognised question's reply lists the read-so-far question too once there is time to report (keep the suggestion list and the fallback text in step).
-- [ ] C181 Writer's Room: the glance footnote "Counts only…" — check it's announced with the tiles (inside the section, after the list) and pin it with a test.
-- [ ] QA57 QA pass after C179–C181.
+- [x] C179 Ledger "Your notes": above the export, a count line "N margin notes · M highlights across K books" (own annotations; nothing when none; preview mode counts this browser's).
+- [x] C180 Ask the librarian: an unrecognised question's reply lists the read-so-far question too once there is time to report (keep the suggestion list and the fallback text in step).
+- [x] C181 Writer's Room: the glance footnote "Counts only…" — check it's announced with the tiles (inside the section, after the list) and pin it with a test.
+- [x] QA57 QA pass after C179–C181.
+- [ ] C182 Work page "Your notes in this book" line: once the reader has notes in two or more books, add a quiet link "· all your notes" to `/ledger#export` (own only).
+- [ ] C183 Ask the librarian: "How many notes have I made?" (and close phrasings) answered from the reader's own counts for this book ("You have 2 margin notes and 1 highlight in this book."); not in the Keeper's proof copy.
+- [ ] C184 QA sweep hardening: wait for every client-counted line (preview notes, the Notes tally, "most read") instead of reading it once, so slow hydration can't fail a run (QA57 saw one such flake).
+- [ ] QA58 QA pass after C182–C184.
