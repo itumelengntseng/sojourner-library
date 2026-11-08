@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 14 — C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 15 — C206–C208, QA66; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -293,10 +293,14 @@ _Last updated: 2026-11-08 (scheduled build run 14 — C188–C205, QA60–QA65, 
 - C204 — Reading room end card, last page: "You made 3 margin notes and 1 highlight in this book." under "You've spent …" (`madeLine()`; the book's live counts summed from the Contents drawer's per-chapter counts, `sumCounts()`); never in the proof copy. Unit-tested + swept (fresh browser, Placeholder Work Three).
 - C205 — `tests/chapterNotesConsistency.test.ts`: from one store, the Contents drawer, the work page's noted marks, "notes in N chapters", the end card's total and "Where are my notes?" all name the same chapters (preview and library rules).
 - QA65 (2026-11-08, after C203–C205): `npm run qa` all clear (run twice) — now also requires the card's notes line linking to the ledger and, in a fresh browser, the end card's "You made 1 margin note in this book." Preview e2e 7/7. Performance (local prod build, curl): every page < 12 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 707 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA65).
+- C206 — Ledger "Your notes": two or three books are named ("You have 3 margin notes · 1 highlight across Placeholder Work One and Placeholder Work Two."); one book or four+ keep the number; the card page's line keeps the number (`notesAcrossLine(t, name)`, `bookNames()`; library: `myAnnotationTotals()` reads those works' titles in shelf order — `annotatedTitles()`; a title the reader can't see leaves the number). Unit-tested + swept.
+- C207 — Reading room: a chapter holding none of the reader's notes says "No notes in this chapter yet · 2 elsewhere in this book" under the chapter heading (`elsewhereLine()`, notes and highlights together, from the Contents drawer's per-chapter counts, this chapter live); nothing when the book has none; never in the proof copy. Unit-tested + swept. (There was no notes "drawer" with an empty state — notes sit in the margin — so the line sits with the chapter's other quiet lines; see DECISIONS.)
+- C208 — Halls spines: a book holding the reader's own notes adds "You have notes in it." to its spoken label; nothing visible (`components/SpineNotes.tsx`; library: `myNotedSlugs()`, own rows only; preview: this browser). Unit-tested + swept.
+- QA66 (2026-11-08, after C206–C208): `npm run qa` all clear (run twice) — now also requires the ledger to name two or three books (and count others), chapter 2's "elsewhere" line on the Continue book (absent when chapter 2 holds notes), and Placeholder Work One's spine saying "You have notes in it." exactly when this browser holds notes there. Preview e2e 7/7. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (the new reads are own notes/highlights rows and works titles/slugs the reader can already see).
+- Tests: 719 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA66).
 
 ## Next task
-C206 — ledger "Your notes" names the books when there are two or three (BACKLOG.md → FOLLOW-UPS), then C207, C208, QA66. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C209 — `tests/notesNamesConsistency.test.ts` (BACKLOG.md → FOLLOW-UPS), then C210, C211, QA67. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
@@ -379,3 +383,5 @@ C206 — ledger "Your notes" names the books when there are two or three (BACKLO
 - "Where are my notes?" (C199) says "notes and highlights" whichever the chapters hold (it lists places, not kinds); the backlog line said "Your notes are in …".
 - Borrowing history (C194) repeats the book's notes count on every row of that book, as it already does "read for" (C176) — it's the book's count, not the loan's.
 - Hours per book's notes count (C186) shows highlights too ("· 2 notes · 1 highlight"), so a book with only highlights isn't left bare; the backlog line said "· N notes".
+- C207's line sits under the chapter heading (with "About N min left in this chapter"), since the reading room has no notes drawer with an empty state; it counts notes and highlights together ("2 elsewhere").
+- C206 names books only on the ledger; the card page's notes line keeps the number (it already links to the ledger).
