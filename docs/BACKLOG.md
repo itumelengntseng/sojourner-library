@@ -324,7 +324,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C231 Family wall & timeline (reader pages): check each placeholder plaque / event carries a visible "placeholder" mark and a spoken one; add whichever is missing (no new data).
 - [x] C232 Front hall, for the Keeper only (owner in library mode; preview too): one quiet line "N things still wait for your words · Writer's Room" from the C224 counts; nothing for guests; nothing when all are done.
 - [x] QA74 QA pass after C230–C232.
-- [ ] C233 Reading room (and the Keeper's proof copy): check a placeholder work says "Placeholder text — the manuscript has not arrived yet." near the top of each chapter, with "by Itumeleng Ntseng"; add whichever is missing.
-- [ ] C234 `tests/placeholderMarking.test.tsx`: extend to the reading room (C233) and the family wall / timeline marks (C231), so every reader-facing placeholder rule is pinned in one file.
-- [ ] C235 Writer's Room waiting panel: the family-wall and timeline rows link into the editor with "Placeholders only" already on (`/writers-room/atlas?only=1#…`; the toggle reads the param once).
-- [ ] QA75 QA pass after C233–C235.
+- [x] C233 Reading room (and the Keeper's proof copy): check a placeholder work says "Placeholder text — the manuscript has not arrived yet." near the top of each chapter, with "by Itumeleng Ntseng"; add whichever is missing.
+- [x] C234 `tests/placeholderMarking.test.tsx`: extend to the reading room (C233) and the family wall / timeline marks (C231), so every reader-facing placeholder rule is pinned in one file.
+- [x] C235 Writer's Room waiting panel: the family-wall and timeline rows link into the editor with "Placeholders only" already on (`/writers-room/atlas?only=1#…`; the toggle reads the param once).
+- [x] QA75 QA pass after C233–C235.
+- [ ] C236 Ledger notes export (Markdown): under a placeholder book's heading, one line "Placeholder text — the manuscript has not arrived yet." so exported notes are never mistaken for notes on the real book (full and per-book file; preview and library).
+- [ ] C237 Halls spines: check a placeholder work's spoken label says "Placeholder." (after "by Itumeleng Ntseng"); add it if missing, keep it silent for works in Itu's own words.
+- [ ] C238 Pitch share page `/p/<token>` and the Keeper's sheet: the browser tab title adds "(placeholder)" while the kit is still a placeholder.
+- [ ] QA76 QA pass after C236–C238.
