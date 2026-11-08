@@ -988,6 +988,10 @@ await axeCheck("375px reading room gate just returned");
   const st = await p7.locator("a[data-kit-status][href$='/edit']").count();
   if (st !== 3) { failures++; console.log(`✗ pitch room: ${st} placeholder status links (expected 3)`); }
   else console.log("✓ placeholder kit statuses link to their editors");
+  // QA73 (C228): the kit editor says it's still a placeholder and points to the tick.
+  await p7.goto(`${BASE}/pitch-room/placeholder-work-one/edit`);
+  if (!(await p7.locator("[data-kit-placeholder] a[href='#own-words']").count()) || !(await p7.locator("#own-words").count())) { failures++; console.log("✗ kit editor without the placeholder line or the own-words tick"); }
+  else console.log("✓ kit editor says it's still a placeholder");
   await ctx7.close();
 }
 
