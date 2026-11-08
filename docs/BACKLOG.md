@@ -328,7 +328,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C234 `tests/placeholderMarking.test.tsx`: extend to the reading room (C233) and the family wall / timeline marks (C231), so every reader-facing placeholder rule is pinned in one file.
 - [x] C235 Writer's Room waiting panel: the family-wall and timeline rows link into the editor with "Placeholders only" already on (`/writers-room/atlas?only=1#…`; the toggle reads the param once).
 - [x] QA75 QA pass after C233–C235.
-- [ ] C236 Ledger notes export (Markdown): under a placeholder book's heading, one line "Placeholder text — the manuscript has not arrived yet." so exported notes are never mistaken for notes on the real book (full and per-book file; preview and library).
-- [ ] C237 Halls spines: check a placeholder work's spoken label says "Placeholder." (after "by Itumeleng Ntseng"); add it if missing, keep it silent for works in Itu's own words.
-- [ ] C238 Pitch share page `/p/<token>` and the Keeper's sheet: the browser tab title adds "(placeholder)" while the kit is still a placeholder.
-- [ ] QA76 QA pass after C236–C238.
+- [x] C236 Ledger notes export (Markdown): under a placeholder book's heading, one line "Placeholder text — the manuscript has not arrived yet." so exported notes are never mistaken for notes on the real book (full and per-book file; preview and library).
+- [x] C237 Halls spines: check a placeholder work's spoken label says "Placeholder." (after "by Itumeleng Ntseng"); add it if missing, keep it silent for works in Itu's own words.
+- [x] C238 Pitch share page `/p/<token>` and the Keeper's sheet: the browser tab title adds "(placeholder)" while the kit is still a placeholder.
+- [x] QA76 QA pass after C236–C238.
+- [ ] C239 Library e2e (`scripts/e2e.mjs`): after opening the pitch link once in the card-less browser, check the Pitch Room shows "1 view" for it (pins C238's one-open-per-request); keep `tests/e2eScript.test.ts` in step.
+- [ ] C240 Ledger "Hours per book": a placeholder book carries a quiet "· placeholder" after its title (own rows; same mark as the notes export, C236).
+- [ ] C241 Privacy pin: a test that the front hall's `keeperWaiting()` returns null for guests and signed-out visitors without reading the atlas, pitch kits or halls (mocked `ownerClient`).
+- [ ] QA77 QA pass after C239–C241.

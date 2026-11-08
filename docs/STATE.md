@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 16 — C218–C235, QA70–QA75, `preview` refreshed to main; run 15 did C206–C217, QA66–QA69, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 16 — C218–C238, QA70–QA76, `preview` refreshed to main; run 15 did C206–C217, QA66–QA69, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -333,12 +333,17 @@ _Last updated: 2026-11-08 (scheduled build run 16 — C218–C235, QA70–QA75, 
 - C234 — `tests/placeholderMarking.test.tsx` now also renders every chapter of every placeholder work in the reading room and proof copy (author + placeholder line), checks a work in Itu's own words has no line, and counts the family wall / timeline marks; the loaders' `is_placeholder` reads are pinned.
 - C235 — The waiting panel's family-wall and timeline rows link to `/writers-room/atlas?only=1#…`; the editor then opens with "Placeholders only" on and the first placeholder entry open (`firstOpen()`; read once on load). Unit-tested + swept.
 - QA75 (2026-11-08, after C233–C235): `npm run qa` all clear — now also requires the proof copy's "by Itumeleng Ntseng" and placeholder line, and both "Placeholders only" toggles on after following the waiting panel's family-wall link. Preview e2e 8/8. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 60 KB. No migration → RLS audit unchanged (`is_placeholder` is a works column guests could already read through the catalogue).
-- Tests: 788 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA75).
+- C236 — Notes export (full and per-book, preview and library): a placeholder book's heading is followed by "_Placeholder text — the manuscript has not arrived yet._" under "_by Itumeleng Ntseng_" (`PLACEHOLDER_NOTE_LINE`; library reads `is_placeholder` with the titles), so exported notes are never taken for notes on the real book. Unit-tested.
+- C237 — Halls: checked — the spoken spine named the author but not the placeholder state (only the title did); a placeholder work's spine now says "by Itumeleng Ntseng. Placeholder. Canon. …" (`placeholder` in `spokenSpine()`); silent for works in Itu's own words. Pinned in `tests/placeholderMarking.test.tsx` + swept.
+- C238 — Pitch sheets: the tab title reads "Pitch sheet: <title> (placeholder)" for the Keeper and "A private pitch (placeholder)" on a share link while the kit is a placeholder (`pitchTabTitle()`; `generateMetadata`). The share page wraps `openSharedPitch()` in React `cache`, so the title and the page share one `open_pitch_link()` call per request and a visit is counted once (see Known issues). Unit-tested + swept (Keeper sheet; a closed link stays "A private pitch").
+- QA76 (2026-11-08, after C236–C238): `npm run qa` all clear — now also requires every spoken spine on the halls to start "by Itumeleng Ntseng. Placeholder." and the Keeper's sheet tab to say "(placeholder)". Preview e2e 8/8. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 60 KB. No migration → RLS audit unchanged.
+- Tests: 794 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA76).
 
 ## Next task
-C236 — notes export marks placeholder books (BACKLOG.md → FOLLOW-UPS), then C237, C238, QA76. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C239 — library e2e checks a pitch link open counts one view (BACKLOG.md → FOLLOW-UPS), then C240, C241, QA77. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
+- C238: a share link's view count relies on React `cache` deduping `open_pitch_link()` between `generateMetadata` and the page within one request (Next's documented pattern). Preview mode has no links, so this is verified by source test only — C239 adds a check to the library e2e (NEEDS ITU 4).
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
