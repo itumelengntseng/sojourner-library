@@ -674,7 +674,7 @@ await axeCheck("375px reading room gate just returned");
   await fp.getByRole("button", { name: "Return to shelf" }).click();
   await fp.getByRole("button", { name: "Borrow this work" }).waitFor();
   await fp.goto(`${BASE}/card`);
-  if (!(await fp.getByRole("region", { name: "Recently returned" }).getByText(/ · borrowed 2 times/).count())) { failures++; console.log("✗ card Recently returned without 'borrowed 2 times'"); }
+  if (!(await fp.getByRole("region", { name: "Recently returned" }).locator("a[href='/ledger#history']", { hasText: /^borrowed 2 times/ }).count())) { failures++; console.log("✗ card Recently returned without a 'borrowed 2 times' link to the history (C156/C161)"); }
   await fp.evaluate(axeSource);
   {
     const r = await fp.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] })); // eslint-disable-line no-undef

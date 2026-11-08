@@ -9,6 +9,7 @@ import { PreviewNotesExport } from "./PreviewNotesExport";
  * C84: a finished book also offers "Notes for this book" — the ledger's per-book export (own notes only):
  * the library route in library mode, built in this browser in preview mode.
  * C93: the Finished mark adds how long it took, from `firstRead` (slug → the reader's first session in it).
+ * C161: "borrowed N times" links to /ledger#history.
  * C124: a book handed back within the last hour reads "Just returned"; the stamp stays in its spoken label.
  */
 export function RecentlyReturned({ items, finished = {}, notes = "preview", firstRead = {}, now }: { items: Returned[]; finished?: Record<string, number>; notes?: "library" | "preview"; firstRead?: Record<string, number>; now?: number }) {
@@ -36,8 +37,8 @@ export function RecentlyReturned({ items, finished = {}, notes = "preview", firs
                 Out {r.borrowed} · {now !== undefined && justReturned(r, now)
                   ? <><span aria-hidden="true" className="text-lamplight">Just returned</span><span className="sr-only">Just returned, {r.returned}</span></>
                   : <>{r.onTime ? "returned" : "back on the shelf when due"} {r.returned}</>}
-                {/* C156: a book borrowed more than once says how often. */}
-                {(r.times ?? 0) > 1 && <> · borrowed {r.times} times</>}
+                {/* C156: a book borrowed more than once says how often; C161: it links to the ledger's Borrowing history. */}
+                {(r.times ?? 0) > 1 && <> · <Link href="/ledger#history" className="underline underline-offset-2 hover:text-lamplight">borrowed {r.times} times<span className="sr-only"> — see your borrowing history</span></Link></>}
               </p>
               {finished[r.slug] !== undefined && (
                 <p className="mt-0.5">

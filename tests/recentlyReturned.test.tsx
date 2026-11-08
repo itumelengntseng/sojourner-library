@@ -49,6 +49,15 @@ describe("recently returned — borrowed N times (C156)", () => {
     expect(out.find((r) => r.workKey === "a")!.times).toBe(3);
     expect(out.find((r) => r.workKey === "b")!.times).toBe(1);
     const html = renderToStaticMarkup(<RecentlyReturned items={out} />);
-    expect(html.match(/ · borrowed \d+ times/g)).toEqual([" · borrowed 3 times"]);
+    expect(html.replace(/<[^>]+>/g, "").match(/ · borrowed \d+ times/g)).toEqual([" · borrowed 3 times"]);
+  });
+});
+
+describe("recently returned — borrowed N times links to the history (C161)", () => {
+  it("wraps the count in a link to /ledger#history, spoken with its purpose", () => {
+    const loans = [loan("1", "a", 50, 40), loan("2", "a", 30, 20), loan("4", "b", 30, 2)];
+    const html = renderToStaticMarkup(<RecentlyReturned items={recentlyReturned(loans, "me", W, NOW)} />);
+    expect(html).toContain('<a class="underline underline-offset-2 hover:text-lamplight" href="/ledger#history">borrowed 2 times<span class="sr-only"> — see your borrowing history</span></a>');
+    expect(html.match(/href="\/ledger#history"/g)).toHaveLength(1);
   });
 });
