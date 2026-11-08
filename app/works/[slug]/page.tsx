@@ -128,7 +128,8 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
         )}
       </section>
 
-      <div className="mt-8"><AskLibrarian facts={facts} title={work.title} annotations={annotations ?? { slug: work.slug, positions: work.chapters.map((c) => c.position) }} /></div>
+      <div className="mt-8"><AskLibrarian facts={facts} title={work.title} annotations={annotations ?? { slug: work.slug, positions: work.chapters.map((c) => c.position) }}
+        notesWhere={byChapter ? work.chapters.filter((c) => byChapter[c.position]).map((c) => c.title) : { slug: work.slug, chapters: work.chapters.map((c) => ({ position: c.position, title: c.title })) }} /></div>
 
       <section aria-labelledby="contents" className="mt-12">
         <h2 id="contents" className="text-xl text-paper">Contents</h2>

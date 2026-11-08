@@ -12,6 +12,8 @@ export interface ReaderContext {
   readMs?: number;
   /** C183: the reader's own notes and highlights in this book; undefined where they aren't kept (the proof copy). */
   annotations?: { notes: number; highlights: number };
+  /** C199: titles of the chapters holding the reader's own notes or highlights, in book order; undefined where unknown. */
+  notesWhere?: string[];
 }
 
 export type Answer =
@@ -21,12 +23,24 @@ export type Answer =
   | { kind: "deadline"; possible: boolean; minutesPerDayNeeded: number; text: string }
   | { kind: "read_so_far"; minutes: number; text: string }
   | { kind: "notes"; notes: number; highlights: number; text: string }
+  | { kind: "notes_where"; chapters: string[]; text: string }
   | { kind: "unknown"; text: string };
 
 /** C183: "How many notes have I made?", "Have I highlighted anything?", "my notes in this book" */
 export function isNotesQuestion(question: string): boolean {
   const q = question.toLowerCase().replace(/[’]/g, "'");
   return /\b(notes?|highlights?|highlighted|annotations?|annotated)\b/.test(q) && /\b(how many|have i|did i|i've|i have|my|any)\b/.test(q);
+}
+
+/** C199: "Where are my notes?", "Which chapters have my highlights?", "where did I make notes" */
+export function isNotesWhereQuestion(question: string): boolean {
+  const q = question.toLowerCase().replace(/[’]/g, "'");
+  return /\b(notes?|highlights?|highlighted|annotations?)\b/.test(q) && /\b(where|which chapters?|what chapters?|in which)\b/.test(q);
+}
+
+/** "A", "A and B", "A, B and C". */
+export function listTitles(titles: string[]): string {
+  return titles.length <= 1 ? (titles[0] ?? "") : `${titles.slice(0, -1).join(", ")} and ${titles[titles.length - 1]}`;
 }
 
 const plural = (n: number, one: string) => `${n} ${one}${n === 1 ? "" : "s"}`;
@@ -89,6 +103,14 @@ export function ask(question: string, ctx: ReaderContext): Answer {
   // C73: at the very end there is nothing left to time — say so plainly rather than "About 0 min".
   const atEnd = ctx.totalWords > 0 && remaining === 0;
   const END = "You're at the end of this book.";
+
+  // C199: where the notes are — chapter titles only (checked before the count question, which it also matches).
+  if (isNotesWhereQuestion(q) && ctx.annotations && ctx.notesWhere) {
+    const where = ctx.notesWhere;
+    if (where.length === 0 && hasNotes(ctx.annotations)) { /* counts and places disagree for a moment — answer with the count */ }
+    else if (where.length === 0) return { kind: "notes_where", chapters: [], text: "You haven't made any notes or highlights in this book yet." };
+    else return { kind: "notes_where", chapters: where, text: `Your notes and highlights are in ${listTitles(where)}.` };
+  }
 
   if (isNotesQuestion(q)) {
     if (!ctx.annotations) return { kind: "notes", notes: 0, highlights: 0, text: "Notes and highlights aren't kept in this copy." };

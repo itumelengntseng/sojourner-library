@@ -623,6 +623,18 @@ for (const width of WIDTHS) {
   await page.goto(`${BASE}/works/placeholder-work-one`);
   if (!(await appears(page.getByRole("region", { name: "Contents" }).locator("li").first().locator(".sr-only", { hasText: "you have notes here" })))) { failures++; console.log(`✗ ${width}px work page Contents without the noted mark on chapter 1`); }
   else console.log(`✓ ${width}px work page marks chapter 1 noted`);
+  // QA63 (C199): the librarian says where the notes are — chapter 1's title among them.
+  {
+    // Chapter 1's own title: the first text node of its link (or of the line, when the book isn't out).
+    const ch1 = await page.evaluate(() => { const span = document.querySelector("section[aria-labelledby='contents'] li span"); const el = span?.querySelector("a") ?? span; return (el?.firstChild?.textContent ?? "").trim(); });
+    await page.getByLabel("Your question").first().fill("Where are my notes?");
+    await page.getByRole("button", { name: "Ring the bell" }).first().click();
+    const slip = page.locator("figure", { hasText: "You asked: Where are my notes?" }).first();
+    await slip.waitFor();
+    const answer = ((await slip.locator("p").textContent()) ?? "").trim();
+    if (!/^Your notes and highlights are in .+\.$/.test(answer) || !ch1 || !answer.includes(ch1)) { failures++; console.log(`✗ ${width}px librarian 'Where are my notes?' said '${answer}' (chapter 1: '${ch1}')`); }
+    else console.log(`✓ ${width}px librarian says where the notes are`);
+  }
   // QA60 (C189): Placeholder Work One is on loan and holds the sweep's notes, so its On loan now line counts them.
   await page.goto(`${BASE}/card`);
   {

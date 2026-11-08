@@ -81,3 +81,29 @@ describe("the reading room's answer counts a note removed a moment ago (C190)", 
     expect(lib).toContain("annotations: resolveNotes(annotations)");
   });
 });
+
+describe("Where are my notes? (C199)", () => {
+  it("recognises close phrasings; the count question stays a count", async () => {
+    const { isNotesWhereQuestion } = await import("@/lib/engine/ask");
+    for (const q of ["Where are my notes?", "Which chapters have my highlights?", "where did I make notes", "In which chapter are my notes?"]) expect(isNotesWhereQuestion(q), q).toBe(true);
+    for (const q of ["How many notes have I made?", "Have I highlighted anything?", "Where am I?", "How long to finish?"]) expect(isNotesWhereQuestion(q), q).toBe(false);
+  });
+  it("answers with chapter titles only, in book order", () => {
+    const c = { ...ctx({ notes: 2, highlights: 1 }), notesWhere: ["Placeholder chapter 1", "Placeholder chapter 3"] };
+    expect(ask("Where are my notes?", c)).toEqual({ kind: "notes_where", chapters: ["Placeholder chapter 1", "Placeholder chapter 3"], text: "Your notes and highlights are in Placeholder chapter 1 and Placeholder chapter 3." });
+    expect(ask("Where are my notes?", { ...c, notesWhere: ["A", "B", "C"] }).text).toBe("Your notes and highlights are in A, B and C.");
+    expect(ask("Where are my notes?", { ...c, notesWhere: ["A"] }).text).toBe("Your notes and highlights are in A.");
+    expect(ask("How many notes have I made?", c).text).toBe("You have 2 margin notes and 1 highlight in this book.");
+  });
+  it("none yet; the proof copy keeps none; unknown places fall back to the count", () => {
+    expect(ask("Where are my notes?", { ...ctx({ notes: 0, highlights: 0 }), notesWhere: [] }).text).toBe("You haven't made any notes or highlights in this book yet.");
+    expect(ask("Where are my notes?", ctx(undefined)).text).toBe("Notes and highlights aren't kept in this copy.");
+    expect(ask("Where are my notes?", ctx({ notes: 1, highlights: 0 })).text).toBe("You have 1 margin note in this book.");
+    expect(ask("Where are my notes?", { ...ctx({ notes: 1, highlights: 0 }), notesWhere: [] }).text).toBe("You have 1 margin note in this book.");
+  });
+  it("the work page and reading room pass where the notes are; the proof copy passes none", () => {
+    expect(readFileSync("app/works/[slug]/page.tsx", "utf8")).toContain("notesWhere={byChapter ? work.chapters.filter((c) => byChapter[c.position]).map((c) => c.title) : { slug: work.slug, chapters:");
+    expect(readFileSync("components/ReaderView.tsx", "utf8")).toContain("notesWhere={proof ? undefined : () => chapters.filter(");
+    expect(readFileSync("components/AskLibrarian.tsx", "utf8")).toContain("notesWhere: resolveWhere(notesWhere)");
+  });
+});

@@ -396,6 +396,8 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
             // C183: own notes in this book — this browser's (preview), or the server's count with this chapter's live changes (library); none in the proof copy.
             annotations={proof ? undefined : preview ? { slug, positions: chapters.map((c) => c.position) }
               : bookAnnotations ? () => liveCount(notes, highlights) : undefined}
+            // C199: which chapters hold own notes — the Contents drawer's counts, this chapter live.
+            notesWhere={proof ? undefined : () => chapters.filter((c) => { const n = chapterCount(c.position); return !!n && n.notes + n.highlights > 0; }).map((c) => c.title)}
             facts={librarianFacts({ chapters, bookmarkOffset: wordsBeforeChapter(chapters, chapter.position) + behind, wpm, usualMinutesPerDay: minutesPerDay, ...(proof ? {} : { readMs: readMs ?? 0 }) })}
           />
         </div>

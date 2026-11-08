@@ -3,7 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import { ask } from "@/lib/engine/ask";
 import { suggestedQuestions, toReaderContext, type LibrarianFacts } from "@/lib/librarian";
-import { previewBookCount, type AnnotationCount } from "@/lib/notesCount";
+import { previewBookCount, previewByChapter, type AnnotationCount } from "@/lib/notesCount";
 
 interface Exchange { q: string; a: string }
 
@@ -21,7 +21,18 @@ function resolveNotes(src: NotesSource | undefined): AnnotationCount | undefined
   return src;
 }
 
-export function AskLibrarian({ facts, title, annotations }: { facts: LibrarianFacts; title: string; annotations?: NotesSource }) {
+/** C199: which chapters hold the reader's notes — titles from the server, this browser's chapters (preview), or a live getter. */
+export type NotesWhereSource = string[] | { slug: string; chapters: { position: number; title: string }[] } | (() => string[] | undefined);
+
+function resolveWhere(src: NotesWhereSource | undefined): string[] | undefined {
+  if (!src) return undefined;
+  if (typeof src === "function") return src();
+  if (Array.isArray(src)) return src;
+  const by = previewByChapter(src.slug, src.chapters.map((c) => c.position), (k) => { try { return window.localStorage.getItem(k); } catch { return null; } });
+  return src.chapters.filter((c) => by[c.position]).map((c) => c.title);
+}
+
+export function AskLibrarian({ facts, title, annotations, notesWhere }: { facts: LibrarianFacts; title: string; annotations?: NotesSource; notesWhere?: NotesWhereSource }) {
   const [question, setQuestion] = useState("");
   const [log, setLog] = useState<Exchange[]>([]);
   const id = useId();
@@ -36,7 +47,7 @@ export function AskLibrarian({ facts, title, annotations }: { facts: LibrarianFa
   const put = (q: string) => {
     const clean = q.trim().slice(0, 200);
     if (!clean) return;
-    const a = ask(clean, { ...toReaderContext(facts, new Date()), annotations: resolveNotes(annotations) }).text;
+    const a = ask(clean, { ...toReaderContext(facts, new Date()), annotations: resolveNotes(annotations), notesWhere: resolveWhere(notesWhere) }).text;
     setLog((l) => [{ q: clean, a }, ...l].slice(0, 3));
     setQuestion("");
   };
