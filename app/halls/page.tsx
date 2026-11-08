@@ -12,7 +12,7 @@ import { parseSort, readInHall, readOrderNote, sortHref, sortShelf, SORTS } from
 import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
 import { dueBackSoon, justBorrowed, justReturned, loansBySlug, noRenewalsLeft } from "@/lib/loanDesk";
 import { myFinishes, myHoursBySlug, myNotedSlugs } from "@/lib/ledgerStore";
-import { SpineNotes } from "@/components/SpineNotes";
+import { SpineNotes, SpineNotesLegend } from "@/components/SpineNotes";
 import { myBookLeft } from "@/lib/bookLeftStore";
 import { justBackLegend, outLegend, spokenSpine } from "@/lib/spine";
 import { FINISHED_SHELF, finishedStamp, formatHours } from "@/lib/ledger";
@@ -111,6 +111,8 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
           marks the books you have <Link href={FINISHED_SHELF} className="underline underline-offset-2 hover:text-lamplight">read to the end</Link>.
         </p>
       )}
+      {/* C213: spoken only — books holding the reader's notes say so on their spines. */}
+      <SpineNotesLegend noted={notedSlugs === null ? null : works.some((w) => notedSlugs.includes(w.slug))} books={works.map((w) => ({ slug: w.slug, positions: w.chapters.map((c) => c.position) }))} />
       {halls.map((hall) => {
         const shelf = works.filter((w) => w.hall === hall.id);
         if (query && shelf.length === 0) return null;

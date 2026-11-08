@@ -32,3 +32,6 @@ export function outLegend(n: number, fresh = 0): string {
 
 /** C208: said after the rest of a spine's label when the book holds the reader's own notes (nothing visible). */
 export const SPINE_NOTES = " You have notes in it.";
+
+/** C213: the halls legend's spoken-only line, when any spine on the page holds the reader's notes. */
+export const SPINE_NOTES_LEGEND = "Books holding your notes say so when read aloud.";

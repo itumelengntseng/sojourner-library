@@ -26,3 +26,18 @@ describe("halls spine notes (C208)", () => {
     expect(fn.match(/\.eq\("reader_id", auth\.user\.id\)/g)).toHaveLength(2);
   });
 });
+
+// C213: the halls legend says, to screen readers only, that noted books say so.
+describe("halls spine notes legend (C213)", async () => {
+  const { SpineNotesLegend } = await import("@/components/SpineNotes");
+  it("spoken only, and only when a book on the page holds notes", () => {
+    expect(renderToStaticMarkup(<SpineNotesLegend noted books={[]} />)).toBe('<p data-spine-notes-legend="" class="sr-only">Books holding your notes say so when read aloud.</p>');
+    expect(renderToStaticMarkup(<SpineNotesLegend noted={false} books={[]} />)).toBe("");
+    expect(renderToStaticMarkup(<SpineNotesLegend noted={null} books={[{ slug: "w", positions: [1] }]} />)).toBe("");
+  });
+  it("the halls place it with the legends, from the same noted slugs as the spines", () => {
+    const halls = readFileSync("app/halls/page.tsx", "utf8");
+    expect(halls).toContain("<SpineNotesLegend noted={notedSlugs === null ? null : works.some((w) => notedSlugs.includes(w.slug))}");
+    expect(halls.indexOf("<SpineNotesLegend")).toBeLessThan(halls.indexOf("{halls.map((hall) => {"));
+  });
+});

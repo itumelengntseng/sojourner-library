@@ -372,6 +372,8 @@ for (const width of WIDTHS) {
     const sr = page.locator("a[href='/works/placeholder-work-one'] .sr-only", { hasText: / You have notes in it\.$/ });
     if (noted ? !(await appears(sr)) : await sr.count()) { failures++; console.log(`✗ ${width}px halls: Placeholder Work One's spine ${noted ? "doesn't say" : "says"} 'You have notes in it.'`); }
     else console.log(`✓ ${width}px halls: Placeholder Work One's spine ${noted ? "says it holds your notes" : "is silent on notes (none)"}`);
+    // QA68 (C213): with a noted book on the page, the legend says so (spoken only).
+    if (noted && !(await appears(page.locator("[data-spine-notes-legend].sr-only", { hasText: "Books holding your notes say so when read aloud." })))) { failures++; console.log(`✗ ${width}px halls legend without the spoken notes line`); }
   }
   await axeCheck(`${width}px halls with a book read to the end`);
 }
