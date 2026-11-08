@@ -236,7 +236,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C165 Writer's Room "Loans this month" tile: the note adds "· N handed back before they were due" (counts only; same rule as C152).
 - [x] C166 Ledger Hours per book, "Most hours" order: a quiet link "Order the halls the same way" → `/halls?sort=read`.
 - [x] QA52 QA pass after C164–C166.
-- [ ] C167 Halls, "Most read by you" order: a read spine's spoken label adds "You've read for <time>." (own reading; sr-only, only under this order; no new visual mark).
-- [ ] C168 Halls, "Most read by you" order: each hall's summary line adds "· you've read in N of M here" (own reading only; nothing when none).
-- [ ] C169 Ledger Hours per book, "Most hours" order: the top row wears a small lamplight "most read" mark (spoken "your most-read book"; only with two or more books).
-- [ ] QA53 QA pass after C167–C169.
+- [x] C167 Halls, "Most read by you" order: a read spine's spoken label adds "You've read for <time>." (own reading; sr-only, only under this order; no new visual mark).
+- [x] C168 Halls, "Most read by you" order: each hall's summary line adds "· you've read in N of M here" (own reading only; nothing when none).
+- [x] C169 Ledger Hours per book, "Most hours" order: the top row wears a small lamplight "most read" mark (spoken "your most-read book"; only with two or more books).
+- [x] QA53 QA pass after C167–C169.
+- [ ] C170 Work page: under the loan desk, "You've read for <time> in this book" (own reading, the ledger's Time; links to `/ledger#hours`; nothing when none).
+- [ ] C171 Card page "On loan now": a loan the reader has read in adds "· read for <time>" to its line (own reading; nothing when none).
+- [ ] C172 Front hall: when the reader has read in two or more books, the library summary line adds "· most read: <title>" linking to the work (own reading).
+- [ ] QA54 QA pass after C170–C172.

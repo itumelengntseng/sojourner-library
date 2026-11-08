@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 12 — C161–C166, QA51–QA52; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 12 — C161–C169, QA51–QA53; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -241,10 +241,14 @@ _Last updated: 2026-11-08 (scheduled build run 12 — C161–C166, QA51–QA52; 
 - C165 — Writer's Room Loans this month: the note adds "· 2 handed back before they were due" (singular "it was"; the ledger's C152 rule, so auto-returns at due time don't count). Library mode reads only `returned_at, due_at` of the month's handed-back loans (no reader, no work); preview: the cookie desk (`monthLoans()`). Unit-tested + swept.
 - C166 — Ledger Hours per book, Most hours: "Order the halls the same way" → `/halls?sort=read` in the Order row. Unit-tested + swept.
 - QA52 (2026-11-08, after C164–C166): `npm run qa` all clear (run twice) — now also requires the halls' Most read by you note, the ledger's link to the halls (375px + 1280px, axe clean), and in a fresh browser the Writer's Room tile's "2 handed back before they were due". Preview e2e 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 617 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA52).
+- C167 — Halls, Most read by you: a read spine's spoken label ends "You've read for 45 min." (`spokenSpine({ readFor })`; only under this order). Unit-tested + swept.
+- C168 — Halls, Most read by you: each hall's summary adds "· you've read in 2 of 3 here" (`readInHall()`; nothing when none). Unit-tested + swept.
+- C169 — Ledger Hours per book, Most hours: the top row wears a lamplight "most read" mark (spoken "your most-read book"; two or more books only). Unit-tested + swept.
+- QA53 (2026-11-08, after C167–C169): `npm run qa` all clear (run twice) — now also requires the top book's spine to say its time read, its hall's "read in N of M here", and exactly one "most read" mark on the ledger (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 622 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA53).
 
 ## Next task
-C167 — halls "Most read by you": spoken reading time on read spines (BACKLOG.md → FOLLOW-UPS), then C168, C169, QA53. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C170 — work page "You've read for <time> in this book" (BACKLOG.md → FOLLOW-UPS), then C171, C172, QA54. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
