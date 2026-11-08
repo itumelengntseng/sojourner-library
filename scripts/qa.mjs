@@ -620,6 +620,18 @@ for (const width of WIDTHS) {
       if ((books >= 2) !== (linked > 0)) { failures++; console.log(`✗ ${width}px work page 'all your notes' link ${linked ? "shown" : "missing"} with notes in ${books} book(s)`); }
       else console.log(`✓ ${width}px work page notes line (${books} book(s) with notes${linked ? ", links to all" : ""})`);
     }
+    // QA58 (C183): the librarian counts this book's notes the same way the line does.
+    {
+      const lineText = (await line.textContent().catch(() => "")) ?? "";
+      await page.getByLabel("Your question").first().fill("How many notes have I made?");
+      await page.getByRole("button", { name: "Ring the bell" }).first().click();
+      const slip = page.locator("figure", { hasText: "You asked: How many notes have I made?" }).first();
+      await slip.waitFor();
+      const answer = ((await slip.locator("p").textContent()) ?? "").trim();
+      const said = lineText.match(/^You have (.*) in this book/)?.[1];
+      if (said ? answer !== `You have ${said} in this book.` : answer !== "You haven't made any notes or highlights in this book yet.") { failures++; console.log(`✗ ${width}px librarian notes answer '${answer}' vs line '${said ?? "none"}'`); }
+      else console.log(`✓ ${width}px librarian counts this book's notes`);
+    }
     await page.goto(`${BASE}/ledger`);
   }
   // QA56 (C176): once Hours per book shows whole minutes, Borrowing history says how long that book was read.

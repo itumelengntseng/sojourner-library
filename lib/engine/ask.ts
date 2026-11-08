@@ -10,6 +10,8 @@ export interface ReaderContext {
   now: Date;
   /** C177: the reader's own reading time in this book (ms); undefined where it isn't kept (the Keeper's proof copy). */
   readMs?: number;
+  /** C183: the reader's own notes and highlights in this book; undefined where they aren't kept (the proof copy). */
+  annotations?: { notes: number; highlights: number };
 }
 
 export type Answer =
@@ -18,7 +20,16 @@ export type Answer =
   | { kind: "per_day"; days: number; minutesPerDay: number; text: string }
   | { kind: "deadline"; possible: boolean; minutesPerDayNeeded: number; text: string }
   | { kind: "read_so_far"; minutes: number; text: string }
+  | { kind: "notes"; notes: number; highlights: number; text: string }
   | { kind: "unknown"; text: string };
+
+/** C183: "How many notes have I made?", "Have I highlighted anything?", "my notes in this book" */
+export function isNotesQuestion(question: string): boolean {
+  const q = question.toLowerCase().replace(/[’]/g, "'");
+  return /\b(notes?|highlights?|highlighted|annotations?|annotated)\b/.test(q) && /\b(how many|have i|did i|i've|i have|my|any)\b/.test(q);
+}
+
+const plural = (n: number, one: string) => `${n} ${one}${n === 1 ? "" : "s"}`;
 
 /** C177: the question as the desk offers it (a chip, and in the fallback reply — C180). */
 export const READ_SO_FAR_QUESTION = "How long have I read this book?";
@@ -74,6 +85,13 @@ export function ask(question: string, ctx: ReaderContext): Answer {
   // C73: at the very end there is nothing left to time — say so plainly rather than "About 0 min".
   const atEnd = ctx.totalWords > 0 && remaining === 0;
   const END = "You're at the end of this book.";
+
+  if (isNotesQuestion(q)) {
+    if (!ctx.annotations) return { kind: "notes", notes: 0, highlights: 0, text: "Notes and highlights aren't kept in this copy." };
+    const { notes, highlights } = ctx.annotations;
+    const parts = [notes ? plural(notes, "margin note") : "", highlights ? plural(highlights, "highlight") : ""].filter(Boolean);
+    return { kind: "notes", notes, highlights, text: parts.length ? `You have ${parts.join(" and ")} in this book.` : "You haven't made any notes or highlights in this book yet." };
+  }
 
   if (isReadSoFarQuestion(q)) {
     if (ctx.readMs === undefined) return { kind: "read_so_far", minutes: 0, text: "Reading time isn't kept in this copy." };

@@ -127,7 +127,7 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
         )}
       </section>
 
-      <div className="mt-8"><AskLibrarian facts={facts} title={work.title} /></div>
+      <div className="mt-8"><AskLibrarian facts={facts} title={work.title} annotations={annotations ?? { slug: work.slug, positions: work.chapters.map((c) => c.position) }} /></div>
 
       <section aria-labelledby="contents" className="mt-12">
         <h2 id="contents" className="text-xl text-paper">Contents</h2>

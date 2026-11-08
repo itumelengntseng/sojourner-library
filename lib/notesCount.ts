@@ -48,3 +48,8 @@ export function totalAnnotations(byWork: Record<string, (string | null)[]>): Ann
   }
   return out;
 }
+
+/** C183: this book's own notes and highlights as this browser holds them (preview mode). */
+export function previewBookCount(slug: string, positions: number[], read: (k: string) => string | null): AnnotationCount {
+  return countAnnotations(positions.map((p) => read(`soj:ann:${slug}:${p}`)));
+}

@@ -3,11 +3,25 @@
 import { useId, useState } from "react";
 import { ask } from "@/lib/engine/ask";
 import { suggestedQuestions, toReaderContext, type LibrarianFacts } from "@/lib/librarian";
+import { previewBookCount, type AnnotationCount } from "@/lib/notesCount";
 
 interface Exchange { q: string; a: string }
 
 // A small desk with a brass bell: ask in plain words, get a written reply slip.
-export function AskLibrarian({ facts, title }: { facts: LibrarianFacts; title: string }) {
+/**
+ * C183: own notes and highlights in this book, resolved when a question is asked: counts from the server (library mode),
+ * this browser's chapters (preview: `{ slug, positions }`), or a live getter (the reading room). Absent → not kept here.
+ */
+export type NotesSource = AnnotationCount | { slug: string; positions: number[] } | (() => AnnotationCount | undefined);
+
+function resolveNotes(src: NotesSource | undefined): AnnotationCount | undefined {
+  if (!src) return undefined;
+  if (typeof src === "function") return src();
+  if ("slug" in src) return previewBookCount(src.slug, src.positions, (k) => { try { return window.localStorage.getItem(k); } catch { return null; } });
+  return src;
+}
+
+export function AskLibrarian({ facts, title, annotations }: { facts: LibrarianFacts; title: string; annotations?: NotesSource }) {
   const [question, setQuestion] = useState("");
   const [log, setLog] = useState<Exchange[]>([]);
   const id = useId();
@@ -15,7 +29,7 @@ export function AskLibrarian({ facts, title }: { facts: LibrarianFacts; title: s
   const put = (q: string) => {
     const clean = q.trim().slice(0, 200);
     if (!clean) return;
-    const a = ask(clean, toReaderContext(facts, new Date())).text;
+    const a = ask(clean, { ...toReaderContext(facts, new Date()), annotations: resolveNotes(annotations) }).text;
     setLog((l) => [{ q: clean, a }, ...l].slice(0, 3));
     setQuestion("");
   };

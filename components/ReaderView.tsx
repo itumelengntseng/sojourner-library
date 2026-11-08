@@ -34,7 +34,7 @@ function writeLocal(key: string, value: string) {
 
 const btn = "rounded px-2.5 py-1.5 font-sans text-xs uppercase tracking-wider";
 
-export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [], finishedAt, firstRead, readMs }: { slug: string; data: ReadingData; wpm: number; minutesPerDay: number; readPositions?: number[]; finishedAt?: number; firstRead?: number; readMs?: number }) {
+export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [], finishedAt, firstRead, readMs, bookAnnotations }: { slug: string; data: ReadingData; wpm: number; minutesPerDay: number; readPositions?: number[]; finishedAt?: number; firstRead?: number; readMs?: number; bookAnnotations?: { notes: number; highlights: number } | null }) {
   const { chapter, chapters } = data;
   const paras = useMemo(() => splitParagraphs(chapter.body), [chapter.body]);
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
@@ -363,6 +363,9 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
         <div className="mt-10 rounded-sm bg-stone-wall text-paper">
           <AskLibrarian
             title={data.title}
+            // C183: own notes in this book — this browser's (preview), or the server's count with this chapter's live changes (library); none in the proof copy.
+            annotations={proof ? undefined : preview ? { slug, positions: chapters.map((c) => c.position) }
+              : bookAnnotations ? () => ({ notes: Math.max(0, bookAnnotations.notes - data.notes.length + notes.length), highlights: Math.max(0, bookAnnotations.highlights - data.highlights.length + highlights.length) }) : undefined}
             facts={librarianFacts({ chapters, bookmarkOffset: wordsBeforeChapter(chapters, chapter.position) + behind, wpm, usualMinutesPerDay: minutesPerDay, ...(proof ? {} : { readMs: readMs ?? 0 }) })}
           />
         </div>
