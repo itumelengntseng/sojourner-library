@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 13 — C173–C184, QA55–QA58, `preview` refreshed to main; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 13 — C173–C187, QA55–QA59, `preview` refreshed to main; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -265,10 +265,14 @@ _Last updated: 2026-11-08 (scheduled build run 13 — C173–C184, QA55–QA58, 
 - C183 — Ask the librarian: "How many notes have I made?" / "Have I highlighted anything?" / "my notes in this book" (`isNotesQuestion()` in `lib/engine/ask.ts`) → "You have 2 margin notes and 1 highlight in this book." or "You haven't made any notes or highlights in this book yet." Counts are resolved when the question is asked (`NotesSource` in `components/AskLibrarian.tsx`): the server's own-row counts on the work page in library mode; this browser's chapters in preview; in the reading room the book's count plus this chapter's live changes. The proof copy passes none ("…aren't kept in this copy"). Unit-tested + swept (answer must match the work page's line).
 - C184 — QA sweep hardening: `appears()` helper waits for lines filled in after hydration; the reading-room theme sweep now waits for the stored highlights instead of a fixed 400 ms pause (and fails if they never draw); at 1280px the sweep seeds a note in a second book so C182's link is checked both ways.
 - QA58 (2026-11-08, after C182–C184): `npm run qa` all clear (run twice). Preview e2e 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (notes/highlights already readable only by their reader).
-- Tests: 655 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA58).
+- C185 — Ask the librarian offers "How many notes have I made?" as a chip once the book holds a note or highlight of the reader's (server counts at once; this browser's after load; the reading room's live getter); the fallback reply adds it in step with the chips (`NOTES_QUESTION`/`hasNotes()` in `lib/engine/ask.ts`). Unit-tested + swept.
+- C186 — Ledger Hours per book: "· 2 notes · 1 highlight" after a book's time (`shortNotesLine()`, `components/BookNotesCount.tsx`; library: `myAnnotationsByWork()` own rows per work; preview: counted in this browser). Unit-tested + swept.
+- C187 — Reading room: saving a margin note sets the status line to "Note saved · 3 in this book" (`noteSavedStatus()`; this browser's count in preview, the server's count plus this chapter's live notes in library mode). The proof copy has no Note button. Unit-tested; the e2e script's note step now waits for it.
+- QA59 (2026-11-08, after C185–C187): `npm run qa` all clear (run twice) — now also requires the notes chip on a book with notes and the notes count beside Placeholder Work One in Hours per book. Preview e2e 6/6 (incl. the new status check). Performance (local prod build, curl): every page < 17 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 661 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA59).
 
 ## Next task
-C185 — librarian "How many notes have I made?" chip (BACKLOG.md → FOLLOW-UPS), then C186, C187, QA59. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C188 — reading room "Highlight saved · N in this book" (BACKLOG.md → FOLLOW-UPS), then C189, C190, QA60. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
@@ -346,3 +350,4 @@ C185 — librarian "How many notes have I made?" chip (BACKLOG.md → FOLLOW-UPS
 - The halls' "Most read by you" (C162) ranks by the reader's own active reading time (the ledger's Time column), not words read; it reads the same 400 days the ledger does.
 - "Loans this month" (C163) means the last 30 days (rolling), matching the ledger's 30-day line (C152).
 - "Read in" a book (C162–C172) means the reader has some active reading time in it (the ledger's Time > 0); a session that recorded words but no active time doesn't count. The work page, card, halls and front hall now read the reader's own ledger hours (`myHoursBySlug()`), same 400-day window as the ledger.
+- Hours per book's notes count (C186) shows highlights too ("· 2 notes · 1 highlight"), so a book with only highlights isn't left bare; the backlog line said "· N notes".

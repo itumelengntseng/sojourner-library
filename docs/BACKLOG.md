@@ -260,7 +260,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C183 Ask the librarian: "How many notes have I made?" (and close phrasings) answered from the reader's own counts for this book ("You have 2 margin notes and 1 highlight in this book."); not in the Keeper's proof copy.
 - [x] C184 QA sweep hardening: wait for every client-counted line (preview notes, the Notes tally, "most read") instead of reading it once, so slow hydration can't fail a run (QA57 saw one such flake).
 - [x] QA58 QA pass after C182–C184.
-- [ ] C185 Ask the librarian: add "How many notes have I made?" as a chip once the book has a note or highlight (and to the fallback reply, keeping C180's rule that the reply suggests exactly the chips).
-- [ ] C186 Ledger Hours per book: a book with notes adds a quiet "· N notes" after its time (own only; library counts per work, preview counted in the browser).
-- [ ] C187 Reading room: after adding a margin note, the status line says "Note saved · N in this book" (own count, live; not in the proof copy, which can't add notes).
-- [ ] QA59 QA pass after C185–C187.
+- [x] C185 Ask the librarian: add "How many notes have I made?" as a chip once the book has a note or highlight (and to the fallback reply, keeping C180's rule that the reply suggests exactly the chips).
+- [x] C186 Ledger Hours per book: a book with notes adds a quiet "· N notes" after its time (own only; library counts per work, preview counted in the browser).
+- [x] C187 Reading room: after adding a margin note, the status line says "Note saved · N in this book" (own count, live; not in the proof copy, which can't add notes).
+- [x] QA59 QA pass after C185–C187.
+- [ ] C188 Reading room: after adding a highlight, the status says "Highlight saved · N in this book" (own count, live; as C187).
+- [ ] C189 Card page "On loan now": a loan with the reader's notes adds "· N notes" to its line (own only; library counts per work, preview counted in the browser — reuse `BookNotesCount`).
+- [ ] C190 Librarian: "How many notes have I made?" in the reading room — check the answer counts a note removed a moment ago (live getter) and pin it with a test.
+- [ ] QA60 QA pass after C188–C190.
