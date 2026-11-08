@@ -272,7 +272,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C192 Card page "Recently returned": a book with the reader's notes adds "· N notes · M highlights" to its stamp line (reuse `BookNotesCount`; own only).
 - [x] C193 Front hall "Continue reading" card: adds "· N notes" for the book when the reader has any (own only; reuse `BookNotesCount`).
 - [x] QA61 QA pass after C191–C193.
-- [ ] C194 Ledger Borrowing history: a row whose book holds the reader's notes adds "· N notes · M highlights" (own only; reuse `BookNotesCount`, as C186).
-- [ ] C195 Work page "You have … in this book" line: check it agrees with the ledger's Hours per book count and the card's counts for the same book (one consistency test, like C178).
-- [ ] C196 QA sweep: the Continue reading notes check (QA61) only runs when the card names Placeholder Work One — seed a note in whichever book the card names so it always runs.
-- [ ] QA62 QA pass after C194–C196.
+- [x] C194 Ledger Borrowing history: a row whose book holds the reader's notes adds "· N notes · M highlights" (own only; reuse `BookNotesCount`, as C186).
+- [x] C195 Work page "You have … in this book" line: check it agrees with the ledger's Hours per book count and the card's counts for the same book (one consistency test, like C178).
+- [x] C196 QA sweep: the Continue reading notes check (QA61) only runs when the card names Placeholder Work One — seed a note in whichever book the card names so it always runs.
+- [x] QA62 QA pass after C194–C196.
+- [ ] C197 Reading room Contents drawer: a chapter holding the reader's notes or highlights adds "· 2 notes" to its line (own only; this browser in preview, the reading data's own rows in library mode; this chapter live).
+- [ ] C198 Work page chapter list: a chapter holding the reader's notes shows a quiet "noted" mark beside "read"/"you're here" (own only; spoken "you have notes here").
+- [ ] C199 Ask the librarian: "Where are my notes?" → "Your notes are in Placeholder chapter 1 and Placeholder chapter 3." (chapter titles only, own notes; none → the C183 'none yet' reply; not in the proof copy).
+- [ ] QA63 QA pass after C197–C199.

@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 14 — C188–C193, QA60–QA61, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 14 — C188–C196, QA60–QA62, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -277,10 +277,14 @@ _Last updated: 2026-11-08 (scheduled build run 14 — C188–C193, QA60–QA61, 
 - C192 — Card page "Recently returned": a book holding the reader's notes adds "· 1 note · 2 highlights" to its stamp line (`BookNotesCount`; library: `myAnnotationsByWork()`; preview: this browser). Unit-tested + swept (when Placeholder Work One is in the list).
 - C193 — Continue reading card (front hall and card page): "Chapter 1 · 1 note" — own notes/highlights for the book (library: by the open loan's work id; preview: this browser). Unit-tested; swept when the card names Placeholder Work One (checked by hand on both pages; C196 makes the sweep always run it).
 - QA61 (2026-11-08, after C191–C193): `npm run qa` all clear (run twice) — now also checks Recently returned's and Continue reading's notes counts when those show Placeholder Work One. Preview e2e 7/7 (highlight saved → removed). Performance (local prod build, curl): every page < 18 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 677 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA61).
+- C194 — Ledger Borrowing history: each row whose book holds the reader's notes adds "· 2 notes · 1 highlight" after its "read for" (`BookNotesCount`, same counts as Hours per book). Unit-tested + swept.
+- C195 — `tests/notesConsistency.test.ts`: from one browser store, the work page line, the short line (Hours per book, history, card, Continue reading), the librarian's answer, the saved statuses and the ledger totals all give the same numbers; the three library-mode counts each filter notes and highlights by the reader's own id.
+- C196 — QA sweep: the Continue reading notes check now reads the book from the card's Resume link and seeds a note in it if this browser holds none, so it always runs (it now checks Placeholder Work Two in the sweep).
+- QA62 (2026-11-08, after C194–C196): `npm run qa` all clear (run twice) — now also requires Borrowing history's notes count on Placeholder Work One and the Continue reading count for whichever book it names. Preview e2e 7/7. Performance (local prod build, curl): every page < 12 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 682 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA62).
 
 ## Next task
-C194 — ledger Borrowing history notes count (BACKLOG.md → FOLLOW-UPS), then C195, C196, QA62. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C197 — reading room Contents drawer notes count per chapter (BACKLOG.md → FOLLOW-UPS), then C198, C199, QA63. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
@@ -358,4 +362,5 @@ C194 — ledger Borrowing history notes count (BACKLOG.md → FOLLOW-UPS), then 
 - The halls' "Most read by you" (C162) ranks by the reader's own active reading time (the ledger's Time column), not words read; it reads the same 400 days the ledger does.
 - "Loans this month" (C163) means the last 30 days (rolling), matching the ledger's 30-day line (C152).
 - "Read in" a book (C162–C172) means the reader has some active reading time in it (the ledger's Time > 0); a session that recorded words but no active time doesn't count. The work page, card, halls and front hall now read the reader's own ledger hours (`myHoursBySlug()`), same 400-day window as the ledger.
+- Borrowing history (C194) repeats the book's notes count on every row of that book, as it already does "read for" (C176) — it's the book's count, not the loan's.
 - Hours per book's notes count (C186) shows highlights too ("· 2 notes · 1 highlight"), so a book with only highlights isn't left bare; the backlog line said "· N notes".
