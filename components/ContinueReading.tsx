@@ -2,10 +2,14 @@ import Link from "next/link";
 import { chapterLabel, type ContinueCard } from "@/lib/continueReading";
 import { noRenewalsLeft, type OnLoan } from "@/lib/loanDesk";
 import { AUTHOR } from "@/lib/site";
+import { getWork } from "@/lib/catalogue";
+import { BookNotesCount } from "./BookNotesCount";
+import type { AnnotationCount } from "@/lib/notesCount";
 
 // One lamplit card by the front-hall door: the book you were last reading, and the way back in.
+// C193: `notes` (own counts for the book, library) adds "· 2 notes · 1 highlight" after the chapter; `null` counts this browser's (preview).
 // C95: `bookLeft` ("About 25 min left in this book") follows the chapter's time left.
-export function ContinueReading({ card, className = "mx-auto mt-8", due, bookLeft }: { card: ContinueCard | null; className?: string; due?: OnLoan; bookLeft?: string }) {
+export function ContinueReading({ card, className = "mx-auto mt-8", due, bookLeft, notes }: { card: ContinueCard | null; className?: string; due?: OnLoan; bookLeft?: string; notes?: AnnotationCount | null }) {
   if (!card) return null;
   return (
     <section aria-labelledby="continue-reading"
@@ -15,6 +19,8 @@ export function ContinueReading({ card, className = "mx-auto mt-8", due, bookLef
       <p className="font-sans text-xs text-sandstone">by {AUTHOR}</p>
       <p className="mt-2 text-paper/90">
         {chapterLabel(card)}
+        {notes ? <BookNotesCount counts={notes} />
+          : notes === null && <BookNotesCount counts={null} slug={card.slug} positions={getWork(card.slug)?.chapters.map((c) => c.position) ?? []} />}
       </p>
       {due && (
         <p className="mt-2 font-mono text-[0.7rem] uppercase tracking-wider text-ember">

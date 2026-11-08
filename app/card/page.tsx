@@ -42,8 +42,10 @@ async function LoanShelf() {
 async function ContinueShelf() {
   const card = await myContinueReading();
   if (!card) return null;
-  const bookLeft = await myBookLeft();
-  return <ContinueReading card={card} className="w-full" bookLeft={bookLeft[card.slug]} />;
+  const [bookLeft, loans, notesBy] = await Promise.all([myBookLeft(), myOpenLoans(), myAnnotationsByWork()]);
+  // C193: own notes in this book (preview: null → counted in this browser).
+  const key = loans.find((l) => l.slug === card.slug)?.workKey;
+  return <ContinueReading card={card} className="w-full" bookLeft={bookLeft[card.slug]} notes={notesBy === null ? null : key ? notesBy[key] : undefined} />;
 }
 
 /** "Recently returned", with a Finished mark on books read to the end (C70). */

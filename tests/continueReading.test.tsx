@@ -116,3 +116,18 @@ describe("time left in the book on the Continue reading card (C95)", () => {
     expect(renderToStaticMarkup(<ContinueReading card={card} />)).not.toContain("in this book");
   });
 });
+
+describe("continue reading notes count (C193)", () => {
+  const card = { slug: "placeholder-work-one", title: "Placeholder Work One", chapterPosition: 2, chapterTitle: "Placeholder chapter 2", wordsLeft: 100, minutesLeft: 1, left: "1 min left in this chapter", lastRead: 0, href: "/works/placeholder-work-one/read?ch=2" };
+  it("adds the reader's own notes and highlights for the book", () => {
+    expect(renderToStaticMarkup(<ContinueReading card={card} notes={{ notes: 2, highlights: 0 }} />)).toContain(" · 2 notes");
+  });
+  it("nothing without counts or with none; preview counts after load", () => {
+    for (const notes of [undefined, { notes: 0, highlights: 0 }, null]) expect(renderToStaticMarkup(<ContinueReading card={card} notes={notes} />)).not.toMatch(/ · \d+ (notes?|highlights?)/);
+  });
+  it("the front hall and the card page pass the reader's own counts", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("app/page.tsx", "utf8")).toContain("notes={contNotes} />");
+    expect(readFileSync("app/card/page.tsx", "utf8")).toContain("notes={notesBy === null ? null : key ? notesBy[key] : undefined} />");
+  });
+});

@@ -58,6 +58,6 @@ describe("Recently returned — read for <time> (C173)", () => {
   });
   it("the card page passes the ledger's hours", async () => {
     const { readFileSync } = await import("node:fs");
-    expect(readFileSync("app/card/page.tsx", "utf8")).toContain("now={Date.now()} readMs={readMs} />");
+    expect(readFileSync("app/card/page.tsx", "utf8")).toContain("now={Date.now()} readMs={readMs} notesBy={notesBy} />");
   });
 });

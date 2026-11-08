@@ -4,7 +4,7 @@ import { SceneCover } from "@/components/SceneCover";
 import { canonView } from "@/lib/canonServer";
 import { filterByCanon, librarySummary } from "@/lib/workStats";
 import { mostRead } from "@/lib/shelfSort";
-import { myHoursBySlug } from "@/lib/ledgerStore";
+import { myAnnotationsByWork, myHoursBySlug } from "@/lib/ledgerStore";
 import { loadCatalogue } from "@/lib/catalogueServer";
 import { AUTHOR, SITE_NAME } from "@/lib/site";
 import { ShelfEmpty } from "@/components/ShelfEmpty";
@@ -28,6 +28,10 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
   const now = Date.now();
   const fresh = freshOnShelves(works, now);
   const [open, cont, pace, readMs] = await Promise.all([myOpenLoans(), myContinueReading(), myPace(), myHoursBySlug()]);
+  // C193: own notes in the book to continue (library: per work; preview: null → counted in this browser).
+  const notesBy = cont ? await myAnnotationsByWork() : undefined;
+  const contKey = cont ? open.find((l) => l.slug === cont.slug)?.workKey : undefined;
+  const contNotes = notesBy === null ? null : notesBy && contKey ? notesBy[contKey] : undefined;
   const top = mostRead(works, readMs);
   // C131: with nothing to continue, the book handed back within the hour (own returns only).
   const returned = cont ? [] : await myRecentlyReturned();
@@ -42,7 +46,7 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
         <p className="mt-3 text-paper/85">The writing of {AUTHOR}</p>
         <div className="threshold mt-8 w-48" aria-hidden="true" />
       </header>
-      <ContinueReading card={cont} due={onCard} bookLeft={cont ? bookLeft[cont.slug] : undefined} />
+      <ContinueReading card={cont} due={onCard} bookLeft={cont ? bookLeft[cont.slug] : undefined} notes={contNotes} />
       <DueSoonSlip loans={onSlip} bookLeft={bookLeft} />
       {!cont && <JustReturnedNote items={returned} now={now} />}
       {/* C143: nothing to continue, nothing just handed back — a book borrowed within the hour, not yet opened. */}

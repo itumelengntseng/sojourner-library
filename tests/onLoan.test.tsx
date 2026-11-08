@@ -124,7 +124,7 @@ describe("on loan now — read for <time> (C171)", () => {
   });
   it("the card page passes the ledger's hours", async () => {
     const { readFileSync } = await import("node:fs");
-    expect(readFileSync("app/card/page.tsx", "utf8")).toContain("readMs={readMs} />");
+    expect(readFileSync("app/card/page.tsx", "utf8")).toContain("readMs={readMs} notesBy={notesBy} />");
   });
 });
 
