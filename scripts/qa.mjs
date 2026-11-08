@@ -979,8 +979,10 @@ await axeCheck("375px reading room gate just returned");
   const p7 = await ctx7.newPage();
   await p7.goto(`${BASE}/writers-room`);
   const rows = await p7.locator("section[aria-labelledby='waiting'] li").allTextContents();
-  const want = [/^3 of 3 works on the shelves · replace with your manuscripts$/, /^3 of 3 pitch kits · the Pitch Room$/, /^\d+ of \d+ people on the family wall · edit the family wall$/, /places and \d+ of \d+ events on the timeline · edit the timeline$/, /^the halls' names · name the halls$/];
+  const want = [/^3 of 3 works on the shelves · replace (replace )?Placeholder Work One( with your manuscript)? · (replace )?Placeholder Work Two( with your manuscript)? · (replace )?Placeholder Work Three( with your manuscript)?$/, /^3 of 3 pitch kits · the Pitch Room$/, /^\d+ of \d+ people on the family wall · edit the family wall$/, /places and \d+ of \d+ events on the timeline · edit the timeline$/, /^the halls' names · name the halls$/];
   if (rows.length !== want.length || !want.every((re, i) => re.test(rows[i]))) { failures++; console.log(`✗ waiting panel: ${JSON.stringify(rows)}`); }
+  // QA73 (C227): each named work's link opens the import with its title filled in.
+  else if ((await p7.locator("section[aria-labelledby='waiting'] a[href*='replace=placeholder-work-']").count()) !== 3) { failures++; console.log("✗ waiting panel without three replace links"); }
   else console.log("✓ writer's room lists what still waits for your words");
   await p7.goto(`${BASE}/pitch-room`);
   const st = await p7.locator("a[data-kit-status][href$='/edit']").count();

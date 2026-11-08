@@ -29,3 +29,19 @@ describe("What still waits for your words (C224)", () => {
     expect(page).toContain('aria-labelledby="waiting"');
   });
 });
+
+describe("waiting works are named with their own replace links (C227)", () => {
+  const w = (slug: string, isPlaceholder = true) => ({ slug, title: slug.replace(/-/g, " "), isPlaceholder });
+  const base = { kits: [], people: [], places: [], events: [], hallsNamed: true };
+  it("one to three works each get a replace link", () => {
+    const row = waitingForWords({ ...base, works: [w("a-b"), w("c", false), w("d")] }).rows[0];
+    expect(row.links).toEqual([{ label: "a b", href: "/writers-room?replace=a-b#import" }, { label: "d", href: "/writers-room?replace=d#import" }]);
+  });
+  it("four or more, or a work without a title, keep the single shelf-list link", () => {
+    expect(waitingForWords({ ...base, works: ["a", "b", "c", "d"].map((s) => w(s)) }).rows[0].links).toBeUndefined();
+    expect(waitingForWords({ ...base, works: [{ isPlaceholder: true }] }).rows[0].links).toBeUndefined();
+  });
+  it("the room renders the links", () => {
+    expect(readFileSync("app/writers-room/page.tsx", "utf8")).toContain("{r.links.map((l, i) =>");
+  });
+});

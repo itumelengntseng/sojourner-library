@@ -70,7 +70,9 @@ export default async function WritersRoom({ searchParams }: { searchParams: Prom
         <h2 id="waiting" className="font-sans text-xs uppercase tracking-wider text-sandstone">What still waits for your words</h2>
         {waiting.allDone ? <p className="mt-1 font-sans text-sm text-lamplight">Everything is in your own words.</p> : (
           <ul className="mt-1 flex flex-col gap-1 font-sans text-sm text-paper/90">
-            {waiting.rows.map((r) => <li key={r.key}>{r.text} · <a href={r.href} className="text-lamplight underline underline-offset-2">{r.linkLabel}</a></li>)}
+            {waiting.rows.map((r) => <li key={r.key}>{r.text} · {r.links
+              ? <><span aria-hidden="true">replace </span>{r.links.map((l, i) => <span key={l.href}>{i > 0 && " · "}<a href={l.href} className="text-lamplight underline underline-offset-2"><span className="sr-only">replace </span>{l.label}<span className="sr-only"> with your manuscript</span></a></span>)}</>
+              : <a href={r.href} className="text-lamplight underline underline-offset-2">{r.linkLabel}</a>}</li>)}
           </ul>
         )}
       </section>
