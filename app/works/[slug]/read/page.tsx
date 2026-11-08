@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ReaderView } from "@/components/ReaderView";
 import { loadReading } from "@/lib/readingRoom";
 import { myPace } from "@/lib/sessionStore";
-import { myAnnotationCount, myChaptersRead, myFinish, myFirstRead, myHoursBySlug } from "@/lib/ledgerStore";
+import { myAnnotationCount, myAnnotationsByChapter, myChaptersRead, myFinish, myFirstRead, myHoursBySlug } from "@/lib/ledgerStore";
 import { loadDesk } from "@/lib/loanStore";
 import { justReturnedLoan } from "@/lib/loanDesk";
 
@@ -44,12 +44,12 @@ export default async function ReadingRoom({ params, searchParams }: Props) {
   }
   // Opening without a chapter number resumes at the bookmark.
   const data = loaded.data;
-  const [{ wpm, minutesPerDay }, readPositions, finishedAt, firstRead, hours, bookAnnotations] = await Promise.all([myPace(), myChaptersRead(slug), myFinish(slug), myFirstRead(slug), myHoursBySlug(), myAnnotationCount(slug)]);
+  const [{ wpm, minutesPerDay }, readPositions, finishedAt, firstRead, hours, bookAnnotations, chapterAnnotations] = await Promise.all([myPace(), myChaptersRead(slug), myFinish(slug), myFirstRead(slug), myHoursBySlug(), myAnnotationCount(slug), myAnnotationsByChapter(slug)]);
   // C174: own reading time in this book, for the end card.
   const readMs = hours[slug];
   if (!(asked > 0) && data.bookmark && data.bookmark.position !== data.chapter.position) {
     const resumed = await loadReading(slug, data.bookmark.position);
-    if (resumed.ok) return <ReaderView key={resumed.data.chapter.position} slug={slug} data={resumed.data} wpm={wpm} minutesPerDay={minutesPerDay} readPositions={readPositions} finishedAt={finishedAt} firstRead={firstRead} readMs={readMs} bookAnnotations={bookAnnotations} />;
+    if (resumed.ok) return <ReaderView key={resumed.data.chapter.position} slug={slug} data={resumed.data} wpm={wpm} minutesPerDay={minutesPerDay} readPositions={readPositions} finishedAt={finishedAt} firstRead={firstRead} readMs={readMs} bookAnnotations={bookAnnotations} chapterAnnotations={chapterAnnotations} />;
   }
-  return <ReaderView key={data.chapter.position} slug={slug} data={data} wpm={wpm} minutesPerDay={minutesPerDay} readPositions={readPositions} finishedAt={finishedAt} firstRead={firstRead} readMs={readMs} bookAnnotations={bookAnnotations} />;
+  return <ReaderView key={data.chapter.position} slug={slug} data={data} wpm={wpm} minutesPerDay={minutesPerDay} readPositions={readPositions} finishedAt={finishedAt} firstRead={firstRead} readMs={readMs} bookAnnotations={bookAnnotations} chapterAnnotations={chapterAnnotations} />;
 }

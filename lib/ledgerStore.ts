@@ -7,7 +7,7 @@ import { parsePreviewLoans, PREVIEW_COOKIE, rowToLoan, type LoanRow } from "./lo
 import { splitParagraphs } from "./reader";
 import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
 import { supabaseServer } from "./supabase/server";
-import type { AnnotationCount, AnnotationTotals } from "./notesCount";
+import { countByChapter, type AnnotationCount, type AnnotationTotals } from "./notesCount";
 
 export interface LedgerView {
   mode: "preview" | "library" | "signed-out";
@@ -256,6 +256,23 @@ export async function myAnnotationCount(slug: string): Promise<{ notes: number; 
     supabase.from("highlights").select("id", { count: "exact", head: true }).eq("reader_id", auth.user.id).eq("work_id", work.id),
   ]);
   return { notes: notes ?? 0, highlights: highlights ?? 0 };
+}
+
+/** C197: own notes and highlights per chapter of this work (position → counts; null in preview — the browser counts). */
+export async function myAnnotationsByChapter(slug: string): Promise<Record<number, AnnotationCount> | null> {
+  const supabase = await supabaseServer();
+  if (!supabase) return null;
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return {};
+  const { data: work } = await supabase.from("works").select("id").eq("slug", slug).maybeSingle();
+  if (!work) return {};
+  const [{ data: chs }, { data: notes }, { data: hls }] = await Promise.all([
+    supabase.from("chapters").select("id, position").eq("work_id", work.id),
+    supabase.from("notes").select("chapter_id").eq("reader_id", auth.user.id).eq("work_id", work.id).limit(5000),
+    supabase.from("highlights").select("chapter_id").eq("reader_id", auth.user.id).eq("work_id", work.id).limit(5000),
+  ]);
+  const positions = Object.fromEntries((chs ?? []).map((c) => [c.id as string, c.position as number]));
+  return countByChapter((notes ?? []) as { chapter_id: string }[], (hls ?? []) as { chapter_id: string }[], positions);
 }
 
 /** C179: the reader's own notes and highlights across the library (null in preview — the browser counts). */

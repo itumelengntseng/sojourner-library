@@ -88,3 +88,21 @@ export function removedStatus(kind: "note" | "highlight", leftInBook: number | u
   if (leftInBook === undefined) return head;
   return leftInBook > 0 ? `${head} · ${leftInBook} left in this book` : `${head} · none left in this book`;
 }
+
+/** C197: own notes and highlights per chapter (position → counts) from rows that name their chapter. */
+export function countByChapter(notes: { chapter_id: string }[], highlights: { chapter_id: string }[], positions: Record<string, number>): Record<number, AnnotationCount> {
+  const out: Record<number, AnnotationCount> = {};
+  for (const r of notes) { const p = positions[r.chapter_id]; if (p !== undefined) (out[p] ??= { notes: 0, highlights: 0 }).notes += 1; }
+  for (const r of highlights) { const p = positions[r.chapter_id]; if (p !== undefined) (out[p] ??= { notes: 0, highlights: 0 }).highlights += 1; }
+  return out;
+}
+
+/** C197: this browser's notes and highlights per chapter of a book (preview mode). */
+export function previewByChapter(slug: string, positions: number[], read: (k: string) => string | null): Record<number, AnnotationCount> {
+  const out: Record<number, AnnotationCount> = {};
+  for (const p of positions) {
+    const c = countAnnotations([read(`soj:ann:${slug}:${p}`)]);
+    if (c.notes + c.highlights > 0) out[p] = c;
+  }
+  return out;
+}

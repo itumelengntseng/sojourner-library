@@ -647,6 +647,11 @@ for (const width of WIDTHS) {
         await page.reload();
         if (!(await appears(page.getByRole("region", { name: "Continue reading" }).getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px front hall Continue reading without the notes count (${slug})`); }
         else console.log(`✓ ${width}px front hall Continue reading counts the notes (${slug})`);
+        // QA63 (C197): from that book's second chapter, Contents says chapter 1 holds the note (the same book, so the Continue card is unchanged).
+        await page.goto(`${BASE}/works/${slug}/read?ch=2`);
+        await page.locator("summary", { hasText: "Contents" }).click();
+        if (!(await appears(page.getByRole("navigation", { name: "Contents" }).locator("li").first().getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px reading room Contents without the notes count on chapter 1 (${slug})`); }
+        else console.log(`✓ ${width}px reading room Contents counts chapter 1's notes (${slug})`);
       }
     }
   }

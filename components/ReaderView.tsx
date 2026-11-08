@@ -13,7 +13,7 @@ import type { ReadingData } from "@/lib/readingRoom";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
 import { useSessionTracker } from "./useSessionTracker";
 import { AskLibrarian } from "./AskLibrarian";
-import { highlightSavedStatus, liveBookCount, noteSavedStatus, previewBookCount, removedStatus } from "@/lib/notesCount";
+import { highlightSavedStatus, liveBookCount, noteSavedStatus, previewBookCount, previewByChapter, removedStatus, shortNotesLine, type AnnotationCount } from "@/lib/notesCount";
 import { librarianFacts } from "@/lib/librarian";
 import { wordsBeforeChapter } from "@/lib/reader";
 import { outsideCanonNote } from "@/lib/canon";
@@ -35,7 +35,7 @@ function writeLocal(key: string, value: string) {
 
 const btn = "rounded px-2.5 py-1.5 font-sans text-xs uppercase tracking-wider";
 
-export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [], finishedAt, firstRead, readMs, bookAnnotations }: { slug: string; data: ReadingData; wpm: number; minutesPerDay: number; readPositions?: number[]; finishedAt?: number; firstRead?: number; readMs?: number; bookAnnotations?: { notes: number; highlights: number } | null }) {
+export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [], finishedAt, firstRead, readMs, bookAnnotations, chapterAnnotations }: { slug: string; data: ReadingData; wpm: number; minutesPerDay: number; readPositions?: number[]; finishedAt?: number; firstRead?: number; readMs?: number; bookAnnotations?: { notes: number; highlights: number } | null; chapterAnnotations?: Record<number, AnnotationCount> | null }) {
   const { chapter, chapters } = data;
   const paras = useMemo(() => splitParagraphs(chapter.body), [chapter.body]);
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
@@ -65,6 +65,17 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
       } catch { /* ignore a damaged entry */ }
     }
   }, [preview, proof, slug, chapter.position]);
+
+  // C197: own notes and highlights per chapter for the Contents drawer — this browser's (preview, re-read as this chapter changes)
+  // or the server's (library); this chapter always counts what's on the page now.
+  const [localByChapter, setLocalByChapter] = useState<Record<number, AnnotationCount>>({});
+  const positionsKey = chapters.map((c) => c.position).join(",");
+  useEffect(() => {
+    if (preview && !proof) setLocalByChapter(previewByChapter(slug, positionsKey ? positionsKey.split(",").map(Number) : [], readLocal));
+  }, [preview, proof, slug, positionsKey, notes, highlights]);
+  const chapterCount = (position: number): AnnotationCount | undefined => proof ? undefined
+    : position === chapter.position ? { notes: notes.length, highlights: highlights.length }
+    : preview ? localByChapter[position] : chapterAnnotations?.[position];
 
   const updateSettings = (patch: Partial<ReaderSettings>) =>
     setSettings((s) => {
@@ -269,7 +280,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
                     <li key={c.position}>
                       <Link href={`${base}?ch=${c.position}`} aria-current={here ? "page" : undefined}
                         className={`flex items-baseline justify-between gap-3 rounded px-2 py-1.5 ${here ? "bg-timber/60 text-lamplight" : "text-paper hover:text-lamplight"}`}>
-                        <span>{c.title}{readPositions.includes(c.position) && <span className="ml-1.5 text-sandstone" title="Read through"><span aria-hidden="true">✓</span><span className="sr-only">, read</span></span>}{marked && <span className="ml-1.5 text-lamplight" title="Your bookmark">· bookmark</span>}</span>
+                        <span>{c.title}{readPositions.includes(c.position) && <span className="ml-1.5 text-sandstone" title="Read through"><span aria-hidden="true">✓</span><span className="sr-only">, read</span></span>}{marked && <span className="ml-1.5 text-lamplight" title="Your bookmark">· bookmark</span>}{shortNotesLine(chapterCount(c.position)) && <span className="ml-1 text-sandstone">{shortNotesLine(chapterCount(c.position))}</span>}</span>
                         <span className="shrink-0 text-sandstone">{formatDuration(minutesFor(c.words, wpm))}</span>
                       </Link>
                     </li>

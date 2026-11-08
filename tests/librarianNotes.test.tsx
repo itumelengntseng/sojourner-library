@@ -27,7 +27,7 @@ describe("How many notes have I made? (C183)", () => {
     expect(readFileSync("app/works/[slug]/page.tsx", "utf8")).toContain("annotations={annotations ?? { slug: work.slug, positions: work.chapters.map((c) => c.position) }}");
     const room = readFileSync("components/ReaderView.tsx", "utf8");
     expect(room).toContain("annotations={proof ? undefined : preview ?");
-    expect(readFileSync("app/works/[slug]/read/page.tsx", "utf8").match(/bookAnnotations={bookAnnotations} \/>/g)).toHaveLength(2);
+    expect(readFileSync("app/works/[slug]/read/page.tsx", "utf8").match(/bookAnnotations={bookAnnotations} chapterAnnotations={chapterAnnotations} \/>/g)).toHaveLength(2);
   });
 });
 
