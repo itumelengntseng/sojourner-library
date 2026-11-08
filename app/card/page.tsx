@@ -51,8 +51,8 @@ async function ReturnedShelf({ notes = "preview" }: { notes?: "library" | "previ
   const items = await myRecentlyReturned();
   if (items.length === 0) return null;
   const slugs = items.map((r) => r.slug);
-  const [finished, firstRead] = await Promise.all([myFinishes(slugs), myFirstReads(slugs)]);
-  return <RecentlyReturned items={items} finished={finished} notes={notes} firstRead={firstRead} now={Date.now()} />;
+  const [finished, firstRead, readMs] = await Promise.all([myFinishes(slugs), myFirstReads(slugs), myHoursBySlug()]);
+  return <RecentlyReturned items={items} finished={finished} notes={notes} firstRead={firstRead} now={Date.now()} readMs={readMs} />;
 }
 
 export default async function CardPage() {

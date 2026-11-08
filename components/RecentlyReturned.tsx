@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { justReturned, type Returned } from "@/lib/loanDesk";
-import { finishedStamp, finishSpan } from "@/lib/ledger";
+import { finishedStamp, finishSpan, formatHours } from "@/lib/ledger";
 import { PreviewNotesExport } from "./PreviewNotesExport";
 
 /**
@@ -11,8 +11,9 @@ import { PreviewNotesExport } from "./PreviewNotesExport";
  * C93: the Finished mark adds how long it took, from `firstRead` (slug → the reader's first session in it).
  * C161: "borrowed N times" links to /ledger#history.
  * C124: a book handed back within the last hour reads "Just returned"; the stamp stays in its spoken label.
+ * C173: `readMs` (slug → the reader's own reading time) adds "· read for <time>" to a book's stamp line (as C171).
  */
-export function RecentlyReturned({ items, finished = {}, notes = "preview", firstRead = {}, now }: { items: Returned[]; finished?: Record<string, number>; notes?: "library" | "preview"; firstRead?: Record<string, number>; now?: number }) {
+export function RecentlyReturned({ items, finished = {}, notes = "preview", firstRead = {}, now, readMs = {} }: { items: Returned[]; finished?: Record<string, number>; notes?: "library" | "preview"; firstRead?: Record<string, number>; now?: number; readMs?: Record<string, number> }) {
   if (items.length === 0) return null;
   return (
     <section aria-labelledby="recently-returned" className="w-full max-w-md text-left">
@@ -39,6 +40,7 @@ export function RecentlyReturned({ items, finished = {}, notes = "preview", firs
                   : <>{r.onTime ? "returned" : "back on the shelf when due"} {r.returned}</>}
                 {/* C156: a book borrowed more than once says how often; C161: it links to the ledger's Borrowing history. */}
                 {(r.times ?? 0) > 1 && <> · <Link href="/ledger#history" className="underline underline-offset-2 hover:text-lamplight">borrowed {r.times} times<span className="sr-only"> — see your borrowing history</span></Link></>}
+                {(readMs[r.slug] ?? 0) > 0 && <> · read for {formatHours(readMs[r.slug])}</>}
               </p>
               {finished[r.slug] !== undefined && (
                 <p className="mt-0.5">

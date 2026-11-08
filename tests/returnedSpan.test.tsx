@@ -42,3 +42,22 @@ describe("how long it took on Recently returned (C93)", () => {
     expect(html).not.toContain("· read ");
   });
 });
+
+describe("Recently returned — read for <time> (C173)", () => {
+  it("adds the reader's own time to the stamp line of a book read in, only that one", () => {
+    const html = renderToStaticMarkup(
+      <RecentlyReturned items={[item("a", "Placeholder A"), item("b", "Placeholder B")]} readMs={{ a: 75 * 60_000 }} />,
+    ).replace(/<!-- -->/g, "");
+    expect(html).toContain(" · read for 1 h 15 min");
+    expect(html.match(/read for/g)).toHaveLength(1);
+    expect(html.indexOf("read for")).toBeLessThan(html.indexOf("Placeholder B"));
+  });
+  it("says nothing with no time read", () => {
+    const html = renderToStaticMarkup(<RecentlyReturned items={[item("a", "Placeholder A")]} readMs={{ a: 0 }} />);
+    expect(html).not.toContain("read for");
+  });
+  it("the card page passes the ledger's hours", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("app/card/page.tsx", "utf8")).toContain("now={Date.now()} readMs={readMs} />");
+  });
+});

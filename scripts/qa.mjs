@@ -327,6 +327,13 @@ for (const width of WIDTHS) {
   }
   // QA28 (C93): the Finished mark says how long it took.
   if (!(await page.getByRole("region", { name: "Recently returned" }).getByText(/· read (in a day|over \d+ days)/).count())) { failures++; console.log("✗ card: Recently returned Finished mark without how long it took"); }
+  // QA55 (C173): a returned book read in says for how long on its stamp line (a sweep's short sessions may hold no active time, so only the form is required).
+  {
+    const back = page.getByRole("region", { name: "Recently returned" });
+    const n = await back.getByText(/ · read for /).count();
+    if (n && !(await back.getByText(/ · read for (under a minute|\d+ (h|min))/).count())) { failures++; console.log("✗ card: Recently returned 'read for' is malformed"); }
+    else console.log(`✓ card: Recently returned ${n ? "says how long the book was read" : "(no active time yet — no 'read for')"}`);
+  }
   // QA28 (C92): with the book back on the shelf, the ledger's Read to the end offers Borrow again.
   for (const width of WIDTHS) {
     await page.setViewportSize({ width, height: 900 });
