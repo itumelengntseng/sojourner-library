@@ -39,3 +39,19 @@ describe("note saved status (C187)", () => {
     expect(src).toContain('{!proof && <button type="button" onClick={startNote}');
   });
 });
+
+describe("highlight saved status (C188)", () => {
+  it("says the book's own count after a highlight is saved", async () => {
+    const { highlightSavedStatus } = await import("@/lib/notesCount");
+    expect(highlightSavedStatus(2)).toBe("Highlight saved · 2 in this book");
+    expect(highlightSavedStatus(1)).toBe("Highlight saved · 1 in this book");
+    expect(highlightSavedStatus(0)).toBe("Highlight saved");
+    expect(highlightSavedStatus(undefined)).toBe("Highlight saved");
+  });
+  it("the reading room sets it after a highlight, counting this browser's chapters in preview", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync("components/ReaderView.tsx", "utf8");
+    expect(src).toContain("setStatus(highlightSavedStatus(inBook));");
+    expect(src).toContain("previewBookCount(slug, chapters.map((c) => c.position), readLocal).highlights");
+  });
+});

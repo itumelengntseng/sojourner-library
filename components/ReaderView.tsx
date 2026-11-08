@@ -13,7 +13,7 @@ import type { ReadingData } from "@/lib/readingRoom";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
 import { useSessionTracker } from "./useSessionTracker";
 import { AskLibrarian } from "./AskLibrarian";
-import { noteSavedStatus, previewBookCount } from "@/lib/notesCount";
+import { highlightSavedStatus, noteSavedStatus, previewBookCount } from "@/lib/notesCount";
 import { librarianFacts } from "@/lib/librarian";
 import { wordsBeforeChapter } from "@/lib/reader";
 import { outsideCanonNote } from "@/lib/canon";
@@ -140,6 +140,11 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
     persistPreview(notes, next);
     window.getSelection()?.removeAllRanges();
     setSelection(null);
+    // C188: say so, with the book's own highlight count (as C187 does for notes).
+    const inBook = preview
+      ? previewBookCount(slug, chapters.map((c) => c.position), readLocal).highlights
+      : bookAnnotations ? Math.max(0, bookAnnotations.highlights - data.highlights.length + next.length) : undefined;
+    setStatus(highlightSavedStatus(inBook));
   };
 
   const removeHighlight = async (id: string) => {

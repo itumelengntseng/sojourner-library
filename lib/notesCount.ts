@@ -65,3 +65,8 @@ export function shortNotesLine(c: AnnotationCount | undefined): string | null {
 export function noteSavedStatus(notesInBook: number | undefined): string {
   return notesInBook && notesInBook > 0 ? `Note saved · ${notesInBook} in this book` : "Note saved";
 }
+
+/** C188: the reading room's status after a highlight is saved — "Highlight saved · 2 in this book". */
+export function highlightSavedStatus(highlightsInBook: number | undefined): string {
+  return highlightsInBook && highlightsInBook > 0 ? `Highlight saved · ${highlightsInBook} in this book` : "Highlight saved";
+}
