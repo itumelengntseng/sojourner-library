@@ -111,3 +111,14 @@ export function previewByChapter(slug: string, positions: number[], read: (k: st
 export function notesInChaptersLine(chaptersWithNotes: number): string | null {
   return chaptersWithNotes > 1 ? ` · notes in ${chaptersWithNotes} chapters` : null;
 }
+
+/** C204: the end card's "You made 3 margin notes and 1 highlight in this book." — null when none. */
+export function madeLine(c: AnnotationCount | undefined): string | null {
+  const line = c ? annotationLine(c) : null;
+  return line ? `You made ${line} in this book.` : null;
+}
+
+/** C204: the book's own counts as the Contents drawer holds them (chapter by chapter). */
+export function sumCounts(counts: (AnnotationCount | undefined)[]): AnnotationCount {
+  return counts.reduce<AnnotationCount>((a, c) => ({ notes: a.notes + (c?.notes ?? 0), highlights: a.highlights + (c?.highlights ?? 0) }), { notes: 0, highlights: 0 });
+}

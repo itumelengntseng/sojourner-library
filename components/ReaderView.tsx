@@ -13,7 +13,7 @@ import type { ReadingData } from "@/lib/readingRoom";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
 import { useSessionTracker } from "./useSessionTracker";
 import { AskLibrarian } from "./AskLibrarian";
-import { highlightSavedStatus, liveBookCount, noteSavedStatus, previewBookCount, previewByChapter, removedStatus, shortNotesLine, notesInChaptersLine, type AnnotationCount } from "@/lib/notesCount";
+import { highlightSavedStatus, liveBookCount, noteSavedStatus, previewBookCount, previewByChapter, removedStatus, shortNotesLine, notesInChaptersLine, sumCounts, type AnnotationCount } from "@/lib/notesCount";
 import { librarianFacts } from "@/lib/librarian";
 import { wordsBeforeChapter } from "@/lib/reader";
 import { outsideCanonNote } from "@/lib/canon";
@@ -390,7 +390,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
           </div>
         )}
 
-        <EndOfChapter slug={slug} title={data.title} chapters={chapters} position={chapter.position} wpm={wpm} base={base} proof={proof} loanId={data.loanId} noRenewals={data.renewalsLeft === 0} finishedAt={finishedAt} firstRead={firstRead} readMs={readMs} />
+        <EndOfChapter slug={slug} title={data.title} chapters={chapters} position={chapter.position} wpm={wpm} base={base} proof={proof} loanId={data.loanId} noRenewals={data.renewalsLeft === 0} finishedAt={finishedAt} firstRead={firstRead} readMs={readMs} annotations={proof ? undefined : sumCounts(chapters.map((c) => chapterCount(c.position)))} />
 
         <div className="mt-10 rounded-sm bg-stone-wall text-paper">
           <AskLibrarian

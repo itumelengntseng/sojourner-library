@@ -113,3 +113,22 @@ describe("end card — You've spent <time> reading this book (C174)", () => {
     expect(readFileSync("app/works/[slug]/proof/page.tsx", "utf8")).not.toContain("readMs");
   });
 });
+
+describe("end card notes line (C204)", () => {
+  it("on the last page, says what the reader made in this book", async () => {
+    const html = renderToStaticMarkup(<EndOfChapter slug="w" title="Placeholder Work" chapters={CH} position={2} wpm={230} base="/works/w/read" proof={false} annotations={{ notes: 3, highlights: 1 }} />);
+    expect(html).toContain("You made 3 margin notes and 1 highlight in this book.");
+  });
+  it("not before the last page, not with none, never in the proof copy", () => {
+    const a = { notes: 3, highlights: 1 };
+    expect(renderToStaticMarkup(<EndOfChapter slug="w" title="Placeholder Work" chapters={CH} position={1} wpm={230} base="/works/w/read" proof={false} annotations={a} />)).not.toContain("You made");
+    expect(renderToStaticMarkup(<EndOfChapter slug="w" title="Placeholder Work" chapters={CH} position={2} wpm={230} base="/works/w/read" proof={false} annotations={{ notes: 0, highlights: 0 }} />)).not.toContain("You made");
+    expect(renderToStaticMarkup(<EndOfChapter slug="w" title="Placeholder Work" chapters={CH} position={2} wpm={230} base="/works/w/proof" proof annotations={a} />)).not.toContain("You made");
+  });
+  it("the reading room passes the book's live counts, summed chapter by chapter", async () => {
+    const { sumCounts } = await import("@/lib/notesCount");
+    expect(sumCounts([{ notes: 1, highlights: 0 }, undefined, { notes: 2, highlights: 1 }])).toEqual({ notes: 3, highlights: 1 });
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("components/ReaderView.tsx", "utf8")).toContain("annotations={proof ? undefined : sumCounts(chapters.map((c) => chapterCount(c.position)))} />");
+  });
+});
