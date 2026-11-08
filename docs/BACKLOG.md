@@ -304,7 +304,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C216 Writer's Room import: after a successful import, the status line names the work and says it's Draft · Only me (C-rule: imports default to Draft + Only me) with a link to its proof copy.
 - [x] C217 `tests/placeholderMarking.test.ts`: every placeholder work's page, spine and pitch sheet still shows "Itumeleng Ntseng" and a Placeholder mark (authorship + placeholder rules pinned in one place).
 - [x] QA69 QA pass after C215–C217.
-- [ ] C218 Writer's Room shelf list: a work still marked Placeholder shows a quiet "replace with your manuscript" link that scrolls to Shelve a manuscript with its title filled in (owner only; the import plan then shows what changes — nothing is replaced until Save).
-- [ ] C219 Writer's Room glance: the Still placeholder tile names the works when there are one to three ("Placeholder Work One, Two and Three wait for your manuscripts"), as C206 does for notes.
-- [ ] C220 Every page's footer carries "© Itumeleng Ntseng" (authorship visible across the library, not only on works) — pinned with a test and swept.
-- [ ] QA70 QA pass after C218–C220.
+- [x] C218 Writer's Room shelf list: a work still marked Placeholder shows a quiet "replace with your manuscript" link that scrolls to Shelve a manuscript with its title filled in (owner only; the import plan then shows what changes — nothing is replaced until Save).
+- [x] C219 Writer's Room glance: the Still placeholder tile names the works when there are one to three ("Placeholder Work One, Two and Three wait for your manuscripts"), as C206 does for notes.
+- [x] C220 Every page's footer carries "© Itumeleng Ntseng" (authorship visible across the library, not only on works) — pinned with a test and swept.
+- [x] QA70 QA pass after C218–C220.
+- [ ] C221 Writer's Room import preview: when the title matches a shelved work still marked Placeholder, add "Saving marks it as your own words — it stops being a placeholder." (the import RPC already sets `is_placeholder = false`), so Itu knows what Save does.
+- [ ] C222 Family wall & timeline editor: one line at the top "N of M people and K of L events are still placeholders" (counts `isPlaceholder` entries in the current copy, live as he edits; "everyone and everything is in your own words" at zero).
+- [ ] C223 Pitch Room: a line above the kit list "N of M kits still placeholder" (stored kit → file kit rule as shown), linking each placeholder kit's "Edit the kit"; zero → "every kit is in your own words".
+- [ ] QA71 QA pass after C221–C223.

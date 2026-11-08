@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 15 — C206–C217, QA66–QA69, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 16 — C218–C220, QA70; run 15 did C206–C217, QA66–QA69, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -309,10 +309,14 @@ _Last updated: 2026-11-08 (scheduled build run 15 — C206–C217, QA66–QA69, 
 - C216 — Writer's Room import: the status now names the work, its size and where it stands — `Saved "Title" — 2 chapters, 1 234 words · Draft · Only me.` (`importedMessage()`; the action reads the work's sharing after saving, so a re-import of a shared work says "shared with card holders") — with an "Open the proof copy" link. Unit-tested; the library e2e's import step now waits for both (runs after NEEDS ITU 1).
 - C217 — `tests/placeholderMarking.test.tsx`: every placeholder work is by Itumeleng Ntseng and marked Placeholder on its work page, spoken spine, pitch sheet (screen and one-pager); the QA sweep now checks all three works' pages and pitch sheets.
 - QA69 (2026-11-08, after C215–C217): `npm run qa` all clear (run twice) — now also requires the Still placeholder tile and the authorship/placeholder marks on all three works. Preview e2e 8/8. Performance (local prod build, curl): every page < 18 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (the import's follow-up read is the owner's own works row).
-- Tests: 738 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA69).
+- C218 — Writer's Room shelf list: each work still marked Placeholder has "replace with your manuscript" (`replaceHref()` → `/writers-room?replace=<slug>#import`, a plain link — no JavaScript needed; spoken with the title). The room then shows a status line above Shelve a manuscript — "Replacing the placeholder “…”: load or paste your manuscript below. Nothing changes until you save, and the preview shows what will." with "Start blank" — and the import form opens with that title filled in (`initialTitle`, remounted per target), so the C21 plan says "Updates the work already on the shelves …". Only a shelved Placeholder work is a target (`replaceTarget()`); if its address doesn't come from its title the line warns that saving shelves a new work beside it. Unit-tested + swept.
+- C219 — Writer's Room glance: the Still placeholder tile names one to three waiting works ("Placeholder Work One, Placeholder Work Two and Placeholder Work Three wait for your manuscripts"; `waitingNames()`); four or more keep the count. Full titles, not shortened (see DECISIONS). Unit-tested + swept.
+- C220 — Every page's footer reads "The Sojourner Library · All works by Itumeleng Ntseng · © Itumeleng Ntseng · Writer's Room · …" (`COPYRIGHT` in `lib/site.ts`, root layout). Unit-tested; the QA sweep now fails any route whose footer lacks it.
+- QA70 (2026-11-08, after C218–C220): `npm run qa` all clear — now also clicks "replace with your manuscript" and requires the title filled in and the status line (axe clean, 375px + 1280px), accepts the named Still placeholder note, and checks the footer copyright on every route at both widths. Preview e2e 8/8. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 750 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA70).
 
 ## Next task
-C218 — Writer's Room shelf list: "replace with your manuscript" on Placeholder works (BACKLOG.md → FOLLOW-UPS), then C219, C220, QA70. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C221 — import preview says a replaced placeholder becomes "your own words" (BACKLOG.md → FOLLOW-UPS), then C222, C223, QA71. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
@@ -399,3 +403,6 @@ C218 — Writer's Room shelf list: "replace with your manuscript" on Placeholder
 - C206 names books only on the ledger; the card page's notes line keeps the number (it already links to the ledger).
 - C213's legend line is spoken only (sr-only), matching C208's spoken-only spines; nothing new is drawn on the shelf.
 - C216's import status replaces "It is visible only to you until you share it." with "· Draft · Only me." (or the work's actual sharing on a re-import), so the line never claims "only you" for a work already shared.
+- C219 names placeholder works by their full titles (no shortening to "One, Two and Three"), so a title is never misread; four or more keep the count.
+- C220's copyright line carries no year (it would go stale); the pitch sheet keeps its own © on paper.
+- C218's "replace" target must be a shelved work still marked Placeholder; the import itself (unchanged) marks the work as no longer Placeholder when saved.
