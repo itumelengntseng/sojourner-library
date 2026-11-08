@@ -24,3 +24,27 @@ export function annotationLine(c: AnnotationCount): string | null {
   ].filter(Boolean);
   return parts.length ? parts.join(" and ") : null;
 }
+
+export interface AnnotationTotals extends AnnotationCount { books: number }
+
+/** C179: the ledger's "3 margin notes · 2 highlights across 2 books" — or null when there are none. */
+export function notesAcrossLine(t: AnnotationTotals): string | null {
+  const parts = [
+    t.notes ? `${t.notes} margin note${t.notes === 1 ? "" : "s"}` : "",
+    t.highlights ? `${t.highlights} highlight${t.highlights === 1 ? "" : "s"}` : "",
+  ].filter(Boolean);
+  if (!parts.length) return null;
+  return `${parts.join(" · ")} across ${t.books} book${t.books === 1 ? "" : "s"}`;
+}
+
+/** C179: totals over several works from per-chapter preview values (slug → raw values per chapter). */
+export function totalAnnotations(byWork: Record<string, (string | null)[]>): AnnotationTotals {
+  const out: AnnotationTotals = { notes: 0, highlights: 0, books: 0 };
+  for (const raws of Object.values(byWork)) {
+    const c = countAnnotations(raws);
+    out.notes += c.notes;
+    out.highlights += c.highlights;
+    if (c.notes + c.highlights > 0) out.books += 1;
+  }
+  return out;
+}

@@ -4,8 +4,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 // C91: a "Read to the end" tile at the top of the ledger once a book is finished, leading to the shelf.
 let history: { id: string; workKey: string; borrowedAt: number; endedAt: number | null; open: boolean; renewals: number }[] = [];
 let hours: { workKey: string; activeMs: number; wordsRead: number; sessions: number; lastRead: number; finishedAt?: number }[] = [];
+let annotationTotals: { notes: number; highlights: number; books: number } | null = null;
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/ledgerStore", () => ({
+  myAnnotationTotals: async () => annotationTotals,
   loadLedger: async () => ({
     mode: "preview", readerName: "", titles: { w: "Placeholder Work One" }, slugs: { w: "placeholder-work-one" },
     history, hours, streaks: { current: 0, longest: 0, readToday: false, days: 0 }, totalMs: 0, totalWords: 0, months: [], week: { ms: 0, days: 0 },
@@ -160,5 +162,16 @@ describe("Borrowing history — read for <time> (C176)", () => {
     const list = html.slice(html.indexOf('id="history"'));
     expect(list.match(/ · read for 45 min/g)).toHaveLength(1);
     history = [];
+  });
+});
+
+describe("Your notes count line (C179)", () => {
+  it("says how many notes and highlights across how many books (library totals)", async () => {
+    annotationTotals = { notes: 3, highlights: 1, books: 2 };
+    const html = (await render()).replace(/<!-- -->/g, "");
+    expect(html).toContain("You have 3 margin notes · 1 highlight across 2 books.");
+    annotationTotals = { notes: 0, highlights: 0, books: 0 };
+    expect(await render()).not.toContain("You have");
+    annotationTotals = null;
   });
 });

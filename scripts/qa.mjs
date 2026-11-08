@@ -606,6 +606,8 @@ for (const width of WIDTHS) {
     if (topHref && (await outLi.count()) && !(await outLi.getByText(/ · read for (under a minute|\d+ (h|min))/).count())) { failures++; console.log(`✗ ${width}px card On loan now without 'read for <time>'`); }
     await page.goto(`${BASE}/ledger`);
   }
+  // QA57 (C179): the sweep has left notes and highlights in this browser, so "Your notes" counts them.
+  if (!(await page.locator("section[aria-labelledby='export'] p", { hasText: /^You have (\d+ margin notes?|\d+ highlights?)( · \d+ highlights?)? across \d+ books?\.$/ }).count())) { failures++; console.log(`✗ ${width}px ledger Your notes without the count line`); }
   // QA56 (C176): once Hours per book shows whole minutes, Borrowing history says how long that book was read.
   {
     const timedRows = (await page.locator("section[aria-labelledby='hours'] tbody tr td:nth-child(2)").allTextContents()).filter((t) => /\d+ (h|min)/.test(t)).length;

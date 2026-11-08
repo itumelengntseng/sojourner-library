@@ -4,7 +4,8 @@ import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
 import { finishedBooks, finishedDuring, readByWork, finishedStamp, formatHours, barShare, historyHref, historyPage, historySummary, hoursHref, orderHours, parseHoursOrder, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
-import { loadLedger } from "@/lib/ledgerStore";
+import { loadLedger, myAnnotationTotals } from "@/lib/ledgerStore";
+import { NotesTally } from "@/components/NotesTally";
 import { myOpenLoans } from "@/lib/loanStore";
 import { myContinueBySlug } from "@/lib/continueStore";
 import { inline, myBookLeft } from "@/lib/bookLeftStore";
@@ -196,6 +197,8 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
       <section aria-labelledby="export" className="mt-12">
         <h2 id="export" className="text-xl text-paper">Your notes</h2>
         <p className="mt-2 font-sans text-sm text-sandstone">Take your margin notes and highlights with you as a Markdown file.</p>
+        {/* C179: how many there are, across how many books (own only). */}
+        <NotesTally totals={await myAnnotationTotals()} />
         <div className="mt-4">
           {l.mode === "preview" ? <PreviewNotesExport finished={finishMap} /> : (
             <a href="/ledger/notes" className="inline-block rounded bg-lamplight px-4 py-2 font-sans text-sm font-semibold text-ink hover:bg-ember">Export my notes (Markdown)</a>

@@ -7,6 +7,7 @@ import { parsePreviewLoans, PREVIEW_COOKIE, rowToLoan, type LoanRow } from "./lo
 import { splitParagraphs } from "./reader";
 import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
 import { supabaseServer } from "./supabase/server";
+import type { AnnotationTotals } from "./notesCount";
 
 export interface LedgerView {
   mode: "preview" | "library" | "signed-out";
@@ -255,6 +256,20 @@ export async function myAnnotationCount(slug: string): Promise<{ notes: number; 
     supabase.from("highlights").select("id", { count: "exact", head: true }).eq("reader_id", auth.user.id).eq("work_id", work.id),
   ]);
   return { notes: notes ?? 0, highlights: highlights ?? 0 };
+}
+
+/** C179: the reader's own notes and highlights across the library (null in preview — the browser counts). */
+export async function myAnnotationTotals(): Promise<AnnotationTotals | null> {
+  const supabase = await supabaseServer();
+  if (!supabase) return null;
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return { notes: 0, highlights: 0, books: 0 };
+  const [{ data: notes }, { data: hls }] = await Promise.all([
+    supabase.from("notes").select("work_id").eq("reader_id", auth.user.id).limit(5000),
+    supabase.from("highlights").select("work_id").eq("reader_id", auth.user.id).limit(5000),
+  ]);
+  const books = new Set([...(notes ?? []), ...(hls ?? [])].map((r) => r.work_id as string));
+  return { notes: notes?.length ?? 0, highlights: hls?.length ?? 0, books: books.size };
 }
 
 /** C60: the reader's own reading in the last 7 SA days, for the line on the card page. */
