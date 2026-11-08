@@ -573,6 +573,10 @@ for (const width of WIDTHS) {
       await page.goto(`${BASE}${topHref}`);
       if (!(await page.locator("a[href='/ledger#hours']", { hasText: /^You've read for (under a minute|\d+ (h|min)).* in this book/ }).count())) { failures++; console.log(`✗ ${width}px work page without 'You've read for … in this book'`); }
     }
+    // QA54 (C171): if that book is out, the card's On loan now line says how long it has been read.
+    await page.goto(`${BASE}/card`);
+    const outLi = page.getByRole("region", { name: /^On loan now/ }).locator("li", { has: page.locator(`a[href='${topHref}']`) });
+    if (topHref && (await outLi.count()) && !(await outLi.getByText(/ · read for (under a minute|\d+ (h|min))/).count())) { failures++; console.log(`✗ ${width}px card On loan now without 'read for <time>'`); }
     await page.goto(`${BASE}/ledger`);
   }
   // QA44 (C141): this run's open loans were taken out within the hour — "just borrowed", stamp spoken.

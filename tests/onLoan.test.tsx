@@ -114,3 +114,16 @@ describe("count on the On loan now heading (C116)", () => {
     expect(one).not.toContain("due back within the day");
   });
 });
+
+describe("on loan now — read for <time> (C171)", () => {
+  it("adds the reader's own time to the due line of a book read in", () => {
+    const list = onLoanNow([loan({ id: "a", workId: "w1" }), loan({ id: "b", workId: "w2" })], "r", works, now);
+    const html = renderToStaticMarkup(<OnLoanNow loans={list} readMs={{ "placeholder-one": 45 * 60_000 }} />);
+    expect(html.replace(/<!-- -->/g, "")).toContain(" · read for 45 min");
+    expect(html.match(/read for/g)).toHaveLength(1);
+  });
+  it("the card page passes the ledger's hours", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("app/card/page.tsx", "utf8")).toContain("readMs={readMs} />");
+  });
+});
