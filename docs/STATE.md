@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 12 — C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 13 — C173–C175, QA55; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -249,12 +249,17 @@ _Last updated: 2026-11-08 (scheduled build run 12 — C161–C172, QA51–QA54, 
 - C171 — Card page On loan now: a book read in adds "· read for 45 min" to its due line (`OnLoanNow readMs`). Unit-tested + swept (when the top book is out).
 - C172 — Front hall: once the reader has read in two or more books, the summary line adds "· most read: <title>" linking to the work (`mostRead()`; works on the hall's current canon view only). Unit-tested + swept.
 - QA54 (2026-11-08, after C170–C172): `npm run qa` all clear (run twice) — now also requires the work page's "You've read for … in this book" link, the card's "read for" on the top book when it's out, and the front hall's "most read" pointing at the ledger's top book (required when two rows show whole minutes; a sweep's short sessions can record words with no active time, so the check can't always demand it). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 628 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA54).
+- C173 — Card page "Recently returned": a book the reader has read in adds "· read for <time>" to its stamp line (`readMs` on `RecentlyReturned`, from `myHoursBySlug()`; own reading only; nothing when none). Unit-tested + swept.
+- C174 — Reading room end card: on the last page, "You've spent <time> reading this book" (`spentLine()` in `lib/ledger.ts`; the ledger's Time for this book; never in the Keeper's proof copy, which doesn't pass it). Unit-tested + swept.
+- C175 — Writer's Room "Loans this month" tile: checked how it reads aloud — dt label, dd count, dd note, in that order, and the note continues the count in words ("4, taken out in the last 30 days · 2 handed back before they were due"); no markup change needed. Pinned in `tests/glanceSpokenOrder.test.ts`.
+- QA55 (2026-11-08, after C173–C175): `npm run qa` all clear (run twice) — now also checks the form of Recently returned's "read for" and the end card's "You've spent" when present (short sweep sessions may hold no active time, so presence isn't required). Preview e2e 6/6 (`npm run e2e -- --preview`). Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 637 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA55).
 
 ## Next task
-C173 — card page Recently returned "· read for <time>" (BACKLOG.md → FOLLOW-UPS), then C174, C175, QA55. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C176 — ledger Borrowing history "· read for <time>" (BACKLOG.md → FOLLOW-UPS), then C177, C178, QA56. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
+- Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
 - Library-mode (Supabase) code paths are verified against PGlite (schema, RLS, RPCs) and by typecheck, but not yet end-to-end against a real Supabase project — after NEEDS ITU 1, run NEEDS ITU 4 (the e2e script).

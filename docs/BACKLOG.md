@@ -244,7 +244,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C171 Card page "On loan now": a loan the reader has read in adds "· read for <time>" to its line (own reading; nothing when none).
 - [x] C172 Front hall: when the reader has read in two or more books, the library summary line adds "· most read: <title>" linking to the work (own reading).
 - [x] QA54 QA pass after C170–C172.
-- [ ] C173 Card page "Recently returned": a book the reader has read in adds "· read for <time>" to its line (own reading; like C171).
-- [ ] C174 Reading room end card: "You've spent <time> reading this book" (own reading, the ledger's Time; not in the Keeper's proof copy).
-- [ ] C175 Writer's Room glance: check how the "Loans this month" tile reads aloud (label, count, note in order, as C151) and pin it with a test.
-- [ ] QA55 QA pass after C173–C175.
+- [x] C173 Card page "Recently returned": a book the reader has read in adds "· read for <time>" to its line (own reading; like C171).
+- [x] C174 Reading room end card: "You've spent <time> reading this book" (own reading, the ledger's Time; not in the Keeper's proof copy).
+- [x] C175 Writer's Room glance: check how the "Loans this month" tile reads aloud (label, count, note in order, as C151) and pin it with a test.
+- [x] QA55 QA pass after C173–C175.
+- [ ] C176 Ledger Borrowing history: a row for a book the reader has read in adds "· read for <time>" (own reading, the Hours per book total; nothing when none).
+- [ ] C177 Ask the librarian: understands "How long have I read this book?" (and close phrasings) and answers from the reader's own reading time ("You've read for 45 min in this book so far." / "You haven't read in this book yet."); add it as a suggested chip once there is time to report.
+- [ ] C178 Consistency test: the card's "read for", the work page's "You've read for", the end card's "You've spent" and the ledger's Hours per book all show the same figure for one book (one source, pinned).
+- [ ] QA56 QA pass after C176–C178.
