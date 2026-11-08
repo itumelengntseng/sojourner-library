@@ -50,3 +50,34 @@ describe("the notes question as a chip (C185)", () => {
     expect(renderToStaticMarkup(<AskLibrarian title="T" facts={facts} annotations={() => ({ notes: 0, highlights: 2 })} />)).toContain("How many notes have I made?");
   });
 });
+
+describe("the reading room's answer counts a note removed a moment ago (C190)", () => {
+  it("library mode: server count, with this chapter as it stands now", async () => {
+    const { liveBookCount } = await import("@/lib/notesCount");
+    const server = { notes: 5, highlights: 2 }; // whole book at page load
+    const loaded = { notes: 2, highlights: 1 }; // this chapter at page load
+    // One note removed, one highlight added since.
+    const now = liveBookCount(server, loaded, { notes: 1, highlights: 2 });
+    expect(now).toEqual({ notes: 4, highlights: 3 });
+    expect(ask("How many notes have I made?", ctx(now)).text).toBe("You have 4 margin notes and 3 highlights in this book.");
+    // Removing the last ones never goes below nothing.
+    expect(liveBookCount({ notes: 1, highlights: 0 }, { notes: 1, highlights: 0 }, { notes: 0, highlights: 0 })).toEqual({ notes: 0, highlights: 0 });
+    expect(ask("How many notes have I made?", ctx({ notes: 0, highlights: 0 })).text).toBe("You haven't made any notes or highlights in this book yet.");
+  });
+  it("preview: a removed note is gone from this browser's store, so the next count drops", () => {
+    const store: Record<string, string> = { "soj:ann:w:1": JSON.stringify({ notes: [{ id: "a" }, { id: "b" }], highlights: [] }) };
+    expect(previewBookCount("w", [1], (k) => store[k] ?? null).notes).toBe(2);
+    store["soj:ann:w:1"] = JSON.stringify({ notes: [{ id: "b" }], highlights: [] }); // what removeNote persists
+    expect(previewBookCount("w", [1], (k) => store[k] ?? null).notes).toBe(1);
+  });
+  it("the reading room wires it live: removal updates state and the store; the librarian reads a getter at ask time", () => {
+    const room = readFileSync("components/ReaderView.tsx", "utf8");
+    const remove = room.slice(room.indexOf("const removeNote"), room.indexOf("const turnPage"));
+    expect(remove).toContain("setNotes(next);");
+    expect(remove).toContain("persistPreview(next, highlights);");
+    expect(room).toContain(": bookAnnotations ? () => liveCount(notes, highlights) : undefined}");
+    const lib = readFileSync("components/AskLibrarian.tsx", "utf8");
+    expect(lib).toContain('if (typeof src === "function") return src();');
+    expect(lib).toContain("annotations: resolveNotes(annotations)");
+  });
+});

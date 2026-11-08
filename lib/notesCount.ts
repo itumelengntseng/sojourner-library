@@ -70,3 +70,14 @@ export function noteSavedStatus(notesInBook: number | undefined): string {
 export function highlightSavedStatus(highlightsInBook: number | undefined): string {
   return highlightsInBook && highlightsInBook > 0 ? `Highlight saved · ${highlightsInBook} in this book` : "Highlight saved";
 }
+
+/**
+ * C190: the reading room's live count in library mode — the server's count for the whole book at page load,
+ * with this chapter's notes and highlights as they stand now (so one added or removed a moment ago is counted).
+ */
+export function liveBookCount(server: AnnotationCount, loaded: AnnotationCount, current: AnnotationCount): AnnotationCount {
+  return {
+    notes: Math.max(0, server.notes - loaded.notes + current.notes),
+    highlights: Math.max(0, server.highlights - loaded.highlights + current.highlights),
+  };
+}

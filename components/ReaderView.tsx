@@ -13,7 +13,7 @@ import type { ReadingData } from "@/lib/readingRoom";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
 import { useSessionTracker } from "./useSessionTracker";
 import { AskLibrarian } from "./AskLibrarian";
-import { highlightSavedStatus, noteSavedStatus, previewBookCount } from "@/lib/notesCount";
+import { highlightSavedStatus, liveBookCount, noteSavedStatus, previewBookCount } from "@/lib/notesCount";
 import { librarianFacts } from "@/lib/librarian";
 import { wordsBeforeChapter } from "@/lib/reader";
 import { outsideCanonNote } from "@/lib/canon";
@@ -73,6 +73,10 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
       return next;
     });
 
+  // C190: library mode's live count for this book (the server's count, with this chapter as it stands now).
+  const liveCount = (n: MarginNote[], h: Highlight[]) => bookAnnotations
+    ? liveBookCount(bookAnnotations, { notes: data.notes.length, highlights: data.highlights.length }, { notes: n.length, highlights: h.length })
+    : undefined;
   const persistPreview = (n: MarginNote[], h: Highlight[]) => {
     if (preview) writeLocal(annKey(slug, chapter.position), JSON.stringify({ notes: n, highlights: h }));
   };
@@ -143,7 +147,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
     // C188: say so, with the book's own highlight count (as C187 does for notes).
     const inBook = preview
       ? previewBookCount(slug, chapters.map((c) => c.position), readLocal).highlights
-      : bookAnnotations ? Math.max(0, bookAnnotations.highlights - data.highlights.length + next.length) : undefined;
+      : liveCount(notes, next)?.highlights;
     setStatus(highlightSavedStatus(inBook));
   };
 
@@ -175,7 +179,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
     // C187: say so, with the book's own note count (this browser's in preview; the server's count plus this chapter's in library mode).
     const inBook = preview
       ? previewBookCount(slug, chapters.map((c) => c.position), readLocal).notes
-      : bookAnnotations ? Math.max(0, bookAnnotations.notes - data.notes.length + next.length) : undefined;
+      : liveCount(next, highlights)?.notes;
     setStatus(noteSavedStatus(inBook));
   };
 
@@ -376,7 +380,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
             title={data.title}
             // C183: own notes in this book — this browser's (preview), or the server's count with this chapter's live changes (library); none in the proof copy.
             annotations={proof ? undefined : preview ? { slug, positions: chapters.map((c) => c.position) }
-              : bookAnnotations ? () => ({ notes: Math.max(0, bookAnnotations.notes - data.notes.length + notes.length), highlights: Math.max(0, bookAnnotations.highlights - data.highlights.length + highlights.length) }) : undefined}
+              : bookAnnotations ? () => liveCount(notes, highlights) : undefined}
             facts={librarianFacts({ chapters, bookmarkOffset: wordsBeforeChapter(chapters, chapter.position) + behind, wpm, usualMinutesPerDay: minutesPerDay, ...(proof ? {} : { readMs: readMs ?? 0 }) })}
           />
         </div>
