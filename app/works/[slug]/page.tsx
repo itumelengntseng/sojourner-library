@@ -138,7 +138,7 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
             <li key={c.position} className="flex items-baseline justify-between gap-4 py-3">
               <span>{out
                 ? <Link href={`/works/${work.slug}/read?ch=${c.position}`} className="underline-offset-4 hover:text-lamplight hover:underline">{c.title}<span className="sr-only"> — open in the reading room</span></Link>
-                : c.title}<ChapterMarks read={read.has(c.position)} here={here === c.position} />{/* C198 */}<NotedMark noted={byChapter ? !!byChapter[c.position] : null} slug={work.slug} position={c.position} /></span>
+                : c.title}<ChapterMarks read={read.has(c.position)} here={here === c.position} />{/* C198 */}<NotedMark noted={byChapter ? !!byChapter[c.position] : null} slug={work.slug} position={c.position} href={out ? `/works/${work.slug}/read?ch=${c.position}` : undefined} chapter={c.title} /></span>
               <span className="shrink-0 font-sans text-xs text-sandstone">{formatWords(c.words)} · {formatDuration(c.minutes)}</span>
             </li>
           ))}
