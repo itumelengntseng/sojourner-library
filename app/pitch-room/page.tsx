@@ -63,7 +63,10 @@ export default async function PitchRoom({ searchParams }: { searchParams: Promis
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="text-xl text-paper">{p.work.title}</h2>
                 <span className={`font-sans text-xs ${st.ready ? "text-lamplight" : "text-ember"}`}>
-                  {st.ready ? "Ready to send" : st.placeholder ? "Placeholder — awaiting the author's words" : `Missing: ${st.missing.join(", ")}`}
+                  {st.ready ? "Ready to send" : st.placeholder
+                    // C225: the placeholder status leads straight to the kit's editor.
+                    ? <Link href={`/pitch-room/${k.slug}/edit`} className="underline underline-offset-2 hover:text-lamplight" data-kit-status>Placeholder — awaiting the author&apos;s words<span className="sr-only">: edit the kit for {p.work.title}</span></Link>
+                    : `Missing: ${st.missing.join(", ")}`}
                 </span>
               </div>
               <p className="mt-2 text-paper/90">{k.logline || <span className="font-sans text-sm text-sandstone">No logline yet.</span>}</p>
