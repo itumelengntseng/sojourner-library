@@ -40,6 +40,8 @@ for (const width of WIDTHS) {
     const problems = [
       ...bad.map((v) => `axe ${v.impact}: ${v.id} — ${v.help} (${v.nodes.length}× e.g. ${v.nodes.slice(0, 9).map((n) => n.target.join(" ")).join(", ")})`),
       ...(overflow > 0 ? [`page scrolls sideways by ${overflow}px`] : []),
+      // QA70 (C220): every page's footer names the author and carries the copyright.
+      ...((await page.locator("footer").filter({ hasText: "All works by Itumeleng Ntseng" }).filter({ hasText: "© Itumeleng Ntseng" }).count()) ? [] : ["footer without '© Itumeleng Ntseng'"]),
       ...errors.filter((e) => !/404/.test(e)).map((e) => `console: ${e}`),
     ];
     failures += problems.length;
@@ -159,9 +161,22 @@ for (const width of WIDTHS) {
   await page.locator('textarea[name="manuscript"]').fill("# Placeholder Work One\n\n## Chapter 1\n\nPlaceholder text for the QA sweep.\n\n## A new chapter\n\nMore placeholder text.");
   await page.getByRole("region", { name: "Import preview" }).waitFor();
   await axeCheck(`${width}px writer's room re-import preview + glance tiles`);
-  // QA69 (C215): the glance counts the placeholder works (all of them in preview) and leads to the shelf list.
-  if (!(await page.locator("dl div", { has: page.locator("dt", { hasText: "Still placeholder" }) }).locator("a[href='#shelves']", { hasText: /^works? waits? for your manuscripts?$/ }).count())) { failures++; console.log(`✗ ${width}px writer's room glance without the Still placeholder tile`); }
+  // QA69 (C215): the glance counts the placeholder works (all of them in preview) and leads to the shelf list; QA70 (C219): one to three are named.
+  if (!(await page.locator("dl div", { has: page.locator("dt", { hasText: "Still placeholder" }) }).locator("a[href='#shelves']", { hasText: /^(Placeholder Work \w+(, Placeholder Work \w+)*( and Placeholder Work \w+)?|works?) waits? for your manuscripts?$/ }).count())) { failures++; console.log(`✗ ${width}px writer's room glance without the Still placeholder tile`); }
   else console.log(`✓ ${width}px writer's room glance counts placeholder works`);
+  // QA70 (C218): a placeholder work's "replace with your manuscript" opens the import form with its title filled in.
+  {
+    const link = page.locator("a", { hasText: "replace with your manuscript" }).first();
+    if (!(await link.count())) { failures++; console.log(`✗ ${width}px writer's room: no 'replace with your manuscript' link`); }
+    else {
+      await link.click();
+      await page.waitForURL(/replace=placeholder-work-/);
+      const val = await page.locator('input[name="title"]').inputValue();
+      const note = await page.getByRole("status").filter({ hasText: "Nothing changes until you save" }).count();
+      if (!/^Placeholder Work /.test(val) || !note) { failures++; console.log(`✗ ${width}px replace: title '${val}', note ${note}`); }
+      else { await axeCheck(`${width}px writer's room replacing a placeholder`); console.log(`✓ ${width}px replace with your manuscript fills in '${val}'`); }
+    }
+  }
 
   errors.length = 0;
   await page.goto(`${BASE}/works/placeholder-work-one/read?ch=2`);
