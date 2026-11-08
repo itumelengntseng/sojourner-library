@@ -574,8 +574,11 @@ for (const width of WIDTHS) {
       if (!(await page.locator("a[href='/ledger#hours']", { hasText: /^You've read for (under a minute|\d+ (h|min)).* in this book/ }).count())) { failures++; console.log(`✗ ${width}px work page without 'You've read for … in this book'`); }
     }
     // QA54 (C172): the front hall names the most-read book after its summary.
+    // (Rows reading "under a minute" may hold no active time, so only two rows with whole minutes make it certain.)
+    const timed = (await page.locator("section[aria-labelledby='hours'] tbody tr td:nth-child(2)").allTextContents()).filter((t) => /\d+ (h|min)/.test(t)).length;
     await page.goto(`${BASE}/`);
-    if (topHref && (await page.locator("p", { hasText: / · most read: / }).locator("a").first().getAttribute("href").catch(() => null)) !== topHref) { failures++; console.log(`✗ ${width}px front hall without '· most read: <title>' for ${topHref}`); }
+    const mostHref = (await page.locator("p", { hasText: / · most read: / }).count()) ? await page.locator("p", { hasText: / · most read: / }).locator("a").first().getAttribute("href") : null;
+    if ((timed >= 2 && mostHref !== topHref) || (mostHref && mostHref !== topHref)) { failures++; console.log(`✗ ${width}px front hall '· most read' is ${mostHref}, expected ${topHref}`); }
     // QA54 (C171): if that book is out, the card's On loan now line says how long it has been read.
     await page.goto(`${BASE}/card`);
     const outLi = page.getByRole("region", { name: /^On loan now/ }).locator("li", { has: page.locator(`a[href='${topHref}']`) });

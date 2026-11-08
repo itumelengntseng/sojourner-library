@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 12 — C161–C169, QA51–QA53; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 12 — C161–C172, QA51–QA54; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -245,10 +245,14 @@ _Last updated: 2026-11-08 (scheduled build run 12 — C161–C169, QA51–QA53; 
 - C168 — Halls, Most read by you: each hall's summary adds "· you've read in 2 of 3 here" (`readInHall()`; nothing when none). Unit-tested + swept.
 - C169 — Ledger Hours per book, Most hours: the top row wears a lamplight "most read" mark (spoken "your most-read book"; two or more books only). Unit-tested + swept.
 - QA53 (2026-11-08, after C167–C169): `npm run qa` all clear (run twice) — now also requires the top book's spine to say its time read, its hall's "read in N of M here", and exactly one "most read" mark on the ledger (375px + 1280px, axe clean). Preview e2e 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 622 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA53).
+- C170 — Work page: under the loan desk, "You've read for 45 min in this book" linking to `/ledger#hours` (`readForLine()`; nothing when none). Unit-tested + swept.
+- C171 — Card page On loan now: a book read in adds "· read for 45 min" to its due line (`OnLoanNow readMs`). Unit-tested + swept (when the top book is out).
+- C172 — Front hall: once the reader has read in two or more books, the summary line adds "· most read: <title>" linking to the work (`mostRead()`; works on the hall's current canon view only). Unit-tested + swept.
+- QA54 (2026-11-08, after C170–C172): `npm run qa` all clear (run twice) — now also requires the work page's "You've read for … in this book" link, the card's "read for" on the top book when it's out, and the front hall's "most read" pointing at the ledger's top book (required when two rows show whole minutes; a sweep's short sessions can record words with no active time, so the check can't always demand it). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 628 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA54).
 
 ## Next task
-C170 — work page "You've read for <time> in this book" (BACKLOG.md → FOLLOW-UPS), then C171, C172, QA54. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C173 — card page Recently returned "· read for <time>" (BACKLOG.md → FOLLOW-UPS), then C174, C175, QA55. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
@@ -323,3 +327,4 @@ C170 — work page "You've read for <time> in this book" (BACKLOG.md → FOLLOW-
 - Ledger Hours per book defaults to "Recently read"; "Most hours" is opt-in via `?hours=most` (C157), like the halls' `?sort=`.
 - The halls' "Most read by you" (C162) ranks by the reader's own active reading time (the ledger's Time column), not words read; it reads the same 400 days the ledger does.
 - "Loans this month" (C163) means the last 30 days (rolling), matching the ledger's 30-day line (C152).
+- "Read in" a book (C162–C172) means the reader has some active reading time in it (the ledger's Time > 0); a session that recorded words but no active time doesn't count. The work page, card, halls and front hall now read the reader's own ledger hours (`myHoursBySlug()`), same 400-day window as the ledger.

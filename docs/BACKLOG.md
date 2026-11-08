@@ -240,7 +240,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C168 Halls, "Most read by you" order: each hall's summary line adds "· you've read in N of M here" (own reading only; nothing when none).
 - [x] C169 Ledger Hours per book, "Most hours" order: the top row wears a small lamplight "most read" mark (spoken "your most-read book"; only with two or more books).
 - [x] QA53 QA pass after C167–C169.
-- [ ] C170 Work page: under the loan desk, "You've read for <time> in this book" (own reading, the ledger's Time; links to `/ledger#hours`; nothing when none).
-- [ ] C171 Card page "On loan now": a loan the reader has read in adds "· read for <time>" to its line (own reading; nothing when none).
-- [ ] C172 Front hall: when the reader has read in two or more books, the library summary line adds "· most read: <title>" linking to the work (own reading).
-- [ ] QA54 QA pass after C170–C172.
+- [x] C170 Work page: under the loan desk, "You've read for <time> in this book" (own reading, the ledger's Time; links to `/ledger#hours`; nothing when none).
+- [x] C171 Card page "On loan now": a loan the reader has read in adds "· read for <time>" to its line (own reading; nothing when none).
+- [x] C172 Front hall: when the reader has read in two or more books, the library summary line adds "· most read: <title>" linking to the work (own reading).
+- [x] QA54 QA pass after C170–C172.
+- [ ] C173 Card page "Recently returned": a book the reader has read in adds "· read for <time>" to its line (own reading; like C171).
+- [ ] C174 Reading room end card: "You've spent <time> reading this book" (own reading, the ledger's Time; not in the Keeper's proof copy).
+- [ ] C175 Writer's Room glance: check how the "Loans this month" tile reads aloud (label, count, note in order, as C151) and pin it with a test.
+- [ ] QA55 QA pass after C173–C175.
