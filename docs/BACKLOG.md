@@ -276,7 +276,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C195 Work page "You have … in this book" line: check it agrees with the ledger's Hours per book count and the card's counts for the same book (one consistency test, like C178).
 - [x] C196 QA sweep: the Continue reading notes check (QA61) only runs when the card names Placeholder Work One — seed a note in whichever book the card names so it always runs.
 - [x] QA62 QA pass after C194–C196.
-- [ ] C197 Reading room Contents drawer: a chapter holding the reader's notes or highlights adds "· 2 notes" to its line (own only; this browser in preview, the reading data's own rows in library mode; this chapter live).
-- [ ] C198 Work page chapter list: a chapter holding the reader's notes shows a quiet "noted" mark beside "read"/"you're here" (own only; spoken "you have notes here").
-- [ ] C199 Ask the librarian: "Where are my notes?" → "Your notes are in Placeholder chapter 1 and Placeholder chapter 3." (chapter titles only, own notes; none → the C183 'none yet' reply; not in the proof copy).
-- [ ] QA63 QA pass after C197–C199.
+- [x] C197 Reading room Contents drawer: a chapter holding the reader's notes or highlights adds "· 2 notes" to its line (own only; this browser in preview, the reading data's own rows in library mode; this chapter live).
+- [x] C198 Work page chapter list: a chapter holding the reader's notes shows a quiet "noted" mark beside "read"/"you're here" (own only; spoken "you have notes here").
+- [x] C199 Ask the librarian: "Where are my notes?" → "Your notes are in Placeholder chapter 1 and Placeholder chapter 3." (chapter titles only, own notes; none → the C183 'none yet' reply; not in the proof copy).
+- [x] QA63 QA pass after C197–C199.
+- [ ] C200 Ask the librarian: offer "Where are my notes?" as a chip once the book holds notes in two or more chapters (and in the fallback reply, keeping C180's rule).
+- [ ] C201 Work page "noted" mark: link it to the reading room at that chapter while the book is on loan (spoken "open your notes in <chapter>"); plain mark otherwise.
+- [ ] C202 Reading room Contents: the drawer's heading line adds "· notes in 2 chapters" when the reader has notes in more than one chapter (own only; live).
+- [ ] QA64 QA pass after C200–C202.
