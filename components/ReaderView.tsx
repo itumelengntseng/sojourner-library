@@ -212,6 +212,13 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
   }, [settings.layout]);
 
   const contentsRef = useRef<HTMLDetailsElement>(null);
+  // C210: open the Contents drawer from the page (the "elsewhere" line), moving focus to its toggle.
+  const openContents = () => {
+    const d = contentsRef.current;
+    if (!d) return;
+    d.open = true;
+    d.querySelector("summary")?.focus();
+  };
   const helpRef = useRef<HTMLDialogElement>(null);
   const keyActions = useRef<(a: ReaderKeyAction) => void>(() => {});
   keyActions.current = (a) => {
@@ -335,7 +342,12 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
         {/* C207: none of the reader's notes here, but some in other chapters (live, from the Contents counts). */}
         {!proof && (() => {
           const line = elsewhereLine(chapterCount(chapter.position), chapters.filter((c) => c.position !== chapter.position).map((c) => chapterCount(c.position)));
-          return line ? <p data-notes-elsewhere="" className="mt-2 font-sans text-[0.7rem] opacity-80">{line}</p> : null;
+          // C210: "· see Contents" opens the drawer, where the noted chapters are counted.
+          return line ? (
+            <p data-notes-elsewhere="" className="mt-2 font-sans text-[0.7rem] opacity-80">
+              {line} · <button type="button" aria-label="open Contents to find your notes" onClick={openContents} className="underline underline-offset-2">see Contents</button>
+            </p>
+          ) : null;
         })()}
 
         <div

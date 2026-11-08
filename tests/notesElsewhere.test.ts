@@ -19,3 +19,14 @@ describe("notes elsewhere in this book (C207)", () => {
     expect(room).toContain('data-notes-elsewhere=""');
   });
 });
+
+// C210: the line ends with a button that opens the Contents drawer.
+describe("see Contents from the elsewhere line (C210)", () => {
+  it("opens the drawer and focuses its toggle; spoken 'open Contents to find your notes'", () => {
+    const room = readFileSync("components/ReaderView.tsx", "utf8");
+    expect(room).toContain('{line} · <button type="button" aria-label="open Contents to find your notes" onClick={openContents}');
+    const fn = room.slice(room.indexOf("const openContents = () => {"), room.indexOf("};", room.indexOf("const openContents = () => {")));
+    expect(fn).toContain("d.open = true;");
+    expect(fn).toContain('d.querySelector("summary")?.focus();');
+  });
+});

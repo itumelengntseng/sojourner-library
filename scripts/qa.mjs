@@ -700,9 +700,18 @@ for (const width of WIDTHS) {
         else console.log(`✓ ${width}px reading room Contents counts chapter 1's notes (${slug})`);
         // QA66 (C207): chapter 2 holds none of the notes chapter 1 does, so the page says how many are elsewhere.
         const ch2Noted = await page.getByRole("navigation", { name: "Contents" }).locator("li").nth(1).getByText(/ · \d+ (notes?|highlights?)/).count();
-        const elsewhere = page.locator("[data-notes-elsewhere]", { hasText: /^No notes in this chapter yet · \d+ elsewhere in this book$/ });
+        const elsewhere = page.locator("[data-notes-elsewhere]", { hasText: /^No notes in this chapter yet · \d+ elsewhere in this book · see Contents$/ });
         if (ch2Noted ? await elsewhere.count() : !(await appears(elsewhere))) { failures++; console.log(`✗ ${width}px reading room chapter 2 notes-elsewhere line ${ch2Noted ? "shown with notes here" : "missing"} (${slug})`); }
         else console.log(`✓ ${width}px reading room chapter 2 ${ch2Noted ? "has notes (no elsewhere line)" : "says how many notes are elsewhere"} (${slug})`);
+        // QA67 (C210): "see Contents" opens the drawer.
+        if (!ch2Noted && (await elsewhere.count())) {
+          await page.keyboard.press("Escape");
+          await page.evaluate(() => { const d = document.querySelector("details"); if (d) d.open = false; });
+          await elsewhere.getByRole("button", { name: "open Contents to find your notes" }).click();
+          if (!(await page.evaluate(() => document.querySelector("details")?.open))) { failures++; console.log(`✗ ${width}px reading room 'see Contents' didn't open the drawer`); }
+          else console.log(`✓ ${width}px reading room 'see Contents' opens the drawer`);
+          await page.evaluate(() => { const d = document.querySelector("details"); if (d) d.open = false; });
+        }
       }
     }
   }
