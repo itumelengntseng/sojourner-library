@@ -264,7 +264,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C186 Ledger Hours per book: a book with notes adds a quiet "· N notes" after its time (own only; library counts per work, preview counted in the browser).
 - [x] C187 Reading room: after adding a margin note, the status line says "Note saved · N in this book" (own count, live; not in the proof copy, which can't add notes).
 - [x] QA59 QA pass after C185–C187.
-- [ ] C188 Reading room: after adding a highlight, the status says "Highlight saved · N in this book" (own count, live; as C187).
-- [ ] C189 Card page "On loan now": a loan with the reader's notes adds "· N notes" to its line (own only; library counts per work, preview counted in the browser — reuse `BookNotesCount`).
-- [ ] C190 Librarian: "How many notes have I made?" in the reading room — check the answer counts a note removed a moment ago (live getter) and pin it with a test.
-- [ ] QA60 QA pass after C188–C190.
+- [x] C188 Reading room: after adding a highlight, the status says "Highlight saved · N in this book" (own count, live; as C187).
+- [x] C189 Card page "On loan now": a loan with the reader's notes adds "· N notes" to its line (own only; library counts per work, preview counted in the browser — reuse `BookNotesCount`).
+- [x] C190 Librarian: "How many notes have I made?" in the reading room — check the answer counts a note removed a moment ago (live getter) and pin it with a test.
+- [x] QA60 QA pass after C188–C190.
+- [ ] C191 Reading room: removing a note or highlight sets the status to "Note removed · N left in this book" / "Highlight removed · N left in this book" (own count, live — `liveBookCount()`; "… · none left in this book" at zero).
+- [ ] C192 Card page "Recently returned": a book with the reader's notes adds "· N notes · M highlights" to its stamp line (reuse `BookNotesCount`; own only).
+- [ ] C193 Front hall "Continue reading" card: adds "· N notes" for the book when the reader has any (own only; reuse `BookNotesCount`).
+- [ ] QA61 QA pass after C191–C193.

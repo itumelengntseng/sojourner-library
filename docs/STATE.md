@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 13 — C173–C187, QA55–QA59, `preview` refreshed to main; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 14 — C188–C190, QA60, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -269,10 +269,14 @@ _Last updated: 2026-11-08 (scheduled build run 13 — C173–C187, QA55–QA59, 
 - C186 — Ledger Hours per book: "· 2 notes · 1 highlight" after a book's time (`shortNotesLine()`, `components/BookNotesCount.tsx`; library: `myAnnotationsByWork()` own rows per work; preview: counted in this browser). Unit-tested + swept.
 - C187 — Reading room: saving a margin note sets the status line to "Note saved · 3 in this book" (`noteSavedStatus()`; this browser's count in preview, the server's count plus this chapter's live notes in library mode). The proof copy has no Note button. Unit-tested; the e2e script's note step now waits for it.
 - QA59 (2026-11-08, after C185–C187): `npm run qa` all clear (run twice) — now also requires the notes chip on a book with notes and the notes count beside Placeholder Work One in Hours per book. Preview e2e 6/6 (incl. the new status check). Performance (local prod build, curl): every page < 17 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 661 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA59).
+- C188 — Reading room: saving a highlight sets the status line to "Highlight saved · 2 in this book" (`highlightSavedStatus()`; this browser's count in preview, the server's count plus this chapter's live highlights in library mode). Unit-tested; the e2e script now highlights a passage and waits for it.
+- C189 — Card page "On loan now": a loan whose book holds the reader's notes adds "· 2 notes · 1 highlight" to its due line (`BookNotesCount`; library: `myAnnotationsByWork()` own rows per work; preview: counted in this browser). Unit-tested + swept.
+- C190 — Ask the librarian in the reading room: checked the notes answer counts a note removed a moment ago — library mode's live getter and the C187/C188 statuses now share `liveBookCount()` (server count for the book, with this chapter as it stands now; never below zero); preview re-reads this browser's store, which `removeNote` rewrites. Pinned in `tests/librarianNotes.test.tsx`.
+- QA60 (2026-11-08, after C188–C190): `npm run qa` all clear (run twice) — now also requires the card's notes count on Placeholder Work One's loan (375px + 1280px). Preview e2e 7/7 (new step: highlight a passage → "Highlight saved · N in this book"). Performance (local prod build, curl): every page < 16 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (the card reads own notes/highlights rows, already limited to their reader).
+- Tests: 669 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA60).
 
 ## Next task
-C188 — reading room "Highlight saved · N in this book" (BACKLOG.md → FOLLOW-UPS), then C189, C190, QA60. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C191 — reading room "Note removed · N left in this book" (BACKLOG.md → FOLLOW-UPS), then C192, C193, QA61. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
