@@ -24,7 +24,7 @@ describe("ledger Hours per book — order toggle (C157)", () => {
   it("the ledger shows the toggle with two or more books and orders the table by it", () => {
     const src = readFileSync("app/ledger/page.tsx", "utf8");
     expect(src).toContain('<nav aria-label="Order hours per book"');
-    expect(src).toContain("{orderHours(l.hours, hoursOrder).map((h) => (");
+    expect(src).toContain("{orderHours(l.hours, hoursOrder).map((h, i) => (");
   });
 });
 

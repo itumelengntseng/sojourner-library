@@ -104,9 +104,13 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
               <tr><th className="py-2 font-normal">Work</th><th className="py-2 font-normal">Time</th><th className="hidden py-2 font-normal sm:table-cell">Words</th><th className="py-2 text-right font-normal">Last read</th></tr>
             </thead>
             <tbody className="divide-y divide-timber-dark/70 border-y border-timber-dark/70">
-              {orderHours(l.hours, hoursOrder).map((h) => (
+              {orderHours(l.hours, hoursOrder).map((h, i) => (
                 <tr key={h.workKey}>
-                  <td className="py-3 pr-2">{link(h.workKey) ? <Link href={link(h.workKey)!} className="hover:text-lamplight">{title(h.workKey)}</Link> : title(h.workKey)}{h.finishedAt !== undefined && <span className="ml-2 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">{finishedStamp(h.finishedAt)}</span>}
+                  <td className="py-3 pr-2">{link(h.workKey) ? <Link href={link(h.workKey)!} className="hover:text-lamplight">{title(h.workKey)}</Link> : title(h.workKey)}
+                    {/* C169: under Most hours, the top book (two or more books). */}
+                    {hoursOrder === "most" && i === 0 && l.hours.length > 1 && h.activeMs > 0 && (
+                      <span className="ml-2 inline-block rounded-sm bg-lamplight/15 px-1.5 py-0.5 align-middle font-mono text-[0.65rem] uppercase tracking-wider text-lamplight"><span aria-hidden="true">most read</span><span className="sr-only">your most-read book</span></span>
+                    )}{h.finishedAt !== undefined && <span className="ml-2 inline-block -rotate-2 rounded-sm border border-lamplight/70 px-1.5 font-mono text-[0.65rem] uppercase tracking-wider text-lamplight">{finishedStamp(h.finishedAt)}</span>}
                     {l.slugs[h.workKey] && dueSoonBy[l.slugs[h.workKey]] && (
                       <span className="ml-2 inline-block -rotate-2 rounded-sm border border-ember px-1.5 py-0.5 align-middle font-mono text-[0.65rem] uppercase tracking-wider text-ember">
                         Due soon<span className="sr-only">: back by {dueSoonBy[l.slugs[h.workKey]]}</span>
