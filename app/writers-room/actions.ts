@@ -29,6 +29,9 @@ export async function importAction(_: RoomState, form: FormData): Promise<RoomSt
   const slug = slugify(String(form.get("slug") ?? "") || title);
   const canon = String(form.get("canon") ?? "draft");
   if (!CANON.includes(canon)) return { ok: false, message: "Choose canon, draft or apocrypha." };
+  // C230: was this work still marked Placeholder? (import_manuscript() clears the mark.)
+  const { data: before } = await supabase.from("works").select("is_placeholder").eq("slug", slug).maybeSingle();
+  const replacedPlaceholder = before?.is_placeholder === true;
   const { error } = await supabase.rpc("import_manuscript", {
     p_slug: slug, p_title: title, p_canon_status: canon,
     p_chapters: parsed.chapters.map((c) => ({ title: c.title, body: c.body, words: c.words })),
@@ -38,7 +41,7 @@ export async function importAction(_: RoomState, form: FormData): Promise<RoomSt
   // C216: say where it now stands (a re-import keeps the work's sharing) and offer the proof copy.
   const { data: row } = await supabase.from("works").select("visibility").eq("slug", slug).maybeSingle();
   const visibility = row?.visibility === "members" ? "members" : "owner";
-  return { ok: true, message: importedMessage(title, parsed.chapters.length, parsed.words, canon, visibility), link: { href: `/works/${slug}/proof`, label: "Open the proof copy" } };
+  return { ok: true, message: importedMessage(title, parsed.chapters.length, parsed.words, canon, visibility, replacedPlaceholder), link: { href: `/works/${slug}/proof`, label: "Open the proof copy" } };
 }
 
 export async function workSettingsAction(_: RoomState, form: FormData): Promise<RoomState> {

@@ -124,7 +124,8 @@ const CANON_WORD: Record<string, string> = { canon: "Canon", draft: "Draft", apo
  * C216: what the Writer's Room says after an import — the work's name, its size, and where it now stands
  * ("Draft · Only me" for a new import; a re-import keeps whatever sharing the work already had).
  */
-export function importedMessage(title: string, chapters: number, words: number, canon: string, visibility: "owner" | "members"): string {
-  const where = `${CANON_WORD[canon] ?? "Draft"} · ${visibility === "members" ? "shared with card holders" : "Only me"}`;
+export function importedMessage(title: string, chapters: number, words: number, canon: string, visibility: "owner" | "members", replacedPlaceholder = false): string {
+  // C230: a save over a work still marked Placeholder says the mark is gone.
+  const where = `${CANON_WORD[canon] ?? "Draft"} · ${visibility === "members" ? "shared with card holders" : "Only me"}${replacedPlaceholder ? " · no longer a placeholder" : ""}`;
   return `Saved "${title}" — ${chapters} chapter${chapters === 1 ? "" : "s"}, ${words.toLocaleString("en-ZA").replace(/\s/g, " ")} words · ${where}.`;
 }
