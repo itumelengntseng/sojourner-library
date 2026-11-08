@@ -58,7 +58,8 @@ for (const settings of [{ theme: "sepia" }, { theme: "light" }, { theme: "dark",
     highlights: ["lamplight", "ochre", "sky"].map((c, i) => ({ id: c, start: i * 40, end: i * 40 + 30, colour: c })),
   })));
   await page.reload();
-  await page.waitForTimeout(400);
+  // C184: the stored highlights are drawn after hydration — wait for them, not a fixed pause.
+  if (!(await appears(page.locator("mark[data-start]")))) { failures++; console.log(`✗ reading room (${settings.theme}${settings.layout ? `, ${settings.layout}` : ""}): stored highlights never appeared`); }
   await page.evaluate(axeSource);
   const result = await page.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21aa"] }));
   const bad = result.violations.filter((v) => ["serious", "critical"].includes(v.impact));
@@ -88,6 +89,11 @@ for (const settings of [{ theme: "sepia" }, { theme: "light" }, { theme: "dark",
 }
 
 // Pages in a particular state (QA4): the keys card open, and a ledger with months of reading.
+// C184: wait for a line the browser fills in after hydration (localStorage counts) instead of reading it once.
+async function appears(locator, timeout = 5000) {
+  return locator.first().waitFor({ timeout }).then(() => true, () => false);
+}
+
 async function axeCheck(label) {
   await page.evaluate(axeSource);
   const result = await page.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21aa"] }));
@@ -608,14 +614,20 @@ for (const width of WIDTHS) {
   }
   // QA57 (C179): the sweep has left notes and highlights in this browser, so "Your notes" counts them.
   // (In preview the line is counted in the browser after hydration, so wait for it.)
-  if (!(await page.locator("section[aria-labelledby='export'] p", { hasText: /^You have (\d+ margin notes?|\d+ highlights?)( · \d+ highlights?)? across \d+ books?\.$/ }).first().waitFor({ timeout: 5000 }).then(() => true, () => false))) { failures++; console.log(`✗ ${width}px ledger Your notes without the count line`); }
+  if (!(await appears(page.locator("section[aria-labelledby='export'] p", { hasText: /^You have (\d+ margin notes?|\d+ highlights?)( · \d+ highlights?)? across \d+ books?\.$/ })))) { failures++; console.log(`✗ ${width}px ledger Your notes without the count line`); }
   // QA58 (C182): with notes in two or more books, a work page with notes links to all of them.
   {
-    const tally = (await page.locator("section[aria-labelledby='export'] p", { hasText: /^You have .* across \d+ books?\.$/ }).first().textContent().catch(() => "")) ?? "";
+    // At the last width, a note in a second book makes it two books, so both sides of the rule are seen.
+    if (width === WIDTHS[WIDTHS.length - 1]) {
+      await page.evaluate(() => localStorage.setItem("soj:ann:placeholder-work-two:1", JSON.stringify({ notes: [{ id: "qa2", anchor: 0, body: "QA note, second book", createdAt: 1 }], highlights: [] })));
+      await page.reload();
+    }
+    const tallyLoc = page.locator("section[aria-labelledby='export'] p", { hasText: /^You have .* across \d+ books?\.$/ });
+    const tally = (await appears(tallyLoc)) ? ((await tallyLoc.first().textContent()) ?? "") : "";
     const books = Number(tally.match(/across (\d+) book/)?.[1] ?? 0);
     await page.goto(`${BASE}/works/placeholder-work-one`);
     const line = page.locator("p", { hasText: /^You have .* in this book/ }).first();
-    if (await line.waitFor({ timeout: 5000 }).then(() => true, () => false)) {
+    if (await appears(line)) {
       const linked = await line.locator("a[href='/ledger#export']").count();
       if ((books >= 2) !== (linked > 0)) { failures++; console.log(`✗ ${width}px work page 'all your notes' link ${linked ? "shown" : "missing"} with notes in ${books} book(s)`); }
       else console.log(`✓ ${width}px work page notes line (${books} book(s) with notes${linked ? ", links to all" : ""})`);
