@@ -12,8 +12,9 @@ import { latestLoan } from "@/lib/loanDesk";
 import { loadDesk } from "@/lib/loanStore";
 import { outsideCanonNote } from "@/lib/canon";
 import { myPace } from "@/lib/sessionStore";
-import { myAnnotationTotals, myAnnotationCount, myChaptersRead, myFinish, myFirstRead, myHoursBySlug } from "@/lib/ledgerStore";
+import { myAnnotationTotals, myAnnotationCount, myAnnotationsByChapter, myChaptersRead, myFinish, myFirstRead, myHoursBySlug } from "@/lib/ledgerStore";
 import { YourNotes } from "@/components/YourNotes";
+import { NotedMark } from "@/components/NotedMark";
 import { myContinueReading } from "@/lib/continueStore";
 import { ChapterMarks } from "@/components/ChapterMarks";
 import { locateBookmark } from "@/lib/reader";
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function WorkPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const work = await findWork((await params).slug);
   if (!work) notFound();
-  const [desk, pace, finished, readPositions, annotations, continueAt, firstRead, myHours, noteTotals] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug), myAnnotationCount(work.slug), myContinueReading(work.slug), myFirstRead(work.slug), myHoursBySlug(), myAnnotationTotals()]);
+  const [desk, pace, finished, readPositions, annotations, continueAt, firstRead, myHours, noteTotals, byChapter] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug), myAnnotationCount(work.slug), myContinueReading(work.slug), myFirstRead(work.slug), myHoursBySlug(), myAnnotationTotals(), myAnnotationsByChapter(work.slug)]);
   const readFor = readForLine(myHours[work.slug]); // C170
   const stats = workStats(work, pace.wpm);
   const facts = librarianFacts({
@@ -136,7 +137,7 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
             <li key={c.position} className="flex items-baseline justify-between gap-4 py-3">
               <span>{out
                 ? <Link href={`/works/${work.slug}/read?ch=${c.position}`} className="underline-offset-4 hover:text-lamplight hover:underline">{c.title}<span className="sr-only"> — open in the reading room</span></Link>
-                : c.title}<ChapterMarks read={read.has(c.position)} here={here === c.position} /></span>
+                : c.title}<ChapterMarks read={read.has(c.position)} here={here === c.position} />{/* C198 */}<NotedMark noted={byChapter ? !!byChapter[c.position] : null} slug={work.slug} position={c.position} /></span>
               <span className="shrink-0 font-sans text-xs text-sandstone">{formatWords(c.words)} · {formatDuration(c.minutes)}</span>
             </li>
           ))}
