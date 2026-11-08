@@ -25,3 +25,17 @@ describe("Contents drawer notes per chapter (C197)", () => {
     expect(fn.match(/\.eq\("reader_id", auth\.user\.id\)/g)).toHaveLength(2);
   });
 });
+
+describe("Contents notes-in-chapters line (C202)", () => {
+  it("only once notes sit in more than one chapter", async () => {
+    const { notesInChaptersLine } = await import("@/lib/notesCount");
+    expect(notesInChaptersLine(0)).toBeNull();
+    expect(notesInChaptersLine(1)).toBeNull();
+    expect(notesInChaptersLine(2)).toBe(" · notes in 2 chapters");
+  });
+  it("the drawer's first line carries it, counted from the same per-chapter counts (none in the proof copy)", () => {
+    const room = readFileSync("components/ReaderView.tsx", "utf8");
+    expect(room).toContain("left in this book` : \"You're at the end of this book\"}{notesInChaptersLine(notedChapters.length)}");
+    expect(room).toContain("const notedChapters = chapters.filter((c) => { const n = chapterCount(c.position); return !!n && n.notes + n.highlights > 0; });");
+  });
+});

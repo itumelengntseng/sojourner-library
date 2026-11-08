@@ -627,14 +627,16 @@ for (const width of WIDTHS) {
     await page.reload();
   }
   {
-    await appears(page.locator(".sr-only", { hasText: "you have notes here" }));
-    const noted = await page.locator(".sr-only", { hasText: "you have notes here" }).count();
+    await appears(page.locator(".sr-only", { hasText: /^(you have notes here|open your notes in .+)$/ }));
+    const noted = await page.locator(".sr-only", { hasText: /^(you have notes here|open your notes in .+)$/ }).count();
     const chip = await page.getByRole("button", { name: "Where are my notes?" }).count();
     if ((noted >= 2) !== (chip > 0)) { failures++; console.log(`✗ ${width}px librarian where-notes chip ${chip ? "shown" : "missing"} with notes in ${noted} chapter(s)`); }
     else console.log(`✓ ${width}px librarian where-notes chip (${noted} chapter(s) noted${chip ? ", offered" : ""})`);
   }
-  if (!(await appears(page.getByRole("region", { name: "Contents" }).locator("li").first().locator(".sr-only", { hasText: "you have notes here" })))) { failures++; console.log(`✗ ${width}px work page Contents without the noted mark on chapter 1`); }
+  if (!(await appears(page.getByRole("region", { name: "Contents" }).locator("li").first().locator(".sr-only", { hasText: /^(you have notes here|open your notes in .+)$/ })))) { failures++; console.log(`✗ ${width}px work page Contents without the noted mark on chapter 1`); }
   else console.log(`✓ ${width}px work page marks chapter 1 noted`);
+  // QA64 (C201): the book is out, so chapter 1's mark opens it in the reading room.
+  if (!(await page.locator("section[aria-labelledby='contents'] li").first().locator("a[href='/works/placeholder-work-one/read?ch=1']", { hasText: /open your notes in / }).count())) { failures++; console.log(`✗ ${width}px work page noted mark isn't a link to chapter 1 while the book is out`); }
   // QA63 (C199): the librarian says where the notes are — chapter 1's title among them.
   {
     // Chapter 1's own title: the first text node of its link (or of the line, when the book isn't out).
@@ -675,9 +677,16 @@ for (const width of WIDTHS) {
         await page.reload();
         if (!(await appears(page.getByRole("region", { name: "Continue reading" }).getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px front hall Continue reading without the notes count (${slug})`); }
         else console.log(`✓ ${width}px front hall Continue reading counts the notes (${slug})`);
+        // QA64 (C202): at the last width a note in that book's chapter 3 as well, so the drawer's line counts two chapters.
+        const last = width === WIDTHS[WIDTHS.length - 1];
+        if (last) await page.evaluate((s) => { const k = `soj:ann:${s}:3`; if (!localStorage.getItem(k)) localStorage.setItem(k, JSON.stringify({ notes: [{ id: "qa-c3", anchor: 0, body: "QA note, chapter 3", createdAt: 1 }], highlights: [] })); }, slug);
         // QA63 (C197): from that book's second chapter, Contents says chapter 1 holds the note (the same book, so the Continue card is unchanged).
         await page.goto(`${BASE}/works/${slug}/read?ch=2`);
         await page.locator("summary", { hasText: "Contents" }).click();
+        const drawerLine = page.getByRole("navigation", { name: "Contents" }).locator("p").first();
+        const lineText = (await drawerLine.textContent()) ?? "";
+        if (last ? !/ · notes in \d+ chapters$/.test(lineText) : / · notes in /.test(lineText) && !/ · notes in \d+ chapters$/.test(lineText)) { failures++; console.log(`✗ ${width}px reading room Contents line '${lineText}'`); }
+        else console.log(`✓ ${width}px reading room Contents line ('${lineText}')`);
         if (!(await appears(page.getByRole("navigation", { name: "Contents" }).locator("li").first().getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px reading room Contents without the notes count on chapter 1 (${slug})`); }
         else console.log(`✓ ${width}px reading room Contents counts chapter 1's notes (${slug})`);
       }

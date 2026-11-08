@@ -103,7 +103,7 @@ describe("Where are my notes? (C199)", () => {
   });
   it("the work page and reading room pass where the notes are; the proof copy passes none", () => {
     expect(readFileSync("app/works/[slug]/page.tsx", "utf8")).toContain("notesWhere={byChapter ? work.chapters.filter((c) => byChapter[c.position]).map((c) => c.title) : { slug: work.slug, chapters:");
-    expect(readFileSync("components/ReaderView.tsx", "utf8")).toContain("notesWhere={proof ? undefined : () => chapters.filter(");
+    expect(readFileSync("components/ReaderView.tsx", "utf8")).toContain("notesWhere={proof ? undefined : () => notedChapters.map((c) => c.title)}");
     expect(readFileSync("components/AskLibrarian.tsx", "utf8")).toContain("notesWhere: resolveWhere(notesWhere)");
   });
 });

@@ -13,7 +13,7 @@ import type { ReadingData } from "@/lib/readingRoom";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
 import { useSessionTracker } from "./useSessionTracker";
 import { AskLibrarian } from "./AskLibrarian";
-import { highlightSavedStatus, liveBookCount, noteSavedStatus, previewBookCount, previewByChapter, removedStatus, shortNotesLine, type AnnotationCount } from "@/lib/notesCount";
+import { highlightSavedStatus, liveBookCount, noteSavedStatus, previewBookCount, previewByChapter, removedStatus, shortNotesLine, notesInChaptersLine, type AnnotationCount } from "@/lib/notesCount";
 import { librarianFacts } from "@/lib/librarian";
 import { wordsBeforeChapter } from "@/lib/reader";
 import { outsideCanonNote } from "@/lib/canon";
@@ -76,6 +76,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
   const chapterCount = (position: number): AnnotationCount | undefined => proof ? undefined
     : position === chapter.position ? { notes: notes.length, highlights: highlights.length }
     : preview ? localByChapter[position] : chapterAnnotations?.[position];
+  const notedChapters = chapters.filter((c) => { const n = chapterCount(c.position); return !!n && n.notes + n.highlights > 0; });
 
   const updateSettings = (patch: Partial<ReaderSettings>) =>
     setSettings((s) => {
@@ -257,7 +258,8 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
           <details ref={contentsRef} className="font-sans text-xs">
             <summary className={`${btn} cursor-pointer list-none border border-sandstone/40 text-paper`}>Contents</summary>
             <nav aria-label="Contents" className="absolute inset-x-3 top-full z-30 mt-1 max-h-[60dvh] overflow-auto sm:inset-x-auto sm:w-80 rounded-sm border border-timber-dark bg-stone-wall p-2 shadow-lg">
-              {!proof && <p className="mb-1 px-2 py-1 text-sandstone">{bookLeft > 0 ? `About ${formatDuration(bookLeft)} left in this book` : "You're at the end of this book"}</p>}
+              {/* C202: "· notes in 2 chapters" once own notes sit in more than one chapter (live, from the counts below). */}
+              {!proof && <p className="mb-1 px-2 py-1 text-sandstone">{bookLeft > 0 ? `About ${formatDuration(bookLeft)} left in this book` : "You're at the end of this book"}{notesInChaptersLine(notedChapters.length)}</p>}
               {/* C112: the loan's due stamp, under the time left in the book. */}
               {!proof && data.dueAt > 0 && <p className="-mt-1 mb-1 px-2 pb-1 font-mono text-[0.7rem] uppercase tracking-wider text-sandstone">Due back {stampDate(data.dueAt)}</p>}
               {!proof && data.bookmark && (
@@ -397,7 +399,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
             annotations={proof ? undefined : preview ? { slug, positions: chapters.map((c) => c.position) }
               : bookAnnotations ? () => liveCount(notes, highlights) : undefined}
             // C199: which chapters hold own notes — the Contents drawer's counts, this chapter live.
-            notesWhere={proof ? undefined : () => chapters.filter((c) => { const n = chapterCount(c.position); return !!n && n.notes + n.highlights > 0; }).map((c) => c.title)}
+            notesWhere={proof ? undefined : () => notedChapters.map((c) => c.title)}
             facts={librarianFacts({ chapters, bookmarkOffset: wordsBeforeChapter(chapters, chapter.position) + behind, wpm, usualMinutesPerDay: minutesPerDay, ...(proof ? {} : { readMs: readMs ?? 0 }) })}
           />
         </div>

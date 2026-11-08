@@ -106,3 +106,8 @@ export function previewByChapter(slug: string, positions: number[], read: (k: st
   }
   return out;
 }
+
+/** C202: the reading room Contents line's " · notes in 3 chapters" — only once notes sit in more than one chapter. */
+export function notesInChaptersLine(chaptersWithNotes: number): string | null {
+  return chaptersWithNotes > 1 ? ` · notes in ${chaptersWithNotes} chapters` : null;
+}
