@@ -11,7 +11,7 @@ import { chapterHits, cleanQuery, resultLine, searchShelves } from "@/lib/shelfS
 import { parseSort, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
 import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
 import { dueBackSoon, justBorrowed, justReturned, loansBySlug, noRenewalsLeft } from "@/lib/loanDesk";
-import { myFinishes } from "@/lib/ledgerStore";
+import { myFinishes, myHoursBySlug } from "@/lib/ledgerStore";
 import { myBookLeft } from "@/lib/bookLeftStore";
 import { justBackLegend, outLegend, spokenSpine } from "@/lib/spine";
 import { FINISHED_SHELF, finishedStamp } from "@/lib/ledger";
@@ -26,7 +26,9 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
   const query = cleanQuery(params.q);
   const halls = hallsFor(catalogue.works, catalogue.halls);
   const sort = parseSort(params.sort);
-  const works = sortShelf(searchShelves(filterByCanon(catalogue.works, view), halls, query), sort);
+  // C162: "Most read by you" reads the reader's own hours (only when chosen).
+  const myHours = sort === "read" ? await myHoursBySlug() : {};
+  const works = sortShelf(searchShelves(filterByCanon(catalogue.works, view), halls, query), sort, myHours);
   const canonParam = typeof params.canon === "string" ? params.canon : undefined;
   const [loansNow, pace, done, returnedNow] = await Promise.all([myOpenLoans(), myPace(), myFinishes(works.map((w) => w.slug)), myRecentlyReturned()]);
   // C132: books handed back within the hour (own returns only) carry a lamplight tick and say so.

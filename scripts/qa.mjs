@@ -550,6 +550,12 @@ for (const width of WIDTHS) {
     if (!(await page.locator("section[aria-labelledby='hours'] tbody span.bg-timber[aria-hidden='true']").count())) { failures++; console.log(`✗ ${width}px ledger: no Most hours bars`); }
     if (await page.locator("a[href*='history=all']").count() && !(await page.locator("a[href='/ledger?hours=most&history=all#history']").count())) { failures++; console.log(`✗ ${width}px ledger: Show all drops the hours order`); }
     await axeCheck(`${width}px ledger ordered by most hours`);
+    // QA51 (C162): the halls' "Most read by you" puts the ledger's top book first on its shelf.
+    const topHref = await page.locator("section[aria-labelledby='hours'] tbody tr td a").first().getAttribute("href");
+    await page.goto(`${BASE}/halls?sort=read`);
+    if (!(await page.getByRole("navigation", { name: "Order the shelves" }).getByRole("link", { name: "Most read by you" }).getAttribute("aria-current"))) { failures++; console.log(`✗ ${width}px halls: Most read by you order not current`); }
+    if (topHref && (await page.locator(`section:has(a[href='${topHref}']) ul > li:first-child a`).first().getAttribute("href")) !== topHref) { failures++; console.log(`✗ ${width}px halls: Most read by you doesn't put ${topHref} first on its shelf`); }
+    await axeCheck(`${width}px halls ordered by most read`);
     await page.goto(`${BASE}/ledger`);
   }
   // QA44 (C141): this run's open loans were taken out within the hour — "just borrowed", stamp spoken.

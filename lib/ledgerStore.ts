@@ -325,3 +325,14 @@ export async function myFinishes(slugs: string[]): Promise<Record<string, number
   }
   return out;
 }
+
+/** C162: the reader's own reading time per work (slug → active ms), for the halls' "Most read by you" order. */
+export async function myHoursBySlug(): Promise<Record<string, number>> {
+  const l = await loadLedger();
+  const out: Record<string, number> = {};
+  for (const h of l.hours) {
+    const slug = l.slugs[h.workKey];
+    if (slug && h.activeMs > 0) out[slug] = (out[slug] ?? 0) + h.activeMs;
+  }
+  return out;
+}
