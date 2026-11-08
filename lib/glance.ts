@@ -6,7 +6,7 @@ export interface GlanceTile { label: string; value: string; note?: string;
   href?: string }
 
 /** "The library at a glance": counts only — never who read what. */
-export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number; isPlaceholder?: boolean }[], setAside: number, cardHolders: number | null, dueSoon = 0, returnedHour = 0, borrowedHour = 0, loansMonth: MonthLoans | null = null): GlanceTile[] {
+export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number; isPlaceholder?: boolean; title?: string }[], setAside: number, cardHolders: number | null, dueSoon = 0, returnedHour = 0, borrowedHour = 0, loansMonth: MonthLoans | null = null): GlanceTile[] {
   const shared = works.filter((w) => w.visibility === "members").length;
   const words = works.reduce((a, w) => a + w.words, 0);
   const loans = works.reduce((a, w) => a + w.openLoans, 0);
@@ -31,10 +31,23 @@ export function glance(works: { visibility: "owner" | "members"; words: number; 
   }
   // C215: how many works still carry placeholder text — waiting for Itu's own manuscripts (owner's room only).
   if (works.length > 0 && works.every((w) => w.isPlaceholder !== undefined)) {
-    const waiting = works.filter((w) => w.isPlaceholder).length;
-    tiles.push({ label: "Still placeholder", value: String(waiting), note: waiting ? `${waiting === 1 ? "work waits" : "works wait"} for your manuscript${waiting === 1 ? "" : "s"}` : "every work is in your own words", ...(waiting ? { href: "#shelves" } : {}) });
+    const placeholders = works.filter((w) => w.isPlaceholder);
+    const waiting = placeholders.length;
+    // C219: one to three are named ("Placeholder Work One and Placeholder Work Two wait for your manuscripts").
+    const named = waitingNames(placeholders.map((w) => w.title ?? ""));
+    const note = !waiting ? "every work is in your own words"
+      : named ? `${named} ${waiting === 1 ? "waits" : "wait"} for your manuscript${waiting === 1 ? "" : "s"}`
+      : `${waiting === 1 ? "work waits" : "works wait"} for your manuscript${waiting === 1 ? "" : "s"}`;
+    tiles.push({ label: "Still placeholder", value: String(waiting), note, ...(waiting ? { href: "#shelves" } : {}) });
   }
   return tiles;
+}
+
+/** C219: one to three titles joined ("A", "A and B", "A, B and C"); null for none, more, or a missing title. */
+export function waitingNames(titles: string[]): string | null {
+  const ts = titles.map((t) => t.trim());
+  if (ts.length < 1 || ts.length > 3 || ts.some((t) => !t)) return null;
+  return ts.length === 1 ? ts[0] : ts.length === 2 ? `${ts[0]} and ${ts[1]}` : `${ts[0]}, ${ts[1]} and ${ts[2]}`;
 }
 
 const DAY = 86_400_000;
