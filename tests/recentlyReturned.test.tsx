@@ -61,3 +61,19 @@ describe("recently returned — borrowed N times links to the history (C161)", (
     expect(html.match(/href="\/ledger#history"/g)).toHaveLength(1);
   });
 });
+
+describe("recently returned notes count (C192)", () => {
+  const items = recentlyReturned([loan("1", "a", 30, 3), loan("2", "b", 30, 4)], "me", W, NOW);
+  it("adds the reader's own notes and highlights to a book's stamp line", () => {
+    const html = renderToStaticMarkup(<RecentlyReturned items={items} notesBy={{ a: { notes: 1, highlights: 2 } }} />);
+    expect(html).toContain(" · 1 note · 2 highlights");
+    expect(html.match(/ · \d+ notes?/g)).toHaveLength(1);
+  });
+  it("nothing without counts or for a book with none; preview counts after load", () => {
+    for (const notesBy of [undefined, {}, null]) expect(renderToStaticMarkup(<RecentlyReturned items={items} notesBy={notesBy} />)).not.toMatch(/ · \d+ (notes?|highlights?)/);
+  });
+  it("the card page passes the reader's own counts", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("app/card/page.tsx", "utf8")).toContain("readMs={readMs} notesBy={notesBy} />;\n}\n\nexport default");
+  });
+});

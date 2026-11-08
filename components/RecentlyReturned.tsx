@@ -2,6 +2,9 @@ import Link from "next/link";
 import { justReturned, type Returned } from "@/lib/loanDesk";
 import { finishedStamp, finishSpan, formatHours } from "@/lib/ledger";
 import { PreviewNotesExport } from "./PreviewNotesExport";
+import { BookNotesCount } from "./BookNotesCount";
+import { getWork } from "@/lib/catalogue";
+import type { AnnotationCount } from "@/lib/notesCount";
 
 /**
  * The reader's last few returns at the front desk, stamped, with a way to borrow again. Nothing returned → nothing shown.
@@ -11,9 +14,10 @@ import { PreviewNotesExport } from "./PreviewNotesExport";
  * C93: the Finished mark adds how long it took, from `firstRead` (slug → the reader's first session in it).
  * C161: "borrowed N times" links to /ledger#history.
  * C124: a book handed back within the last hour reads "Just returned"; the stamp stays in its spoken label.
+ * C192: `notesBy` (workKey → own counts, library) adds "· 2 notes · 1 highlight" to the stamp line; `null` counts this browser's (preview).
  * C173: `readMs` (slug → the reader's own reading time) adds "· read for <time>" to a book's stamp line (as C171).
  */
-export function RecentlyReturned({ items, finished = {}, notes = "preview", firstRead = {}, now, readMs = {} }: { items: Returned[]; finished?: Record<string, number>; notes?: "library" | "preview"; firstRead?: Record<string, number>; now?: number; readMs?: Record<string, number> }) {
+export function RecentlyReturned({ items, finished = {}, notes = "preview", firstRead = {}, now, readMs = {}, notesBy }: { items: Returned[]; finished?: Record<string, number>; notes?: "library" | "preview"; firstRead?: Record<string, number>; now?: number; readMs?: Record<string, number>; notesBy?: Record<string, AnnotationCount> | null }) {
   if (items.length === 0) return null;
   return (
     <section aria-labelledby="recently-returned" className="w-full max-w-md text-left">
@@ -41,6 +45,8 @@ export function RecentlyReturned({ items, finished = {}, notes = "preview", firs
                 {/* C156: a book borrowed more than once says how often; C161: it links to the ledger's Borrowing history. */}
                 {(r.times ?? 0) > 1 && <> · <Link href="/ledger#history" className="underline underline-offset-2 hover:text-lamplight">borrowed {r.times} times<span className="sr-only"> — see your borrowing history</span></Link></>}
                 {(readMs[r.slug] ?? 0) > 0 && <> · read for {formatHours(readMs[r.slug])}</>}
+                {notesBy ? <BookNotesCount counts={notesBy[r.workKey] ?? { notes: 0, highlights: 0 }} />
+                  : notesBy === null && <BookNotesCount counts={null} slug={r.slug} positions={getWork(r.slug)?.chapters.map((c) => c.position) ?? []} />}
               </p>
               {finished[r.slug] !== undefined && (
                 <p className="mt-0.5">
