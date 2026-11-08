@@ -1009,6 +1009,16 @@ await axeCheck("375px reading room gate just returned");
   const line = (await p8.locator("[data-keeper-line]").textContent()) ?? "";
   if (!/^Still waiting for your words: 3 works, 3 pitch kits, \d+ people, \d+ places, \d+ events and the hall names\. Writer's Room$/.test(line) || !(await p8.locator("[data-keeper-line] a[href='/writers-room#waiting']").count())) { failures++; console.log(`✗ keeper line: '${line}'`); }
   else console.log("✓ front hall tells the Keeper what still waits for his words");
+  // QA75 (C233, C235): the proof copy says placeholder text under the author; the waiting rows open the editor on Placeholders only.
+  await p8.goto(`${BASE}/works/placeholder-work-two/proof?ch=2`);
+  if (!(await p8.getByText("by Itumeleng Ntseng", { exact: true }).count()) || !(await p8.locator("[data-placeholder-text]").count())) { failures++; console.log("✗ proof copy without 'by Itumeleng Ntseng' or the placeholder line"); }
+  else console.log("✓ proof copy names the author and says it's placeholder text");
+  await p8.goto(`${BASE}/writers-room`);
+  await p8.locator("section[aria-labelledby='waiting'] a[href='/writers-room/atlas?only=1#lineage-doc']").click();
+  await p8.waitForURL(/only=1/);
+  const onlyOn = await p8.getByLabel(/^Placeholders only/).evaluateAll((els) => els.filter((e) => e.checked).length);
+  if (onlyOn !== 2) { failures++; console.log(`✗ atlas editor opened with ${onlyOn} 'Placeholders only' toggles on (expected 2)`); }
+  else console.log("✓ waiting panel opens the atlas editor on 'Placeholders only'");
   await ctx8.close();
 }
 
