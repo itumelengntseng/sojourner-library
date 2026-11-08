@@ -268,7 +268,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C189 Card page "On loan now": a loan with the reader's notes adds "· N notes" to its line (own only; library counts per work, preview counted in the browser — reuse `BookNotesCount`).
 - [x] C190 Librarian: "How many notes have I made?" in the reading room — check the answer counts a note removed a moment ago (live getter) and pin it with a test.
 - [x] QA60 QA pass after C188–C190.
-- [ ] C191 Reading room: removing a note or highlight sets the status to "Note removed · N left in this book" / "Highlight removed · N left in this book" (own count, live — `liveBookCount()`; "… · none left in this book" at zero).
-- [ ] C192 Card page "Recently returned": a book with the reader's notes adds "· N notes · M highlights" to its stamp line (reuse `BookNotesCount`; own only).
-- [ ] C193 Front hall "Continue reading" card: adds "· N notes" for the book when the reader has any (own only; reuse `BookNotesCount`).
-- [ ] QA61 QA pass after C191–C193.
+- [x] C191 Reading room: removing a note or highlight sets the status to "Note removed · N left in this book" / "Highlight removed · N left in this book" (own count, live — `liveBookCount()`; "… · none left in this book" at zero).
+- [x] C192 Card page "Recently returned": a book with the reader's notes adds "· N notes · M highlights" to its stamp line (reuse `BookNotesCount`; own only).
+- [x] C193 Front hall "Continue reading" card: adds "· N notes" for the book when the reader has any (own only; reuse `BookNotesCount`).
+- [x] QA61 QA pass after C191–C193.
+- [ ] C194 Ledger Borrowing history: a row whose book holds the reader's notes adds "· N notes · M highlights" (own only; reuse `BookNotesCount`, as C186).
+- [ ] C195 Work page "You have … in this book" line: check it agrees with the ledger's Hours per book count and the card's counts for the same book (one consistency test, like C178).
+- [ ] C196 QA sweep: the Continue reading notes check (QA61) only runs when the card names Placeholder Work One — seed a note in whichever book the card names so it always runs.
+- [ ] QA62 QA pass after C194–C196.

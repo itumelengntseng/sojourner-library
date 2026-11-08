@@ -624,6 +624,20 @@ for (const width of WIDTHS) {
     if ((await li.count()) && !(await appears(li.getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px card On loan now without the notes count on Placeholder Work One`); }
     else console.log(`✓ ${width}px card On loan now counts the notes`);
   }
+  // QA61 (C192): a returned book holding the sweep's notes says so on its stamp line (Placeholder Work Two gets one at 1280px).
+  {
+    const back = page.getByRole("region", { name: /^Recently returned/ }).locator("li", { hasText: "Placeholder Work One" });
+    if ((await back.count()) && !(await appears(back.getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px card Recently returned without the notes count on Placeholder Work One`); }
+  }
+  // QA61 (C193): the Continue reading card for Placeholder Work One counts its notes (front hall).
+  await page.goto(`${BASE}/`);
+  {
+    const cont = page.getByRole("region", { name: "Continue reading" });
+    if ((await cont.count()) && /Placeholder Work One/.test((await cont.textContent()) ?? "")) {
+      if (!(await appears(cont.getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px front hall Continue reading without the notes count`); }
+      else console.log(`✓ ${width}px front hall Continue reading counts the notes`);
+    }
+  }
   await page.goto(`${BASE}/ledger`);
   // QA58 (C182): with notes in two or more books, a work page with notes links to all of them.
   {

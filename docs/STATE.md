@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 14 — C188–C190, QA60, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 14 — C188–C193, QA60–QA61, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -273,10 +273,14 @@ _Last updated: 2026-11-08 (scheduled build run 14 — C188–C190, QA60, `previe
 - C189 — Card page "On loan now": a loan whose book holds the reader's notes adds "· 2 notes · 1 highlight" to its due line (`BookNotesCount`; library: `myAnnotationsByWork()` own rows per work; preview: counted in this browser). Unit-tested + swept.
 - C190 — Ask the librarian in the reading room: checked the notes answer counts a note removed a moment ago — library mode's live getter and the C187/C188 statuses now share `liveBookCount()` (server count for the book, with this chapter as it stands now; never below zero); preview re-reads this browser's store, which `removeNote` rewrites. Pinned in `tests/librarianNotes.test.tsx`.
 - QA60 (2026-11-08, after C188–C190): `npm run qa` all clear (run twice) — now also requires the card's notes count on Placeholder Work One's loan (375px + 1280px). Preview e2e 7/7 (new step: highlight a passage → "Highlight saved · N in this book"). Performance (local prod build, curl): every page < 16 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (the card reads own notes/highlights rows, already limited to their reader).
-- Tests: 669 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA60).
+- C191 — Reading room: removing a note or highlight sets the status to "Note removed · 2 left in this book" / "Highlight removed · none left in this book" (`removedStatus()`; same counts as C187/C188). Unit-tested; the e2e script removes the highlight it made and waits for the status.
+- C192 — Card page "Recently returned": a book holding the reader's notes adds "· 1 note · 2 highlights" to its stamp line (`BookNotesCount`; library: `myAnnotationsByWork()`; preview: this browser). Unit-tested + swept (when Placeholder Work One is in the list).
+- C193 — Continue reading card (front hall and card page): "Chapter 1 · 1 note" — own notes/highlights for the book (library: by the open loan's work id; preview: this browser). Unit-tested; swept when the card names Placeholder Work One (checked by hand on both pages; C196 makes the sweep always run it).
+- QA61 (2026-11-08, after C191–C193): `npm run qa` all clear (run twice) — now also checks Recently returned's and Continue reading's notes counts when those show Placeholder Work One. Preview e2e 7/7 (highlight saved → removed). Performance (local prod build, curl): every page < 18 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 677 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA61).
 
 ## Next task
-C191 — reading room "Note removed · N left in this book" (BACKLOG.md → FOLLOW-UPS), then C192, C193, QA61. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C194 — ledger Borrowing history notes count (BACKLOG.md → FOLLOW-UPS), then C195, C196, QA62. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
