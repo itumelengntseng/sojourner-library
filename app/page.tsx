@@ -19,6 +19,8 @@ import { ContinueReading } from "@/components/ContinueReading";
 import { FrontHallSearch } from "@/components/FrontHallSearch";
 import { myPace } from "@/lib/sessionStore";
 import { myContinueReading } from "@/lib/continueStore";
+import { keeperWaiting } from "@/lib/waitingStore";
+import { keeperLine } from "@/lib/waiting";
 
 // The front hall: you step over the threshold and the covers are lit along the wall.
 export default async function FrontHall({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -27,7 +29,9 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
   const works = filterByCanon(catalogue.works, view);
   const now = Date.now();
   const fresh = freshOnShelves(works, now);
-  const [open, cont, pace, readMs] = await Promise.all([myOpenLoans(), myContinueReading(), myPace(), myHoursBySlug()]);
+  const [open, cont, pace, readMs, waiting] = await Promise.all([myOpenLoans(), myContinueReading(), myPace(), myHoursBySlug(), keeperWaiting()]);
+  // C232: for the Keeper only — what still waits for his words (null for guests and signed-out visitors).
+  const keeper = waiting ? keeperLine(waiting) : null;
   // C193: own notes in the book to continue (library: per work; preview: null → counted in this browser).
   const notesBy = cont ? await myAnnotationsByWork() : undefined;
   const contKey = cont ? open.find((l) => l.slug === cont.slug)?.workKey : undefined;
@@ -96,6 +100,12 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
       )}
 
       {works.length > 0 && <FrontHallSearch />}
+
+      {keeper && (
+        <p className="mt-10 text-center font-sans text-xs text-sandstone" data-keeper-line>
+          {keeper} <Link href="/writers-room#waiting" className="text-lamplight underline underline-offset-2">Writer&apos;s Room</Link>
+        </p>
+      )}
 
       <div className="mt-12 flex flex-wrap justify-center gap-4">
         <Link href="/halls" className="rounded border border-sandstone/50 px-5 py-2 font-sans text-sm text-paper hover:border-lamplight">
