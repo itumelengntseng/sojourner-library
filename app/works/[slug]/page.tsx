@@ -12,7 +12,7 @@ import { latestLoan } from "@/lib/loanDesk";
 import { loadDesk } from "@/lib/loanStore";
 import { outsideCanonNote } from "@/lib/canon";
 import { myPace } from "@/lib/sessionStore";
-import { myAnnotationCount, myChaptersRead, myFinish, myFirstRead, myHoursBySlug } from "@/lib/ledgerStore";
+import { myAnnotationTotals, myAnnotationCount, myChaptersRead, myFinish, myFirstRead, myHoursBySlug } from "@/lib/ledgerStore";
 import { YourNotes } from "@/components/YourNotes";
 import { myContinueReading } from "@/lib/continueStore";
 import { ChapterMarks } from "@/components/ChapterMarks";
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function WorkPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const work = await findWork((await params).slug);
   if (!work) notFound();
-  const [desk, pace, finished, readPositions, annotations, continueAt, firstRead, myHours] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug), myAnnotationCount(work.slug), myContinueReading(work.slug), myFirstRead(work.slug), myHoursBySlug()]);
+  const [desk, pace, finished, readPositions, annotations, continueAt, firstRead, myHours, noteTotals] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug), myAnnotationCount(work.slug), myContinueReading(work.slug), myFirstRead(work.slug), myHoursBySlug(), myAnnotationTotals()]);
   const readFor = readForLine(myHours[work.slug]); // C170
   const stats = workStats(work, pace.wpm);
   const facts = librarianFacts({
@@ -98,7 +98,7 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
               <dd className="font-sans text-[0.65rem] text-sandstone/80">{paceNote(pace)}</dd>
             </div>
           </dl>
-          <YourNotes slug={work.slug} title={work.title} positions={work.chapters.map((c) => c.position)} counts={annotations} finished={finished !== undefined ? { at: finished, firstRead } : undefined} />
+          <YourNotes slug={work.slug} title={work.title} positions={work.chapters.map((c) => c.position)} counts={annotations} finished={finished !== undefined ? { at: finished, firstRead } : undefined} books={noteTotals?.books ?? null} />
           {work.isPlaceholder && (
             <p className="mt-4 font-sans text-xs text-sandstone/80">Placeholder text — the manuscript has not arrived yet.</p>
           )}

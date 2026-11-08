@@ -609,6 +609,19 @@ for (const width of WIDTHS) {
   // QA57 (C179): the sweep has left notes and highlights in this browser, so "Your notes" counts them.
   // (In preview the line is counted in the browser after hydration, so wait for it.)
   if (!(await page.locator("section[aria-labelledby='export'] p", { hasText: /^You have (\d+ margin notes?|\d+ highlights?)( · \d+ highlights?)? across \d+ books?\.$/ }).first().waitFor({ timeout: 5000 }).then(() => true, () => false))) { failures++; console.log(`✗ ${width}px ledger Your notes without the count line`); }
+  // QA58 (C182): with notes in two or more books, a work page with notes links to all of them.
+  {
+    const tally = (await page.locator("section[aria-labelledby='export'] p", { hasText: /^You have .* across \d+ books?\.$/ }).first().textContent().catch(() => "")) ?? "";
+    const books = Number(tally.match(/across (\d+) book/)?.[1] ?? 0);
+    await page.goto(`${BASE}/works/placeholder-work-one`);
+    const line = page.locator("p", { hasText: /^You have .* in this book/ }).first();
+    if (await line.waitFor({ timeout: 5000 }).then(() => true, () => false)) {
+      const linked = await line.locator("a[href='/ledger#export']").count();
+      if ((books >= 2) !== (linked > 0)) { failures++; console.log(`✗ ${width}px work page 'all your notes' link ${linked ? "shown" : "missing"} with notes in ${books} book(s)`); }
+      else console.log(`✓ ${width}px work page notes line (${books} book(s) with notes${linked ? ", links to all" : ""})`);
+    }
+    await page.goto(`${BASE}/ledger`);
+  }
   // QA56 (C176): once Hours per book shows whole minutes, Borrowing history says how long that book was read.
   {
     const timedRows = (await page.locator("section[aria-labelledby='hours'] tbody tr td:nth-child(2)").allTextContents()).filter((t) => /\d+ (h|min)/.test(t)).length;

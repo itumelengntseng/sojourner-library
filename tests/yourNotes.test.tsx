@@ -26,3 +26,17 @@ describe("your notes in this book (C43)", () => {
     expect(renderToStaticMarkup(<YourNotes slug="w1" title="T" positions={[1]} counts={null} />)).toBe("");
   });
 });
+
+describe("all your notes link (C182)", () => {
+  it("library mode: links to the ledger's notes once two or more books have notes", () => {
+    const two = renderToStaticMarkup(<YourNotes slug="w1" title="T" positions={[1]} counts={{ notes: 1, highlights: 0 }} books={2} />);
+    expect(two).toContain('href="/ledger#export"');
+    expect(two).toContain("all your notes<span class=\"sr-only\"> — in your ledger</span>");
+    expect(renderToStaticMarkup(<YourNotes slug="w1" title="T" positions={[1]} counts={{ notes: 1, highlights: 0 }} books={1} />)).not.toContain("/ledger#export");
+    expect(renderToStaticMarkup(<YourNotes slug="w1" title="T" positions={[1]} counts={{ notes: 1, highlights: 0 }} />)).not.toContain("/ledger#export");
+  });
+  it("the work page passes the library totals", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("app/works/[slug]/page.tsx", "utf8")).toContain("books={noteTotals?.books ?? null} />");
+  });
+});
