@@ -363,7 +363,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
         <div className="mt-10 rounded-sm bg-stone-wall text-paper">
           <AskLibrarian
             title={data.title}
-            facts={librarianFacts({ chapters, bookmarkOffset: wordsBeforeChapter(chapters, chapter.position) + behind, wpm, usualMinutesPerDay: minutesPerDay })}
+            facts={librarianFacts({ chapters, bookmarkOffset: wordsBeforeChapter(chapters, chapter.position) + behind, wpm, usualMinutesPerDay: minutesPerDay, ...(proof ? {} : { readMs: readMs ?? 0 }) })}
           />
         </div>
 

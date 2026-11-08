@@ -9,6 +9,8 @@ export interface LibrarianFacts {
   chapterWordsRemaining: number;
   chapterPosition: number;
   usualMinutesPerDay: number;
+  /** C177: own reading time in this book (ms), when kept. */
+  readMs?: number;
 }
 
 export function librarianFacts(a: {
@@ -16,6 +18,7 @@ export function librarianFacts(a: {
   bookmarkOffset: number;
   wpm: number;
   usualMinutesPerDay: number;
+  readMs?: number;
 }): LibrarianFacts {
   const totalWords = a.chapters.reduce((s, c) => s + c.words, 0);
   const wordsRead = Math.min(Math.max(0, a.bookmarkOffset), totalWords);
@@ -28,13 +31,14 @@ export function librarianFacts(a: {
     chapterWordsRemaining: Math.max(0, (chapter?.words ?? 0) - at.wordsIntoChapter),
     chapterPosition: at.position,
     usualMinutesPerDay: a.usualMinutesPerDay,
+    ...(a.readMs !== undefined ? { readMs: a.readMs } : {}),
   };
 }
 
 export function toReaderContext(f: LibrarianFacts, now: Date): ReaderContext {
   return {
     wpm: f.wpm, totalWords: f.totalWords, wordsRead: f.wordsRead,
-    chapterWordsRemaining: f.chapterWordsRemaining, usualMinutesPerDay: f.usualMinutesPerDay, now,
+    chapterWordsRemaining: f.chapterWordsRemaining, usualMinutesPerDay: f.usualMinutesPerDay, now, readMs: f.readMs,
   };
 }
 
@@ -48,7 +52,11 @@ export const SUGGESTED_QUESTIONS = [
 /** C69: once the reader has a bookmark, the desk also offers the remaining-time question for the whole book. */
 export const BOOK_LEFT_QUESTION = "How long is left in this book?";
 
-export function suggestedQuestions(f: Pick<LibrarianFacts, "wordsRead" | "totalWords">): string[] {
+/** C177: once the reader has time in this book, the desk offers to tell them how much. */
+export const READ_SO_FAR_QUESTION = "How long have I read this book?";
+
+export function suggestedQuestions(f: Pick<LibrarianFacts, "wordsRead" | "totalWords"> & { readMs?: number }): string[] {
   const placed = f.wordsRead > 0 && f.wordsRead < f.totalWords;
-  return placed ? [BOOK_LEFT_QUESTION, ...SUGGESTED_QUESTIONS] : [...SUGGESTED_QUESTIONS];
+  const base = placed ? [BOOK_LEFT_QUESTION, ...SUGGESTED_QUESTIONS] : [...SUGGESTED_QUESTIONS];
+  return (f.readMs ?? 0) >= 60_000 ? [...base, READ_SO_FAR_QUESTION] : base;
 }

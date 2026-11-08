@@ -37,6 +37,7 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
     bookmarkOffset: latestLoan(desk.loans, desk.workId, desk.readerId)?.bookmark.wordOffset ?? 0,
     wpm: pace.wpm,
     usualMinutesPerDay: pace.minutesPerDay,
+    readMs: myHours[work.slug] ?? 0, // C177
   });
   const now = Date.now();
   const bookmarkWords = latestLoan(desk.loans, desk.workId, desk.readerId)?.bookmark.wordOffset ?? 0;

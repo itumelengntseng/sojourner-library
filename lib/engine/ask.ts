@@ -8,6 +8,8 @@ export interface ReaderContext {
   chapterWordsRemaining: number;
   usualMinutesPerDay: number;
   now: Date;
+  /** C177: the reader's own reading time in this book (ms); undefined where it isn't kept (the Keeper's proof copy). */
+  readMs?: number;
 }
 
 export type Answer =
@@ -15,7 +17,15 @@ export type Answer =
   | { kind: "chapter_left"; minutes: number; text: string }
   | { kind: "per_day"; days: number; minutesPerDay: number; text: string }
   | { kind: "deadline"; possible: boolean; minutesPerDayNeeded: number; text: string }
+  | { kind: "read_so_far"; minutes: number; text: string }
   | { kind: "unknown"; text: string };
+
+/** C177: "How long have I read this book?", "How much time have I spent on it?", "How long have I been reading?" */
+export function isReadSoFarQuestion(question: string): boolean {
+  const q = question.toLowerCase().replace(/[’]/g, "'");
+  if (/\b(left|remaining|remain|finish|to go|chapter)\b/.test(q)) return false;
+  return /\b(have i|i've|i have|did i)\b.*\b(read|reading|spent|spend)\b/.test(q) || /\btime (i've |i have )?(spent|read)\b/.test(q);
+}
 
 const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 const UNIT_DAYS: Record<string, number> = { day: 1, days: 1, week: 7, weeks: 7, month: 30, months: 30 };
@@ -59,6 +69,13 @@ export function ask(question: string, ctx: ReaderContext): Answer {
   // C73: at the very end there is nothing left to time — say so plainly rather than "About 0 min".
   const atEnd = ctx.totalWords > 0 && remaining === 0;
   const END = "You're at the end of this book.";
+
+  if (isReadSoFarQuestion(q)) {
+    if (ctx.readMs === undefined) return { kind: "read_so_far", minutes: 0, text: "Reading time isn't kept in this copy." };
+    const minutes = Math.floor(Math.max(0, ctx.readMs) / 60_000);
+    if (ctx.readMs <= 0) return { kind: "read_so_far", minutes: 0, text: "You haven't read in this book yet." };
+    return { kind: "read_so_far", minutes, text: `You've read for ${formatDuration(minutes)} in this book so far.` };
+  }
 
   if (/chapter/.test(q)) {
     const minutes = minutesFor(ctx.chapterWordsRemaining, ctx.wpm);

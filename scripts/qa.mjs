@@ -584,6 +584,15 @@ for (const width of WIDTHS) {
     if (topHref) {
       await page.goto(`${BASE}${topHref}`);
       if (!(await page.locator("a[href='/ledger#hours']", { hasText: /^You've read for (under a minute|\d+ (h|min)).* in this book/ }).count())) { failures++; console.log(`✗ ${width}px work page without 'You've read for … in this book'`); }
+      // QA56 (C177): with a minute or more read, the librarian offers "How long have I read this book?" and answers in the same figure.
+      const chip = page.getByRole("button", { name: "How long have I read this book?" });
+      if (await chip.count()) {
+        await chip.first().click();
+        const slip = page.locator("figure", { hasText: "You asked: How long have I read this book?" }).first();
+        await slip.waitFor();
+        if (!/^You've read for (under a minute|\d+ (h|min)( \d+ min)?) in this book so far\.$/.test(((await slip.locator("p").textContent()) ?? "").trim())) { failures++; console.log(`✗ ${width}px librarian: read-so-far answer malformed`); }
+        else console.log(`✓ ${width}px librarian answers how long the book has been read`);
+      }
     }
     // QA54 (C172): the front hall names the most-read book after its summary.
     // (Rows reading "under a minute" may hold no active time, so only two rows with whole minutes make it certain.)
