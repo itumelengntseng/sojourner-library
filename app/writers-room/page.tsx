@@ -8,6 +8,7 @@ import { AUTHOR } from "@/lib/site";
 import { changedLabel, glance } from "@/lib/glance";
 import { loadRoom } from "@/lib/writersRoom";
 import { cleanQuery, filterByTitle } from "@/lib/shelfSearch";
+import { replaceHref, replaceNote, replaceTarget } from "@/lib/replaceManuscript";
 
 // Owner-only: always render per request (reads the session).
 export const dynamic = "force-dynamic";
@@ -16,7 +17,8 @@ export const metadata: Metadata = { title: "Writer's Room" };
 // Behind the stacks: a timber table under one lamp, where the Keeper shelves new work.
 export default async function WritersRoom({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const room = await loadRoom();
-  const find = cleanQuery((await searchParams).find);
+  const params = await searchParams;
+  const find = cleanQuery(params.find);
   const now = Date.now();
   if (room.mode === "closed") {
     return (
@@ -32,6 +34,8 @@ export default async function WritersRoom({ searchParams }: { searchParams: Prom
   // C61: "Find a work" narrows the shelf list and the set-aside list (a GET form — no JavaScript needed).
   const shownWorks = filterByTitle(room.works, find);
   const shownAside = live ? filterByTitle(room.setAside, find) : [];
+  // C218: "replace with your manuscript" — the placeholder's title waits in the import form.
+  const replacing = replaceTarget(room.works, params.replace);
   return (
     <main id="main" className="mx-auto max-w-5xl px-4 pt-16">
       <nav className="font-sans text-xs text-sandstone"><Link href="/" className="hover:text-lamplight">Front hall</Link> / Writer&apos;s Room</nav>
@@ -59,7 +63,8 @@ export default async function WritersRoom({ searchParams }: { searchParams: Prom
         <h2 id="import" className="text-xl text-paper">Shelve a manuscript</h2>
         <p className="mt-1 font-sans text-xs text-sandstone">Markdown, with each chapter starting &quot;## Chapter title&quot; (or &quot;# &quot; if there&apos;s no book title line). Re-importing the same title updates it; chapters are never deleted, only set aside.</p>
         <div className="threshold my-4 opacity-60" aria-hidden="true" />
-        <ManuscriptImport canSave={live} shelf={room.shelf} />
+        {replacing && <p role="status" className="mb-3 font-sans text-sm text-lamplight">{replaceNote(replacing)} <Link href="/writers-room#import" className="text-sandstone underline underline-offset-2 hover:text-lamplight">Start blank</Link></p>}
+        <ManuscriptImport key={replacing?.slug ?? "blank"} canSave={live} shelf={room.shelf} initialTitle={replacing?.title} />
       </section>
 
       <section aria-labelledby="shelves" className="mt-10">
@@ -81,6 +86,7 @@ export default async function WritersRoom({ searchParams }: { searchParams: Prom
                 <Link href={`/works/${w.slug}`} className="hover:text-lamplight">{w.title}</Link>
                 <Link href={`/works/${w.slug}/proof`} className="ml-3 font-sans text-xs text-lamplight underline underline-offset-2">Read the proof</Link>
                 <span className="ml-3"><BackupLinks slug={w.slug} title={w.title} shelf={room.shelf[w.slug]} /></span>
+                {w.isPlaceholder && <Link href={replaceHref(w.slug)} className="ml-3 font-sans text-xs text-lamplight underline underline-offset-2">replace with your manuscript<span className="sr-only">: {w.title}</span></Link>}
                 <p className="font-sans text-xs text-sandstone">
                   {CANON_LABEL[w.canonStatus]}{w.isPlaceholder ? " · placeholder" : ""}{live ? ` · ${formatWords(w.words)} · ${w.readers} reader${w.readers === 1 ? "" : "s"}, ${w.openLoans} on loan now, ${w.minutes} min read` : ""}{live && w.finished !== undefined ? ` · ${w.finished} read to the end` : ""}{live && changedLabel(w.updatedAt, now) ? ` · ${changedLabel(w.updatedAt, now)}` : ""}
                 </p>

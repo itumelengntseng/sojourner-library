@@ -25,10 +25,11 @@ const PLAN_TONE: Record<PlanStatus, string> = {
   new: "text-lamplight", changed: "text-ember", same: "text-sandstone", restored: "text-lamplight", archive: "text-ember",
 };
 
-export function ManuscriptImport({ canSave, shelf = {} }: { canSave: boolean; shelf?: Record<string, ShelvedWork> }) {
+export function ManuscriptImport({ canSave, shelf = {}, initialTitle = "" }: { canSave: boolean; shelf?: Record<string, ShelvedWork>; initialTitle?: string }) {
   const [state, action, pending] = useActionState(importAction, initial);
   const [md, setMd] = useState("");
-  const [title, setTitle] = useState("");
+  // C218: "replace with your manuscript" arrives with the placeholder's title filled in.
+  const [title, setTitle] = useState(initialTitle);
   const parsed = useMemo(() => parseManuscript(md), [md]);
   const shownTitle = title || parsed.title || "";
   const plan = useMemo(() => importPlan(parsed, shownTitle ? shelf[slugify(shownTitle)] : undefined), [parsed, shownTitle, shelf]);
