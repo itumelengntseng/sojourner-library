@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
-import { AUTHOR, SITE_NAME, SITE_TAGLINE } from "@/lib/site";
+import { AUTHOR, COPYRIGHT, SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 import { StillCoversToggle } from "@/components/StillCoversToggle";
 import { STILL_BOOT } from "@/lib/stillCovers";
 import "./globals.css";
@@ -26,7 +26,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         {children}
         <footer className="no-print mt-16 border-t border-timber-dark/60 px-4 py-6 text-center font-sans text-xs text-sandstone/80">
-          {SITE_NAME} · All works by {AUTHOR} · <Link href="/writers-room" className="underline-offset-2 hover:underline">Writer&apos;s Room</Link>
+          {/* C220: authorship and copyright visible on every page, not only on the works. */}
+          {SITE_NAME} · All works by {AUTHOR} · <span>{COPYRIGHT}</span> · <Link href="/writers-room" className="underline-offset-2 hover:underline">Writer&apos;s Room</Link>
           {" · "}<StillCoversToggle />
         </footer>
       </body>
