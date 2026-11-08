@@ -631,13 +631,23 @@ for (const width of WIDTHS) {
     const back = page.getByRole("region", { name: /^Recently returned/ }).locator("li", { hasText: "Placeholder Work One" });
     if ((await back.count()) && !(await appears(back.getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px card Recently returned without the notes count on Placeholder Work One`); }
   }
-  // QA61 (C193): the Continue reading card for Placeholder Work One counts its notes (front hall).
+  // QA61 (C193) + C196: the Continue reading card counts its book's notes (front hall) — whichever book it names,
+  // with a note seeded in that book's first chapter if this browser holds none there yet.
   await page.goto(`${BASE}/`);
   {
     const cont = page.getByRole("region", { name: "Continue reading" });
-    if ((await cont.count()) && /Placeholder Work One/.test((await cont.textContent()) ?? "")) {
-      if (!(await appears(cont.getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px front hall Continue reading without the notes count`); }
-      else console.log(`✓ ${width}px front hall Continue reading counts the notes`);
+    if (await cont.count()) {
+      const slug = ((await cont.getByRole("link", { name: /^Resume/ }).getAttribute("href")) ?? "").match(/^\/works\/([^/]+)\/read/)?.[1];
+      if (slug) {
+        await page.evaluate((s) => {
+          const k = `soj:ann:${s}:1`;
+          let v = {}; try { v = JSON.parse(localStorage.getItem(k) ?? "{}"); } catch { v = {}; }
+          if (!(Array.isArray(v.notes) && v.notes.length) && !(Array.isArray(v.highlights) && v.highlights.length)) localStorage.setItem(k, JSON.stringify({ notes: [{ id: "qa-cont", anchor: 0, body: "QA note, continue card", createdAt: 1 }], highlights: Array.isArray(v.highlights) ? v.highlights : [] }));
+        }, slug);
+        await page.reload();
+        if (!(await appears(page.getByRole("region", { name: "Continue reading" }).getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px front hall Continue reading without the notes count (${slug})`); }
+        else console.log(`✓ ${width}px front hall Continue reading counts the notes (${slug})`);
+      }
     }
   }
   await page.goto(`${BASE}/ledger`);
