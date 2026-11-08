@@ -57,6 +57,11 @@ function Real({ value, onChange }: { value: boolean; onChange: (v: boolean) => v
   );
 }
 
+/** C235: the entry the picker opens on — the first placeholder when arriving on "Placeholders only". */
+function firstOpen(items: { id: string; isPlaceholder: boolean }[], onlyPlaceholders: boolean): string | null {
+  return ((onlyPlaceholders ? items.find((x) => x.isPlaceholder) : undefined) ?? items[0])?.id ?? null;
+}
+
 /** C226: step through what's left to replace — shows only placeholder entries (and the one open). */
 function PlaceholdersOnly({ on, onChange, left, noun }: { on: boolean; onChange: (v: boolean) => void; left: number; noun: string }) {
   return (
@@ -67,8 +72,8 @@ function PlaceholdersOnly({ on, onChange, left, noun }: { on: boolean; onChange:
   );
 }
 
-export function LineageForm({ value, onChange, works }: { value: Lineage; onChange: (l: Lineage) => void; works: Record<string, string> }) {
-  const [sel, setSel] = useState<string | null>(value.people[0]?.id ?? null);
+export function LineageForm({ value, onChange, works, startOnlyPlaceholders = false }: { value: Lineage; onChange: (l: Lineage) => void; works: Record<string, string>; startOnlyPlaceholders?: boolean }) {
+  const [sel, setSel] = useState<string | null>(firstOpen(value.people, startOnlyPlaceholders));
   const person = value.people.find((p) => p.id === sel);
   const others = value.people.filter((p) => p.id !== sel);
   const update = (patch: Partial<Person>) => onChange({ ...value, people: value.people.map((p) => (p.id === sel ? { ...p, ...patch } : p)) });
@@ -78,7 +83,7 @@ export function LineageForm({ value, onChange, works }: { value: Lineage; onChan
     setSel(id);
   };
   const partners = person ? partnersOf(value, person.id) : [];
-  const [only, setOnly] = useState(false);
+  const [only, setOnly] = useState(startOnlyPlaceholders);
   return (
     <div className="flex flex-col gap-4">
       <PlaceholdersOnly on={only} onChange={setOnly} left={value.people.filter((p) => p.isPlaceholder).length} noun="person" />
@@ -135,10 +140,11 @@ export function LineageForm({ value, onChange, works }: { value: Lineage; onChan
   );
 }
 
-export function TimelineForm({ value, onChange, works }: { value: Timeline; onChange: (t: Timeline) => void; works: Record<string, string> }) {
+export function TimelineForm({ value, onChange, works, startOnlyPlaceholders = false }: { value: Timeline; onChange: (t: Timeline) => void; works: Record<string, string>; startOnlyPlaceholders?: boolean }) {
   const [tab, setTab] = useState<"events" | "places">("events");
-  const [sel, setSel] = useState<string | null>(value.events[0]?.id ?? null);
-  const [selPlace, setSelPlace] = useState<string | null>(value.places[0]?.id ?? null);
+  // C235: arriving on "Placeholders only" opens the first placeholder.
+  const [sel, setSel] = useState<string | null>(firstOpen(value.events, startOnlyPlaceholders));
+  const [selPlace, setSelPlace] = useState<string | null>(firstOpen(value.places, startOnlyPlaceholders));
   const ev = value.events.find((e) => e.id === sel);
   const place = value.places.find((p) => p.id === selPlace);
   const upEv = (patch: Partial<TimelineEvent>) => onChange({ ...value, events: value.events.map((e) => (e.id === sel ? { ...e, ...patch } : e)) });
@@ -154,7 +160,7 @@ export function TimelineForm({ value, onChange, works }: { value: Timeline; onCh
     setSelPlace(id);
   };
   const onMap = place ? place.street !== undefined || place.avenue !== undefined : true;
-  const [only, setOnly] = useState(false);
+  const [only, setOnly] = useState(startOnlyPlaceholders);
   return (
     <div className="flex flex-col gap-4">
       <div role="group" aria-label="Edit" className="flex gap-2">

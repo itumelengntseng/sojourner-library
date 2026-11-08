@@ -8,7 +8,7 @@ import { LineageForm, TimelineForm } from "./AtlasForms";
 const initial: AtlasState = { ok: false, message: "" };
 
 /** One person / place / event at a time, or the whole document as JSON; the file checks run as the Keeper edits. */
-export function AtlasEditor({ kind, text, works, canSave }: { kind: AtlasKind; text: string; works: Record<string, string>; canSave: boolean }) {
+export function AtlasEditor({ kind, text, works, canSave, placeholdersOnly = false }: { kind: AtlasKind; text: string; works: Record<string, string>; canSave: boolean; placeholdersOnly?: boolean }) {
   const knownWorks = useMemo(() => Object.keys(works), [works]);
   const [mode, setMode] = useState<"form" | "json">("form");
   const [state, action, pending] = useActionState(saveAtlasAction, initial);
@@ -31,8 +31,8 @@ export function AtlasEditor({ kind, text, works, canSave }: { kind: AtlasKind; t
         <>
           <input type="hidden" name="body" value={body} />
           {!parsed ? <p className="font-sans text-sm text-ember">The JSON has a problem the form can&apos;t open — fix it under “Whole file (JSON)”, or Undo my changes.</p>
-            : "people" in parsed ? <LineageForm value={parsed} works={works} onChange={(v) => setBody(toAtlasText(v))} />
-            : <TimelineForm value={parsed} works={works} onChange={(v) => setBody(toAtlasText(v))} />}
+            : "people" in parsed ? <LineageForm value={parsed} works={works} onChange={(v) => setBody(toAtlasText(v))} startOnlyPlaceholders={placeholdersOnly} />
+            : <TimelineForm value={parsed} works={works} onChange={(v) => setBody(toAtlasText(v))} startOnlyPlaceholders={placeholdersOnly} />}
         </>
       ) : (
         <>

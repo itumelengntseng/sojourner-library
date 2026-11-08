@@ -13,8 +13,8 @@ describe("What still waits for your words (C224)", () => {
     expect(r.rows.map((x) => [x.text, x.href])).toEqual([
       ["2 of 3 works on the shelves", "#shelves"],
       ["1 of 1 pitch kit", "/pitch-room"],
-      ["1 of 2 people on the family wall", "/writers-room/atlas#lineage-doc"],
-      ["1 of 2 places and 2 of 2 events on the timeline", "/writers-room/atlas#timeline-doc"],
+      ["1 of 2 people on the family wall", "/writers-room/atlas?only=1#lineage-doc"],
+      ["1 of 2 places and 2 of 2 events on the timeline", "/writers-room/atlas?only=1#timeline-doc"],
       ["the halls' names", "#halls"],
     ]);
   });

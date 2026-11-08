@@ -10,7 +10,9 @@ import { ownerClient } from "@/lib/writersRoom";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Family wall & timeline" };
 
-export default async function AtlasRoom() {
+export default async function AtlasRoom({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  // C235: arriving from "What still waits for your words" opens the pickers on "Placeholders only".
+  const only = (await searchParams).only === "1";
   const { reason } = await ownerClient();
   if (reason && reason !== "preview") {
     return (
@@ -37,13 +39,13 @@ export default async function AtlasRoom() {
       <section aria-labelledby="lineage-doc" className="mt-8 rounded-sm border border-timber-dark bg-stone-floor/60 p-5">
         <h2 id="lineage-doc" className="text-xl text-paper">The family wall</h2>
         <p className="mb-3 font-sans text-xs text-sandstone">{atlas.stored.lineage ? "Showing the copy saved in the library." : "Showing the file copy (content/lineage.ts) — saving here makes the library copy."} Each person: id, name, parents (up to two ids), partners, appearsIn (work addresses), optional note.</p>
-        <AtlasEditor kind="lineage" text={toAtlasText(atlas.lineage)} works={works} canSave={live} />
+        <AtlasEditor kind="lineage" text={toAtlasText(atlas.lineage)} works={works} canSave={live} placeholdersOnly={only} />
       </section>
 
       <section aria-labelledby="timeline-doc" className="mt-8 rounded-sm border border-timber-dark bg-stone-floor/60 p-5">
         <h2 id="timeline-doc" className="text-xl text-paper">The Harlem timeline</h2>
         <p className="mb-3 font-sans text-xs text-sandstone">{atlas.stored.timeline ? "Showing the copy saved in the library." : "Showing the file copy (content/timeline.ts) — saving here makes the library copy."} Places: street (110–155) and avenue id, or &quot;elsewhere&quot;. Events: date like &quot;1924&quot;, &quot;1924-03&quot; or &quot;1924-03-15&quot;, optional approximate, placeId, appearsIn.</p>
-        <AtlasEditor kind="timeline" text={toAtlasText(atlas.timeline)} works={works} canSave={live} />
+        <AtlasEditor kind="timeline" text={toAtlasText(atlas.timeline)} works={works} canSave={live} placeholdersOnly={only} />
       </section>
     </main>
   );

@@ -33,12 +33,12 @@ export function waitingForWords(input: {
   const k = flagged(input.kits);
   if (k) rows.push({ key: "kits", text: of(k, input.kits.length, "pitch kit", "pitch kits"), short: count(k, "pitch kit", "pitch kits"), href: "/pitch-room", linkLabel: "the Pitch Room" });
   const p = flagged(input.people);
-  if (p) rows.push({ key: "people", text: `${of(p, input.people.length, "person", "people")} on the family wall`, short: count(p, "person", "people"), href: "/writers-room/atlas#lineage-doc", linkLabel: "edit the family wall" });
+  if (p) rows.push({ key: "people", text: `${of(p, input.people.length, "person", "people")} on the family wall`, short: count(p, "person", "people"), href: "/writers-room/atlas?only=1#lineage-doc", linkLabel: "edit the family wall" });
   const pl = flagged(input.places), ev = flagged(input.events);
   if (pl || ev) {
     const bits = [pl ? of(pl, input.places.length, "place", "places") : null, ev ? of(ev, input.events.length, "event", "events") : null].filter(Boolean);
     const shortBits = [pl ? count(pl, "place", "places") : null, ev ? count(ev, "event", "events") : null].filter(Boolean);
-    rows.push({ key: "timeline", text: `${bits.join(" and ")} on the timeline`, short: shortBits.join(", "), href: "/writers-room/atlas#timeline-doc", linkLabel: "edit the timeline" });
+    rows.push({ key: "timeline", text: `${bits.join(" and ")} on the timeline`, short: shortBits.join(", "), href: "/writers-room/atlas?only=1#timeline-doc", linkLabel: "edit the timeline" });
   }
   if (!input.hallsNamed) rows.push({ key: "halls", text: "the halls' names", short: "the hall names", href: "#halls", linkLabel: "name the halls" });
   return { rows, allDone: rows.length === 0 };
