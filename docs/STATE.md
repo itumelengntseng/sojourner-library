@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 15 — C206–C208, QA66; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 15 — C206–C211, QA66–QA67, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -297,10 +297,14 @@ _Last updated: 2026-11-08 (scheduled build run 15 — C206–C208, QA66; run 14 
 - C207 — Reading room: a chapter holding none of the reader's notes says "No notes in this chapter yet · 2 elsewhere in this book" under the chapter heading (`elsewhereLine()`, notes and highlights together, from the Contents drawer's per-chapter counts, this chapter live); nothing when the book has none; never in the proof copy. Unit-tested + swept. (There was no notes "drawer" with an empty state — notes sit in the margin — so the line sits with the chapter's other quiet lines; see DECISIONS.)
 - C208 — Halls spines: a book holding the reader's own notes adds "You have notes in it." to its spoken label; nothing visible (`components/SpineNotes.tsx`; library: `myNotedSlugs()`, own rows only; preview: this browser). Unit-tested + swept.
 - QA66 (2026-11-08, after C206–C208): `npm run qa` all clear (run twice) — now also requires the ledger to name two or three books (and count others), chapter 2's "elsewhere" line on the Continue book (absent when chapter 2 holds notes), and Placeholder Work One's spine saying "You have notes in it." exactly when this browser holds notes there. Preview e2e 7/7. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (the new reads are own notes/highlights rows and works titles/slugs the reader can already see).
-- Tests: 719 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA66).
+- C209 — `tests/notesNamesConsistency.test.tsx`: from one browser store, the ledger's named books, the halls spines that say "You have notes in it." and the card's "across N books" agree; library: `myAnnotationTotals()` and `myNotedSlugs()` both read only the reader's own notes/highlights rows.
+- C210 — Reading room: the C207 line ends with "· see Contents", a button that opens the Contents drawer and focuses its toggle (spoken "open Contents to find your notes"). Unit-tested + swept.
+- C211 — Preview e2e (`scripts/e2e.mjs`): after the highlight step, opens a chapter without notes from Contents and waits for "No notes in this chapter yet · N elsewhere in this book · see Contents" (8 steps now; the library run's two-chapter E2E work covers it too). `tests/e2eScript.test.ts` pins the step. (A first placement before the highlight step broke that step after navigating back — hydration race — so it runs after it.)
+- QA67 (2026-11-08, after C209–C211): `npm run qa` all clear (run twice) — now also clicks "see Contents" and requires the drawer open. Preview e2e 8/8. Performance (local prod build, curl): every page < 16 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 723 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA67).
 
 ## Next task
-C209 — `tests/notesNamesConsistency.test.ts` (BACKLOG.md → FOLLOW-UPS), then C210, C211, QA67. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C212 — Ledger "Your notes": each named book links to its work page (BACKLOG.md → FOLLOW-UPS), then C213, C214, QA68. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).

@@ -292,7 +292,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C207 Reading room: the margin-note drawer's empty state ("No notes in this chapter yet") adds "· 2 elsewhere in this book" when other chapters hold own notes (live, from the Contents counts).
 - [x] C208 Halls spines: a book holding the reader's notes adds "You have notes in it." to its spoken label (own only; nothing visible — keeps the shelf calm).
 - [x] QA66 QA pass after C206–C208.
-- [ ] C209 `tests/notesNamesConsistency.test.ts`: from one browser store, the ledger's named books, the halls spines that say "You have notes in it.", and the card's "across N books" agree on which books hold notes (preview and library rules).
-- [ ] C210 Reading room: the C207 "elsewhere" line ends with a quiet "· see Contents" button that opens the Contents drawer (spoken "open Contents to find your notes"; not in the proof copy).
-- [ ] C211 Preview e2e script (`scripts/e2e.mjs`): after the note step, open chapter 2 and check the C207 line ("No notes in this chapter yet · 1 elsewhere in this book"); keep `tests/e2eScript.test.ts` in step.
-- [ ] QA67 QA pass after C209–C211.
+- [x] C209 `tests/notesNamesConsistency.test.ts`: from one browser store, the ledger's named books, the halls spines that say "You have notes in it.", and the card's "across N books" agree on which books hold notes (preview and library rules).
+- [x] C210 Reading room: the C207 "elsewhere" line ends with a quiet "· see Contents" button that opens the Contents drawer (spoken "open Contents to find your notes"; not in the proof copy).
+- [x] C211 Preview e2e script (`scripts/e2e.mjs`): after the note step, open chapter 2 and check the C207 line ("No notes in this chapter yet · 1 elsewhere in this book"); keep `tests/e2eScript.test.ts` in step.
+- [x] QA67 QA pass after C209–C211.
+- [ ] C212 Ledger "Your notes": when two or three books are named (C206), each title links to its work page (own only; the count form stays plain).
+- [ ] C213 Halls legend: when any spine on the page holds the reader's notes, the legend adds a quiet spoken-only line "Books holding your notes say so when read aloud." (own only; nothing visible).
+- [ ] C214 Reading room: Escape closes the Contents drawer opened by "see Contents" and returns focus to the button that opened it (keyboard check, pinned with a test).
+- [ ] QA68 QA pass after C212–C214.
