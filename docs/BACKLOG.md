@@ -300,7 +300,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C213 Halls legend: when any spine on the page holds the reader's notes, the legend adds a quiet spoken-only line "Books holding your notes say so when read aloud." (own only; nothing visible).
 - [x] C214 Reading room: Escape closes the Contents drawer opened by "see Contents" and returns focus to the button that opened it (keyboard check, pinned with a test).
 - [x] QA68 QA pass after C212–C214.
-- [ ] C215 Writer's Room glance: a tile "N works still marked Placeholder" (owner only; counts `is_placeholder` works, preview counts the static catalogue) linking to the shelf list, so Itu sees at a glance what's waiting for his manuscripts.
-- [ ] C216 Writer's Room import: after a successful import, the status line names the work and says it's Draft · Only me (C-rule: imports default to Draft + Only me) with a link to its proof copy.
-- [ ] C217 `tests/placeholderMarking.test.ts`: every placeholder work's page, spine and pitch sheet still shows "Itumeleng Ntseng" and a Placeholder mark (authorship + placeholder rules pinned in one place).
-- [ ] QA69 QA pass after C215–C217.
+- [x] C215 Writer's Room glance: a tile "N works still marked Placeholder" (owner only; counts `is_placeholder` works, preview counts the static catalogue) linking to the shelf list, so Itu sees at a glance what's waiting for his manuscripts.
+- [x] C216 Writer's Room import: after a successful import, the status line names the work and says it's Draft · Only me (C-rule: imports default to Draft + Only me) with a link to its proof copy.
+- [x] C217 `tests/placeholderMarking.test.ts`: every placeholder work's page, spine and pitch sheet still shows "Itumeleng Ntseng" and a Placeholder mark (authorship + placeholder rules pinned in one place).
+- [x] QA69 QA pass after C215–C217.
+- [ ] C218 Writer's Room shelf list: a work still marked Placeholder shows a quiet "replace with your manuscript" link that scrolls to Shelve a manuscript with its title filled in (owner only; the import plan then shows what changes — nothing is replaced until Save).
+- [ ] C219 Writer's Room glance: the Still placeholder tile names the works when there are one to three ("Placeholder Work One, Two and Three wait for your manuscripts"), as C206 does for notes.
+- [ ] C220 Every page's footer carries "© Itumeleng Ntseng" (authorship visible across the library, not only on works) — pinned with a test and swept.
+- [ ] QA70 QA pass after C218–C220.
