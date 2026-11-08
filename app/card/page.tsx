@@ -9,7 +9,8 @@ import { ContinueReading } from "@/components/ContinueReading";
 import { myContinueBySlug, myContinueReading } from "@/lib/continueStore";
 import { WeekLine } from "@/components/WeekLine";
 import { FinishedLine } from "@/components/FinishedLine";
-import { myFinishes, myFirstReads, myWeek, myFinishedCount, myHoursBySlug, myAnnotationsByWork } from "@/lib/ledgerStore";
+import { NotesTally } from "@/components/NotesTally";
+import { myFinishes, myFirstReads, myWeek, myFinishedCount, myHoursBySlug, myAnnotationsByWork, myAnnotationTotals } from "@/lib/ledgerStore";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { ReaderCard } from "@/lib/membership";
 import { signOut } from "./actions";
@@ -67,6 +68,8 @@ export default async function CardPage() {
         </p>
         <WeekLine week={await myWeek()} />
         <FinishedLine count={await myFinishedCount()} />
+      {/* C203: own notes across the library, with the way to them. */}
+      <NotesTally totals={await myAnnotationTotals()} link />
         <ContinueShelf />
         <LoanShelf />
         <ReturnedShelf />
@@ -103,6 +106,8 @@ export default async function CardPage() {
       <MembershipCard card={card} />
       <WeekLine week={await myWeek()} />
       <FinishedLine count={await myFinishedCount()} />
+      {/* C203: own notes across the library, with the way to them. */}
+      <NotesTally totals={await myAnnotationTotals()} link />
       <ContinueShelf />
       <LoanShelf />
       <ReturnedShelf notes="library" />

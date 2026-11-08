@@ -1,13 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { getWorks } from "@/lib/catalogue";
 import { notesAcrossLine, totalAnnotations, type AnnotationTotals } from "@/lib/notesCount";
 
 /**
  * C179: "3 margin notes · 2 highlights across 2 books" above the ledger's export (own annotations only).
  * Library mode passes the totals; preview mode counts what this browser holds. Nothing when there are none.
+ * C203: with `link` (the card page) it adds "· see them in the ledger" → /ledger#export.
  */
-export function NotesTally({ totals }: { totals: AnnotationTotals | null }) {
+export function NotesTally({ totals, link = false }: { totals: AnnotationTotals | null; link?: boolean }) {
   const [local, setLocal] = useState<AnnotationTotals | null>(null);
   useEffect(() => {
     if (totals) return;
@@ -18,5 +20,12 @@ export function NotesTally({ totals }: { totals: AnnotationTotals | null }) {
   }, [totals]);
   const line = notesAcrossLine(totals ?? local ?? { notes: 0, highlights: 0, books: 0 });
   if (!line) return null;
+  if (link) {
+    return (
+      <p className="font-sans text-xs text-sandstone">
+        You have {line} · <Link href="/ledger#export" className="text-lamplight underline underline-offset-2 hover:text-ember">see them in the ledger</Link>
+      </p>
+    );
+  }
   return <p className="mt-2 font-sans text-xs text-sandstone">You have {line}.</p>;
 }
