@@ -7,7 +7,7 @@ import { parsePreviewLoans, PREVIEW_COOKIE, rowToLoan, type LoanRow } from "./lo
 import { splitParagraphs } from "./reader";
 import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
 import { supabaseServer } from "./supabase/server";
-import { annotatedTitles, countByChapter, type AnnotationCount, type AnnotationTotals } from "./notesCount";
+import { annotatedBooks, countByChapter, type AnnotationCount, type AnnotationTotals } from "./notesCount";
 
 export interface LedgerView {
   mode: "preview" | "library" | "signed-out";
@@ -289,8 +289,10 @@ export async function myAnnotationTotals(): Promise<AnnotationTotals | null> {
   const out: AnnotationTotals = { notes: notes?.length ?? 0, highlights: hls?.length ?? 0, books: books.size };
   // C206: titles for two or three books (shelf order); a title the reader can't see leaves the count in place.
   if (books.size >= 2 && books.size <= 3) {
-    const { data: ws } = await supabase.from("works").select("id, title, series, series_order").in("id", [...books]);
-    out.titles = annotatedTitles(ws ?? []);
+    const { data: ws } = await supabase.from("works").select("id, slug, title, series, series_order").in("id", [...books]);
+    const named = annotatedBooks((ws ?? []) as { title: string; slug: string; series?: string | null; series_order?: number | null }[]);
+    out.titles = named.map((b) => b.title);
+    out.slugs = named.map((b) => b.slug); // C212: for links
   }
   return out;
 }

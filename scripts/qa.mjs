@@ -732,6 +732,12 @@ for (const width of WIDTHS) {
     const books = counted ? Number(counted[1]) : named.length;
     if (tally && (counted ? books >= 2 && books <= 3 : books < 2 || books > 3 || !named.every((n) => /^Placeholder Work /.test(n)))) { failures++; console.log(`✗ ${width}px ledger Your notes '${across}' — two or three books should be named, others counted`); }
     else if (tally) console.log(`✓ ${width}px ledger Your notes ${counted ? "counts" : "names"} ${books} book(s)`);
+    // QA68 (C212): each named book links to its work page.
+    if (tally && !counted) {
+      const hrefs = await tallyLoc.first().locator("a[href^='/works/']").evaluateAll((as) => as.map((a) => a.textContent));
+      if (hrefs.join("|") !== named.join("|")) { failures++; console.log(`✗ ${width}px ledger Your notes named books aren't each linked (${hrefs.join(", ")})`); }
+      else console.log(`✓ ${width}px ledger Your notes links ${hrefs.length} named book(s)`);
+    }
     await page.goto(`${BASE}/works/placeholder-work-one`);
     const line = page.locator("p", { hasText: /^You have .* in this book/ }).first();
     if (await appears(line)) {

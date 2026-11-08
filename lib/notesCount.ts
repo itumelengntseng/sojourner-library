@@ -29,6 +29,8 @@ export interface AnnotationTotals extends AnnotationCount {
   books: number;
   /** C206: the titles of the books holding own notes, in shelf order (optional; only used when they match `books`). */
   titles?: string[];
+  /** C212: the slugs of those books, in the same order (for links). */
+  slugs?: string[];
 }
 
 /** C206: "Placeholder Work One and Placeholder Work Two" / "A, B and C" — null unless 2–3 titles that match the count. */
@@ -56,14 +58,15 @@ export function notesAcrossLine(t: AnnotationTotals, name = false): string | nul
 export function totalAnnotations(byWork: Record<string, (string | null)[]>, titles?: Record<string, string>): AnnotationTotals {
   const out: AnnotationTotals = { notes: 0, highlights: 0, books: 0 };
   const named: string[] = [];
+  const slugs: string[] = [];
   for (const [slug, raws] of Object.entries(byWork)) {
     const c = countAnnotations(raws);
     out.notes += c.notes;
     out.highlights += c.highlights;
-    if (c.notes + c.highlights > 0) { out.books += 1; if (titles?.[slug]) named.push(titles[slug]); }
+    if (c.notes + c.highlights > 0) { out.books += 1; if (titles?.[slug]) { named.push(titles[slug]); slugs.push(slug); } }
   }
-  // C206: titles in the order the works were given (shelf order), only when given.
-  if (titles) out.titles = named;
+  // C206: titles in the order the works were given (shelf order), only when given; C212: with their slugs.
+  if (titles) { out.titles = named; out.slugs = slugs; }
   return out;
 }
 
@@ -143,9 +146,20 @@ export function sumCounts(counts: (AnnotationCount | undefined)[]): AnnotationCo
 
 /** C206: library-mode titles in shelf order (series, series order, title) from the works rows the reader can see. */
 export function annotatedTitles(rows: { title: string; series?: string | null; series_order?: number | null }[]): string[] {
+  return annotatedBooks(rows.map((r) => ({ ...r, slug: "" }))).map((b) => b.title);
+}
+
+/** C212: the same rows as { title, slug } in shelf order, so the ledger can link each named book. */
+export function annotatedBooks(rows: { title: string; slug: string; series?: string | null; series_order?: number | null }[]): { title: string; slug: string }[] {
   return [...rows]
     .sort((a, b) => (a.series ?? "").localeCompare(b.series ?? "") || (a.series_order ?? 0) - (b.series_order ?? 0) || a.title.localeCompare(b.title))
-    .map((r) => r.title);
+    .map((r) => ({ title: r.title, slug: r.slug }));
+}
+
+/** C212: the named books as links (title + href) when `bookNames` would name them; null otherwise. */
+export function namedBookLinks(t: AnnotationTotals): { title: string; href: string }[] | null {
+  if (!bookNames(t) || !t.titles || !t.slugs || t.slugs.length !== t.titles.length) return null;
+  return t.titles.map((title, i) => ({ title, href: `/works/${t.slugs![i]}` }));
 }
 
 /**

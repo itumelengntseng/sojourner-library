@@ -23,7 +23,7 @@ describe("ledger notes line names its books (C206)", () => {
       { one: [JSON.stringify({ notes: [1] })], two: [null], three: [JSON.stringify({ highlights: [1] })] },
       { one: "Placeholder Work One", two: "Placeholder Work Two", three: "Placeholder Work Three" },
     );
-    expect(t).toEqual({ notes: 1, highlights: 1, books: 2, titles: ["Placeholder Work One", "Placeholder Work Three"] });
+    expect(t).toEqual({ notes: 1, highlights: 1, books: 2, titles: ["Placeholder Work One", "Placeholder Work Three"], slugs: ["one", "three"] });
     expect(totalAnnotations({ one: [JSON.stringify({ notes: [1] })] })).toEqual({ notes: 1, highlights: 0, books: 1 });
   });
   it("library titles sort by series, series order, then title", () => {
@@ -42,6 +42,6 @@ describe("ledger notes line names its books (C206)", () => {
   it("library totals ask the works table for titles only for two or three books", () => {
     const src = readFileSync("lib/ledgerStore.ts", "utf8");
     expect(src).toMatch(/books\.size >= 2 && books\.size <= 3/);
-    expect(src).toContain('from("works").select("id, title, series, series_order").in("id", [...books])');
+    expect(src).toContain('from("works").select("id, slug, title, series, series_order").in("id", [...books])');
   });
 });

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getWorks } from "@/lib/catalogue";
-import { notesAcrossLine, totalAnnotations, type AnnotationTotals } from "@/lib/notesCount";
+import { namedBookLinks, notesAcrossLine, totalAnnotations, type AnnotationTotals } from "@/lib/notesCount";
 
 /**
  * C179: "3 margin notes · 2 highlights across 2 books" above the ledger's export (own annotations only).
@@ -26,6 +26,19 @@ export function NotesTally({ totals, link = false, name = false }: { totals: Ann
     return (
       <p className="font-sans text-xs text-sandstone">
         You have {line} · <Link href="/ledger#export" className="text-lamplight underline underline-offset-2 hover:text-ember">see them in the ledger</Link>
+      </p>
+    );
+  }
+  // C212: on the ledger, named books link to their work pages.
+  const t = totals ?? local;
+  const links = name && t ? namedBookLinks(t) : null;
+  if (links) {
+    const head = line.slice(0, line.lastIndexOf(" across ") + " across ".length);
+    return (
+      <p className="mt-2 font-sans text-xs text-sandstone">
+        You have {head}{links.map((b, i) => (
+          <span key={b.href}>{i > 0 && (i === links.length - 1 ? " and " : ", ")}<Link href={b.href} className="text-lamplight underline underline-offset-2 hover:text-ember">{b.title}</Link></span>
+        ))}.
       </p>
     );
   }
