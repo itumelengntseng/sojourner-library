@@ -14,3 +14,13 @@ describe("notes across the library (C179)", () => {
     expect(notesAcrossLine({ notes: 0, highlights: 0, books: 0 })).toBeNull();
   });
 });
+
+describe("short notes line (C186)", () => {
+  it("words the counts beside a time", async () => {
+    const { shortNotesLine } = await import("@/lib/notesCount");
+    expect(shortNotesLine({ notes: 2, highlights: 1 })).toBe(" · 2 notes · 1 highlight");
+    expect(shortNotesLine({ notes: 1, highlights: 0 })).toBe(" · 1 note");
+    expect(shortNotesLine({ notes: 0, highlights: 0 })).toBeNull();
+    expect(shortNotesLine(undefined)).toBeNull();
+  });
+});

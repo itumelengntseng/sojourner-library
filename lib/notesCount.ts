@@ -53,3 +53,10 @@ export function totalAnnotations(byWork: Record<string, (string | null)[]>): Ann
 export function previewBookCount(slug: string, positions: number[], read: (k: string) => string | null): AnnotationCount {
   return countAnnotations(positions.map((p) => read(`soj:ann:${slug}:${p}`)));
 }
+
+/** C186: the short form beside a book's time in Hours per book — "· 2 notes · 1 highlight"; null when none. */
+export function shortNotesLine(c: AnnotationCount | undefined): string | null {
+  if (!c) return null;
+  const parts = [c.notes ? `${c.notes} note${c.notes === 1 ? "" : "s"}` : "", c.highlights ? `${c.highlights} highlight${c.highlights === 1 ? "" : "s"}` : ""].filter(Boolean);
+  return parts.length ? parts.map((p) => ` · ${p}`).join("") : null;
+}

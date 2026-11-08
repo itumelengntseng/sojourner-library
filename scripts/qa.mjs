@@ -615,6 +615,8 @@ for (const width of WIDTHS) {
   // QA57 (C179): the sweep has left notes and highlights in this browser, so "Your notes" counts them.
   // (In preview the line is counted in the browser after hydration, so wait for it.)
   if (!(await appears(page.locator("section[aria-labelledby='export'] p", { hasText: /^You have (\d+ margin notes?|\d+ highlights?)( · \d+ highlights?)? across \d+ books?\.$/ })))) { failures++; console.log(`✗ ${width}px ledger Your notes without the count line`); }
+  // QA59 (C186): the sweep's notes show beside Placeholder Work One's time in Hours per book.
+  if (!(await appears(page.locator("section[aria-labelledby='hours'] tbody tr", { has: page.locator("a[href='/works/placeholder-work-one']") }).locator("td:nth-child(2)", { hasText: / · \d+ (notes?|highlights?)/ })))) { failures++; console.log(`✗ ${width}px ledger Hours per book without the notes count beside Placeholder Work One`); }
   // QA58 (C182): with notes in two or more books, a work page with notes links to all of them.
   {
     // At the last width, a note in a second book makes it two books, so both sides of the rule are seen.

@@ -7,7 +7,7 @@ import { parsePreviewLoans, PREVIEW_COOKIE, rowToLoan, type LoanRow } from "./lo
 import { splitParagraphs } from "./reader";
 import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
 import { supabaseServer } from "./supabase/server";
-import type { AnnotationTotals } from "./notesCount";
+import type { AnnotationCount, AnnotationTotals } from "./notesCount";
 
 export interface LedgerView {
   mode: "preview" | "library" | "signed-out";
@@ -270,6 +270,22 @@ export async function myAnnotationTotals(): Promise<AnnotationTotals | null> {
   ]);
   const books = new Set([...(notes ?? []), ...(hls ?? [])].map((r) => r.work_id as string));
   return { notes: notes?.length ?? 0, highlights: hls?.length ?? 0, books: books.size };
+}
+
+/** C186: own notes and highlights per work (workKey → counts) for Hours per book; null in preview — the browser counts. */
+export async function myAnnotationsByWork(): Promise<Record<string, AnnotationCount> | null> {
+  const supabase = await supabaseServer();
+  if (!supabase) return null;
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return {};
+  const [{ data: notes }, { data: hls }] = await Promise.all([
+    supabase.from("notes").select("work_id").eq("reader_id", auth.user.id).limit(5000),
+    supabase.from("highlights").select("work_id").eq("reader_id", auth.user.id).limit(5000),
+  ]);
+  const out: Record<string, AnnotationCount> = {};
+  for (const r of notes ?? []) (out[r.work_id as string] ??= { notes: 0, highlights: 0 }).notes += 1;
+  for (const r of hls ?? []) (out[r.work_id as string] ??= { notes: 0, highlights: 0 }).highlights += 1;
+  return out;
 }
 
 /** C60: the reader's own reading in the last 7 SA days, for the line on the card page. */

@@ -4,7 +4,9 @@ import { PreviewNotesExport } from "@/components/PreviewNotesExport";
 import { ReadingByMonth } from "@/components/ReadingByMonth";
 import { finishedBooks, finishedDuring, readByWork, finishedStamp, formatHours, barShare, historyHref, historyPage, historySummary, hoursHref, orderHours, parseHoursOrder, renewalsLeftLine, type FinishInfo } from "@/lib/ledger";
 import { FinishedShelf } from "@/components/FinishedShelf";
-import { loadLedger, myAnnotationTotals } from "@/lib/ledgerStore";
+import { loadLedger, myAnnotationTotals, myAnnotationsByWork } from "@/lib/ledgerStore";
+import { BookNotesCount } from "@/components/BookNotesCount";
+import { getWork } from "@/lib/catalogue";
 import { NotesTally } from "@/components/NotesTally";
 import { myOpenLoans } from "@/lib/loanStore";
 import { myContinueBySlug } from "@/lib/continueStore";
@@ -23,6 +25,7 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
   const hoursOrder = parseHoursOrder(sp.hours);
   const l = await loadLedger();
   const readMs = readByWork(l.hours);
+  const notesBy = await myAnnotationsByWork(); // C186
   if (l.mode === "signed-out") {
     return (
       <main id="main" className="mx-auto max-w-xl px-4 pt-24 text-center">
@@ -136,6 +139,9 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
                       </div>
                     )}</td>
                   <td className="py-3 pr-2 font-sans text-sm">{formatHours(h.activeMs)}
+                    {/* C186: own notes and highlights in this book, after its time. */}
+                    {notesBy ? <BookNotesCount counts={notesBy[h.workKey] ?? { notes: 0, highlights: 0 }} />
+                      : l.slugs[h.workKey] && <BookNotesCount counts={null} slug={l.slugs[h.workKey]} positions={getWork(l.slugs[h.workKey])?.chapters.map((c) => c.position) ?? []} />}
                     {/* C160: under "Most hours", a timber bar scaled to the top book (the time stays in text). */}
                     {hoursOrder === "most" && <span aria-hidden="true" className="mt-1 block h-1 rounded-full bg-timber" style={{ width: `${barShare(h.activeMs, l.hours)}%` }} />}
                   </td>

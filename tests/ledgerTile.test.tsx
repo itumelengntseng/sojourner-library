@@ -4,10 +4,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 // C91: a "Read to the end" tile at the top of the ledger once a book is finished, leading to the shelf.
 let history: { id: string; workKey: string; borrowedAt: number; endedAt: number | null; open: boolean; renewals: number }[] = [];
 let hours: { workKey: string; activeMs: number; wordsRead: number; sessions: number; lastRead: number; finishedAt?: number }[] = [];
+let notesByWork: Record<string, { notes: number; highlights: number }> | null = null;
 let annotationTotals: { notes: number; highlights: number; books: number } | null = null;
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/ledgerStore", () => ({
   myAnnotationTotals: async () => annotationTotals,
+  myAnnotationsByWork: async () => notesByWork,
   loadLedger: async () => ({
     mode: "preview", readerName: "", titles: { w: "Placeholder Work One" }, slugs: { w: "placeholder-work-one" },
     history, hours, streaks: { current: 0, longest: 0, readToday: false, days: 0 }, totalMs: 0, totalWords: 0, months: [], week: { ms: 0, days: 0 },
@@ -173,5 +175,17 @@ describe("Your notes count line (C179)", () => {
     annotationTotals = { notes: 0, highlights: 0, books: 0 };
     expect(await render()).not.toContain("You have");
     annotationTotals = null;
+  });
+});
+
+describe("notes beside a book's time in Hours per book (C186)", () => {
+  it("library counts: '· 2 notes · 1 highlight' after the time, nothing for a book without", async () => {
+    const t = Date.parse("2026-11-05T10:00:00Z");
+    hours = [{ workKey: "w", activeMs: 45 * 60_000, wordsRead: 100, sessions: 1, lastRead: t }, { workKey: "x", activeMs: 5 * 60_000, wordsRead: 10, sessions: 1, lastRead: t }];
+    notesByWork = { w: { notes: 2, highlights: 1 } };
+    const html = (await render()).replace(/<!-- -->/g, "");
+    expect(html).toContain("45 min<span class=\"text-sandstone\"> · 2 notes · 1 highlight</span>");
+    expect(html.match(/ · \d+ notes?/g)).toHaveLength(1);
+    notesByWork = null;
   });
 });
