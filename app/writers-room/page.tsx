@@ -28,7 +28,7 @@ export default async function WritersRoom({ searchParams }: { searchParams: Prom
     );
   }
   const live = room.mode === "library";
-  const tiles = glance(room.works, live ? room.setAside.length : 0, live ? room.cardHolders : null, room.dueSoon, room.returnedHour, room.borrowedHour);
+  const tiles = glance(room.works, live ? room.setAside.length : 0, live ? room.cardHolders : null, room.dueSoon, room.returnedHour, room.borrowedHour, room.loansMonth);
   // C61: "Find a work" narrows the shelf list and the set-aside list (a GET form — no JavaScript needed).
   const shownWorks = filterByTitle(room.works, find);
   const shownAside = live ? filterByTitle(room.setAside, find) : [];
@@ -41,7 +41,7 @@ export default async function WritersRoom({ searchParams }: { searchParams: Prom
 
       <section aria-labelledby="glance" className="mt-8">
         <h2 id="glance" className="sr-only">The library at a glance</h2>
-        <dl className={`grid grid-cols-2 gap-3 sm:grid-cols-4 ${tiles.length > 4 ? "lg:grid-cols-5" : ""}`}>
+        <dl className={`grid grid-cols-2 gap-3 ${tiles.length >= 6 ? "sm:grid-cols-3" : tiles.length === 5 ? "sm:grid-cols-4 lg:grid-cols-5" : "sm:grid-cols-4"}`}>
           {tiles.map((t) => (
             <div key={t.label} className="rounded-sm border border-timber-dark bg-ink/40 p-4">
               <dt className="font-sans text-[0.65rem] uppercase tracking-wider text-sandstone">{t.label}</dt>

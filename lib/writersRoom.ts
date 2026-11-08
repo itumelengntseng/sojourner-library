@@ -4,8 +4,10 @@ import { hallsFromRows, type HallRow } from "./catalogueRows";
 import { countWords } from "./engine/readingTime";
 import type { ShelvedWork } from "./manuscript";
 import { supabaseServer } from "./supabase/server";
-import { dueBackSoon, justBorrowed, justReturned } from "./loanDesk";
+import { cookies } from "next/headers";
+import { dueBackSoon, justBorrowed, justReturned, parsePreviewLoans, PREVIEW_COOKIE } from "./loanDesk";
 import { myOpenLoans, myRecentlyReturned } from "./loanStore";
+import { loansInMonth } from "./glance";
 
 export interface RoomWork {
   id: string;
@@ -35,9 +37,9 @@ export interface RoomInvite {
 }
 
 export type Room =
-  | { mode: "preview"; works: RoomWork[]; halls: Hall[]; shelf: Record<string, ShelvedWork>; dueSoon: number; returnedHour: number; borrowedHour: number }
+  | { mode: "preview"; works: RoomWork[]; halls: Hall[]; shelf: Record<string, ShelvedWork>; dueSoon: number; returnedHour: number; borrowedHour: number; loansMonth: number }
   | { mode: "closed"; reason: "signed-out" | "not-owner" }
-  | { mode: "library"; works: RoomWork[]; invites: RoomInvite[]; halls: Hall[]; hallsNamed: boolean; setAside: { id: string; slug: string; title: string; archivedAt: string }[]; shelf: Record<string, ShelvedWork>; cardHolders: number; dueSoon: number; returnedHour: number; borrowedHour: number };
+  | { mode: "library"; works: RoomWork[]; invites: RoomInvite[]; halls: Hall[]; hallsNamed: boolean; setAside: { id: string; slug: string; title: string; archivedAt: string }[]; shelf: Record<string, ShelvedWork>; cardHolders: number; dueSoon: number; returnedHour: number; borrowedHour: number; loansMonth: number };
 
 /** The owner's client, or null (with why) — every Writer's Room action goes through this. */
 export async function ownerClient() {
@@ -62,6 +64,8 @@ export async function loadRoom(): Promise<Room> {
       dueSoon: dueBackSoon(out, Date.now()).length,
       returnedHour: back.filter((r) => justReturned(r, Date.now())).length,
       borrowedHour: out.filter((l) => justBorrowed(l, Date.now())).length,
+      // C163: the cookie desk's loans taken out in the last 30 days.
+      loansMonth: loansInMonth(parsePreviewLoans((await cookies()).get(PREVIEW_COOKIE)?.value).map((l) => l.borrowedAt), Date.now()),
       works: getWorks().map((w) => ({
         id: w.slug, slug: w.slug, title: w.title, canonStatus: w.canonStatus, visibility: "owner", isPlaceholder: true, description: "", hall: w.hall,
         words: 0, readers: 0, openLoans: outBySlug.get(w.slug) ?? 0, minutes: 0,
@@ -75,7 +79,7 @@ export async function loadRoom(): Promise<Room> {
   }
   if (!supabase) return { mode: "closed", reason: reason as "signed-out" | "not-owner" };
   const nowMs = Date.now();
-  const [{ data: works }, { data: stats }, { data: invites }, { data: hallRows }, { data: archived }, { data: chapterRows }, { count: cardHolders }, finishedRes, { count: dueSoon }, { data: backRows }, { count: borrowedHour }] = await Promise.all([
+  const [{ data: works }, { data: stats }, { data: invites }, { data: hallRows }, { data: archived }, { data: chapterRows }, { count: cardHolders }, finishedRes, { count: dueSoon }, { data: backRows }, { count: borrowedHour }, { count: loansMonth }] = await Promise.all([
     supabase.from("works").select("id, slug, title, canon_status, visibility, is_placeholder, description, hall, word_count, updated_at").is("archived_at", null).order("title"),
     supabase.rpc("readership"),
     supabase.from("invites").select("id, note, expires_at, redeemed_at, revoked_at").eq("role", "guest").order("created_at", { ascending: false }).limit(50),
@@ -91,6 +95,8 @@ export async function loadRoom(): Promise<Room> {
     supabase.from("loans").select("returned_at, due_at").gte("returned_at", new Date(nowMs - 3600_000).toISOString()).limit(1000),
     // C139: loans taken out in the last hour — a head count only.
     supabase.from("loans").select("id", { count: "exact", head: true }).gt("borrowed_at", new Date(nowMs - 3600_000).toISOString()),
+    // C163: loans taken out in the last 30 days — a head count only.
+    supabase.from("loans").select("id", { count: "exact", head: true }).gt("borrowed_at", new Date(nowMs - 30 * 86_400_000).toISOString()),
   ]);
   const finishedBy = finishedRes.error ? null
     : new Map(((finishedRes.data ?? []) as { work_id: string; finished: number | string }[]).map((r) => [r.work_id, Number(r.finished)]));
@@ -114,6 +120,7 @@ export async function loadRoom(): Promise<Room> {
     cardHolders: cardHolders ?? 0,
     dueSoon: dueSoon ?? 0,
     borrowedHour: borrowedHour ?? 0,
+    loansMonth: loansMonth ?? 0,
     returnedHour: ((backRows ?? []) as { returned_at: string; due_at: string }[])
       .filter((r) => justReturned({ returnedAt: Date.parse(r.returned_at), onTime: Date.parse(r.returned_at) < Date.parse(r.due_at) }, nowMs)).length,
     setAside: (archived ?? []).map((w) => ({ id: w.id as string, slug: w.slug as string, title: w.title as string, archivedAt: w.archived_at as string })),

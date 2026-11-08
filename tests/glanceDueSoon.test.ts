@@ -65,6 +65,6 @@ describe("Writer's Room loans tile — borrowed in the last hour (C139)", () => 
     const src = readFileSync("lib/writersRoom.ts", "utf8");
     expect(src).toContain('supabase.from("loans").select("id", { count: "exact", head: true }).gt("borrowed_at"');
     expect(src).toContain("borrowedHour: out.filter((l) => justBorrowed(l, Date.now())).length,");
-    expect(readFileSync("app/writers-room/page.tsx", "utf8")).toContain("room.returnedHour, room.borrowedHour)");
+    expect(readFileSync("app/writers-room/page.tsx", "utf8")).toContain("room.returnedHour, room.borrowedHour");
   });
 });

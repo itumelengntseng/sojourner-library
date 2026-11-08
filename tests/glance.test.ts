@@ -49,3 +49,31 @@ describe("read to the end tile (C45)", () => {
     expect(glance([w(0)], 0, 3).find((x) => x.label === "Read to the end")!.note).toBe("no guest has reached an ending yet");
   });
 });
+
+describe("glance — Loans this month (C163)", () => {
+  const NOW = Date.parse("2026-11-08T12:00:00Z");
+  const DAY = 86_400_000;
+  it("counts loans taken out in the last 30 days only", async () => {
+    const { loansInMonth } = await import("@/lib/glance");
+    expect(loansInMonth([NOW - 1000, NOW - 29 * DAY, NOW - 30 * DAY, NOW - 40 * DAY, NOW + 5000], NOW)).toBe(2);
+    expect(loansInMonth([], NOW)).toBe(0);
+  });
+  it("shows a head count tile, never who or what", async () => {
+    const { glance } = await import("@/lib/glance");
+    const w = [{ visibility: "members" as const, words: 10, openLoans: 1 }];
+    const t = glance(w, 0, 3, 0, 0, 0, 4).find((x) => x.label === "Loans this month")!;
+    expect(t).toEqual({ label: "Loans this month", value: "4", note: "taken out in the last 30 days" });
+    expect(glance(w, 0, 3, 0, 0, 0, 0).find((x) => x.label === "Loans this month")!.note).toBe("none taken out in the last 30 days");
+    expect(glance(w, 0, 3).some((x) => x.label === "Loans this month")).toBe(false);
+  });
+});
+
+describe("Writer's Room — Loans this month wiring (C163)", () => {
+  it("library mode asks for a 30-day head count; the page passes it on", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync("lib/writersRoom.ts", "utf8");
+    expect(src).toContain('supabase.from("loans").select("id", { count: "exact", head: true }).gt("borrowed_at", new Date(nowMs - 30 * 86_400_000).toISOString())');
+    expect(src).toContain("loansMonth: loansInMonth(parsePreviewLoans(");
+    expect(readFileSync("app/writers-room/page.tsx", "utf8")).toContain("room.borrowedHour, room.loansMonth)");
+  });
+});

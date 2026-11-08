@@ -4,7 +4,7 @@ export interface GlanceTile { label: string; value: string; note?: string;
   urgentNote?: string }
 
 /** "The library at a glance": counts only — never who read what. */
-export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number }[], setAside: number, cardHolders: number | null, dueSoon = 0, returnedHour = 0, borrowedHour = 0): GlanceTile[] {
+export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number }[], setAside: number, cardHolders: number | null, dueSoon = 0, returnedHour = 0, borrowedHour = 0, loansMonth: number | null = null): GlanceTile[] {
   const shared = works.filter((w) => w.visibility === "members").length;
   const words = works.reduce((a, w) => a + w.words, 0);
   const loans = works.reduce((a, w) => a + w.openLoans, 0);
@@ -18,6 +18,8 @@ export function glance(works: { visibility: "owner" | "members"; words: number; 
     { label: "Out on loan now", value: String(loans), note: `${loans ? plural(loans, "open loan") : "every book is in"}${borrowedHour > 0 ? ` · ${borrowedHour.toLocaleString("en-ZA")} borrowed in the last hour` : ""}${returnedHour > 0 ? ` · ${returnedHour.toLocaleString("en-ZA")} returned in the last hour` : ""}`,
       ...(loans && dueSoon > 0 ? { urgentNote: `${Math.min(dueSoon, loans).toLocaleString("en-ZA")} due back within the day` } : {}) },
   ];
+  // C163: loans taken out in the last 30 days — a head count only, never who or what.
+  if (loansMonth !== null) tiles.push({ label: "Loans this month", value: loansMonth.toLocaleString("en-ZA"), note: loansMonth ? "taken out in the last 30 days" : "none taken out in the last 30 days" });
   // C45: shown once the library can count it (finished_readers() answered for every work).
   if (works.length > 0 && works.every((w) => w.finished !== undefined)) {
     const done = works.reduce((a, w) => a + (w.finished ?? 0), 0);
@@ -38,4 +40,9 @@ export function changedLabel(iso: string | undefined, now: number): string | nul
   if (days === 1) return "changed yesterday";
   if (days < 7) return `changed ${days} days ago`;
   return `changed ${new Date(t).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric", timeZone: "Africa/Johannesburg" })}`;
+}
+
+/** C163: how many loans were taken out in the 30 days before `now` (borrow times only). */
+export function loansInMonth(borrowedAt: number[], now: number): number {
+  return borrowedAt.filter((t) => t <= now && now - t < 30 * DAY).length;
 }
