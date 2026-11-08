@@ -168,7 +168,7 @@ for (const width of WIDTHS) {
   else console.log(`✓ ${width}px writer's room glance counts placeholder works`);
   // QA70 (C218): a placeholder work's "replace with your manuscript" opens the import form with its title filled in.
   {
-    const link = page.locator("a", { hasText: "replace with your manuscript" }).first();
+    const link = page.locator("a[href*='replace=']", { hasText: "replace with your manuscript" }).first();
     if (!(await link.count())) { failures++; console.log(`✗ ${width}px writer's room: no 'replace with your manuscript' link`); }
     else {
       await link.click();
@@ -973,6 +973,22 @@ await axeCheck("375px reading room gate just returned");
   await ctx6.close();
 }
 
+// QA72 (C224, C225): the Writer's Room lists what still waits for Itu's words; placeholder kit statuses link to the editor.
+{
+  const ctx7 = await browser.newContext();
+  const p7 = await ctx7.newPage();
+  await p7.goto(`${BASE}/writers-room`);
+  const rows = await p7.locator("section[aria-labelledby='waiting'] li").allTextContents();
+  const want = [/^3 of 3 works on the shelves · replace with your manuscripts$/, /^3 of 3 pitch kits · the Pitch Room$/, /^\d+ of \d+ people on the family wall · edit the family wall$/, /places and \d+ of \d+ events on the timeline · edit the timeline$/, /^the halls' names · name the halls$/];
+  if (rows.length !== want.length || !want.every((re, i) => re.test(rows[i]))) { failures++; console.log(`✗ waiting panel: ${JSON.stringify(rows)}`); }
+  else console.log("✓ writer's room lists what still waits for your words");
+  await p7.goto(`${BASE}/pitch-room`);
+  const st = await p7.locator("a[data-kit-status][href$='/edit']").count();
+  if (st !== 3) { failures++; console.log(`✗ pitch room: ${st} placeholder status links (expected 3)`); }
+  else console.log("✓ placeholder kit statuses link to their editors");
+  await ctx7.close();
+}
+
 // QA71 (C222): the family wall & timeline editor says what's still placeholder, and it follows a "Real" tick.
 {
   const ctx5 = await browser.newContext();
@@ -986,6 +1002,20 @@ await axeCheck("375px reading room gate just returned");
     const after = (await p5.locator("[data-placeholder-line]").first().textContent()) ?? "";
     if (Number(after.split(" ")[0]) !== before - 1) { failures++; console.log(`✗ atlas placeholder line didn't follow the Real tick: '${after}'`); }
     else console.log(`✓ atlas editor counts placeholders live ('${after.split(" —")[0]}')`);
+    // QA72 (C226): "Placeholders only" keeps the open person, then drops them once another is picked.
+    const lin = p5.locator("section[aria-labelledby='lineage-doc']");
+    await lin.getByLabel(/^Placeholders only/).check();
+    const chips = () => lin.getByRole("group", { name: "People on the wall" }).locator("button[aria-pressed]");
+    const withOpen = await chips().count();
+    await chips().nth(1).click();
+    const withoutOpen = await chips().count();
+    if (withOpen !== before || withoutOpen !== before - 1) { failures++; console.log(`✗ placeholders only: ${withOpen} then ${withoutOpen} chips (expected ${before}, ${before - 1})`); }
+    else {
+      await p5.evaluate(axeSource);
+      const bad = (await p5.evaluate(async () => await axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21aa"] }))).violations.filter((v) => ["serious", "critical"].includes(v.impact));
+      if (bad.length) { failures += bad.length; console.log(`✗ atlas 'Placeholders only': ${bad.map((v) => v.id).join(", ")}`); }
+      else console.log("✓ atlas 'Placeholders only' steps through what's left");
+    }
   }
   await ctx5.close();
 }
