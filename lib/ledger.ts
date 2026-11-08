@@ -346,3 +346,8 @@ export function barShare(ms: number, hours: Pick<WorkHours, "activeMs">[]): numb
   if (!(top > 0)) return 4;
   return Math.max(4, Math.round((Math.max(0, ms) / top) * 100));
 }
+
+/** C170/C171: "You've read for 45 min in this book" — own reading time (null when none). */
+export function readForLine(ms: number | undefined): string | null {
+  return ms && ms > 0 ? `You've read for ${formatHours(ms)} in this book` : null;
+}

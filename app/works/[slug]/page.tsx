@@ -12,14 +12,14 @@ import { latestLoan } from "@/lib/loanDesk";
 import { loadDesk } from "@/lib/loanStore";
 import { outsideCanonNote } from "@/lib/canon";
 import { myPace } from "@/lib/sessionStore";
-import { myAnnotationCount, myChaptersRead, myFinish, myFirstRead } from "@/lib/ledgerStore";
+import { myAnnotationCount, myChaptersRead, myFinish, myFirstRead, myHoursBySlug } from "@/lib/ledgerStore";
 import { YourNotes } from "@/components/YourNotes";
 import { myContinueReading } from "@/lib/continueStore";
 import { ChapterMarks } from "@/components/ChapterMarks";
 import { locateBookmark } from "@/lib/reader";
 import { paceNote } from "@/lib/sessions";
 import { CANON_LABEL, formatWords, workStats } from "@/lib/workStats";
-import { FINISHED_SHELF, finishedStampLine } from "@/lib/ledger";
+import { FINISHED_SHELF, finishedStampLine, readForLine } from "@/lib/ledger";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const work = await findWork((await params).slug);
@@ -29,7 +29,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function WorkPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const work = await findWork((await params).slug);
   if (!work) notFound();
-  const [desk, pace, finished, readPositions, annotations, continueAt, firstRead] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug), myAnnotationCount(work.slug), myContinueReading(work.slug), myFirstRead(work.slug)]);
+  const [desk, pace, finished, readPositions, annotations, continueAt, firstRead, myHours] = await Promise.all([loadDesk(work.slug), myPace(), myFinish(work.slug), myChaptersRead(work.slug), myAnnotationCount(work.slug), myContinueReading(work.slug), myFirstRead(work.slug), myHoursBySlug()]);
+  const readFor = readForLine(myHours[work.slug]); // C170
   const stats = workStats(work, pace.wpm);
   const facts = librarianFacts({
     chapters: stats.chapters,
@@ -115,6 +116,12 @@ export default async function WorkPage({ params, searchParams }: { params: Promi
           <p className="mt-3 font-sans text-xs text-sandstone">
             {/* C159: to the ledger's Borrowing history. */}
             <Link href="/ledger#history" className="underline underline-offset-2 hover:text-lamplight">{borrowedTimesLine(desk.loans, desk.workId, desk.readerId)}<span className="sr-only"> — see your borrowing history</span></Link>
+          </p>
+        )}
+        {/* C170: the reader's own time in this book, to the ledger's Hours per book. */}
+        {readFor && (
+          <p className="mt-1 font-sans text-xs text-sandstone">
+            <Link href="/ledger#hours" className="underline underline-offset-2 hover:text-lamplight">{readFor}<span className="sr-only"> — see your hours per book</span></Link>
           </p>
         )}
       </section>

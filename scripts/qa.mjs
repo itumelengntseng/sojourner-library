@@ -568,6 +568,11 @@ for (const width of WIDTHS) {
     // QA52 (C164): the order is explained.
     if (!(await page.getByText(/^Ordered by your own reading time; books you haven't read in keep shelf order\.$/).count())) { failures++; console.log(`✗ ${width}px halls: Most read by you without its note`); }
     await axeCheck(`${width}px halls ordered by most read`);
+    // QA54 (C170): the top book's work page says how long the reader has read in it, linked to Hours per book.
+    if (topHref) {
+      await page.goto(`${BASE}${topHref}`);
+      if (!(await page.locator("a[href='/ledger#hours']", { hasText: /^You've read for (under a minute|\d+ (h|min)).* in this book/ }).count())) { failures++; console.log(`✗ ${width}px work page without 'You've read for … in this book'`); }
+    }
     await page.goto(`${BASE}/ledger`);
   }
   // QA44 (C141): this run's open loans were taken out within the hour — "just borrowed", stamp spoken.
