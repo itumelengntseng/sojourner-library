@@ -33,6 +33,10 @@ const plural = (n: number, one: string) => `${n} ${one}${n === 1 ? "" : "s"}`;
 
 /** C177: the question as the desk offers it (a chip, and in the fallback reply — C180). */
 export const READ_SO_FAR_QUESTION = "How long have I read this book?";
+/** C185: offered once the book holds a note or highlight of the reader's. */
+export const NOTES_QUESTION = "How many notes have I made?";
+export const hasNotes = (a: { notes: number; highlights: number } | undefined) => !!a && a.notes + a.highlights > 0;
+
 /** C177/C180: the desk offers it once there's a minute or more to report. */
 export const hasReadSoFar = (readMs: number | undefined) => (readMs ?? 0) >= 60_000;
 
@@ -141,6 +145,6 @@ export function ask(question: string, ctx: ReaderContext): Answer {
   }
 
   // C180: the fallback lists what the chips offer, the read-so-far question included once there's time to report.
-  const tries = ["How long to finish?", "Can I finish by Friday?", "How much a day to finish in 2 weeks?", "Time left in this chapter?", ...(hasReadSoFar(ctx.readMs) ? [READ_SO_FAR_QUESTION] : [])].map((t) => `"${t}"`);
+  const tries = ["How long to finish?", "Can I finish by Friday?", "How much a day to finish in 2 weeks?", "Time left in this chapter?", ...(hasReadSoFar(ctx.readMs) ? [READ_SO_FAR_QUESTION] : []), ...(hasNotes(ctx.annotations) ? [NOTES_QUESTION] : [])].map((t) => `"${t}"`);
   return { kind: "unknown", text: `Try: ${tries.slice(0, -1).join(", ")} or ${tries[tries.length - 1]}` };
 }

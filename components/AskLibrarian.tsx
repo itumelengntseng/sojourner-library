@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { ask } from "@/lib/engine/ask";
 import { suggestedQuestions, toReaderContext, type LibrarianFacts } from "@/lib/librarian";
 import { previewBookCount, type AnnotationCount } from "@/lib/notesCount";
@@ -25,6 +25,13 @@ export function AskLibrarian({ facts, title, annotations }: { facts: LibrarianFa
   const [question, setQuestion] = useState("");
   const [log, setLog] = useState<Exchange[]>([]);
   const id = useId();
+  // C185: counts for the chips — server counts at once; this browser's after load; a live getter on each render.
+  const [stored, setStored] = useState<AnnotationCount | undefined>(annotations && typeof annotations !== "function" && !("slug" in annotations) ? annotations : undefined);
+  const previewKey = annotations && typeof annotations !== "function" && "slug" in annotations ? `${annotations.slug}:${annotations.positions.join(",")}` : "";
+  useEffect(() => {
+    if (annotations && typeof annotations !== "function") setStored(resolveNotes(annotations));
+  }, [previewKey]);
+  const counts = typeof annotations === "function" ? annotations() : stored;
 
   const put = (q: string) => {
     const clean = q.trim().slice(0, 200);
@@ -57,7 +64,7 @@ export function AskLibrarian({ facts, title, annotations }: { facts: LibrarianFa
         <button type="submit" className="rounded bg-lamplight px-4 py-2 font-sans text-sm font-semibold text-ink hover:bg-ember">Ring the bell</button>
       </form>
       <ul className="mt-3 flex flex-wrap gap-2" aria-label="Questions the librarian knows">
-        {suggestedQuestions(facts).map((q) => (
+        {suggestedQuestions(facts, counts).map((q) => (
           <li key={q}>
             <button type="button" onClick={() => put(q)}
               className="rounded-full border border-sandstone/40 px-3 py-1 font-sans text-xs text-sandstone hover:border-lamplight hover:text-lamplight">

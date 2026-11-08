@@ -635,6 +635,8 @@ for (const width of WIDTHS) {
     // QA58 (C183): the librarian counts this book's notes the same way the line does.
     {
       const lineText = (await line.textContent().catch(() => "")) ?? "";
+      // QA59 (C185): a book with notes offers the notes question as a chip.
+      if (/^You have /.test(lineText) && !(await appears(page.getByRole("button", { name: "How many notes have I made?" })))) { failures++; console.log(`✗ ${width}px librarian without the notes chip on a book with notes`); }
       await page.getByLabel("Your question").first().fill("How many notes have I made?");
       await page.getByRole("button", { name: "Ring the bell" }).first().click();
       const slip = page.locator("figure", { hasText: "You asked: How many notes have I made?" }).first();

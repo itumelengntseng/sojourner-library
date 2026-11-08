@@ -30,3 +30,23 @@ describe("How many notes have I made? (C183)", () => {
     expect(readFileSync("app/works/[slug]/read/page.tsx", "utf8").match(/bookAnnotations={bookAnnotations} \/>/g)).toHaveLength(2);
   });
 });
+
+describe("the notes question as a chip (C185)", () => {
+  it("is offered once the book has a note or highlight, and the fallback reply keeps step", async () => {
+    const { suggestedQuestions, NOTES_QUESTION } = await import("@/lib/librarian");
+    expect(suggestedQuestions(facts, { notes: 0, highlights: 1 })).toContain(NOTES_QUESTION);
+    expect(suggestedQuestions(facts, { notes: 0, highlights: 0 })).not.toContain(NOTES_QUESTION);
+    expect(suggestedQuestions(facts)).not.toContain(NOTES_QUESTION);
+    for (const a of [{ notes: 2, highlights: 0 }, { notes: 0, highlights: 0 }]) {
+      const said = [...ask("?", ctx(a)).text.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+      expect(said.sort()).toEqual(suggestedQuestions(facts, a).sort());
+    }
+  });
+  it("renders the chip from server counts", async () => {
+    const { renderToStaticMarkup } = await import("react-dom/server");
+    const { AskLibrarian } = await import("@/components/AskLibrarian");
+    expect(renderToStaticMarkup(<AskLibrarian title="T" facts={facts} annotations={{ notes: 1, highlights: 0 }} />)).toContain("How many notes have I made?");
+    expect(renderToStaticMarkup(<AskLibrarian title="T" facts={facts} annotations={{ notes: 0, highlights: 0 }} />)).not.toContain("How many notes have I made?");
+    expect(renderToStaticMarkup(<AskLibrarian title="T" facts={facts} annotations={() => ({ notes: 0, highlights: 2 })} />)).toContain("How many notes have I made?");
+  });
+});
