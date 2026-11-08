@@ -55,3 +55,19 @@ describe("highlight saved status (C188)", () => {
     expect(src).toContain("previewBookCount(slug, chapters.map((c) => c.position), readLocal).highlights");
   });
 });
+
+describe("removed status (C191)", () => {
+  it("says what's left in the book", async () => {
+    const { removedStatus } = await import("@/lib/notesCount");
+    expect(removedStatus("note", 2)).toBe("Note removed · 2 left in this book");
+    expect(removedStatus("highlight", 1)).toBe("Highlight removed · 1 left in this book");
+    expect(removedStatus("note", 0)).toBe("Note removed · none left in this book");
+    expect(removedStatus("highlight", undefined)).toBe("Highlight removed");
+  });
+  it("the reading room sets it after removing a note or a highlight", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync("components/ReaderView.tsx", "utf8");
+    expect(src).toContain('setStatus(removedStatus("note", preview ?');
+    expect(src).toContain('setStatus(removedStatus("highlight", preview ?');
+  });
+});

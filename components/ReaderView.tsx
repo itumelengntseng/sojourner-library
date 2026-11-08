@@ -13,7 +13,7 @@ import type { ReadingData } from "@/lib/readingRoom";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
 import { useSessionTracker } from "./useSessionTracker";
 import { AskLibrarian } from "./AskLibrarian";
-import { highlightSavedStatus, liveBookCount, noteSavedStatus, previewBookCount } from "@/lib/notesCount";
+import { highlightSavedStatus, liveBookCount, noteSavedStatus, previewBookCount, removedStatus } from "@/lib/notesCount";
 import { librarianFacts } from "@/lib/librarian";
 import { wordsBeforeChapter } from "@/lib/reader";
 import { outsideCanonNote } from "@/lib/canon";
@@ -156,6 +156,8 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
     const next = highlights.filter((h) => h.id !== id);
     setHighlights(next);
     persistPreview(notes, next);
+    // C191: say so, with what's left in the book.
+    setStatus(removedStatus("highlight", preview ? previewBookCount(slug, chapters.map((c) => c.position), readLocal).highlights : liveCount(notes, next)?.highlights));
   };
 
   const startNote = () => {
@@ -188,6 +190,8 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
     const next = notes.filter((n) => n.id !== id);
     setNotes(next);
     persistPreview(next, highlights);
+    // C191: say so, with what's left in the book.
+    setStatus(removedStatus("note", preview ? previewBookCount(slug, chapters.map((c) => c.position), readLocal).notes : liveCount(next, highlights)?.notes));
   };
 
   const turnPage = useCallback((dir: 1 | -1) => {

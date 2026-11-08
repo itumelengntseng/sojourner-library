@@ -81,3 +81,10 @@ export function liveBookCount(server: AnnotationCount, loaded: AnnotationCount, 
     highlights: Math.max(0, server.highlights - loaded.highlights + current.highlights),
   };
 }
+
+/** C191: the reading room's status after a note or highlight is removed — "Note removed · 2 left in this book". */
+export function removedStatus(kind: "note" | "highlight", leftInBook: number | undefined): string {
+  const head = kind === "note" ? "Note removed" : "Highlight removed";
+  if (leftInBook === undefined) return head;
+  return leftInBook > 0 ? `${head} · ${leftInBook} left in this book` : `${head} · none left in this book`;
+}

@@ -114,7 +114,7 @@ await step("read: bookmark and a margin note", async () => {
   await page.getByRole("status").filter({ hasText: /^Note saved · \d+ in this book$/ }).first().waitFor({ timeout: 10_000 });
 });
 
-await step("read: a highlight says it was saved", async () => {
+await step("read: a highlight says it was saved, and removed", async () => {
   // C188: select a few words of the first unhighlighted passage and highlight them.
   await page.evaluate(() => {
     const el = document.querySelector("[data-para] span[data-start]");
@@ -126,6 +126,11 @@ await step("read: a highlight says it was saved", async () => {
   });
   await page.getByRole("button", { name: "Highlight in lamplight" }).click();
   await page.getByRole("status").filter({ hasText: /^Highlight saved · \d+ in this book$/ }).first().waitFor({ timeout: 10_000 });
+  // C191: removing it says what's left in the book.
+  const remove = page.getByRole("button", { name: "Remove highlight" }).last();
+  await remove.focus();
+  await page.keyboard.press("Enter");
+  await page.getByRole("status").filter({ hasText: /^Highlight removed · (\d+|none) left in this book$/ }).first().waitFor({ timeout: 10_000 });
 });
 
 await step("ledger: notes export includes the note", async () => {
