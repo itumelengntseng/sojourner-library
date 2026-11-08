@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { getWorks } from "@/lib/catalogue";
 import { getPitch } from "@/content/pitches";
@@ -7,6 +7,14 @@ import { onePager } from "@/lib/pitch";
 import { spokenSpine } from "@/lib/spine";
 import { PitchSheet } from "@/components/PitchSheet";
 import { AUTHOR } from "@/lib/site";
+import { LineageWall } from "@/components/LineageWall";
+import { HarlemMap } from "@/components/HarlemMap";
+import { LINEAGE } from "@/content/lineage";
+import { TIMELINE } from "@/content/timeline";
+
+vi.mock("@/app/works/[slug]/read/actions", () => ({ bookmarkAction: vi.fn(), noteAction: vi.fn(), highlightAction: vi.fn(), removeAction: vi.fn() }));
+vi.mock("@/app/works/[slug]/actions", () => ({ returnFromRoomAction: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
 
 // C217: authorship and the placeholder rules pinned in one place — every placeholder work's page, spine and
 // pitch sheet names Itumeleng Ntseng and carries a Placeholder mark until the real manuscripts arrive.
@@ -45,5 +53,44 @@ describe("placeholder works stay marked and attributed (C217)", () => {
     expect(page).toContain("by {work.author}</p>");
     expect(page).toContain("{work.isPlaceholder && (");
     expect(page).toContain("Placeholder text — the manuscript has not arrived yet.");
+  });
+});
+
+// C234 (with C231 and C233): the reading room, proof copy, family wall and timeline keep the same rules.
+describe("placeholder rules beyond the work page (C234)", () => {
+  it("every chapter of a placeholder work says so under 'by Itumeleng Ntseng' — reading room and proof copy", async () => {
+    const { ReaderView } = await import("@/components/ReaderView");
+    for (const w of getWorks()) {
+      for (const c of w.chapters) {
+        const data = { mode: "preview" as const, loanId: "l", dueAt: Date.now() + 3600_000, title: w.title, author: w.author, canonStatus: w.canonStatus, isPlaceholder: w.isPlaceholder,
+          chapter: { position: c.position, title: c.title, body: c.body }, chapters: w.chapters.map((x) => ({ position: x.position, title: x.title, words: 100 })), bookmark: null, notes: [], highlights: [] };
+        for (const mode of ["preview", "proof"] as const) {
+          const html = renderToStaticMarkup(<ReaderView slug={w.slug} data={{ ...data, mode }} wpm={230} minutesPerDay={30} />);
+          expect(html).toContain("by Itumeleng Ntseng");
+          expect(html).toContain("Placeholder text — the manuscript has not arrived yet.");
+        }
+      }
+    }
+  });
+  it("a work in the author's own words carries no placeholder line", async () => {
+    const { ReaderView } = await import("@/components/ReaderView");
+    const w = getWorks()[0], c = w.chapters[0];
+    const html = renderToStaticMarkup(<ReaderView slug={w.slug} data={{ mode: "proof", loanId: "", dueAt: 0, title: w.title, author: w.author, canonStatus: w.canonStatus, isPlaceholder: false,
+      chapter: { position: c.position, title: c.title, body: c.body }, chapters: [{ position: c.position, title: c.title, words: 100 }], bookmark: null, notes: [], highlights: [] }} wpm={230} minutesPerDay={30} />);
+    expect(html).not.toContain("data-placeholder-text");
+    expect(html).toContain("by Itumeleng Ntseng");
+  });
+  it("every placeholder person, event and place is marked on the reader pages", () => {
+    const wall = renderToStaticMarkup(<LineageWall people={LINEAGE.people} works={{}} />);
+    expect((wall.match(/>Placeholder</g) ?? []).length).toBeGreaterThanOrEqual(LINEAGE.people.filter((p) => p.isPlaceholder).length);
+    const map = renderToStaticMarkup(<HarlemMap timeline={TIMELINE} works={{}} />);
+    expect((map.match(/data-placeholder-mark/g) ?? []).length).toBe(TIMELINE.events.filter((e) => e.isPlaceholder).length + TIMELINE.places.filter((p) => p.isPlaceholder).length);
+  });
+  it("the loaders carry the mark in every mode (preview, library, proof)", () => {
+    const room = readFileSync("lib/readingRoom.ts", "utf8");
+    expect(room.match(/isPlaceholder: work\.isPlaceholder/g)?.length).toBe(2);
+    expect(room).toContain("isPlaceholder: found.work.is_placeholder !== false");
+    expect(room).toContain("isPlaceholder: work.is_placeholder !== false");
+    expect(room.match(/select\("id, title, author, canon_status, is_placeholder"\)/g)?.length).toBe(2);
   });
 });
