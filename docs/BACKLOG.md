@@ -280,7 +280,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C198 Work page chapter list: a chapter holding the reader's notes shows a quiet "noted" mark beside "read"/"you're here" (own only; spoken "you have notes here").
 - [x] C199 Ask the librarian: "Where are my notes?" → "Your notes are in Placeholder chapter 1 and Placeholder chapter 3." (chapter titles only, own notes; none → the C183 'none yet' reply; not in the proof copy).
 - [x] QA63 QA pass after C197–C199.
-- [ ] C200 Ask the librarian: offer "Where are my notes?" as a chip once the book holds notes in two or more chapters (and in the fallback reply, keeping C180's rule).
-- [ ] C201 Work page "noted" mark: link it to the reading room at that chapter while the book is on loan (spoken "open your notes in <chapter>"); plain mark otherwise.
-- [ ] C202 Reading room Contents: the drawer's heading line adds "· notes in 2 chapters" when the reader has notes in more than one chapter (own only; live).
-- [ ] QA64 QA pass after C200–C202.
+- [x] C200 Ask the librarian: offer "Where are my notes?" as a chip once the book holds notes in two or more chapters (and in the fallback reply, keeping C180's rule).
+- [x] C201 Work page "noted" mark: link it to the reading room at that chapter while the book is on loan (spoken "open your notes in <chapter>"); plain mark otherwise.
+- [x] C202 Reading room Contents: the drawer's heading line adds "· notes in 2 chapters" when the reader has notes in more than one chapter (own only; live).
+- [x] QA64 QA pass after C200–C202.
+- [ ] C203 Card page: under the membership card, "Your notes: 3 margin notes · 1 highlight across 2 books" linking to `/ledger#export` (own only; reuse `notesAcrossLine`; nothing when none).
+- [ ] C204 Reading room end card: on the last page, "You made 3 notes and 1 highlight in this book" under "You've spent …" (own, live; never in the proof copy).
+- [ ] C205 `tests/chapterNotesConsistency.test.ts`: from one store, the Contents drawer counts, the work page's noted marks, "notes in N chapters" and the librarian's "Where are my notes?" name the same chapters.
+- [ ] QA65 QA pass after C203–C205.

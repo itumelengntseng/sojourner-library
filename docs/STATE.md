@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 14 — C188–C199, QA60–QA63, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 14 — C188–C202, QA60–QA64, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -285,16 +285,21 @@ _Last updated: 2026-11-08 (scheduled build run 14 — C188–C199, QA60–QA63, 
 - C198 — Work page Contents: a chapter holding the reader's notes wears a quiet "noted" mark (spoken "you have notes here"; `components/NotedMark.tsx`; library: `myAnnotationsByChapter()`, preview: this browser). Unit-tested + swept.
 - C199 — Ask the librarian: "Where are my notes?" / "Which chapters have my highlights?" (`isNotesWhereQuestion()`, checked before the count question) → "Your notes and highlights are in Placeholder chapter 1 and Placeholder chapter 3." — chapter titles only, book order; none → the C183 "none yet" reply; places unknown (or momentarily out of step with the count) → the count answer; the proof copy → "aren't kept in this copy". Sources: titles from the server (work page, library), this browser's chapters (work page, preview), the Contents drawer's live counts (reading room). Unit-tested + swept.
 - QA63 (2026-11-08, after C197–C199): `npm run qa` all clear (run twice) — now also requires the reading room Contents count for chapter 1 (on the Continue card's book, so the card's later checks are unchanged — a first placement on Placeholder Work One made it the Continue book and broke QA35's check; moved), the work page's noted mark, and the librarian's "Where are my notes?" naming chapter 1. Preview e2e 7/7. Performance (local prod build, curl): every page < 14 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (the new reads are own notes/highlights rows and chapter metadata, already readable under RLS).
-- Tests: 692 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA63).
+- C200 — Ask the librarian offers "Where are my notes?" as a chip once the reader's notes sit in two or more chapters (`NOTES_WHERE_QUESTION`/`hasNotesWhere()` in `lib/engine/ask.ts`); the fallback reply keeps step with the chips (C180's rule). Chips read the same sources as the answer (server titles at once, this browser's after load, the reading room's live getter). Unit-tested + swept both ways (a chapter-3 note is seeded at 1280px).
+- C201 — Work page "noted" mark: while the book is on loan it links to that chapter in the reading room (spoken "open your notes in <chapter>"); a plain mark (spoken "you have notes here") otherwise. Unit-tested + swept.
+- C202 — Reading room Contents: the drawer's first line adds "· notes in 2 chapters" once own notes sit in more than one chapter (`notesInChaptersLine()`; the same `notedChapters` the librarian's where-answer uses, so they can't disagree). Unit-tested + swept.
+- QA64 (2026-11-08, after C200–C202): `npm run qa` all clear (run twice) — now also requires the where-notes chip exactly when two or more chapters are noted, chapter 1's noted mark linking to the reading room while out, and the Contents line's "notes in 2 chapters" at 1280px (on the Continue book, seeded in chapter 3). Preview e2e 7/7. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 698 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA64).
 
 ## Next task
-C200 — librarian chip "Where are my notes?" (BACKLOG.md → FOLLOW-UPS), then C201, C202, QA64. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C203 — card page "Your notes" line (BACKLOG.md → FOLLOW-UPS), then C204, C205, QA65. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
 - Library-mode (Supabase) code paths are verified against PGlite (schema, RLS, RPCs) and by typecheck, but not yet end-to-end against a real Supabase project — after NEEDS ITU 1, run NEEDS ITU 4 (the e2e script).
+- Minor (C197–C199): in library mode the per-chapter counts for chapters other than the open one are read at page load (the open chapter is live), like C183.
 - Minor (C183): in library mode the work page's notes count is read at page load, so a note added in another tab shows in the librarian's answer after a reload (the reading room's answer is live).
 - Minor: the final session beacon can arrive just after you navigate straight to the ledger, so the newest few seconds of reading may appear only on the next load.
 
@@ -366,6 +371,7 @@ C200 — librarian chip "Where are my notes?" (BACKLOG.md → FOLLOW-UPS), then 
 - The halls' "Most read by you" (C162) ranks by the reader's own active reading time (the ledger's Time column), not words read; it reads the same 400 days the ledger does.
 - "Loans this month" (C163) means the last 30 days (rolling), matching the ledger's 30-day line (C152).
 - "Read in" a book (C162–C172) means the reader has some active reading time in it (the ledger's Time > 0); a session that recorded words but no active time doesn't count. The work page, card, halls and front hall now read the reader's own ledger hours (`myHoursBySlug()`), same 400-day window as the ledger.
+- "Where are my notes?" (C200) is offered as a chip only from two noted chapters — with one, the count chip already covers it.
 - "Where are my notes?" (C199) says "notes and highlights" whichever the chapters hold (it lists places, not kinds); the backlog line said "Your notes are in …".
 - Borrowing history (C194) repeats the book's notes count on every row of that book, as it already does "read for" (C176) — it's the book's count, not the loan's.
 - Hours per book's notes count (C186) shows highlights too ("· 2 notes · 1 highlight"), so a book with only highlights isn't left bare; the backlog line said "· N notes".
