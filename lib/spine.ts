@@ -5,8 +5,9 @@ const inline = (line: string) => line.charAt(0).toLowerCase() + line.slice(1);
 
 // C99: `dueSoon` (due back within the day — the front hall slip's rule) is said after the due time.
 // C108: `noRenewals` (every renewal used — C104's rule) is said after that.
-export function spokenSpine(a: { author: string; canon: string; readingTime: string; due?: string; dueSoon?: boolean; noRenewals?: boolean; bookLeft?: string; finished?: number; justReturned?: string; justBorrowed?: string; readFor?: string }): string {
-  let out = `by ${a.author}. ${a.canon}. ${a.readingTime} to read.`;
+// C237: `placeholder` (still placeholder text) is said right after the author.
+export function spokenSpine(a: { author: string; placeholder?: boolean; canon: string; readingTime: string; due?: string; dueSoon?: boolean; noRenewals?: boolean; bookLeft?: string; finished?: number; justReturned?: string; justBorrowed?: string; readFor?: string }): string {
+  let out = `by ${a.author}.${a.placeholder ? " Placeholder." : ""} ${a.canon}. ${a.readingTime} to read.`;
   if (a.due) out += ` On loan to you, due ${a.due}${a.dueSoon ? " — due back within the day" : ""}${a.noRenewals ? ", no renewals left" : ""}${a.bookLeft ? `; ${inline(a.bookLeft)}` : ""}.`;
   // C144: taken out within the hour (the borrow stamp), said after the loan line.
   if (a.due && a.justBorrowed) out += ` Just borrowed, ${a.justBorrowed}.`;

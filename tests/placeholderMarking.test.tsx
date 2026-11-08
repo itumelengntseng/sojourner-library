@@ -32,6 +32,10 @@ describe("placeholder works stay marked and attributed (C217)", () => {
   });
   it("each spine says who wrote it", () => {
     for (const w of works) expect(spokenSpine({ author: w.author, canon: "Canon", readingTime: "1 h" })).toMatch(/^by Itumeleng Ntseng\. /);
+    // C237: a placeholder spine says so right after the author; a work in Itu's own words doesn't.
+    for (const w of works) expect(spokenSpine({ author: w.author, placeholder: w.isPlaceholder, canon: "Canon", readingTime: "1 h" })).toMatch(/^by Itumeleng Ntseng\. Placeholder\. Canon\. /);
+    expect(spokenSpine({ author: AUTHOR, placeholder: false, canon: "Canon", readingTime: "1 h" })).toBe("by Itumeleng Ntseng. Canon. 1 h to read.");
+    expect(readFileSync("app/halls/page.tsx", "utf8")).toContain("spokenSpine({ author: w.author, placeholder: w.isPlaceholder,");
   });
   it("each pitch sheet (screen and one-pager) names the author and says it's a placeholder", () => {
     for (const w of works) {
