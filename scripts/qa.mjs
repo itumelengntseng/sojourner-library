@@ -1027,6 +1027,12 @@ await axeCheck("375px reading room gate just returned");
   if (!spines.length || !spines.every((t) => t.startsWith("by Itumeleng Ntseng. Placeholder. "))) { failures++; console.log(`✗ spoken spines: ${JSON.stringify(spines.slice(0, 2))}`); }
   else if (!/^Pitch sheet: Placeholder Work One \(placeholder\) · The Sojourner Library$/.test(tab)) { failures++; console.log(`✗ pitch sheet tab title '${tab}'`); }
   else console.log(`✓ placeholder spines say so (${spines.length}) and the sheet's tab says (placeholder)`);
+  // QA77 (C240): Hours per book marks a placeholder book.
+  await ctx8.addCookies([{ name: "soj_preview_sessions", value: encodeURIComponent(JSON.stringify([{ id: "qa-p", slug: "placeholder-work-two", position: 1, wordsRead: 200, activeMs: 300000, endedAt: Date.now() - 60000 }])), url: BASE }]);
+  await p8.goto(`${BASE}/ledger`);
+  const row = (await p8.locator("section[aria-labelledby='hours'] tbody tr").first().textContent()) ?? "";
+  if (!row.startsWith("Placeholder Work Two · placeholder")) { failures++; console.log(`✗ hours per book row: '${row.slice(0, 80)}'`); }
+  else console.log("✓ Hours per book marks a placeholder book");
   await ctx8.close();
 }
 
