@@ -32,6 +32,21 @@ export function kitStatus(k: PitchKit): KitStatus {
   return { ready: missing.length === 0 && !k.isPlaceholder, missing, placeholder: k.isPlaceholder };
 }
 
+/**
+ * C223: how many kits still carry placeholder words (the kit as shown: stored → file → empty), with
+ * an "Edit the kit" link for each when there are one to three.
+ */
+export function kitsPlaceholder(kits: { slug: string; title: string; isPlaceholder: boolean }[]): { line: string; edit: { title: string; href: string }[] } | null {
+  if (!kits.length) return null;
+  const waiting = kits.filter((k) => k.isPlaceholder);
+  if (!waiting.length) return { line: `Every kit is in your own words.`, edit: [] };
+  const n = waiting.length;
+  return {
+    line: `${n} of ${kits.length} ${kits.length === 1 ? "kit" : "kits"} still ${n === 1 ? "placeholder" : "placeholders"} — edit ${n === 1 ? "it" : "each"} and tick “in my own words”.`,
+    edit: n <= 3 ? waiting.map((k) => ({ title: k.title, href: `/pitch-room/${k.slug}/edit` })) : [],
+  };
+}
+
 export const LOGLINE_MAX_WORDS = 50;
 
 export function loglineWarning(logline: string): string | null {

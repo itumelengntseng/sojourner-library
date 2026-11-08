@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { RevokeLink, ShareForm } from "@/components/PitchForms";
-import { kitStatus, lastDayLabel, lastOpened, linkTimeLeft, loglineWarning, openedInHour, openedJustNow, orderLinks } from "@/lib/pitch";
+import { kitStatus, kitsPlaceholder, lastDayLabel, lastOpened, linkTimeLeft, loglineWarning, openedInHour, openedJustNow, orderLinks } from "@/lib/pitch";
 import { ownerPitchLinks, roomPitches } from "@/lib/pitchStore";
 import { AUTHOR } from "@/lib/site";
 import { cleanQuery, filterByTitle } from "@/lib/shelfSearch";
@@ -16,6 +16,8 @@ export default async function PitchRoom({ searchParams }: { searchParams: Promis
   const find = cleanQuery((await searchParams).find);
   const now = Date.now();
   const pitches = filterByTitle(all.map((p) => ({ ...p, title: p.work.title })), find);
+  // C223: how many kits still wait for the author's own words (over every kit, not just a search's matches).
+  const waiting = kitsPlaceholder(all.map((p) => ({ slug: p.kit.slug, title: p.work.title, isPlaceholder: p.kit.isPlaceholder })));
   if (!allowed) {
     return (
       <main id="main" className="mx-auto max-w-xl px-4 pt-24 text-center">
@@ -31,6 +33,12 @@ export default async function PitchRoom({ searchParams }: { searchParams: Promis
       <p className="mt-1 font-sans text-sm text-sandstone">One sheet per work for agents, editors and producers — in {AUTHOR}&apos;s words, shared by private link.</p>
       {!live && <p className="mt-4 rounded-sm border border-ember/50 px-3 py-2 font-sans text-xs text-ember">Preview: sheets and one-pagers work now; private links start once the library is connected.</p>}
 
+      {waiting && (
+        <p className="mt-6 font-sans text-sm text-sandstone" data-kits-placeholder>
+          {waiting.line}
+          {waiting.edit.length > 0 && <> {waiting.edit.map((e, i) => <span key={e.href}>{i > 0 && " · "}<Link href={e.href} className="text-lamplight underline underline-offset-2">Edit<span className="sr-only"> the kit for</span> {e.title}</Link></span>)}</>}
+        </p>
+      )}
       {(all.length > 1 || find) && (
         <form role="search" action="/pitch-room" method="get" className="mt-6 flex max-w-md items-center gap-2 font-sans text-sm">
           <label htmlFor="kit-find" className="sr-only">Find a kit</label>
