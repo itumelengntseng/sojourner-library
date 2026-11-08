@@ -60,3 +60,8 @@ export function shortNotesLine(c: AnnotationCount | undefined): string | null {
   const parts = [c.notes ? `${c.notes} note${c.notes === 1 ? "" : "s"}` : "", c.highlights ? `${c.highlights} highlight${c.highlights === 1 ? "" : "s"}` : ""].filter(Boolean);
   return parts.length ? parts.map((p) => ` · ${p}`).join("") : null;
 }
+
+/** C187: the reading room's status after a margin note is saved — "Note saved · 3 in this book". */
+export function noteSavedStatus(notesInBook: number | undefined): string {
+  return notesInBook && notesInBook > 0 ? `Note saved · ${notesInBook} in this book` : "Note saved";
+}

@@ -13,6 +13,7 @@ import type { ReadingData } from "@/lib/readingRoom";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
 import { useSessionTracker } from "./useSessionTracker";
 import { AskLibrarian } from "./AskLibrarian";
+import { noteSavedStatus, previewBookCount } from "@/lib/notesCount";
 import { librarianFacts } from "@/lib/librarian";
 import { wordsBeforeChapter } from "@/lib/reader";
 import { outsideCanonNote } from "@/lib/canon";
@@ -166,6 +167,11 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
     setNotes(next);
     persistPreview(next, highlights);
     setDrafting(null);
+    // C187: say so, with the book's own note count (this browser's in preview; the server's count plus this chapter's in library mode).
+    const inBook = preview
+      ? previewBookCount(slug, chapters.map((c) => c.position), readLocal).notes
+      : bookAnnotations ? Math.max(0, bookAnnotations.notes - data.notes.length + next.length) : undefined;
+    setStatus(noteSavedStatus(inBook));
   };
 
   const removeNote = async (id: string) => {

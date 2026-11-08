@@ -110,6 +110,8 @@ await step("read: bookmark and a margin note", async () => {
   await page.locator("#note-draft").fill("E2E placeholder note.");
   await page.getByRole("button", { name: "Save note" }).click();
   await expectText(page, "E2E placeholder note.");
+  // C187: the status line says the note was saved, with the book's own count.
+  await page.getByRole("status").filter({ hasText: /^Note saved · \d+ in this book$/ }).first().waitFor({ timeout: 10_000 });
 });
 
 await step("ledger: notes export includes the note", async () => {

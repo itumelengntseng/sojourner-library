@@ -24,3 +24,18 @@ describe("short notes line (C186)", () => {
     expect(shortNotesLine(undefined)).toBeNull();
   });
 });
+
+describe("note saved status (C187)", () => {
+  it("says the book's own count after a note is saved", async () => {
+    const { noteSavedStatus } = await import("@/lib/notesCount");
+    expect(noteSavedStatus(3)).toBe("Note saved · 3 in this book");
+    expect(noteSavedStatus(1)).toBe("Note saved · 1 in this book");
+    expect(noteSavedStatus(undefined)).toBe("Note saved");
+  });
+  it("the reading room sets it after saving (the proof copy has no Note button)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync("components/ReaderView.tsx", "utf8");
+    expect(src).toContain("setStatus(noteSavedStatus(inBook));");
+    expect(src).toContain('{!proof && <button type="button" onClick={startNote}');
+  });
+});
