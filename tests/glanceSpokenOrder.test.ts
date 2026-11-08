@@ -32,3 +32,17 @@ describe("Writer's Room Loans this month tile — read in one order (C175)", () 
     expect(value).toBeLessThan(note);
   });
 });
+
+describe("Writer's Room glance footnote — announced with the tiles (C181)", () => {
+  it("sits inside the glance section, after the list, before the section closes", () => {
+    const src = readFileSync("app/writers-room/page.tsx", "utf8");
+    const open = src.indexOf('<section aria-labelledby="glance"');
+    const listEnd = src.indexOf("</dl>", open);
+    const note = src.indexOf("Counts only. Readers&apos; notes, highlights and who read what stay private.", open);
+    const close = src.indexOf("</section>", open);
+    expect(open).toBeGreaterThan(0);
+    expect(listEnd).toBeGreaterThan(open);
+    expect(note).toBeGreaterThan(listEnd);
+    expect(note).toBeLessThan(close);
+  });
+});
