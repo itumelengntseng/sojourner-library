@@ -2,13 +2,17 @@ import Link from "next/link";
 import { chapterLabel, type ContinueCard } from "@/lib/continueReading";
 import { justBorrowed, noRenewalsLeft, type OnLoan } from "@/lib/loanDesk";
 import { formatHours } from "@/lib/ledger";
+import { getWork } from "@/lib/catalogue";
+import { BookNotesCount } from "./BookNotesCount";
+import type { AnnotationCount } from "@/lib/notesCount";
 
 /** The reader's open loans at the front desk, each with its due-date stamp and a way back in. */
 /** `bookLeft` (slug → "About 1 h 2 min left in this book", C74) is shown under each due line. */
 /** `dueSoon` (slugs due back within the day — the front hall slip's rule, C96) get a small "Due soon" mark. */
 /** C171: `readMs` (slug → the reader's own reading time) adds "· read for <time>" to a loan's due line. */
+/** C189: `notesBy` (workKey → own counts, library) adds "· 2 notes · 1 highlight" to a loan's due line; `null` counts this browser's (preview). */
 /** C137: with `now`, a loan borrowed within the hour reads "Just borrowed" beside its title (spoken with the stamp). */
-export function OnLoanNow({ loans, continueAt = {}, bookLeft = {}, dueSoon = [], now, readMs = {} }: { loans: OnLoan[]; continueAt?: Record<string, ContinueCard>; bookLeft?: Record<string, string>; dueSoon?: string[]; now?: number; readMs?: Record<string, number> }) {
+export function OnLoanNow({ loans, continueAt = {}, bookLeft = {}, dueSoon = [], now, readMs = {}, notesBy }: { loans: OnLoan[]; continueAt?: Record<string, ContinueCard>; bookLeft?: Record<string, string>; dueSoon?: string[]; now?: number; readMs?: Record<string, number>; notesBy?: Record<string, AnnotationCount> | null }) {
   if (loans.length === 0) {
     return (
       <p className="font-sans text-sm text-sandstone">
@@ -45,6 +49,8 @@ export function OnLoanNow({ loans, continueAt = {}, bookLeft = {}, dueSoon = [],
                 {/* C111: a spent loan not yet due soon (the Due soon one says so beside its title, C104). */}
                 {noRenewalsLeft(l) && !dueSoon.includes(l.slug) ? " · no renewals left" : ""}
                 {(readMs[l.slug] ?? 0) > 0 && <> · read for {formatHours(readMs[l.slug])}</>}
+                {notesBy ? <BookNotesCount counts={notesBy[l.workKey] ?? { notes: 0, highlights: 0 }} />
+                  : notesBy === null && <BookNotesCount counts={null} slug={l.slug} positions={getWork(l.slug)?.chapters.map((c) => c.position) ?? []} />}
               </p>
               {bookLeft[l.slug] && <p className="mt-0.5 font-sans text-xs text-sandstone">{bookLeft[l.slug]}</p>}
               {continueAt[l.slug] && (

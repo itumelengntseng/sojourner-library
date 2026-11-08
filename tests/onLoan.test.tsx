@@ -127,3 +127,25 @@ describe("on loan now — read for <time> (C171)", () => {
     expect(readFileSync("app/card/page.tsx", "utf8")).toContain("readMs={readMs} />");
   });
 });
+
+describe("on loan now notes count (C189)", () => {
+  it("adds the reader's own notes and highlights to a loan's due line (library counts by work)", () => {
+    const loans = onLoanNow([loan({ id: "a", workId: "w1" }), loan({ id: "b", workId: "w2" })], "r", works, now);
+    const html = renderToStaticMarkup(<OnLoanNow loans={loans} notesBy={{ w1: { notes: 2, highlights: 1 } }} />);
+    expect(html).toContain(" · 2 notes · 1 highlight");
+    expect(html.match(/ · \d+ notes?/g)).toHaveLength(1);
+  });
+  it("shows nothing without counts, and nothing for a book with none", () => {
+    const loans = onLoanNow([loan({ id: "a", workId: "w1" })], "r", works, now);
+    expect(renderToStaticMarkup(<OnLoanNow loans={loans} />)).not.toMatch(/ · \d+ (notes?|highlights?)/);
+    expect(renderToStaticMarkup(<OnLoanNow loans={loans} notesBy={{}} />)).not.toMatch(/ · \d+ (notes?|highlights?)/);
+    // Preview (null): counted in this browser after load, so the server markup is empty.
+    expect(renderToStaticMarkup(<OnLoanNow loans={loans} notesBy={null} />)).not.toMatch(/ · \d+ (notes?|highlights?)/);
+  });
+  it("the card page passes the reader's own counts", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync("app/card/page.tsx", "utf8");
+    expect(src).toContain("myAnnotationsByWork()");
+    expect(src).toContain("notesBy={notesBy}");
+  });
+});

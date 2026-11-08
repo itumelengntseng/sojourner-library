@@ -9,7 +9,7 @@ import { ContinueReading } from "@/components/ContinueReading";
 import { myContinueBySlug, myContinueReading } from "@/lib/continueStore";
 import { WeekLine } from "@/components/WeekLine";
 import { FinishedLine } from "@/components/FinishedLine";
-import { myFinishes, myFirstReads, myWeek, myFinishedCount, myHoursBySlug } from "@/lib/ledgerStore";
+import { myFinishes, myFirstReads, myWeek, myFinishedCount, myHoursBySlug, myAnnotationsByWork } from "@/lib/ledgerStore";
 import { supabaseServer } from "@/lib/supabase/server";
 import type { ReaderCard } from "@/lib/membership";
 import { signOut } from "./actions";
@@ -31,11 +31,11 @@ function Desk({ eyebrow, title, children }: { eyebrow: string; title: string; ch
 
 /** "On loan now", each with the time left in the book at the reader's pace (C74). */
 async function LoanShelf() {
-  const [loans, continueAt, readMs] = await Promise.all([myOpenLoans(), myContinueBySlug(), myHoursBySlug()]);
+  const [loans, continueAt, readMs, notesBy] = await Promise.all([myOpenLoans(), myContinueBySlug(), myHoursBySlug(), myAnnotationsByWork()]);
   const bookLeft = await myBookLeft(loans);
   // C96: loans due back within the day — the same rule as the front hall's slip.
   const dueSoon = dueBackSoon(loans, Date.now()).map((l) => l.slug);
-  return <OnLoanNow loans={loans} continueAt={continueAt} bookLeft={bookLeft} dueSoon={dueSoon} now={Date.now()} readMs={readMs} />;
+  return <OnLoanNow loans={loans} continueAt={continueAt} bookLeft={bookLeft} dueSoon={dueSoon} now={Date.now()} readMs={readMs} notesBy={notesBy} />;
 }
 
 // C37 + C95: the Continue reading card, with the time left in the book.
