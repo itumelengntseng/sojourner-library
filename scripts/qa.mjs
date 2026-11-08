@@ -617,6 +617,14 @@ for (const width of WIDTHS) {
   if (!(await appears(page.locator("section[aria-labelledby='export'] p", { hasText: /^You have (\d+ margin notes?|\d+ highlights?)( · \d+ highlights?)? across \d+ books?\.$/ })))) { failures++; console.log(`✗ ${width}px ledger Your notes without the count line`); }
   // QA59 (C186): the sweep's notes show beside Placeholder Work One's time in Hours per book.
   if (!(await appears(page.locator("section[aria-labelledby='hours'] tbody tr", { has: page.locator("a[href='/works/placeholder-work-one']") }).locator("td:nth-child(2)", { hasText: / · \d+ (notes?|highlights?)/ })))) { failures++; console.log(`✗ ${width}px ledger Hours per book without the notes count beside Placeholder Work One`); }
+  // QA60 (C189): Placeholder Work One is on loan and holds the sweep's notes, so its On loan now line counts them.
+  await page.goto(`${BASE}/card`);
+  {
+    const li = page.getByRole("region", { name: /^On loan now/ }).locator("li", { has: page.locator("a[href='/works/placeholder-work-one']") });
+    if ((await li.count()) && !(await appears(li.getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px card On loan now without the notes count on Placeholder Work One`); }
+    else console.log(`✓ ${width}px card On loan now counts the notes`);
+  }
+  await page.goto(`${BASE}/ledger`);
   // QA58 (C182): with notes in two or more books, a work page with notes links to all of them.
   {
     // At the last width, a note in a second book makes it two books, so both sides of the rule are seen.

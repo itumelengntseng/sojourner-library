@@ -114,6 +114,20 @@ await step("read: bookmark and a margin note", async () => {
   await page.getByRole("status").filter({ hasText: /^Note saved · \d+ in this book$/ }).first().waitFor({ timeout: 10_000 });
 });
 
+await step("read: a highlight says it was saved", async () => {
+  // C188: select a few words of the first unhighlighted passage and highlight them.
+  await page.evaluate(() => {
+    const el = document.querySelector("[data-para] span[data-start]");
+    const text = el?.firstChild;
+    if (!text || !text.textContent || text.textContent.length < 12) throw new Error("no passage to select");
+    const r = document.createRange();
+    r.setStart(text, 0); r.setEnd(text, 10);
+    const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  });
+  await page.getByRole("button", { name: "Highlight in lamplight" }).click();
+  await page.getByRole("status").filter({ hasText: /^Highlight saved · \d+ in this book$/ }).first().waitFor({ timeout: 10_000 });
+});
+
 await step("ledger: notes export includes the note", async () => {
   await page.goto(`${BASE}/ledger`);
   const [dl] = await Promise.all([
