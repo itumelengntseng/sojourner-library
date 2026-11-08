@@ -39,3 +39,15 @@ export function waitingForWords(input: {
   if (!input.hallsNamed) rows.push({ key: "halls", text: "the halls' names", href: "#halls", linkLabel: "name the halls" });
   return { rows, allDone: rows.length === 0 };
 }
+
+/** C229: the backup's README section — the same counts as the panel, as plain text (counts only). */
+export function waitingReadme(w: { rows: WaitingRow[]; allDone: boolean }): string[] {
+  if (w.allDone) return ["Still waiting for your words: nothing — everything is in your own words."];
+  return ["Still waiting for your words (placeholder text, not yet replaced):", ...w.rows.map((r) => `  - ${r.text}`)];
+}
+
+/** C229: placeholder flags from a stored family-wall / timeline document as saved (malformed lists count as empty). */
+export function atlasFlags(body: unknown, key: "people" | "places" | "events"): { isPlaceholder: boolean }[] {
+  const list = body && typeof body === "object" ? (body as Record<string, unknown>)[key] : undefined;
+  return Array.isArray(list) ? list.map((x) => ({ isPlaceholder: !(x && typeof x === "object" && (x as { isPlaceholder?: unknown }).isPlaceholder === false) })) : [];
+}

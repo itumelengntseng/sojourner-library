@@ -4,7 +4,8 @@ import { getWork, getWorks, HALLS } from "./catalogue";
 import { withAuthor } from "./catalogueRows";
 import { LINEAGE } from "@/content/lineage";
 import { TIMELINE } from "@/content/timeline";
-import { PITCHES } from "@/content/pitches";
+import { getPitch, PITCHES } from "@/content/pitches";
+import { atlasFlags, waitingForWords, waitingReadme } from "./waiting";
 import { manuscriptMarkdown, type ExportChapter, type ExportWork } from "./manuscriptExport";
 import { ownerClient } from "./writersRoom";
 import type { ZipEntry } from "./zip";
@@ -47,6 +48,7 @@ export async function backupEntries(owner: Owner, now: Date): Promise<ZipEntry[]
     if (w.chapters.some((c) => c.archived)) entries.push({ name: `manuscripts/${w.slug}-set-aside.md`, data: manuscriptMarkdown(w, "set-aside", now) });
   };
   let note: string;
+  let waiting: ReturnType<typeof waitingForWords>;
   if (owner.reason === "preview") {
     for (const w of getWorks()) add(previewWork(w.slug)!);
     entries.push({ name: "library/works.json", data: json(getWorks().map((w) => ({ slug: w.slug, title: w.title, author: w.author, canonStatus: w.canonStatus, hall: w.hall }))) });
@@ -54,6 +56,8 @@ export async function backupEntries(owner: Owner, now: Date): Promise<ZipEntry[]
     entries.push({ name: "library/pitch-kits.json", data: json(PITCHES) });
     entries.push({ name: "atlas/lineage.json", data: json(LINEAGE) }, { name: "atlas/timeline.json", data: json(TIMELINE) });
     note = "Preview copy: placeholder works and files only (the library is not connected).";
+    // C229: what is still placeholder, as the Writer's Room panel counts it.
+    waiting = waitingForWords({ works: getWorks().map(() => ({ isPlaceholder: true })), kits: PITCHES, people: LINEAGE.people, places: TIMELINE.places, events: TIMELINE.events, hallsNamed: false });
   } else if (owner.supabase) {
     const sb = owner.supabase;
     const [{ data: works }, { data: halls }, { data: kits }, { data: atlas }] = await Promise.all([
@@ -71,6 +75,16 @@ export async function backupEntries(owner: Owner, now: Date): Promise<ZipEntry[]
     const stored = new Map(((atlas ?? []) as { kind: string; body: unknown }[]).map((r) => [r.kind, r.body]));
     // The stored copy exactly as saved (even if it no longer checks out); the file when nothing is stored.
     entries.push({ name: "atlas/lineage.json", data: json(stored.get("lineage") ?? LINEAGE) }, { name: "atlas/timeline.json", data: json(stored.get("timeline") ?? TIMELINE) });
+    // C229: shelved works and their kits as shown (stored → file → empty, which is a placeholder); the atlas copy in use.
+    const shelved = ((works ?? []) as { slug: string; is_placeholder?: boolean; archived_at?: string | null }[]).filter((w) => !w.archived_at);
+    const kitFlag = new Map(((kits ?? []) as { work_slug: string; is_placeholder?: boolean }[]).map((k) => [k.work_slug, k.is_placeholder !== false]));
+    const lin = stored.get("lineage") ?? LINEAGE, tl = stored.get("timeline") ?? TIMELINE;
+    waiting = waitingForWords({
+      works: shelved.map((w) => ({ isPlaceholder: w.is_placeholder !== false })),
+      kits: shelved.map((w) => ({ isPlaceholder: kitFlag.get(w.slug) ?? getPitch(w.slug)?.isPlaceholder ?? true })),
+      people: atlasFlags(lin, "people"), places: atlasFlags(tl, "places"), events: atlasFlags(tl, "events"),
+      hallsNamed: ((halls ?? []) as unknown[]).length > 0,
+    });
     note = "Everything the Keeper has written into the library. Readers' notes, highlights, loans and sessions are not included — they belong to the readers.";
   } else {
     return null;
@@ -84,6 +98,8 @@ export async function backupEntries(owner: Owner, now: Date): Promise<ZipEntry[]
       note,
       "manuscripts/*.md re-import unchanged in the Writer's Room (Shelve a manuscript); *-set-aside.md hold chapters set aside.",
       "atlas/*.json paste into Writer's Room → The family wall & timeline → Whole file (JSON).",
+      "",
+      ...waitingReadme(waiting),
       "",
     ].join("\n"),
   });
