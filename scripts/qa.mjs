@@ -712,6 +712,11 @@ for (const width of WIDTHS) {
           await elsewhere.getByRole("button", { name: "open Contents to find your notes" }).click();
           if (!(await page.evaluate(() => document.querySelector("details")?.open))) { failures++; console.log(`✗ ${width}px reading room 'see Contents' didn't open the drawer`); }
           else console.log(`✓ ${width}px reading room 'see Contents' opens the drawer`);
+          // QA68 (C214): Escape closes it and focus returns to "see Contents".
+          await page.keyboard.press("Escape");
+          const back = await page.evaluate(() => !document.querySelector("details")?.open && document.activeElement?.getAttribute("aria-label") === "open Contents to find your notes");
+          if (!back) { failures++; console.log(`✗ ${width}px reading room Escape didn't close Contents and return to 'see Contents'`); }
+          else console.log(`✓ ${width}px reading room Escape returns to 'see Contents'`);
           await page.evaluate(() => { const d = document.querySelector("details"); if (d) d.open = false; });
         }
       }

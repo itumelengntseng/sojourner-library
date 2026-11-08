@@ -25,8 +25,20 @@ describe("see Contents from the elsewhere line (C210)", () => {
   it("opens the drawer and focuses its toggle; spoken 'open Contents to find your notes'", () => {
     const room = readFileSync("components/ReaderView.tsx", "utf8");
     expect(room).toContain('{line} · <button type="button" aria-label="open Contents to find your notes" onClick={openContents}');
-    const fn = room.slice(room.indexOf("const openContents = () => {"), room.indexOf("};", room.indexOf("const openContents = () => {")));
+    const fn = room.slice(room.indexOf("const openContents = (e?: { currentTarget: HTMLElement }) => {"), room.indexOf("};", room.indexOf("const openContents = (e?: { currentTarget: HTMLElement }) => {")));
     expect(fn).toContain("d.open = true;");
     expect(fn).toContain('d.querySelector("summary")?.focus();');
+  });
+});
+
+// C214: Escape closes the drawer opened from "see Contents" and hands focus back to that button.
+describe("Escape from Contents returns to see Contents (C214)", () => {
+  it("remembers the opener, focuses it on Escape, and forgets it once the drawer closes", () => {
+    const room = readFileSync("components/ReaderView.tsx", "utf8");
+    expect(room).toContain("contentsOpener.current = e?.currentTarget ?? null;");
+    const esc = room.slice(room.indexOf('if (e.key === "Escape" && contentsRef.current?.open) {'), room.indexOf("return;", room.indexOf('if (e.key === "Escape" && contentsRef.current?.open) {')));
+    expect(esc).toContain("contentsRef.current.open = false;");
+    expect(esc).toContain("if (opener?.isConnected) opener.focus();");
+    expect(room).toContain("onToggle={(e) => { if (!e.currentTarget.open) contentsOpener.current = null; }}");
   });
 });

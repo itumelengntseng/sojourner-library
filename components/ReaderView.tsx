@@ -213,9 +213,12 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
 
   const contentsRef = useRef<HTMLDetailsElement>(null);
   // C210: open the Contents drawer from the page (the "elsewhere" line), moving focus to its toggle.
-  const openContents = () => {
+  // C214: remembers the button that opened it, so Escape hands focus back there.
+  const contentsOpener = useRef<HTMLElement | null>(null);
+  const openContents = (e?: { currentTarget: HTMLElement }) => {
     const d = contentsRef.current;
     if (!d) return;
+    contentsOpener.current = e?.currentTarget ?? null;
     d.open = true;
     d.querySelector("summary")?.focus();
   };
@@ -235,7 +238,14 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && contentsRef.current?.open) { contentsRef.current.open = false; return; }
+      if (e.key === "Escape" && contentsRef.current?.open) {
+        contentsRef.current.open = false;
+        // C214: back to "see Contents" when that's what opened the drawer.
+        const opener = contentsOpener.current;
+        contentsOpener.current = null;
+        if (opener?.isConnected) opener.focus();
+        return;
+      }
       if ((e.target as HTMLElement)?.closest("textarea, input, select, [contenteditable], dialog")) return;
       const a = actionForKey(e, proof);
       if (!a) return;
@@ -262,7 +272,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-3 gap-y-2">
           <a href="#chapter-text" className="sr-only rounded bg-ink px-2 py-1 font-sans text-xs text-lamplight focus:not-sr-only">Skip to the text</a>
           <Link href={`/works/${slug}`} className="font-sans text-xs text-sandstone hover:text-lamplight">← {data.title}</Link>
-          <details ref={contentsRef} className="font-sans text-xs">
+          <details ref={contentsRef} onToggle={(e) => { if (!e.currentTarget.open) contentsOpener.current = null; }} className="font-sans text-xs">
             <summary className={`${btn} cursor-pointer list-none border border-sandstone/40 text-paper`}>Contents</summary>
             <nav aria-label="Contents" className="absolute inset-x-3 top-full z-30 mt-1 max-h-[60dvh] overflow-auto sm:inset-x-auto sm:w-80 rounded-sm border border-timber-dark bg-stone-wall p-2 shadow-lg">
               {/* C202: "· notes in 2 chapters" once own notes sit in more than one chapter (live, from the counts below). */}
