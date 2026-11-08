@@ -2,7 +2,7 @@
 
 import { useActionState, useMemo, useState } from "react";
 import { saveAtlasAction, type AtlasState } from "@/app/writers-room/atlas/actions";
-import { checkAtlas, parseForForm, toAtlasText, type AtlasKind } from "@/lib/atlas";
+import { checkAtlas, parseForForm, placeholderLine, toAtlasText, type AtlasKind } from "@/lib/atlas";
 import { LineageForm, TimelineForm } from "./AtlasForms";
 
 const initial: AtlasState = { ok: false, message: "" };
@@ -24,6 +24,8 @@ export function AtlasEditor({ kind, text, works, canSave }: { kind: AtlasKind; t
   return (
     <form action={action} className="flex flex-col gap-3">
       <input type="hidden" name="kind" value={kind} />
+      {/* C222: what's still placeholder in this copy, live as the Keeper edits. */}
+      {check.ok && <p className="font-sans text-xs text-sandstone" data-placeholder-line>{placeholderLine(check.value)}</p>}
       <div role="group" aria-label="How to edit" className="flex gap-1">{tab("form", "One at a time")}{tab("json", "Whole file (JSON)")}</div>
       {mode === "form" ? (
         <>

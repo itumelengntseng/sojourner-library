@@ -186,3 +186,18 @@ export function removePlace(t: Timeline, id: string): Timeline {
 export function removeEvent(t: Timeline, id: string): Timeline {
   return { ...t, events: t.events.filter((e) => e.id !== id) };
 }
+
+/**
+ * C222: how much of the family wall / timeline is still placeholder, counted in the copy being edited
+ * ("5 of 7 people are still placeholders"; "every person is in your own words" at zero).
+ */
+export function placeholderLine(v: { people: { isPlaceholder: boolean }[] } | { places: { isPlaceholder: boolean }[]; events: { isPlaceholder: boolean }[] }): string {
+  const part = (list: { isPlaceholder: boolean }[], one: string, many: string) => ({ n: list.filter((x) => x.isPlaceholder).length, of: list.length, one, many });
+  const parts = "people" in v ? [part(v.people, "person", "people")] : [part(v.places, "place", "places"), part(v.events, "event", "events")];
+  const shown = parts.filter((p) => p.of > 0);
+  if (!shown.length) return "Nothing here yet.";
+  if (shown.every((p) => p.n === 0)) return `Every ${shown.map((p) => p.one).join(" and ")} is in your own words.`;
+  const bits = shown.map((p) => `${p.n} of ${p.of} ${p.of === 1 ? p.one : p.many}`);
+  const total = shown.reduce((a, p) => a + p.n, 0);
+  return `${bits.join(" and ")} ${total === 1 ? "is" : "are"} still ${total === 1 ? "a placeholder" : "placeholders"} — tick “Real” on each one in your own words.`;
+}
