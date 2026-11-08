@@ -159,6 +159,9 @@ for (const width of WIDTHS) {
   await page.locator('textarea[name="manuscript"]').fill("# Placeholder Work One\n\n## Chapter 1\n\nPlaceholder text for the QA sweep.\n\n## A new chapter\n\nMore placeholder text.");
   await page.getByRole("region", { name: "Import preview" }).waitFor();
   await axeCheck(`${width}px writer's room re-import preview + glance tiles`);
+  // QA69 (C215): the glance counts the placeholder works (all of them in preview) and leads to the shelf list.
+  if (!(await page.locator("dl div", { has: page.locator("dt", { hasText: "Still placeholder" }) }).locator("a[href='#shelves']", { hasText: /^works? waits? for your manuscripts?$/ }).count())) { failures++; console.log(`✗ ${width}px writer's room glance without the Still placeholder tile`); }
+  else console.log(`✓ ${width}px writer's room glance counts placeholder works`);
 
   errors.length = 0;
   await page.goto(`${BASE}/works/placeholder-work-one/read?ch=2`);

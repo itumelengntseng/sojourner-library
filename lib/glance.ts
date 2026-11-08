@@ -1,10 +1,12 @@
 // The Writer's Room "library at a glance" — pure, so it can be tested without a server.
 export interface GlanceTile { label: string; value: string; note?: string;
   /** C128: the part of the note that needs the Keeper's eye (shown in ember after the note). */
-  urgentNote?: string }
+  urgentNote?: string;
+  /** C215: where the note leads (an in-page anchor), when it has somewhere to go. */
+  href?: string }
 
 /** "The library at a glance": counts only — never who read what. */
-export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number }[], setAside: number, cardHolders: number | null, dueSoon = 0, returnedHour = 0, borrowedHour = 0, loansMonth: MonthLoans | null = null): GlanceTile[] {
+export function glance(works: { visibility: "owner" | "members"; words: number; openLoans: number; finished?: number; isPlaceholder?: boolean }[], setAside: number, cardHolders: number | null, dueSoon = 0, returnedHour = 0, borrowedHour = 0, loansMonth: MonthLoans | null = null): GlanceTile[] {
   const shared = works.filter((w) => w.visibility === "members").length;
   const words = works.reduce((a, w) => a + w.words, 0);
   const loans = works.reduce((a, w) => a + w.openLoans, 0);
@@ -26,6 +28,11 @@ export function glance(works: { visibility: "owner" | "members"; words: number; 
   if (works.length > 0 && works.every((w) => w.finished !== undefined)) {
     const done = works.reduce((a, w) => a + (w.finished ?? 0), 0);
     tiles.push({ label: "Read to the end", value: String(done), note: done ? "by guest readers, counted per book" : "no guest has reached an ending yet" });
+  }
+  // C215: how many works still carry placeholder text — waiting for Itu's own manuscripts (owner's room only).
+  if (works.length > 0 && works.every((w) => w.isPlaceholder !== undefined)) {
+    const waiting = works.filter((w) => w.isPlaceholder).length;
+    tiles.push({ label: "Still placeholder", value: String(waiting), note: waiting ? `${waiting === 1 ? "work waits" : "works wait"} for your manuscript${waiting === 1 ? "" : "s"}` : "every work is in your own words", ...(waiting ? { href: "#shelves" } : {}) });
   }
   return tiles;
 }

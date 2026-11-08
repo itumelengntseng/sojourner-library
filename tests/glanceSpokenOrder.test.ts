@@ -8,7 +8,8 @@ describe("Writer's Room loans tile — read in one order (C151)", () => {
     expect(t.note).toBe("3 open loans · 1 borrowed in the last hour · 1 returned in the last hour");
     expect(t.urgentNote).toBe("2 due back within the day");
     const src = readFileSync("app/writers-room/page.tsx", "utf8");
-    expect(src).toContain('{t.note && <dd className="font-sans text-[0.65rem] text-sandstone/80">{t.note}{t.urgentNote && <span className="text-ember"> · {t.urgentNote}</span>}</dd>}');
+    // C215: a note with somewhere to go is a link; the ember part still follows in the same dd.
+    expect(src).toContain('{t.note && <dd className="font-sans text-[0.65rem] text-sandstone/80">{t.href ? <a href={t.href} className="underline underline-offset-2 hover:text-lamplight">{t.note}</a> : t.note}{t.urgentNote && <span className="text-ember"> · {t.urgentNote}</span>}</dd>}');
   });
 });
 
