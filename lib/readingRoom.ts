@@ -27,6 +27,8 @@ export interface ReadingData {
   title: string;
   author: string;
   canonStatus: "canon" | "draft" | "apocrypha";
+  /** C233: still placeholder text — the reading room says so above every chapter. */
+  isPlaceholder?: boolean;
   chapter: { position: number; title: string; body: string };
   chapters: ChapterInfo[];
   bookmark: { position: number; wordsIntoChapter: number } | null;
@@ -49,7 +51,7 @@ async function library() {
 type Sb = NonNullable<Awaited<ReturnType<typeof supabaseServer>>>;
 
 async function libraryLoan(supabase: Sb, slug: string, readerId: string) {
-  const { data: work } = await supabase.from("works").select("id, title, author, canon_status").eq("slug", slug).maybeSingle();
+  const { data: work } = await supabase.from("works").select("id, title, author, canon_status, is_placeholder").eq("slug", slug).maybeSingle();
   if (!work) return null;
   await supabase.rpc("return_expired_loans");
   const { data: loan } = await supabase.from("loans").select("id, due_at, bookmark_offset, renewals, borrowed_at")
@@ -76,7 +78,7 @@ export async function loadReading(slug: string, position: number): Promise<Loade
     return {
       ok: true,
       data: {
-        mode: "preview", loanId: loan.id, dueAt: loan.dueAt, borrowedAt: loan.borrowedAt, renewalsLeft: Math.max(0, MAX_RENEWALS - loan.renewals), title: work.title, author: work.author, canonStatus: work.canonStatus,
+        mode: "preview", loanId: loan.id, dueAt: loan.dueAt, borrowedAt: loan.borrowedAt, renewalsLeft: Math.max(0, MAX_RENEWALS - loan.renewals), title: work.title, author: work.author, canonStatus: work.canonStatus, isPlaceholder: work.isPlaceholder,
         chapter: { position: ch.position, title: ch.title, body: ch.body }, chapters,
         bookmark: hasBookmark ? locateBookmark(chapters, loan.bookmark.wordOffset) : null,
         notes: [], highlights: [],
@@ -105,7 +107,7 @@ export async function loadReading(slug: string, position: number): Promise<Loade
       mode: "library", loanId: found.loan.id as string, dueAt: Date.parse(found.loan.due_at as string),
       renewalsLeft: Math.max(0, MAX_RENEWALS - ((found.loan.renewals as number | undefined) ?? 0)),
       borrowedAt: found.loan.borrowed_at ? Date.parse(found.loan.borrowed_at as string) : undefined,
-      title: found.work.title as string, author: found.work.author as string,
+      title: found.work.title as string, author: withAuthor(found.work.author as string), isPlaceholder: found.work.is_placeholder !== false,
       canonStatus: found.work.canon_status as ReadingData["canonStatus"],
       chapter: { position: ch.position, title: ch.title, body: (text?.body_md as string | undefined) ?? "" },
       chapters,
@@ -192,10 +194,10 @@ export async function loadProof(slug: string, position: number): Promise<{ ok: t
     if (!work) return { ok: false, gate: "missing" };
     const chapters = work.chapters.map((c) => ({ position: c.position, title: c.title, words: countWords(c.body) }));
     const ch = work.chapters.find((c) => c.position === position) ?? work.chapters[0];
-    return { ok: true, data: { ...base, mode: "proof", title: work.title, author: work.author, canonStatus: work.canonStatus, chapter: { position: ch.position, title: ch.title, body: ch.body }, chapters } };
+    return { ok: true, data: { ...base, mode: "proof", title: work.title, author: work.author, canonStatus: work.canonStatus, isPlaceholder: work.isPlaceholder, chapter: { position: ch.position, title: ch.title, body: ch.body }, chapters } };
   }
   if (!supabase) return { ok: false, gate: "not-owner" };
-  const { data: work } = await supabase.from("works").select("id, title, author, canon_status").eq("slug", slug).is("archived_at", null).maybeSingle();
+  const { data: work } = await supabase.from("works").select("id, title, author, canon_status, is_placeholder").eq("slug", slug).is("archived_at", null).maybeSingle();
   if (!work) return { ok: false, gate: "missing" };
   const { data: rows } = await supabase.from("chapters").select("id, position, title, word_count").eq("work_id", work.id).is("archived_at", null).order("position");
   const list = (rows ?? []) as { id: string; position: number; title: string; word_count: number }[];
@@ -205,7 +207,7 @@ export async function loadProof(slug: string, position: number): Promise<{ ok: t
   return {
     ok: true,
     data: {
-      ...base, mode: "proof", title: work.title as string, author: withAuthor(work.author as string),
+      ...base, mode: "proof", title: work.title as string, author: withAuthor(work.author as string), isPlaceholder: work.is_placeholder !== false,
       canonStatus: work.canon_status as ReadingData["canonStatus"],
       chapter: { position: ch.position, title: ch.title, body: (text?.body_md as string | undefined) ?? "" },
       chapters: list.map((c) => ({ position: c.position, title: c.title, words: c.word_count })),

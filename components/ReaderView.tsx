@@ -340,15 +340,17 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
         {!proof && <DueWithinHour slug={slug} dueAt={data.dueAt} renewalsLeft={data.renewalsLeft} />}
         {/* C147: a fresh loan, not yet bookmarked — when it was taken out and when it's due. */}
         {!proof && <JustBorrowedLine borrowedAt={data.borrowedAt} dueAt={data.dueAt} hasBookmark={!!data.bookmark} />}
-        <p className="font-sans text-xs uppercase tracking-[0.25em] opacity-80">{data.author}</p>
+        <p className="font-sans text-xs uppercase tracking-[0.25em] opacity-80">by {data.author}</p>
         <h1 className="mt-1 text-2xl">{chapter.title}</h1>
+        {/* C233: placeholder text says so above every chapter (reading room and proof copy alike). */}
+        {data.isPlaceholder && <p data-placeholder-text className="mt-1 font-sans text-xs opacity-80">Placeholder text — the manuscript has not arrived yet.</p>}
         <p className="mt-1 font-sans text-xs opacity-80">
           {left > 0 ? `About ${formatDuration(left)} left in this chapter` : "End of the chapter"} · at {wpm} wpm
         </p>
         {!proof && <ChapterProgress wordsBehind={behind} chapterWords={chapterWords} />}
         {outsideCanonNote(data.canonStatus) && <p className="mt-2 font-sans text-xs font-semibold">{outsideCanonNote(data.canonStatus)}</p>}
         {proof && <p className="mt-2 rounded-sm border border-current/40 px-2 py-1 font-sans text-[0.7rem]">Proof copy — only the Keeper sees this. No loan, bookmark, notes or reading time are recorded.</p>}
-        {preview && !proof && <p className="mt-2 font-sans text-[0.7rem] opacity-80">Placeholder text · notes and highlights are kept in this browser until the library is connected.</p>}
+        {preview && !proof && <p className="mt-2 font-sans text-[0.7rem] opacity-80">Notes and highlights are kept in this browser until the library is connected.</p>}
         {/* C207: none of the reader's notes here, but some in other chapters (live, from the Contents counts). */}
         {!proof && (() => {
           const line = elsewhereLine(chapterCount(chapter.position), chapters.filter((c) => c.position !== chapter.position).map((c) => chapterCount(c.position)));
