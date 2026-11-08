@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 13 — C173–C181, QA55–QA57, `preview` refreshed to main; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 13 — C173–C184, QA55–QA58, `preview` refreshed to main; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -261,16 +261,21 @@ _Last updated: 2026-11-08 (scheduled build run 13 — C173–C181, QA55–QA57, 
 - C180 — Ask the librarian: the reply to an unrecognised question lists the read-so-far question too once there's a minute or more to report; a test checks the reply suggests exactly the chips (unplaced bookmark). `READ_SO_FAR_QUESTION`/`hasReadSoFar()` now live in `lib/engine/ask.ts` (re-exported from `lib/librarian.ts`).
 - C181 — Writer's Room glance footnote ("Counts only…"): checked it's inside the glance section, after the tiles, so it's read with them; pinned with a test. No markup change.
 - QA57 (2026-11-08, after C179–C181): `npm run qa` all clear (run 3×) — now also requires the ledger's notes count line. One run flaked at 1280px because the preview tally is counted after hydration; the check now waits for it (→ C184 hardens the rest). Preview e2e 6/6. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 649 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA57).
+- C182 — Work page "You have … in this book": once two or more books hold the reader's notes, adds "· all your notes" → `/ledger#export` (library: `myAnnotationTotals().books`; preview: counted in this browser in `YourNotes`). Unit-tested + swept both ways.
+- C183 — Ask the librarian: "How many notes have I made?" / "Have I highlighted anything?" / "my notes in this book" (`isNotesQuestion()` in `lib/engine/ask.ts`) → "You have 2 margin notes and 1 highlight in this book." or "You haven't made any notes or highlights in this book yet." Counts are resolved when the question is asked (`NotesSource` in `components/AskLibrarian.tsx`): the server's own-row counts on the work page in library mode; this browser's chapters in preview; in the reading room the book's count plus this chapter's live changes. The proof copy passes none ("…aren't kept in this copy"). Unit-tested + swept (answer must match the work page's line).
+- C184 — QA sweep hardening: `appears()` helper waits for lines filled in after hydration; the reading-room theme sweep now waits for the stored highlights instead of a fixed 400 ms pause (and fails if they never draw); at 1280px the sweep seeds a note in a second book so C182's link is checked both ways.
+- QA58 (2026-11-08, after C182–C184): `npm run qa` all clear (run twice). Preview e2e 6/6. Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (notes/highlights already readable only by their reader).
+- Tests: 655 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA58).
 
 ## Next task
-C182 — work page "· all your notes" link (BACKLOG.md → FOLLOW-UPS), then C183, C184, QA58. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C185 — librarian "How many notes have I made?" chip (BACKLOG.md → FOLLOW-UPS), then C186, C187, QA59. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
 - QA tip for the build team: stop the local server with `pkill -f next-server` (not `next start`) — a leftover server keeps port 3200 and a later QA run silently tests the old build.
 - TypeScript pinned to 6.0.3: Next 16 can't use TypeScript 7 (no JS compiler API).
 - Library-mode (Supabase) code paths are verified against PGlite (schema, RLS, RPCs) and by typecheck, but not yet end-to-end against a real Supabase project — after NEEDS ITU 1, run NEEDS ITU 4 (the e2e script).
+- Minor (C183): in library mode the work page's notes count is read at page load, so a note added in another tab shows in the librarian's answer after a reload (the reading room's answer is live).
 - Minor: the final session beacon can arrive just after you navigate straight to the ledger, so the newest few seconds of reading may appear only on the next load.
 
 ## NEEDS ITU
