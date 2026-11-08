@@ -164,7 +164,7 @@ await step("ledger: notes export includes the note", async () => {
 });
 
 if (!preview) {
-  await step("pitch link: make, open without a card, close", async () => {
+  await step("pitch link: make, open without a card (counted once), close", async () => {
     await page.goto(`${BASE}/pitch-room`);
     const item = page.locator("li").filter({ hasText: "E2E Placeholder Check" }).first();
     await item.locator('input[name="note"]').fill("e2e check");
@@ -177,7 +177,11 @@ if (!preview) {
     await expectText(sp, "Itumeleng Ntseng");
     await stranger.close();
     await page.reload();
-    await page.locator("li").filter({ hasText: "e2e check" }).getByRole("button", { name: "Close link" }).first().click();
+    // C239: one visit counts one view (the share page's title and sheet share a single open — C238).
+    const row = page.locator("li").filter({ hasText: "e2e check" }).filter({ has: page.getByRole("button", { name: "Close link" }) }).first();
+    const line = (await row.textContent()) ?? "";
+    if (!/e2e check · 1 view · /.test(line)) throw new Error(`expected "1 view" after one visit, got: ${line.slice(0, 120)}`);
+    await row.getByRole("button", { name: "Close link" }).click();
     await expectText(page, "Link closed");
   });
 }

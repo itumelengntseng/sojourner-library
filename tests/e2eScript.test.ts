@@ -30,3 +30,14 @@ describe("end-to-end smoke script steps", () => {
     expect(src.indexOf("a chapter without notes")).toBeGreaterThan(src.indexOf('step("read: a highlight says it was saved, and removed"'));
   });
 });
+
+// C239: the library run checks that one visit to a share link counts one view (C238's one open per request).
+describe("end-to-end pitch link step (C239)", () => {
+  it("expects '1 view' after one card-less visit, before closing the link", async () => {
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync("scripts/e2e.mjs", "utf8");
+    expect(src).toContain('await step("pitch link: make, open without a card (counted once), close"');
+    expect(src).toContain("/e2e check · 1 view · /");
+    expect(src.indexOf("1 view")).toBeLessThan(src.indexOf('await row.getByRole("button", { name: "Close link" }).click();'));
+  });
+});
