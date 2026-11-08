@@ -320,7 +320,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C228 Pitch kit editor: while the kit is still marked Placeholder, one line at the top — "This kit is still a placeholder — tick “in my own words” when it is." (check the editor first; add only if it doesn't already say so).
 - [x] C229 Back up everything (.zip): README.txt gains a "Still waiting for your words" section with the same counts as the C224 panel (counts only), so an offline copy says what is placeholder.
 - [x] QA73 QA pass after C227–C229.
-- [ ] C230 Writer's Room import: when the save replaced a work that was still marked Placeholder, the status adds "· no longer a placeholder" (the action reads `is_placeholder` before saving; nothing else changes).
-- [ ] C231 Family wall & timeline (reader pages): check each placeholder plaque / event carries a visible "placeholder" mark and a spoken one; add whichever is missing (no new data).
-- [ ] C232 Front hall, for the Keeper only (owner in library mode; preview too): one quiet line "N things still wait for your words · Writer's Room" from the C224 counts; nothing for guests; nothing when all are done.
-- [ ] QA74 QA pass after C230–C232.
+- [x] C230 Writer's Room import: when the save replaced a work that was still marked Placeholder, the status adds "· no longer a placeholder" (the action reads `is_placeholder` before saving; nothing else changes).
+- [x] C231 Family wall & timeline (reader pages): check each placeholder plaque / event carries a visible "placeholder" mark and a spoken one; add whichever is missing (no new data).
+- [x] C232 Front hall, for the Keeper only (owner in library mode; preview too): one quiet line "N things still wait for your words · Writer's Room" from the C224 counts; nothing for guests; nothing when all are done.
+- [x] QA74 QA pass after C230–C232.
+- [ ] C233 Reading room (and the Keeper's proof copy): check a placeholder work says "Placeholder text — the manuscript has not arrived yet." near the top of each chapter, with "by Itumeleng Ntseng"; add whichever is missing.
+- [ ] C234 `tests/placeholderMarking.test.tsx`: extend to the reading room (C233) and the family wall / timeline marks (C231), so every reader-facing placeholder rule is pinned in one file.
+- [ ] C235 Writer's Room waiting panel: the family-wall and timeline rows link into the editor with "Placeholders only" already on (`/writers-room/atlas?only=1#…`; the toggle reads the param once).
+- [ ] QA75 QA pass after C233–C235.

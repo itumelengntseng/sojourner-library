@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 16 — C218–C229, QA70–QA73; run 15 did C206–C217, QA66–QA69, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 16 — C218–C232, QA70–QA74, `preview` refreshed to main; run 15 did C206–C217, QA66–QA69, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -325,10 +325,14 @@ _Last updated: 2026-11-08 (scheduled build run 16 — C218–C229, QA70–QA73; 
 - C228 — Pitch kit editor: while the kit is still a placeholder, an ember line at the top — "This kit is still a placeholder — tick “This kit is in my own words” at the foot when it is." — linking to the tick (`#own-words`). Pinned + swept.
 - C229 — Back up everything (.zip): README.txt now ends with "Still waiting for your words (placeholder text, not yet replaced):" and the panel's rows (or "nothing — everything is in your own words"); library mode counts shelved works' `is_placeholder`, each work's kit as shown (stored → file → empty = placeholder), the stored atlas copy as saved (else the files) and whether any hall is named (`waitingReadme()`, `atlasFlags()` in `lib/waiting.ts`). Counts only. Unit-tested (incl. the preview backup's README); checked by downloading the preview zip.
 - QA73 (2026-11-08, after C227–C229): `npm run qa` all clear — now also requires three replace links in the waiting panel and the kit editor's placeholder line with its #own-words link. Preview e2e 8/8. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB; the preview backup zip is 170 KB. No migration → RLS audit unchanged.
-- Tests: 773 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA73).
+- C230 — Writer's Room import: when the save replaced a work still marked Placeholder, the status reads `Saved "…" — … · Draft · Only me · no longer a placeholder.` (the action reads `is_placeholder` before calling `import_manuscript()`, which clears it). Library mode only — unit-tested; the library e2e covers the import step after NEEDS ITU 1.
+- C231 — Family wall & timeline (reader pages): checked — plaques already said "Placeholder"; added a Placeholder mark to each placeholder event in the list, each placeholder place chip ("· placeholder") and the detail cards ("Placeholder — the author's own words will replace it"), all as real text so they are heard too. Entries in Itu's own words carry none. Unit-tested (render) + swept.
+- C232 — Front hall, for the Keeper only (owner in library mode; preview, where the Writer's Room is open too): "Still waiting for your words: 3 works, 3 pitch kits, 7 people, 4 places, 5 events and the hall names. Writer's Room" → `/writers-room#waiting`; nothing for guests or signed-out visitors (`keeperWaiting()` in `lib/waitingStore.ts`, server-only, gated by `ownerClient()`; `keeperLine()`), nothing when all is done. Unit-tested + swept.
+- QA74 (2026-11-08, after C230–C232): `npm run qa` all clear — now also requires 9 placeholder marks on the timeline, the family-wall card's mark and the Keeper's line on the front hall. Preview e2e 8/8. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 60 KB. No migration → RLS audit unchanged (the front hall's new reads run only for the owner, through the same owner check as the Writer's Room).
+- Tests: 780 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA74).
 
 ## Next task
-C230 — import status says when a placeholder was replaced (BACKLOG.md → FOLLOW-UPS), then C231, C232, QA74. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C233 — reading room placeholder line check (BACKLOG.md → FOLLOW-UPS), then C234, C235, QA75. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
@@ -421,3 +425,4 @@ C230 — import status says when a placeholder was replaced (BACKLOG.md → FOLL
 - C222 shows one placeholder line per editor (family wall; timeline) instead of one line for the page, so each follows its own edits live.
 - C223 links each placeholder kit's editor only for one to three kits; more keep the count (each kit's own card already has "Edit the kit").
 - C224 counts hall names as waiting until the first hall is named in the library (preview always shows the placeholder halls); C226's toggle also covers the places picker, for consistency.
+- C232's front-hall line lists short counts ("3 works, 3 pitch kits, 7 people, 4 places, 5 events and the hall names") rather than "N things", so the Keeper sees what kind of work waits.
