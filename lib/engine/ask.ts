@@ -20,6 +20,11 @@ export type Answer =
   | { kind: "read_so_far"; minutes: number; text: string }
   | { kind: "unknown"; text: string };
 
+/** C177: the question as the desk offers it (a chip, and in the fallback reply — C180). */
+export const READ_SO_FAR_QUESTION = "How long have I read this book?";
+/** C177/C180: the desk offers it once there's a minute or more to report. */
+export const hasReadSoFar = (readMs: number | undefined) => (readMs ?? 0) >= 60_000;
+
 /** C177: "How long have I read this book?", "How much time have I spent on it?", "How long have I been reading?" */
 export function isReadSoFarQuestion(question: string): boolean {
   const q = question.toLowerCase().replace(/[’]/g, "'");
@@ -117,8 +122,7 @@ export function ask(question: string, ctx: ReaderContext): Answer {
     return { kind: "time_left", minutes, text: `About ${formatDuration(minutes)} to finish at your pace of ${ctx.wpm} words a minute.` };
   }
 
-  return {
-    kind: "unknown",
-    text: 'Try: "How long to finish?", "Can I finish by Friday?", "How much a day to finish in 2 weeks?" or "Time left in this chapter?"',
-  };
+  // C180: the fallback lists what the chips offer, the read-so-far question included once there's time to report.
+  const tries = ["How long to finish?", "Can I finish by Friday?", "How much a day to finish in 2 weeks?", "Time left in this chapter?", ...(hasReadSoFar(ctx.readMs) ? [READ_SO_FAR_QUESTION] : [])].map((t) => `"${t}"`);
+  return { kind: "unknown", text: `Try: ${tries.slice(0, -1).join(", ")} or ${tries[tries.length - 1]}` };
 }

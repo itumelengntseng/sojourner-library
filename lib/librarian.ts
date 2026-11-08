@@ -1,5 +1,5 @@
 // Builds what the librarian needs to answer questions about one book.
-import type { ReaderContext } from "./engine/ask";
+import { hasReadSoFar, READ_SO_FAR_QUESTION, type ReaderContext } from "./engine/ask";
 import { locateBookmark, type ChapterLengths } from "./reader";
 
 export interface LibrarianFacts {
@@ -53,10 +53,10 @@ export const SUGGESTED_QUESTIONS = [
 export const BOOK_LEFT_QUESTION = "How long is left in this book?";
 
 /** C177: once the reader has time in this book, the desk offers to tell them how much. */
-export const READ_SO_FAR_QUESTION = "How long have I read this book?";
+export { READ_SO_FAR_QUESTION };
 
 export function suggestedQuestions(f: Pick<LibrarianFacts, "wordsRead" | "totalWords"> & { readMs?: number }): string[] {
   const placed = f.wordsRead > 0 && f.wordsRead < f.totalWords;
   const base = placed ? [BOOK_LEFT_QUESTION, ...SUGGESTED_QUESTIONS] : [...SUGGESTED_QUESTIONS];
-  return (f.readMs ?? 0) >= 60_000 ? [...base, READ_SO_FAR_QUESTION] : base;
+  return hasReadSoFar(f.readMs) ? [...base, READ_SO_FAR_QUESTION] : base;
 }

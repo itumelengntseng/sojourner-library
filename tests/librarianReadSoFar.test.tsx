@@ -37,3 +37,17 @@ describe("How long have I read this book? (C177)", () => {
     expect(readFileSync("components/ReaderView.tsx", "utf8")).toContain("...(proof ? {} : { readMs: readMs ?? 0 })");
   });
 });
+
+describe("the fallback reply keeps step with the chips (C180)", () => {
+  it("lists the read-so-far question only once there's time to report", () => {
+    expect(ask("What's for supper?", ctx(0)).text).toBe('Try: "How long to finish?", "Can I finish by Friday?", "How much a day to finish in 2 weeks?" or "Time left in this chapter?"');
+    expect(ask("What's for supper?", ctx(5 * 60_000)).text).toBe('Try: "How long to finish?", "Can I finish by Friday?", "How much a day to finish in 2 weeks?", "Time left in this chapter?" or "How long have I read this book?"');
+  });
+  it("every question the reply suggests is one the chips offer", () => {
+    for (const readMs of [0, 5 * 60_000]) {
+      const f = librarianFacts({ chapters, bookmarkOffset: 0, wpm: 230, usualMinutesPerDay: 30, readMs });
+      const suggested = [...ask("?", toReaderContext(f, now)).text.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+      expect(suggested.sort()).toEqual(suggestedQuestions(f).sort());
+    }
+  });
+});
