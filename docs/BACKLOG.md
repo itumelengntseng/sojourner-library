@@ -296,7 +296,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C210 Reading room: the C207 "elsewhere" line ends with a quiet "· see Contents" button that opens the Contents drawer (spoken "open Contents to find your notes"; not in the proof copy).
 - [x] C211 Preview e2e script (`scripts/e2e.mjs`): after the note step, open chapter 2 and check the C207 line ("No notes in this chapter yet · 1 elsewhere in this book"); keep `tests/e2eScript.test.ts` in step.
 - [x] QA67 QA pass after C209–C211.
-- [ ] C212 Ledger "Your notes": when two or three books are named (C206), each title links to its work page (own only; the count form stays plain).
-- [ ] C213 Halls legend: when any spine on the page holds the reader's notes, the legend adds a quiet spoken-only line "Books holding your notes say so when read aloud." (own only; nothing visible).
-- [ ] C214 Reading room: Escape closes the Contents drawer opened by "see Contents" and returns focus to the button that opened it (keyboard check, pinned with a test).
-- [ ] QA68 QA pass after C212–C214.
+- [x] C212 Ledger "Your notes": when two or three books are named (C206), each title links to its work page (own only; the count form stays plain).
+- [x] C213 Halls legend: when any spine on the page holds the reader's notes, the legend adds a quiet spoken-only line "Books holding your notes say so when read aloud." (own only; nothing visible).
+- [x] C214 Reading room: Escape closes the Contents drawer opened by "see Contents" and returns focus to the button that opened it (keyboard check, pinned with a test).
+- [x] QA68 QA pass after C212–C214.
+- [ ] C215 Writer's Room glance: a tile "N works still marked Placeholder" (owner only; counts `is_placeholder` works, preview counts the static catalogue) linking to the shelf list, so Itu sees at a glance what's waiting for his manuscripts.
+- [ ] C216 Writer's Room import: after a successful import, the status line names the work and says it's Draft · Only me (C-rule: imports default to Draft + Only me) with a link to its proof copy.
+- [ ] C217 `tests/placeholderMarking.test.ts`: every placeholder work's page, spine and pitch sheet still shows "Itumeleng Ntseng" and a Placeholder mark (authorship + placeholder rules pinned in one place).
+- [ ] QA69 QA pass after C215–C217.

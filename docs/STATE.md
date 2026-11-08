@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 15 — C206–C211, QA66–QA67, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 15 — C206–C214, QA66–QA68, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -301,10 +301,14 @@ _Last updated: 2026-11-08 (scheduled build run 15 — C206–C211, QA66–QA67, 
 - C210 — Reading room: the C207 line ends with "· see Contents", a button that opens the Contents drawer and focuses its toggle (spoken "open Contents to find your notes"). Unit-tested + swept.
 - C211 — Preview e2e (`scripts/e2e.mjs`): after the highlight step, opens a chapter without notes from Contents and waits for "No notes in this chapter yet · N elsewhere in this book · see Contents" (8 steps now; the library run's two-chapter E2E work covers it too). `tests/e2eScript.test.ts` pins the step. (A first placement before the highlight step broke that step after navigating back — hydration race — so it runs after it.)
 - QA67 (2026-11-08, after C209–C211): `npm run qa` all clear (run twice) — now also clicks "see Contents" and requires the drawer open. Preview e2e 8/8. Performance (local prod build, curl): every page < 16 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 723 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA67).
+- C212 — Ledger "Your notes": the two or three named books each link to their work page (`namedBookLinks()`; library: `myAnnotationTotals()` reads slugs with the titles — `annotatedBooks()`); the counted form and the card page stay plain. Unit-tested + swept.
+- C213 — Halls legend: a spoken-only "Books holding your notes say so when read aloud." when any book on the page holds the reader's notes (`SpineNotesLegend`; same `myNotedSlugs()` / this-browser rule as the spines). Unit-tested + swept.
+- C214 — Reading room: Escape closes the Contents drawer opened from "see Contents" and returns focus to that button (the opener is forgotten whenever the drawer closes, so the keyboard shortcut and the summary still behave as before). Pinned + swept.
+- QA68 (2026-11-08, after C212–C214): `npm run qa` all clear (run twice) — now also requires each named book on the ledger to be a link, the halls' spoken notes legend, and Escape returning focus to "see Contents". Preview e2e 8/8. Performance (local prod build, curl): every page < 21 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (works slugs are already readable where titles are).
+- Tests: 729 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA68).
 
 ## Next task
-C212 — Ledger "Your notes": each named book links to its work page (BACKLOG.md → FOLLOW-UPS), then C213, C214, QA68. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C215 — Writer's Room glance: an owner-only count of works still marked Placeholder (BACKLOG.md → FOLLOW-UPS), then C216, C217, QA69. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
@@ -389,3 +393,4 @@ C212 — Ledger "Your notes": each named book links to its work page (BACKLOG.md
 - Hours per book's notes count (C186) shows highlights too ("· 2 notes · 1 highlight"), so a book with only highlights isn't left bare; the backlog line said "· N notes".
 - C207's line sits under the chapter heading (with "About N min left in this chapter"), since the reading room has no notes drawer with an empty state; it counts notes and highlights together ("2 elsewhere").
 - C206 names books only on the ledger; the card page's notes line keeps the number (it already links to the ledger).
+- C213's legend line is spoken only (sr-only), matching C208's spoken-only spines; nothing new is drawn on the shelf.
