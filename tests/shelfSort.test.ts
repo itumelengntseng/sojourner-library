@@ -46,3 +46,16 @@ describe("shelf order — most read by you (C162)", () => {
     expect(sortShelf([r("x"), r("y")], "read", { x: 5, y: 5 }).map((x) => x.title)).toEqual(["x", "y"]);
   });
 });
+
+describe("halls — the Most read by you note (C164)", () => {
+  it("explains the order, or says shelf order is kept with no reading", async () => {
+    const { readOrderNote } = await import("@/lib/shelfSort");
+    expect(readOrderNote({ a: 60_000 })).toBe("Ordered by your own reading time; books you haven't read in keep shelf order.");
+    expect(readOrderNote({})).toBe("You haven't read in any book yet — shelf order kept.");
+    expect(readOrderNote({ a: 0 })).toBe("You haven't read in any book yet — shelf order kept.");
+  });
+  it("shows only under the read order", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("app/halls/page.tsx", "utf8")).toContain('sort === "read" && <p className="mt-1 font-sans text-xs text-sandstone/80">{readOrderNote(myHours)}</p>');
+  });
+});

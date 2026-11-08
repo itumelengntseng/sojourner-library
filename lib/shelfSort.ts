@@ -45,3 +45,10 @@ export function sortHref(sort: ShelfSort, q: string, canon?: string): string {
   const s = p.toString();
   return s ? `/halls?${s}` : "/halls";
 }
+
+/** C164: the quiet line under the Order links when the halls are ordered by the reader's own reading. */
+export function readOrderNote(hours: Record<string, number>): string {
+  return Object.values(hours).some((ms) => ms > 0)
+    ? "Ordered by your own reading time; books you haven't read in keep shelf order."
+    : "You haven't read in any book yet — shelf order kept.";
+}

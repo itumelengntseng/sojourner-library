@@ -8,7 +8,7 @@ import { canonView } from "@/lib/canonServer";
 import { CANON_LABEL, filterByCanon, hallSummary, workStats } from "@/lib/workStats";
 import { myPace } from "@/lib/sessionStore";
 import { chapterHits, cleanQuery, resultLine, searchShelves } from "@/lib/shelfSearch";
-import { parseSort, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
+import { parseSort, readOrderNote, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
 import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
 import { dueBackSoon, justBorrowed, justReturned, loansBySlug, noRenewalsLeft } from "@/lib/loanDesk";
 import { myFinishes, myHoursBySlug } from "@/lib/ledgerStore";
@@ -70,6 +70,8 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
           ))}
         </nav>
       )}
+      {/* C164: what "Most read by you" means, only when chosen. */}
+      {catalogue.works.length > 1 && sort === "read" && <p className="mt-1 font-sans text-xs text-sandstone/80">{readOrderNote(myHours)}</p>}
       {query && (
         <p role="status" className="mt-3 font-sans text-sm text-sandstone">
           {resultLine(works.length, query)}
