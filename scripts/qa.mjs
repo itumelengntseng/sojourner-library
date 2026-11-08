@@ -561,6 +561,8 @@ for (const width of WIDTHS) {
     if (topHref && (await page.locator(`section:has(a[href='${topHref}']) ul > li:first-child a`).first().getAttribute("href")) !== topHref) { failures++; console.log(`✗ ${width}px halls: Most read by you doesn't put ${topHref} first on its shelf`); }
     // QA53 (C167): the top book's spine says how long the reader has read in it.
     if (topHref && !/You've read for (under a minute|\d+ (h|min))/.test((await page.locator(`a[href='${topHref}'] .sr-only`).first().textContent()) ?? "")) { failures++; console.log(`✗ ${width}px halls: Most read by you spine doesn't say the time read`); }
+    // QA53 (C168): the top book's hall says how many of its works the reader has read in.
+    if (topHref && !(await page.locator(`section:has(a[href='${topHref}']) > p`, { hasText: /· you've read in \d+ of \d+ here$/ }).count())) { failures++; console.log(`✗ ${width}px halls: Most read by you hall line without 'read in N of M here'`); }
     // QA52 (C164): the order is explained.
     if (!(await page.getByText(/^Ordered by your own reading time; books you haven't read in keep shelf order\.$/).count())) { failures++; console.log(`✗ ${width}px halls: Most read by you without its note`); }
     await axeCheck(`${width}px halls ordered by most read`);

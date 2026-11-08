@@ -8,7 +8,7 @@ import { canonView } from "@/lib/canonServer";
 import { CANON_LABEL, filterByCanon, hallSummary, workStats } from "@/lib/workStats";
 import { myPace } from "@/lib/sessionStore";
 import { chapterHits, cleanQuery, resultLine, searchShelves } from "@/lib/shelfSearch";
-import { parseSort, readOrderNote, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
+import { parseSort, readInHall, readOrderNote, sortHref, sortShelf, SORTS } from "@/lib/shelfSort";
 import { myOpenLoans, myRecentlyReturned } from "@/lib/loanStore";
 import { dueBackSoon, justBorrowed, justReturned, loansBySlug, noRenewalsLeft } from "@/lib/loanDesk";
 import { myFinishes, myHoursBySlug } from "@/lib/ledgerStore";
@@ -116,7 +116,7 @@ export default async function Halls({ searchParams }: { searchParams: Promise<Re
         return (
           <section key={hall.id} aria-labelledby={`hall-${hall.id}`} className="mt-10">
             <h2 id={`hall-${hall.id}`} className="text-xl text-paper">{hall.name}</h2>
-            {shelf.length > 0 && <p className="font-sans text-xs text-sandstone">{hallSummary(shelf, pace.wpm, pace.source !== "default")}</p>}
+            {shelf.length > 0 && <p className="font-sans text-xs text-sandstone">{hallSummary(shelf, pace.wpm, pace.source !== "default")}{/* C168 */}{sort === "read" && readInHall(shelf.map((w) => w.slug), myHours)}</p>}
             {hall.note && <p className="font-sans text-xs text-sandstone/80">{hall.note}</p>}
             <div className="mt-4 rounded-sm bg-timber-dark/60 px-3 pt-6 shadow-inner">
               {shelf.length === 0 ? (

@@ -52,3 +52,9 @@ export function readOrderNote(hours: Record<string, number>): string {
     ? "Ordered by your own reading time; books you haven't read in keep shelf order."
     : "You haven't read in any book yet — shelf order kept.";
 }
+
+/** C168: "· you've read in 2 of 3 here" for a hall under the read order (own reading; "" when none). */
+export function readInHall(slugs: string[], hours: Record<string, number>): string {
+  const n = slugs.filter((s) => (hours[s] ?? 0) > 0).length;
+  return n > 0 ? ` · you've read in ${n} of ${slugs.length} here` : "";
+}

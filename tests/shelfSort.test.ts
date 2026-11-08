@@ -59,3 +59,16 @@ describe("halls — the Most read by you note (C164)", () => {
     expect(readFileSync("app/halls/page.tsx", "utf8")).toContain('sort === "read" && <p className="mt-1 font-sans text-xs text-sandstone/80">{readOrderNote(myHours)}</p>');
   });
 });
+
+describe("halls — read in N of M here (C168)", () => {
+  it("counts the hall's works the reader has read in", async () => {
+    const { readInHall } = await import("@/lib/shelfSort");
+    expect(readInHall(["a", "b", "c"], { a: 5, c: 9, z: 4 })).toBe(" · you've read in 2 of 3 here");
+    expect(readInHall(["a", "b"], {})).toBe("");
+    expect(readInHall(["a"], { a: 0 })).toBe("");
+  });
+  it("shows only under the read order", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("app/halls/page.tsx", "utf8")).toContain('{sort === "read" && readInHall(shelf.map((w) => w.slug), myHours)}');
+  });
+});
