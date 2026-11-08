@@ -72,3 +72,18 @@ describe("halls — read in N of M here (C168)", () => {
     expect(readFileSync("app/halls/page.tsx", "utf8")).toContain('{sort === "read" && readInHall(shelf.map((w) => w.slug), myHours)}');
   });
 });
+
+describe("front hall — most read: <title> (C172)", () => {
+  const r = (slug: string) => ({ slug, title: slug.toUpperCase() });
+  it("names the most-read work once two or more are read", async () => {
+    const { mostRead } = await import("@/lib/shelfSort");
+    expect(mostRead([r("a"), r("b"), r("c")], { a: 10, c: 50 })?.slug).toBe("c");
+    expect(mostRead([r("a"), r("b")], { a: 10 })).toBeNull();
+    expect(mostRead([r("a"), r("b")], { a: 10, b: 10 })?.slug).toBe("a");
+    expect(mostRead([r("a")], { z: 10, y: 20 })).toBeNull();
+  });
+  it("the front hall links it after the summary", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("app/page.tsx", "utf8")).toContain("{top && <> · most read: <Link href={`/works/${top.slug}`}");
+  });
+});

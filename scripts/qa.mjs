@@ -573,6 +573,9 @@ for (const width of WIDTHS) {
       await page.goto(`${BASE}${topHref}`);
       if (!(await page.locator("a[href='/ledger#hours']", { hasText: /^You've read for (under a minute|\d+ (h|min)).* in this book/ }).count())) { failures++; console.log(`✗ ${width}px work page without 'You've read for … in this book'`); }
     }
+    // QA54 (C172): the front hall names the most-read book after its summary.
+    await page.goto(`${BASE}/`);
+    if (topHref && (await page.locator("p", { hasText: / · most read: / }).locator("a").first().getAttribute("href").catch(() => null)) !== topHref) { failures++; console.log(`✗ ${width}px front hall without '· most read: <title>' for ${topHref}`); }
     // QA54 (C171): if that book is out, the card's On loan now line says how long it has been read.
     await page.goto(`${BASE}/card`);
     const outLi = page.getByRole("region", { name: /^On loan now/ }).locator("li", { has: page.locator(`a[href='${topHref}']`) });

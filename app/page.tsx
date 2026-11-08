@@ -3,6 +3,8 @@ import { CanonToggle } from "@/components/CanonToggle";
 import { SceneCover } from "@/components/SceneCover";
 import { canonView } from "@/lib/canonServer";
 import { filterByCanon, librarySummary } from "@/lib/workStats";
+import { mostRead } from "@/lib/shelfSort";
+import { myHoursBySlug } from "@/lib/ledgerStore";
 import { loadCatalogue } from "@/lib/catalogueServer";
 import { AUTHOR, SITE_NAME } from "@/lib/site";
 import { ShelfEmpty } from "@/components/ShelfEmpty";
@@ -25,7 +27,8 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
   const works = filterByCanon(catalogue.works, view);
   const now = Date.now();
   const fresh = freshOnShelves(works, now);
-  const [open, cont, pace] = await Promise.all([myOpenLoans(), myContinueReading(), myPace()]);
+  const [open, cont, pace, readMs] = await Promise.all([myOpenLoans(), myContinueReading(), myPace(), myHoursBySlug()]);
+  const top = mostRead(works, readMs);
   // C131: with nothing to continue, the book handed back within the hour (own returns only).
   const returned = cont ? [] : await myRecentlyReturned();
   const { onCard, onSlip } = splitDueSoon(dueBackSoon(open, now), cont?.slug);
@@ -58,7 +61,11 @@ export default async function FrontHall({ searchParams }: { searchParams: Promis
           ))}
         </ul>
         {works.length > 0 && (
-          <p className="mt-6 text-center font-sans text-xs text-sandstone">{librarySummary(works, pace.wpm, pace.source !== "default")}</p>
+          <p className="mt-6 text-center font-sans text-xs text-sandstone">
+            {librarySummary(works, pace.wpm, pace.source !== "default")}
+            {/* C172: the reader's own most-read book, once they've read in two or more. */}
+            {top && <> · most read: <Link href={`/works/${top.slug}`} className="underline underline-offset-2 hover:text-lamplight">{top.title}</Link></>}
+          </p>
         )}
         {works.length === 0 && <ShelfEmpty catalogue={catalogue} />}
         {works.some((w) => w.isPlaceholder) && (

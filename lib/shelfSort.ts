@@ -58,3 +58,10 @@ export function readInHall(slugs: string[], hours: Record<string, number>): stri
   const n = slugs.filter((s) => (hours[s] ?? 0) > 0).length;
   return n > 0 ? ` · you've read in ${n} of ${slugs.length} here` : "";
 }
+
+/** C172: the reader's most-read work among these, once they have read in two or more (ties keep shelf order). */
+export function mostRead<T extends { slug: string }>(works: T[], hours: Record<string, number>): T | null {
+  const read = works.filter((w) => (hours[w.slug] ?? 0) > 0);
+  if (read.length < 2) return null;
+  return read.reduce((best, w) => (hours[w.slug] > hours[best.slug] ? w : best));
+}
