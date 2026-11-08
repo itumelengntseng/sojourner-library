@@ -621,6 +621,18 @@ for (const width of WIDTHS) {
   if (!(await appears(page.getByRole("region", { name: "Borrowing history" }).locator("li", { has: page.locator("a[href='/works/placeholder-work-one']") }).getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px ledger Borrowing history without the notes count on Placeholder Work One`); }
   // QA63 (C198): the work page marks chapter 1, which holds the sweep's notes, as noted.
   await page.goto(`${BASE}/works/placeholder-work-one`);
+  // QA64 (C200): at the last width a note in chapter 3 too, so the where-notes chip is seen both ways.
+  if (width === WIDTHS[WIDTHS.length - 1]) {
+    await page.evaluate(() => { if (!localStorage.getItem("soj:ann:placeholder-work-one:3")) localStorage.setItem("soj:ann:placeholder-work-one:3", JSON.stringify({ notes: [{ id: "qa3", anchor: 0, body: "QA note, chapter 3", createdAt: 1 }], highlights: [] })); });
+    await page.reload();
+  }
+  {
+    await appears(page.locator(".sr-only", { hasText: "you have notes here" }));
+    const noted = await page.locator(".sr-only", { hasText: "you have notes here" }).count();
+    const chip = await page.getByRole("button", { name: "Where are my notes?" }).count();
+    if ((noted >= 2) !== (chip > 0)) { failures++; console.log(`✗ ${width}px librarian where-notes chip ${chip ? "shown" : "missing"} with notes in ${noted} chapter(s)`); }
+    else console.log(`✓ ${width}px librarian where-notes chip (${noted} chapter(s) noted${chip ? ", offered" : ""})`);
+  }
   if (!(await appears(page.getByRole("region", { name: "Contents" }).locator("li").first().locator(".sr-only", { hasText: "you have notes here" })))) { failures++; console.log(`✗ ${width}px work page Contents without the noted mark on chapter 1`); }
   else console.log(`✓ ${width}px work page marks chapter 1 noted`);
   // QA63 (C199): the librarian says where the notes are — chapter 1's title among them.

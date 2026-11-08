@@ -1,5 +1,5 @@
 // Builds what the librarian needs to answer questions about one book.
-import { hasNotes, hasReadSoFar, NOTES_QUESTION, READ_SO_FAR_QUESTION, type ReaderContext } from "./engine/ask";
+import { hasNotes, hasNotesWhere, hasReadSoFar, NOTES_QUESTION, NOTES_WHERE_QUESTION, READ_SO_FAR_QUESTION, type ReaderContext } from "./engine/ask";
 import { locateBookmark, type ChapterLengths } from "./reader";
 
 export interface LibrarianFacts {
@@ -53,11 +53,12 @@ export const SUGGESTED_QUESTIONS = [
 export const BOOK_LEFT_QUESTION = "How long is left in this book?";
 
 /** C177: once the reader has time in this book, the desk offers to tell them how much. */
-export { NOTES_QUESTION, READ_SO_FAR_QUESTION };
+export { NOTES_QUESTION, NOTES_WHERE_QUESTION, READ_SO_FAR_QUESTION };
 
 /** C185: `annotations` (own counts in this book) adds the notes question once there is one. */
-export function suggestedQuestions(f: Pick<LibrarianFacts, "wordsRead" | "totalWords"> & { readMs?: number }, annotations?: { notes: number; highlights: number }): string[] {
+/** C200: `where` (chapters holding own notes) adds "Where are my notes?" once there are two or more. */
+export function suggestedQuestions(f: Pick<LibrarianFacts, "wordsRead" | "totalWords"> & { readMs?: number }, annotations?: { notes: number; highlights: number }, where?: string[]): string[] {
   const placed = f.wordsRead > 0 && f.wordsRead < f.totalWords;
   const base = placed ? [BOOK_LEFT_QUESTION, ...SUGGESTED_QUESTIONS] : [...SUGGESTED_QUESTIONS];
-  return [...base, ...(hasReadSoFar(f.readMs) ? [READ_SO_FAR_QUESTION] : []), ...(hasNotes(annotations) ? [NOTES_QUESTION] : [])];
+  return [...base, ...(hasReadSoFar(f.readMs) ? [READ_SO_FAR_QUESTION] : []), ...(hasNotes(annotations) ? [NOTES_QUESTION] : []), ...(hasNotes(annotations) && hasNotesWhere(where) ? [NOTES_WHERE_QUESTION] : [])];
 }

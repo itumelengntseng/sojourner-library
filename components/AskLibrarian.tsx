@@ -43,6 +43,13 @@ export function AskLibrarian({ facts, title, annotations, notesWhere }: { facts:
     if (annotations && typeof annotations !== "function") setStored(resolveNotes(annotations));
   }, [previewKey]);
   const counts = typeof annotations === "function" ? annotations() : stored;
+  // C200: where the notes are, for the chips — the same three sources.
+  const [storedWhere, setStoredWhere] = useState<string[] | undefined>(Array.isArray(notesWhere) ? notesWhere : undefined);
+  const whereKey = notesWhere && typeof notesWhere !== "function" && !Array.isArray(notesWhere) ? `${notesWhere.slug}:${notesWhere.chapters.map((c) => c.position).join(",")}` : "";
+  useEffect(() => {
+    if (notesWhere && typeof notesWhere !== "function") setStoredWhere(resolveWhere(notesWhere));
+  }, [whereKey]);
+  const where = typeof notesWhere === "function" ? notesWhere() : storedWhere;
 
   const put = (q: string) => {
     const clean = q.trim().slice(0, 200);
@@ -75,7 +82,7 @@ export function AskLibrarian({ facts, title, annotations, notesWhere }: { facts:
         <button type="submit" className="rounded bg-lamplight px-4 py-2 font-sans text-sm font-semibold text-ink hover:bg-ember">Ring the bell</button>
       </form>
       <ul className="mt-3 flex flex-wrap gap-2" aria-label="Questions the librarian knows">
-        {suggestedQuestions(facts, counts).map((q) => (
+        {suggestedQuestions(facts, counts, where).map((q) => (
           <li key={q}>
             <button type="button" onClick={() => put(q)}
               className="rounded-full border border-sandstone/40 px-3 py-1 font-sans text-xs text-sandstone hover:border-lamplight hover:text-lamplight">

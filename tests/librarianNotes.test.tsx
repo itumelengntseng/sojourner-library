@@ -107,3 +107,25 @@ describe("Where are my notes? (C199)", () => {
     expect(readFileSync("components/AskLibrarian.tsx", "utf8")).toContain("notesWhere: resolveWhere(notesWhere)");
   });
 });
+
+describe("the where-notes question as a chip (C200)", () => {
+  it("is offered once notes sit in two or more chapters, and the fallback reply keeps step", async () => {
+    const { suggestedQuestions, NOTES_WHERE_QUESTION } = await import("@/lib/librarian");
+    const a = { notes: 2, highlights: 0 };
+    expect(suggestedQuestions(facts, a, ["One", "Two"])).toContain(NOTES_WHERE_QUESTION);
+    expect(suggestedQuestions(facts, a, ["One"])).not.toContain(NOTES_WHERE_QUESTION);
+    expect(suggestedQuestions(facts, a)).not.toContain(NOTES_WHERE_QUESTION);
+    expect(suggestedQuestions(facts, { notes: 0, highlights: 0 }, ["One", "Two"])).not.toContain(NOTES_WHERE_QUESTION);
+    for (const where of [["One", "Two"], ["One"], undefined]) {
+      const chips = suggestedQuestions(facts, a, where);
+      const reply = ask("what's the weather", { ...ctx(a), notesWhere: where }).text;
+      expect(reply.includes(`"${NOTES_WHERE_QUESTION}"`), String(where)).toBe(chips.includes(NOTES_WHERE_QUESTION));
+      expect(ask(NOTES_WHERE_QUESTION, { ...ctx(a), notesWhere: where }).kind).toBe(where ? "notes_where" : "notes");
+    }
+  });
+  it("the desk computes chips from the same sources it answers from", () => {
+    const src = readFileSync("components/AskLibrarian.tsx", "utf8");
+    expect(src).toContain("suggestedQuestions(facts, counts, where)");
+    expect(src).toContain('const where = typeof notesWhere === "function" ? notesWhere() : storedWhere;');
+  });
+});
