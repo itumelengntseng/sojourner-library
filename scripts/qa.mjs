@@ -158,6 +158,11 @@ for (const width of WIDTHS) {
   await page.goto(`${BASE}/works/placeholder-work-one/read?ch=2`);
   await page.getByRole("region", { name: "End of the chapter" }).waitFor();
   await axeCheck(`${width}px reading room end-of-chapter card`);
+  // QA55 (C174): if the end card says how long the book was read, it's in the ledger's form (short sweep sessions may hold no active time).
+  {
+    const spent = await page.getByRole("region", { name: "End of the chapter" }).getByText(/^You've spent /).allTextContents();
+    if (spent.length && !/^You've spent (under a minute|\d+ (h|min)( \d+ min)?) reading this book$/.test(spent[0])) { failures++; console.log(`✗ ${width}px end card: '${spent[0]}'`); }
+  }
 }
 {
   await page.setViewportSize({ width: 375, height: 900 });

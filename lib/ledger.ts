@@ -351,3 +351,8 @@ export function barShare(ms: number, hours: Pick<WorkHours, "activeMs">[]): numb
 export function readForLine(ms: number | undefined): string | null {
   return ms && ms > 0 ? `You've read for ${formatHours(ms)} in this book` : null;
 }
+
+/** C174: the reading room's end card — "You've spent 2 h 5 min reading this book" (own reading; null when none). */
+export function spentLine(ms: number | undefined): string | null {
+  return ms && ms > 0 ? `You've spent ${formatHours(ms)} reading this book` : null;
+}

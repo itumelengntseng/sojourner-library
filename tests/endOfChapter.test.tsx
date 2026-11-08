@@ -93,3 +93,23 @@ describe("no renewals left on the end-of-book card (C115)", () => {
     expect(readFileSync("components/ReaderView.tsx", "utf8")).toContain("noRenewals={data.renewalsLeft === 0}");
   });
 });
+
+describe("end card — You've spent <time> reading this book (C174)", () => {
+  const card = (proof: boolean, readMs?: number) =>
+    renderToStaticMarkup(<EndOfChapter slug="w" title="Placeholder Work" chapters={CH} position={2} wpm={230} base={proof ? "/works/w/proof" : "/works/w/read"} proof={proof} readMs={readMs} />).replace(/<!-- -->/g, "");
+  it("says the reader's own time on the last page", () => {
+    expect(card(false, 125 * 60_000)).toContain("You&#x27;ve spent 2 h 5 min reading this book");
+  });
+  it("says nothing with no time read, mid-book, or in the Keeper's proof copy", () => {
+    expect(card(false, 0)).not.toContain("spent");
+    expect(card(false)).not.toContain("spent");
+    expect(card(true, 125 * 60_000)).not.toContain("spent");
+    const mid = renderToStaticMarkup(<EndOfChapter slug="w" title="Placeholder Work" chapters={CH} position={1} wpm={230} base="/works/w/read" proof={false} readMs={60 * 60_000} />);
+    expect(mid).not.toContain("spent");
+  });
+  it("the reading room passes the ledger's hours; the proof copy doesn't", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("app/works/[slug]/read/page.tsx", "utf8")).toContain("const readMs = hours[slug];");
+    expect(readFileSync("app/works/[slug]/proof/page.tsx", "utf8")).not.toContain("readMs");
+  });
+});

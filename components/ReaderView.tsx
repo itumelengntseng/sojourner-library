@@ -34,7 +34,7 @@ function writeLocal(key: string, value: string) {
 
 const btn = "rounded px-2.5 py-1.5 font-sans text-xs uppercase tracking-wider";
 
-export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [], finishedAt, firstRead }: { slug: string; data: ReadingData; wpm: number; minutesPerDay: number; readPositions?: number[]; finishedAt?: number; firstRead?: number }) {
+export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [], finishedAt, firstRead, readMs }: { slug: string; data: ReadingData; wpm: number; minutesPerDay: number; readPositions?: number[]; finishedAt?: number; firstRead?: number; readMs?: number }) {
   const { chapter, chapters } = data;
   const paras = useMemo(() => splitParagraphs(chapter.body), [chapter.body]);
   const [settings, setSettings] = useState<ReaderSettings>(DEFAULT_SETTINGS);
@@ -358,7 +358,7 @@ export function ReaderView({ slug, data, wpm, minutesPerDay, readPositions = [],
           </div>
         )}
 
-        <EndOfChapter slug={slug} title={data.title} chapters={chapters} position={chapter.position} wpm={wpm} base={base} proof={proof} loanId={data.loanId} noRenewals={data.renewalsLeft === 0} finishedAt={finishedAt} firstRead={firstRead} />
+        <EndOfChapter slug={slug} title={data.title} chapters={chapters} position={chapter.position} wpm={wpm} base={base} proof={proof} loanId={data.loanId} noRenewals={data.renewalsLeft === 0} finishedAt={finishedAt} firstRead={firstRead} readMs={readMs} />
 
         <div className="mt-10 rounded-sm bg-stone-wall text-paper">
           <AskLibrarian

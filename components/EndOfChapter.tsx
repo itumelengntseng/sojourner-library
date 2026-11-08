@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { formatDuration, minutesFor } from "@/lib/engine/readingTime";
 import { ReturnFromRoom } from "./ReturnFromRoom";
-import { finishedStamp, finishSpan } from "@/lib/ledger";
+import { finishedStamp, finishSpan, spentLine } from "@/lib/ledger";
 
 export interface ChapterLink { position: number; title: string; words: number }
 
@@ -14,7 +14,7 @@ export function endOfChapter(chapters: ChapterLink[], position: number, wpm: num
   return { kind: "next" as const, position: next.position, title: next.title, minutes: minutesFor(next.words, wpm) };
 }
 
-export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof, loanId = "", noRenewals = false, finishedAt, firstRead }: {
+export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof, loanId = "", noRenewals = false, finishedAt, firstRead, readMs }: {
   slug: string; title: string; chapters: ChapterLink[]; position: number; wpm: number; base: string; proof: boolean; loanId?: string;
   /** C115: the open loan has no renewals left. */
   noRenewals?: boolean;
@@ -22,6 +22,8 @@ export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof
   finishedAt?: number;
   /** C87: end of the reader's first session in this book, for "Read over 9 days". */
   firstRead?: number;
+  /** C174: the reader's own reading time in this book (the ledger's Time); never shown in the proof copy. */
+  readMs?: number;
 }) {
   const end = endOfChapter(chapters, position, wpm);
   return (
@@ -47,6 +49,7 @@ export function EndOfChapter({ slug, title, chapters, position, wpm, base, proof
               {finishSpan(firstRead, finishedAt) && <span className="ml-2 font-sans text-xs opacity-80">Read {finishSpan(firstRead, finishedAt)}</span>}
             </p>
           )}
+          {!proof && spentLine(readMs) && <p className="mt-2 text-xs opacity-80">{spentLine(readMs)}</p>}
           {proof ? (
             <Link href="/writers-room" className="mt-3 inline-block rounded bg-lamplight px-4 py-2 text-ink">Back to the Writer&rsquo;s Room</Link>
           ) : (
