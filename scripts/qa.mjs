@@ -928,6 +928,22 @@ await axeCheck("375px reading room gate just returned");
   await ctx3.close();
 }
 
+// QA69 (C217): every placeholder work's page and pitch sheet names Itumeleng Ntseng and carries a Placeholder mark.
+{
+  const ctx4 = await browser.newContext();
+  const p4 = await ctx4.newPage();
+  for (const slug of ["placeholder-work-one", "placeholder-work-two", "placeholder-work-three"]) {
+    await p4.goto(`${BASE}/works/${slug}`);
+    const page = (await p4.locator("main").textContent()) ?? "";
+    await p4.goto(`${BASE}/pitch-room/${slug}`);
+    const sheet = (await p4.locator("main").textContent()) ?? "";
+    if (!page.includes("by Itumeleng Ntseng") || !page.includes("Placeholder text — the manuscript has not arrived yet.")) { failures++; console.log(`✗ ${slug} page without the author or the placeholder line`); }
+    else if (!sheet.includes("by Itumeleng Ntseng") || !sheet.includes("Placeholder pitch")) { failures++; console.log(`✗ ${slug} pitch sheet without the author or the placeholder mark`); }
+    else console.log(`✓ ${slug}: page and pitch sheet name Itumeleng Ntseng and say Placeholder`);
+  }
+  await ctx4.close();
+}
+
 await browser.close();
 console.log(failures ? `\n${failures} problem(s)` : "\nAll clear");
 process.exit(failures ? 1 : 0);
