@@ -207,7 +207,8 @@ export default async function Ledger({ searchParams }: { searchParams: Promise<R
         <h2 id="export" className="text-xl text-paper">Your notes</h2>
         <p className="mt-2 font-sans text-sm text-sandstone">Take your margin notes and highlights with you as a Markdown file.</p>
         {/* C179: how many there are, across how many books (own only). */}
-        <NotesTally totals={await myAnnotationTotals()} />
+        {/* C206: two or three books are named. */}
+        <NotesTally totals={await myAnnotationTotals()} name />
         <div className="mt-4">
           {l.mode === "preview" ? <PreviewNotesExport finished={finishMap} /> : (
             <a href="/ledger/notes" className="inline-block rounded bg-lamplight px-4 py-2 font-sans text-sm font-semibold text-ink hover:bg-ember">Export my notes (Markdown)</a>

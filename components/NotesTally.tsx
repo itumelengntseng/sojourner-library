@@ -8,17 +8,19 @@ import { notesAcrossLine, totalAnnotations, type AnnotationTotals } from "@/lib/
  * C179: "3 margin notes · 2 highlights across 2 books" above the ledger's export (own annotations only).
  * Library mode passes the totals; preview mode counts what this browser holds. Nothing when there are none.
  * C203: with `link` (the card page) it adds "· see them in the ledger" → /ledger#export.
+ * C206: with `name` (the ledger) two or three books are named by title instead of counted.
  */
-export function NotesTally({ totals, link = false }: { totals: AnnotationTotals | null; link?: boolean }) {
+export function NotesTally({ totals, link = false, name = false }: { totals: AnnotationTotals | null; link?: boolean; name?: boolean }) {
   const [local, setLocal] = useState<AnnotationTotals | null>(null);
   useEffect(() => {
     if (totals) return;
     const read = (k: string) => { try { return window.localStorage.getItem(k); } catch { return null; } };
     const byWork: Record<string, (string | null)[]> = {};
-    for (const w of getWorks()) byWork[w.slug] = w.chapters.map((c) => read(`soj:ann:${w.slug}:${c.position}`));
-    setLocal(totalAnnotations(byWork));
+    const titles: Record<string, string> = {};
+    for (const w of getWorks()) { byWork[w.slug] = w.chapters.map((c) => read(`soj:ann:${w.slug}:${c.position}`)); titles[w.slug] = w.title; }
+    setLocal(totalAnnotations(byWork, titles));
   }, [totals]);
-  const line = notesAcrossLine(totals ?? local ?? { notes: 0, highlights: 0, books: 0 });
+  const line = notesAcrossLine(totals ?? local ?? { notes: 0, highlights: 0, books: 0 }, name);
   if (!line) return null;
   if (link) {
     return (

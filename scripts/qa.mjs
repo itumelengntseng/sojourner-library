@@ -614,7 +614,7 @@ for (const width of WIDTHS) {
   }
   // QA57 (C179): the sweep has left notes and highlights in this browser, so "Your notes" counts them.
   // (In preview the line is counted in the browser after hydration, so wait for it.)
-  if (!(await appears(page.locator("section[aria-labelledby='export'] p", { hasText: /^You have (\d+ margin notes?|\d+ highlights?)( · \d+ highlights?)? across \d+ books?\.$/ })))) { failures++; console.log(`✗ ${width}px ledger Your notes without the count line`); }
+  if (!(await appears(page.locator("section[aria-labelledby='export'] p", { hasText: /^You have (\d+ margin notes?|\d+ highlights?)( · \d+ highlights?)? across (\d+ books?|Placeholder Work .+)\.$/ })))) { failures++; console.log(`✗ ${width}px ledger Your notes without the count line`); }
   // QA59 (C186): the sweep's notes show beside Placeholder Work One's time in Hours per book.
   if (!(await appears(page.locator("section[aria-labelledby='hours'] tbody tr", { has: page.locator("a[href='/works/placeholder-work-one']") }).locator("td:nth-child(2)", { hasText: / · \d+ (notes?|highlights?)/ })))) { failures++; console.log(`✗ ${width}px ledger Hours per book without the notes count beside Placeholder Work One`); }
   // QA62 (C194): Borrowing history's Placeholder Work One row counts the same notes.
@@ -702,9 +702,15 @@ for (const width of WIDTHS) {
       await page.evaluate(() => localStorage.setItem("soj:ann:placeholder-work-two:1", JSON.stringify({ notes: [{ id: "qa2", anchor: 0, body: "QA note, second book", createdAt: 1 }], highlights: [] })));
       await page.reload();
     }
-    const tallyLoc = page.locator("section[aria-labelledby='export'] p", { hasText: /^You have .* across \d+ books?\.$/ });
+    const tallyLoc = page.locator("section[aria-labelledby='export'] p", { hasText: /^You have .* across .+\.$/ });
     const tally = (await appears(tallyLoc)) ? ((await tallyLoc.first().textContent()) ?? "") : "";
-    const books = Number(tally.match(/across (\d+) book/)?.[1] ?? 0);
+    // QA66 (C206): two or three books are named ("across A and B" / "A, B and C"); one or four+ are counted.
+    const across = tally.match(/ across (.+)\.$/)?.[1] ?? "";
+    const counted = across.match(/^(\d+) books?$/);
+    const named = counted ? [] : across.split(/, | and /).filter(Boolean);
+    const books = counted ? Number(counted[1]) : named.length;
+    if (tally && (counted ? books >= 2 && books <= 3 : books < 2 || books > 3 || !named.every((n) => /^Placeholder Work /.test(n)))) { failures++; console.log(`✗ ${width}px ledger Your notes '${across}' — two or three books should be named, others counted`); }
+    else if (tally) console.log(`✓ ${width}px ledger Your notes ${counted ? "counts" : "names"} ${books} book(s)`);
     await page.goto(`${BASE}/works/placeholder-work-one`);
     const line = page.locator("p", { hasText: /^You have .* in this book/ }).first();
     if (await appears(line)) {

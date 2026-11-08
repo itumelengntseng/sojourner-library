@@ -7,7 +7,7 @@ import { parsePreviewLoans, PREVIEW_COOKIE, rowToLoan, type LoanRow } from "./lo
 import { splitParagraphs } from "./reader";
 import { parseStoredStats, PREVIEW_SESSIONS_COOKIE } from "./sessions";
 import { supabaseServer } from "./supabase/server";
-import { countByChapter, type AnnotationCount, type AnnotationTotals } from "./notesCount";
+import { annotatedTitles, countByChapter, type AnnotationCount, type AnnotationTotals } from "./notesCount";
 
 export interface LedgerView {
   mode: "preview" | "library" | "signed-out";
@@ -286,7 +286,13 @@ export async function myAnnotationTotals(): Promise<AnnotationTotals | null> {
     supabase.from("highlights").select("work_id").eq("reader_id", auth.user.id).limit(5000),
   ]);
   const books = new Set([...(notes ?? []), ...(hls ?? [])].map((r) => r.work_id as string));
-  return { notes: notes?.length ?? 0, highlights: hls?.length ?? 0, books: books.size };
+  const out: AnnotationTotals = { notes: notes?.length ?? 0, highlights: hls?.length ?? 0, books: books.size };
+  // C206: titles for two or three books (shelf order); a title the reader can't see leaves the count in place.
+  if (books.size >= 2 && books.size <= 3) {
+    const { data: ws } = await supabase.from("works").select("id, title, series, series_order").in("id", [...books]);
+    out.titles = annotatedTitles(ws ?? []);
+  }
+  return out;
 }
 
 /** C186: own notes and highlights per work (workKey → counts) for Hours per book; null in preview — the browser counts. */

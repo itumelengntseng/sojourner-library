@@ -25,27 +25,45 @@ export function annotationLine(c: AnnotationCount): string | null {
   return parts.length ? parts.join(" and ") : null;
 }
 
-export interface AnnotationTotals extends AnnotationCount { books: number }
+export interface AnnotationTotals extends AnnotationCount {
+  books: number;
+  /** C206: the titles of the books holding own notes, in shelf order (optional; only used when they match `books`). */
+  titles?: string[];
+}
 
-/** C179: the ledger's "3 margin notes · 2 highlights across 2 books" — or null when there are none. */
-export function notesAcrossLine(t: AnnotationTotals): string | null {
+/** C206: "Placeholder Work One and Placeholder Work Two" / "A, B and C" — null unless 2–3 titles that match the count. */
+export function bookNames(t: AnnotationTotals): string | null {
+  const ts = t.titles;
+  if (!ts || ts.length !== t.books || ts.length < 2 || ts.length > 3) return null;
+  return ts.length === 2 ? `${ts[0]} and ${ts[1]}` : `${ts[0]}, ${ts[1]} and ${ts[2]}`;
+}
+
+/**
+ * C179: the ledger's "3 margin notes · 2 highlights across 2 books" — or null when there are none.
+ * C206: with `name`, two or three books are named instead ("across Placeholder Work One and Placeholder Work Two").
+ */
+export function notesAcrossLine(t: AnnotationTotals, name = false): string | null {
   const parts = [
     t.notes ? `${t.notes} margin note${t.notes === 1 ? "" : "s"}` : "",
     t.highlights ? `${t.highlights} highlight${t.highlights === 1 ? "" : "s"}` : "",
   ].filter(Boolean);
   if (!parts.length) return null;
-  return `${parts.join(" · ")} across ${t.books} book${t.books === 1 ? "" : "s"}`;
+  const names = name ? bookNames(t) : null;
+  return `${parts.join(" · ")} across ${names ?? `${t.books} book${t.books === 1 ? "" : "s"}`}`;
 }
 
 /** C179: totals over several works from per-chapter preview values (slug → raw values per chapter). */
-export function totalAnnotations(byWork: Record<string, (string | null)[]>): AnnotationTotals {
+export function totalAnnotations(byWork: Record<string, (string | null)[]>, titles?: Record<string, string>): AnnotationTotals {
   const out: AnnotationTotals = { notes: 0, highlights: 0, books: 0 };
-  for (const raws of Object.values(byWork)) {
+  const named: string[] = [];
+  for (const [slug, raws] of Object.entries(byWork)) {
     const c = countAnnotations(raws);
     out.notes += c.notes;
     out.highlights += c.highlights;
-    if (c.notes + c.highlights > 0) out.books += 1;
+    if (c.notes + c.highlights > 0) { out.books += 1; if (titles?.[slug]) named.push(titles[slug]); }
   }
+  // C206: titles in the order the works were given (shelf order), only when given.
+  if (titles) out.titles = named;
   return out;
 }
 
@@ -121,4 +139,11 @@ export function madeLine(c: AnnotationCount | undefined): string | null {
 /** C204: the book's own counts as the Contents drawer holds them (chapter by chapter). */
 export function sumCounts(counts: (AnnotationCount | undefined)[]): AnnotationCount {
   return counts.reduce<AnnotationCount>((a, c) => ({ notes: a.notes + (c?.notes ?? 0), highlights: a.highlights + (c?.highlights ?? 0) }), { notes: 0, highlights: 0 });
+}
+
+/** C206: library-mode titles in shelf order (series, series order, title) from the works rows the reader can see. */
+export function annotatedTitles(rows: { title: string; series?: string | null; series_order?: number | null }[]): string[] {
+  return [...rows]
+    .sort((a, b) => (a.series ?? "").localeCompare(b.series ?? "") || (a.series_order ?? 0) - (b.series_order ?? 0) || a.title.localeCompare(b.title))
+    .map((r) => r.title);
 }
