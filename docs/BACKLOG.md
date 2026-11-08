@@ -316,7 +316,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C225 Pitch Room kit card: the "Placeholder — awaiting the author's words" status links to that kit's editor (spoken "edit the kit for <title>").
 - [x] C226 Family wall & timeline editor: a "Placeholders only" toggle on the person / event pickers, so Itu can step through what's left to replace (client-side; no data change).
 - [x] QA72 QA pass after C224–C226.
-- [ ] C227 Writer's Room "What still waits": with one to three placeholder works, the works row names each with its own "replace" link (reuse `replaceHref()`), instead of the single #shelves link.
-- [ ] C228 Pitch kit editor: while the kit is still marked Placeholder, one line at the top — "This kit is still a placeholder — tick “in my own words” when it is." (check the editor first; add only if it doesn't already say so).
-- [ ] C229 Back up everything (.zip): README.txt gains a "Still waiting for your words" section with the same counts as the C224 panel (counts only), so an offline copy says what is placeholder.
-- [ ] QA73 QA pass after C227–C229.
+- [x] C227 Writer's Room "What still waits": with one to three placeholder works, the works row names each with its own "replace" link (reuse `replaceHref()`), instead of the single #shelves link.
+- [x] C228 Pitch kit editor: while the kit is still marked Placeholder, one line at the top — "This kit is still a placeholder — tick “in my own words” when it is." (check the editor first; add only if it doesn't already say so).
+- [x] C229 Back up everything (.zip): README.txt gains a "Still waiting for your words" section with the same counts as the C224 panel (counts only), so an offline copy says what is placeholder.
+- [x] QA73 QA pass after C227–C229.
+- [ ] C230 Writer's Room import: when the save replaced a work that was still marked Placeholder, the status adds "· no longer a placeholder" (the action reads `is_placeholder` before saving; nothing else changes).
+- [ ] C231 Family wall & timeline (reader pages): check each placeholder plaque / event carries a visible "placeholder" mark and a spoken one; add whichever is missing (no new data).
+- [ ] C232 Front hall, for the Keeper only (owner in library mode; preview too): one quiet line "N things still wait for your words · Writer's Room" from the C224 counts; nothing for guests; nothing when all are done.
+- [ ] QA74 QA pass after C230–C232.

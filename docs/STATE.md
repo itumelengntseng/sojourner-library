@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 16 — C218–C226, QA70–QA72; run 15 did C206–C217, QA66–QA69, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 16 — C218–C229, QA70–QA73; run 15 did C206–C217, QA66–QA69, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -321,10 +321,14 @@ _Last updated: 2026-11-08 (scheduled build run 16 — C218–C226, QA70–QA72; 
 - C225 — Pitch Room: a placeholder kit's status "Placeholder — awaiting the author's words" is a link to that kit's editor (spoken ": edit the kit for <title>"). Pinned + swept.
 - C226 — Family wall & timeline editor: "Placeholders only (N are left)" above the people, event and place pickers — shows only placeholder entries plus the one open, so ticking "Real" doesn't whisk it away mid-edit; "— every person is in your own words" when none are left (`pickerList()` in `lib/atlas.ts`; client-side, no data change). Unit-tested; the sweep ticks it and steps to the next person (axe clean).
 - QA72 (2026-11-08, after C224–C226): `npm run qa` all clear — now also requires the five waiting rows in preview, three placeholder kit-status links, and "Placeholders only" keeping then dropping the open person. Found and fixed in the QA script: the C218 check clicked the first link reading "replace with your manuscript…", which became the panel's "replace with your manuscripts" (#shelves) — it now targets the shelf list's `?replace=` link. Preview e2e 8/8. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (the room now also reads the owner's pitch kits and atlas documents, which it could already read).
-- Tests: 766 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA72).
+- C227 — The waiting panel's works row names one to three placeholder works, each linking to its own "replace" (`/writers-room?replace=<slug>#import`, C218): "3 of 3 works on the shelves · replace Placeholder Work One · Placeholder Work Two · Placeholder Work Three" (each spoken "replace <title> with your manuscript"); four or more keep the single shelf-list link. Unit-tested + swept.
+- C228 — Pitch kit editor: while the kit is still a placeholder, an ember line at the top — "This kit is still a placeholder — tick “This kit is in my own words” at the foot when it is." — linking to the tick (`#own-words`). Pinned + swept.
+- C229 — Back up everything (.zip): README.txt now ends with "Still waiting for your words (placeholder text, not yet replaced):" and the panel's rows (or "nothing — everything is in your own words"); library mode counts shelved works' `is_placeholder`, each work's kit as shown (stored → file → empty = placeholder), the stored atlas copy as saved (else the files) and whether any hall is named (`waitingReadme()`, `atlasFlags()` in `lib/waiting.ts`). Counts only. Unit-tested (incl. the preview backup's README); checked by downloading the preview zip.
+- QA73 (2026-11-08, after C227–C229): `npm run qa` all clear — now also requires three replace links in the waiting panel and the kit editor's placeholder line with its #own-words link. Preview e2e 8/8. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB; the preview backup zip is 170 KB. No migration → RLS audit unchanged.
+- Tests: 773 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA73).
 
 ## Next task
-C227 — the waiting panel names one to three placeholder works, each with its own replace link (BACKLOG.md → FOLLOW-UPS), then C228, C229, QA73. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C230 — import status says when a placeholder was replaced (BACKLOG.md → FOLLOW-UPS), then C231, C232, QA74. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
