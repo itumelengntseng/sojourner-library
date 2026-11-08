@@ -651,6 +651,8 @@ for (const width of WIDTHS) {
   }
   // QA60 (C189): Placeholder Work One is on loan and holds the sweep's notes, so its On loan now line counts them.
   await page.goto(`${BASE}/card`);
+  // QA65 (C203): the card says how many notes there are across the library, linking to them.
+  if (!(await appears(page.locator("p", { hasText: /^You have .* across \d+ books? · see them in the ledger$/ }).locator("a[href='/ledger#export']")))) { failures++; console.log(`✗ ${width}px card without the notes line linking to the ledger`); }
   {
     const li = page.getByRole("region", { name: /^On loan now/ }).locator("li", { has: page.locator("a[href='/works/placeholder-work-one']") });
     if ((await li.count()) && !(await appears(li.getByText(/ · \d+ (notes?|highlights?)/)))) { failures++; console.log(`✗ ${width}px card On loan now without the notes count on Placeholder Work One`); }
@@ -866,6 +868,21 @@ await axeCheck("375px reading room gate just returned");
     if (v.length) { failures++; console.log(`✗ 375px card borrowed twice\n${v.map((x) => `    axe ${x.impact}: ${x.id}`).join("\n")}`); } else console.log("✓ 375px card borrowed twice");
   }
   await fresh.close();
+}
+
+// QA65 (C204): in a fresh browser, a book with a note says so on its last page's end card.
+{
+  const ctx3 = await browser.newContext();
+  const p3 = await ctx3.newPage();
+  await p3.goto(`${BASE}/works/placeholder-work-three`);
+  await p3.getByRole("button", { name: "Borrow this work" }).click();
+  await p3.getByRole("link", { name: /^Start reading/ }).waitFor();
+  await p3.evaluate(() => localStorage.setItem("soj:ann:placeholder-work-three:1", JSON.stringify({ notes: [{ id: "qa-end", anchor: 0, body: "QA note, end card", createdAt: 1 }], highlights: [] })));
+  const lastHref = await p3.locator("section[aria-labelledby='contents'] li a").last().getAttribute("href");
+  await p3.goto(`${BASE}${lastHref}`);
+  if (!(await appears(p3.getByRole("region", { name: "End of the chapter" }).getByText(/^You made 1 margin note in this book\.$/)))) { failures++; console.log("✗ end card without 'You made 1 margin note in this book.'"); }
+  else console.log("✓ end card says what was made in the book");
+  await ctx3.close();
 }
 
 await browser.close();

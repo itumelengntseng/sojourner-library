@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 14 — C188–C202, QA60–QA64, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 14 — C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -289,10 +289,14 @@ _Last updated: 2026-11-08 (scheduled build run 14 — C188–C202, QA60–QA64, 
 - C201 — Work page "noted" mark: while the book is on loan it links to that chapter in the reading room (spoken "open your notes in <chapter>"); a plain mark (spoken "you have notes here") otherwise. Unit-tested + swept.
 - C202 — Reading room Contents: the drawer's first line adds "· notes in 2 chapters" once own notes sit in more than one chapter (`notesInChaptersLine()`; the same `notedChapters` the librarian's where-answer uses, so they can't disagree). Unit-tested + swept.
 - QA64 (2026-11-08, after C200–C202): `npm run qa` all clear (run twice) — now also requires the where-notes chip exactly when two or more chapters are noted, chapter 1's noted mark linking to the reading room while out, and the Contents line's "notes in 2 chapters" at 1280px (on the Continue book, seeded in chapter 3). Preview e2e 7/7. Performance (local prod build, curl): every page < 20 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 698 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA64).
+- C203 — Card page (preview and signed in): "You have 3 margin notes · 1 highlight across 2 books · see them in the ledger" → `/ledger#export` (`NotesTally link`; library: `myAnnotationTotals()`; preview: this browser). Unit-tested + swept.
+- C204 — Reading room end card, last page: "You made 3 margin notes and 1 highlight in this book." under "You've spent …" (`madeLine()`; the book's live counts summed from the Contents drawer's per-chapter counts, `sumCounts()`); never in the proof copy. Unit-tested + swept (fresh browser, Placeholder Work Three).
+- C205 — `tests/chapterNotesConsistency.test.ts`: from one store, the Contents drawer, the work page's noted marks, "notes in N chapters", the end card's total and "Where are my notes?" all name the same chapters (preview and library rules).
+- QA65 (2026-11-08, after C203–C205): `npm run qa` all clear (run twice) — now also requires the card's notes line linking to the ledger and, in a fresh browser, the end card's "You made 1 margin note in this book." Preview e2e 7/7. Performance (local prod build, curl): every page < 12 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 707 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA65).
 
 ## Next task
-C203 — card page "Your notes" line (BACKLOG.md → FOLLOW-UPS), then C204, C205, QA65. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C206 — ledger "Your notes" names the books when there are two or three (BACKLOG.md → FOLLOW-UPS), then C207, C208, QA66. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).

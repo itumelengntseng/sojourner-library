@@ -284,7 +284,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C201 Work page "noted" mark: link it to the reading room at that chapter while the book is on loan (spoken "open your notes in <chapter>"); plain mark otherwise.
 - [x] C202 Reading room Contents: the drawer's heading line adds "· notes in 2 chapters" when the reader has notes in more than one chapter (own only; live).
 - [x] QA64 QA pass after C200–C202.
-- [ ] C203 Card page: under the membership card, "Your notes: 3 margin notes · 1 highlight across 2 books" linking to `/ledger#export` (own only; reuse `notesAcrossLine`; nothing when none).
-- [ ] C204 Reading room end card: on the last page, "You made 3 notes and 1 highlight in this book" under "You've spent …" (own, live; never in the proof copy).
-- [ ] C205 `tests/chapterNotesConsistency.test.ts`: from one store, the Contents drawer counts, the work page's noted marks, "notes in N chapters" and the librarian's "Where are my notes?" name the same chapters.
-- [ ] QA65 QA pass after C203–C205.
+- [x] C203 Card page: under the membership card, "Your notes: 3 margin notes · 1 highlight across 2 books" linking to `/ledger#export` (own only; reuse `notesAcrossLine`; nothing when none).
+- [x] C204 Reading room end card: on the last page, "You made 3 notes and 1 highlight in this book" under "You've spent …" (own, live; never in the proof copy).
+- [x] C205 `tests/chapterNotesConsistency.test.ts`: from one store, the Contents drawer counts, the work page's noted marks, "notes in N chapters" and the librarian's "Where are my notes?" name the same chapters.
+- [x] QA65 QA pass after C203–C205.
+- [ ] C206 Ledger "Your notes": each book in the notes count line is named once notes sit in two or three books ("across Placeholder Work One and Placeholder Work Two"; titles only, own; more than three keeps the number).
+- [ ] C207 Reading room: the margin-note drawer's empty state ("No notes in this chapter yet") adds "· 2 elsewhere in this book" when other chapters hold own notes (live, from the Contents counts).
+- [ ] C208 Halls spines: a book holding the reader's notes adds "You have notes in it." to its spoken label (own only; nothing visible — keeps the shelf calm).
+- [ ] QA66 QA pass after C206–C208.
