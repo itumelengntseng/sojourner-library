@@ -72,7 +72,7 @@ export async function loadRoom(): Promise<Room> {
       })),
       halls: [...HALLS],
       shelf: Object.fromEntries(getWorks().map((w) => [w.slug, {
-        title: w.title, setAside: false,
+        title: w.title, setAside: false, placeholder: true,
         chapters: w.chapters.map((c) => ({ position: c.position, title: c.title, words: c.words ?? countWords(c.body), archived: false })),
       }])),
     };
@@ -84,7 +84,7 @@ export async function loadRoom(): Promise<Room> {
     supabase.rpc("readership"),
     supabase.from("invites").select("id, note, expires_at, redeemed_at, revoked_at").eq("role", "guest").order("created_at", { ascending: false }).limit(50),
     supabase.from("halls").select("id, name, note, position"),
-    supabase.from("works").select("id, slug, title, archived_at").not("archived_at", "is", null).order("archived_at", { ascending: false }).limit(100),
+    supabase.from("works").select("id, slug, title, archived_at, is_placeholder").not("archived_at", "is", null).order("archived_at", { ascending: false }).limit(100),
     supabase.from("chapters").select("work_id, position, title, word_count, archived_at").order("position").limit(10000),
     supabase.from("readers").select("id", { count: "exact", head: true }).eq("role", "guest"),
     supabase.rpc("finished_readers"), // C45 — an error (0014 not applied yet) simply leaves the counts off
@@ -106,7 +106,7 @@ export async function loadRoom(): Promise<Room> {
   const shelf: Record<string, ShelvedWork> = {};
   const byId = new Map<string, ShelvedWork>();
   for (const w of [...(works ?? []).map((x) => ({ ...x, archived_at: null })), ...(archived ?? [])]) {
-    const entry: ShelvedWork = { title: w.title as string, setAside: !!w.archived_at, chapters: [] };
+    const entry: ShelvedWork = { title: w.title as string, setAside: !!w.archived_at, chapters: [], placeholder: !!w.is_placeholder };
     shelf[w.slug as string] = entry;
     byId.set(w.id as string, entry);
   }

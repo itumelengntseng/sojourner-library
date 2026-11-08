@@ -71,13 +71,17 @@ export function slugify(title: string): string {
 // ── Re-import preview: what saving this manuscript will do to a work already shelved ──
 
 export interface ShelvedChapter { position: number; title: string; words: number; archived: boolean }
-export interface ShelvedWork { title: string; setAside: boolean; chapters: ShelvedChapter[] }
+export interface ShelvedWork { title: string; setAside: boolean; chapters: ShelvedChapter[];
+  /** C221: still marked Placeholder — saving an import over it marks it as the author's own words. */
+  placeholder?: boolean }
 
 export type PlanStatus = "new" | "changed" | "same" | "restored" | "archive";
 export interface PlanRow { position: number; title: string; words: number; status: PlanStatus; was?: { title: string; words: number } }
 export interface ImportPlan {
   update: boolean;
   setAside: boolean;
+  /** C221: the work being updated is still marked Placeholder. */
+  placeholder: boolean;
   rows: PlanRow[];
   counts: Record<PlanStatus, number>;
 }
@@ -96,7 +100,7 @@ export function importPlan(parsed: Pick<ParsedManuscript, "chapters">, shelved: 
     if (o.position > n && !o.archived) rows.push({ position: o.position, title: o.title, words: o.words, status: "archive" });
   }
   for (const r of rows) counts[r.status]++;
-  return { update: !!shelved, setAside: !!shelved?.setAside, rows, counts };
+  return { update: !!shelved, setAside: !!shelved?.setAside, placeholder: !!shelved?.placeholder, rows, counts };
 }
 
 export const PLAN_LABEL: Record<PlanStatus, string> = {
@@ -104,11 +108,14 @@ export const PLAN_LABEL: Record<PlanStatus, string> = {
 };
 
 /** One plain sentence summing up the plan. */
+/** C221: import_manuscript() sets is_placeholder = false, so the preview says so before Save. */
+export const OWN_WORDS_LINE = "Saving marks it as your own words — it stops being a placeholder.";
+
 export function planSummary(p: ImportPlan): string {
   if (!p.update) return "A new work — it will be shelved as Only me until you share it.";
   const bits = ([["changed", "changed"], ["new", "new"], ["restored", "back on the shelf"], ["archive", "set aside"], ["same", "unchanged"]] as const)
     .filter(([k]) => p.counts[k] > 0).map(([k, w]) => `${p.counts[k]} ${w}`);
-  return `Updates the work already on the shelves: ${bits.join(", ")}.${p.setAside ? " It is set aside — it stays off the shelves until you restore it." : ""}`;
+  return `Updates the work already on the shelves: ${bits.join(", ")}.${p.setAside ? " It is set aside — it stays off the shelves until you restore it." : ""}${p.placeholder ? ` ${OWN_WORDS_LINE}` : ""}`;
 }
 
 const CANON_WORD: Record<string, string> = { canon: "Canon", draft: "Draft", apocrypha: "Apocrypha" };
