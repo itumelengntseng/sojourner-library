@@ -308,7 +308,11 @@ a. ~~Lineage Explorer~~ (done 2026-11-06) · ~~b. Canon Switcher~~ (done 2026-11
 - [x] C219 Writer's Room glance: the Still placeholder tile names the works when there are one to three ("Placeholder Work One, Two and Three wait for your manuscripts"), as C206 does for notes.
 - [x] C220 Every page's footer carries "© Itumeleng Ntseng" (authorship visible across the library, not only on works) — pinned with a test and swept.
 - [x] QA70 QA pass after C218–C220.
-- [ ] C221 Writer's Room import preview: when the title matches a shelved work still marked Placeholder, add "Saving marks it as your own words — it stops being a placeholder." (the import RPC already sets `is_placeholder = false`), so Itu knows what Save does.
-- [ ] C222 Family wall & timeline editor: one line at the top "N of M people and K of L events are still placeholders" (counts `isPlaceholder` entries in the current copy, live as he edits; "everyone and everything is in your own words" at zero).
-- [ ] C223 Pitch Room: a line above the kit list "N of M kits still placeholder" (stored kit → file kit rule as shown), linking each placeholder kit's "Edit the kit"; zero → "every kit is in your own words".
-- [ ] QA71 QA pass after C221–C223.
+- [x] C221 Writer's Room import preview: when the title matches a shelved work still marked Placeholder, add "Saving marks it as your own words — it stops being a placeholder." (the import RPC already sets `is_placeholder = false`), so Itu knows what Save does.
+- [x] C222 Family wall & timeline editor: one line at the top "N of M people and K of L events are still placeholders" (counts `isPlaceholder` entries in the current copy, live as he edits; "everyone and everything is in your own words" at zero).
+- [x] C223 Pitch Room: a line above the kit list "N of M kits still placeholder" (stored kit → file kit rule as shown), linking each placeholder kit's "Edit the kit"; zero → "every kit is in your own words".
+- [x] QA71 QA pass after C221–C223.
+- [ ] C224 Writer's Room: a short "What still waits for your words" panel under the glance — works (C215), pitch kits (C223), family-wall people and timeline events (C222 counts over the copy in use), and hall names (placeholder until named) — each a count with a link to where it's done; "Everything is in your own words" when all are zero. Counts only; nothing invented.
+- [ ] C225 Pitch Room kit card: the "Placeholder — awaiting the author's words" status links to that kit's editor (spoken "edit the kit for <title>").
+- [ ] C226 Family wall & timeline editor: a "Placeholders only" toggle on the person / event pickers, so Itu can step through what's left to replace (client-side; no data change).
+- [ ] QA72 QA pass after C224–C226.

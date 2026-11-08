@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 16 — C218–C220, QA70; run 15 did C206–C217, QA66–QA69, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 16 — C218–C223, QA70–QA71; run 15 did C206–C217, QA66–QA69, `preview` refreshed to main; run 14 did C188–C205, QA60–QA65, `preview` refreshed to main; run 13 did C173–C187, QA55–QA59; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -313,10 +313,14 @@ _Last updated: 2026-11-08 (scheduled build run 16 — C218–C220, QA70; run 15 
 - C219 — Writer's Room glance: the Still placeholder tile names one to three waiting works ("Placeholder Work One, Placeholder Work Two and Placeholder Work Three wait for your manuscripts"; `waitingNames()`); four or more keep the count. Full titles, not shortened (see DECISIONS). Unit-tested + swept.
 - C220 — Every page's footer reads "The Sojourner Library · All works by Itumeleng Ntseng · © Itumeleng Ntseng · Writer's Room · …" (`COPYRIGHT` in `lib/site.ts`, root layout). Unit-tested; the QA sweep now fails any route whose footer lacks it.
 - QA70 (2026-11-08, after C218–C220): `npm run qa` all clear — now also clicks "replace with your manuscript" and requires the title filled in and the status line (axe clean, 375px + 1280px), accepts the named Still placeholder note, and checks the footer copyright on every route at both widths. Preview e2e 8/8. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 750 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA70).
+- C221 — Writer's Room import preview: when the title matches a shelved work still marked Placeholder, the plan line ends "Saving marks it as your own words — it stops being a placeholder." (`OWN_WORDS_LINE`, `placeholder` on `ShelvedWork`/`ImportPlan`; library reads `is_placeholder` for shelved and set-aside works, preview treats the static works as placeholders) — matching what `import_manuscript()` already does (`is_placeholder = false`). Unit-tested + swept.
+- C222 — Family wall & timeline editor: each editor opens with a live line — "6 of 7 people are still placeholders — tick “Real” on each one in your own words." / "4 of 4 places and 5 of 5 events are still placeholders …"; "Every person is in your own words." at zero (`placeholderLine()` in `lib/atlas.ts`, over the copy being edited once it checks out). One line per editor rather than one for the page, so it can follow edits live (see DECISIONS). Unit-tested; the sweep ticks "Real" and requires the count to drop by one.
+- C223 — Pitch Room: "3 of 3 kits still placeholders — edit each and tick “in my own words”." above the kit list, with "Edit <title>" links for one to three (`kitsPlaceholder()` in `lib/pitch.ts`; the kit as shown — stored → file → empty; counts every kit even while a search narrows the list); "Every kit is in your own words." at zero. Unit-tested + swept.
+- QA71 (2026-11-08, after C221–C223): `npm run qa` all clear — now also requires the own-words line in the re-import preview, both atlas placeholder lines (and the people count dropping after a "Real" tick), and the Pitch Room's kit count with three edit links. Preview e2e 8/8. Performance (local prod build, curl): every page < 15 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged (the room's shelf read adds `is_placeholder` on the owner's own works query).
+- Tests: 760 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA71).
 
 ## Next task
-C221 — import preview says a replaced placeholder becomes "your own words" (BACKLOG.md → FOLLOW-UPS), then C222, C223, QA71. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C224 — Writer's Room "What still waits for your words" panel (BACKLOG.md → FOLLOW-UPS), then C225, C226, QA72. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
@@ -406,3 +410,5 @@ C221 — import preview says a replaced placeholder becomes "your own words" (BA
 - C219 names placeholder works by their full titles (no shortening to "One, Two and Three"), so a title is never misread; four or more keep the count.
 - C220's copyright line carries no year (it would go stale); the pitch sheet keeps its own © on paper.
 - C218's "replace" target must be a shelved work still marked Placeholder; the import itself (unchanged) marks the work as no longer Placeholder when saved.
+- C222 shows one placeholder line per editor (family wall; timeline) instead of one line for the page, so each follows its own edits live.
+- C223 links each placeholder kit's editor only for one to three kits; more keep the count (each kit's own card already has "Edit the kit").
