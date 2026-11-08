@@ -1,6 +1,6 @@
 # STATE — The Sojourner Library
 
-_Last updated: 2026-11-08 (scheduled build run 13 — C173–C175, QA55; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
+_Last updated: 2026-11-08 (scheduled build run 13 — C173–C178, QA55–QA56; run 12 did C161–C172, QA51–QA54, `preview` branch refreshed to main; run 11 did C140–C160, QA44–QA50; run 10 did C122–C139, QA38–QA43; `preview` branch refreshed to main; C24 + 0013/0014 still wait on Itu → NEEDS ITU 1)._
 
 ## Done & verified
 - Engine (`lib/engine/`): reading time, checkout, librarian desk — unchanged, still green.
@@ -253,10 +253,14 @@ _Last updated: 2026-11-08 (scheduled build run 13 — C173–C175, QA55; run 12 
 - C174 — Reading room end card: on the last page, "You've spent <time> reading this book" (`spentLine()` in `lib/ledger.ts`; the ledger's Time for this book; never in the Keeper's proof copy, which doesn't pass it). Unit-tested + swept.
 - C175 — Writer's Room "Loans this month" tile: checked how it reads aloud — dt label, dd count, dd note, in that order, and the note continues the count in words ("4, taken out in the last 30 days · 2 handed back before they were due"); no markup change needed. Pinned in `tests/glanceSpokenOrder.test.ts`.
 - QA55 (2026-11-08, after C173–C175): `npm run qa` all clear (run twice) — now also checks the form of Recently returned's "read for" and the end card's "You've spent" when present (short sweep sessions may hold no active time, so presence isn't required). Preview e2e 6/6 (`npm run e2e -- --preview`). Performance (local prod build, curl): every page < 10 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
-- Tests: 637 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA55).
+- C176 — Ledger Borrowing history: a row for a book the reader has read in adds "· read for <time>" (the Hours per book total, via the new `readByWork()` in `lib/ledger.ts`, which `myHoursBySlug()` now uses too). Unit-tested + swept (required once Hours per book shows whole minutes).
+- C177 — Ask the librarian understands "How long have I read this book?" and close phrasings (`isReadSoFarQuestion()` in `lib/engine/ask.ts`; time-left/chapter questions are left alone) and answers from own reading time: "You've read for 1 h 15 min in this book so far." / "You haven't read in this book yet." The chip appears once a minute or more is read. The Keeper's proof copy passes no time, so there it says "Reading time isn't kept in this copy." Unit-tested + swept (chip clicked, answer checked).
+- C178 — `tests/readForConsistency.test.ts`: from one set of sessions, the ledger's Hours per book, Borrowing history, the card's "read for", the work page's "You've read for", the end card's "You've spent" and the librarian's answer all show the same figure.
+- QA56 (2026-11-08, after C176–C178): `npm run qa` all clear (run twice) — now also requires Borrowing history's "read for" once Hours per book shows minutes, and clicks the librarian's new chip on the most-read book's page. Preview e2e 6/6. Performance (local prod build, curl): every page < 12 ms, HTML ≤ 59 KB. No migration → RLS audit unchanged.
+- Tests: 644 passing (`npm test`). Typecheck clean; `npm run build` passes; `npm run qa` all clear (QA56).
 
 ## Next task
-C176 — ledger Borrowing history "· read for <time>" (BACKLOG.md → FOLLOW-UPS), then C177, C178, QA56. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
+C179 — ledger "Your notes" count line (BACKLOG.md → FOLLOW-UPS), then C180, C181, QA57. Whenever a run can apply migrations, apply 0013 + 0014 (and 0004/0006/0008 if still missing) and tick C24.
 
 ## Known issues
 - Run 13 note: at session start the local clone's `main` was an old 8-commit history while `origin/main` (50 commits, 628 tests) had been force-updated; the build team reset local to `origin/main` (nothing pushed was lost; the stale local history only lived in that clone).
