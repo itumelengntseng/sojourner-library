@@ -47,6 +47,11 @@ export function kitsPlaceholder(kits: { slug: string; title: string; isPlacehold
   };
 }
 
+/** C238: a pitch sheet's browser-tab title says "(placeholder)" while the kit is still one. */
+export function pitchTabTitle(base: string, isPlaceholder: boolean): string {
+  return isPlaceholder ? `${base} (placeholder)` : base;
+}
+
 export const LOGLINE_MAX_WORDS = 50;
 
 export function loglineWarning(logline: string): string | null {

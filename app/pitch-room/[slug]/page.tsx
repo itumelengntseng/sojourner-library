@@ -3,12 +3,20 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PitchSheet } from "@/components/PitchSheet";
 import { PrintSheetButton } from "@/components/PrintSheetButton";
+import { cache } from "react";
 import { ownerPitch } from "@/lib/pitchStore";
+import { pitchTabTitle } from "@/lib/pitch";
 
-export const metadata: Metadata = { title: "Pitch sheet" };
+const pitchOnce = cache((slug: string) => ownerPitch(slug));
+
+// C238: the tab says "(placeholder)" while the kit is still one.
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const p = await pitchOnce((await params).slug);
+  return { title: pitchTabTitle(p ? `Pitch sheet: ${p.work.title}` : "Pitch sheet", !!p?.kit.isPlaceholder) };
+}
 
 export default async function PitchPreview({ params }: { params: Promise<{ slug: string }> }) {
-  const p = await ownerPitch((await params).slug);
+  const p = await pitchOnce((await params).slug);
   if (!p) notFound();
   return (
     <main id="main" className="sheet-page px-4 pt-12">
